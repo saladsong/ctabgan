@@ -17,12 +17,12 @@ class DataPrep(object):
         ptype: dict,
         test_ratio: float,
     ):
-        self.categorical_columns = categorical
-        self.log_columns = log
-        self.mixed_columns = mixed
-        self.general_columns = general
+        self.categorical_columns = categorical           # cate type
+        self.log_columns = log                           # num type 중 long-tail dist.
+        self.mixed_columns = mixed                       # num + cate/null
+        self.general_columns = general                   # num type 중 single-mode gaussian | cate type 중 high class num 
         self.non_categorical_columns = non_categorical
-        self.integer_columns = integer
+        self.integer_columns = integer   
         self.column_types = dict()
         self.column_types["categorical"] = []
         self.column_types["mixed"] = {}
@@ -117,7 +117,7 @@ class DataPrep(object):
                 self.label_encoder_list.append(current_label_encoder)
                 self.column_types["categorical"].append(column_index)
 
-                # # lsw: ?????? 잘못쓴건가?
+                # # lsw: ?????? 잘못쓴건가? -> sjy: high class num 인 경우 general 로 처리하기 위함?
                 # if column in self.general_columns:
                 #     self.column_types["general"].append(column_index)
 
