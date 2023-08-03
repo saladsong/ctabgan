@@ -362,6 +362,7 @@ class DataTransformer:
         st = 0
         for id_, info in enumerate(self.meta):
             if info["type"] == "continuous":
+                # not mixed MSN 역변환
                 if id_ not in self.general_columns:
                     u = data[:, st]
                     v = data[:, st + 1 : st + 1 + np.sum(self.components[id_])]
@@ -394,6 +395,7 @@ class DataTransformer:
 
                     data_t[:, id_] = tmp
 
+                # GT 역변환
                 else:
                     u = data[:, st]
                     u = (u + 1) / 2
@@ -406,6 +408,7 @@ class DataTransformer:
 
                     st += 1
 
+            # mixed MSN 역변환
             elif info["type"] == "mixed":
                 u = data[:, st]
                 full_v = data[
@@ -454,6 +457,7 @@ class DataTransformer:
 
                 data_t[:, id_] = result
 
+            # one-hot 역변환
             else:
                 current = data[:, st : st + info["size"]]
                 st += info["size"]
@@ -471,6 +475,7 @@ class ImageTransformer:
     def __init__(self, side):
         self.height = side
 
+    ## zero-padding 후 sqaure matrix 형태로 변환
     def transform(self, data):
         if self.height * self.height > len(data[0]):
             padding = torch.zeros(
