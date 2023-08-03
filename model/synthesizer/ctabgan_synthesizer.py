@@ -441,7 +441,7 @@ class CTABGANSynthesizer:
                 target_index = train_data.columns.get_loc(ptype[problem_type])
 
         # lsw: 실제 데이터 전처리하는 부분
-        self.logger.info("[CTAB-SYN]: fit data tranasformer")
+        self.logger.info("[CTAB-SYN]: fit data transformer")
         self.transformer = DataTransformer(
             train_data=train_data,
             categorical_list=categorical,
@@ -450,13 +450,13 @@ class CTABGANSynthesizer:
             non_categorical_list=non_categorical,
         )
         self.transformer.fit()
-        self.logger.info("[CTAB-SYN]: now tranasform data start")
+        self.logger.info("[CTAB-SYN]: now transform data start")
         train_data = self.transformer.transform(train_data.values)
-        self.logger.info("[CTAB-SYN]: now tranasform data end")
+        self.logger.info("[CTAB-SYN]: now transform data end")
 
         # 데이터 샘플링 객체
         data_sampler = Sampler(train_data, self.transformer.output_info)
-        data_dim = self.transformer.output_dim
+        data_dim = self.transformer.output_dim  # 전처리 완료된 데이터 차원 수 
         # 컨디션 벡터 생성기
         self.cond_generator = Cond(train_data, self.transformer.output_info)
 
@@ -468,7 +468,7 @@ class CTABGANSynthesizer:
                 self.dside = i
                 break
 
-        sides = [4, 8, 16, 24, 32, 64]
+        sides = [4, 8, 16, 24, 32, 64]  # sqaure matrix 의 H(W)
         col_size_g = data_dim
         for i in sides:
             if i * i >= col_size_g:

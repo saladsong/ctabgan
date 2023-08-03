@@ -117,12 +117,14 @@ class DataPrep(object):
                 self.label_encoder_list.append(current_label_encoder)
                 self.column_types["categorical"].append(column_index)
 
-                # # lsw: ?????? 잘못쓴건가? -> sjy: high class num 인 경우 general 로 처리하기 위함?
-                # if column in self.general_columns:
-                #     self.column_types["general"].append(column_index)
+                # lsw: ?????? 잘못쓴건가? 
+                # -> sjy: class 수가 너무 많은 경우 general 로 처리할 수 있게
+                if column in self.general_columns:
+                    self.column_types["general"].append(column_index)
 
-                # if column in self.non_categorical_columns:
-                #     self.column_types["non_categorical"].append(column_index)
+                # sjy: 실제로는 cate. type 이지만 num. type 으로 간주하고 MSN 처리할 수 있게
+                if column in self.non_categorical_columns:
+                    self.column_types["non_categorical"].append(column_index)
 
             elif column in self.mixed_columns:
                 self.column_types["mixed"][column_index] = self.mixed_columns[column]

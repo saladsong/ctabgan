@@ -45,7 +45,7 @@ class DataTransformer:
                         {
                             "name": index,
                             "type": "categorical",
-                            "size": len(mapper),
+                            "size": len(mapper), # 유효 카테고리 개수
                             "i2s": mapper,
                         }
                     )
@@ -57,9 +57,10 @@ class DataTransformer:
                         "type": "mixed",
                         "min": column.min(),
                         "max": column.max(),
-                        "modal": self.mixed_columns[index],
+                        "modal": self.mixed_columns[index],  # given 0.0 or -9999999 for nan
                     }
                 )
+            # general type cols
             else:
                 meta.append(
                     {
@@ -83,6 +84,7 @@ class DataTransformer:
         self.filter_arr = []
         for id_, info in enumerate(self.meta):
             if info["type"] == "continuous":
+                # num. type & single Gaussian 이 아닌 경우: MSN (VGM)
                 if id_ not in self.general_columns:
                     gm = BayesianGaussianMixture(
                         n_components=self.n_clusters,
@@ -100,21 +102,23 @@ class DataTransformer:
                     )
                     model.append(gm)
                     old_comp = gm.weights_ > self.eps
-                    comp = []
+                    comp = []    ## weight 가 epsilon 보다 크고 데이터 상 존재하는 mode(comp) 만 True
                     for i in range(self.n_clusters):
                         if (i in (mode_freq)) & old_comp[i]:
                             comp.append(True)
                         else:
                             comp.append(False)
                     self.components.append(comp)
-                    self.output_info += [(1, "tanh", "no_g"), (np.sum(comp), "softmax")]
+                    self.output_info += [(1, "tanh", "no_g"), (np.sum(comp), "softmax")] ## for alpha_i, beta_i
                     self.output_dim += 1 + np.sum(comp)
+                # single Gaussian 또는 large num cate 인 경우: GT
                 else:
                     model.append(None)
                     self.components.append(None)
                     self.output_info += [(1, "tanh", "yes_g")]
                     self.output_dim += 1
 
+            # mixed type 인 경우: MSN (VGM)
             elif info["type"] == "mixed":
                 gm1 = BayesianGaussianMixture(
                     n_components=self.n_clusters,
@@ -135,6 +139,7 @@ class DataTransformer:
 
                 gm1.fit(data[:, id_].reshape([-1, 1]))
 
+                ## modal 값이 아닌 데이터 샘플만 필터링 (T/F indicating)
                 filter_arr = []
                 for element in data[:, id_]:
                     if element not in info["modal"]:
@@ -152,22 +157,21 @@ class DataTransformer:
                 model.append((gm1, gm2))
 
                 old_comp = gm2.weights_ > self.eps
-
                 comp = []
-
                 for i in range(self.n_clusters):
                     if (i in (mode_freq)) & old_comp[i]:
                         comp.append(True)
                     else:
                         comp.append(False)
-
                 self.components.append(comp)
 
                 self.output_info += [
-                    (1, "tanh", "no_g"),
-                    (np.sum(comp) + len(info["modal"]), "softmax"),
+                    (1, "tanh", "no_g"),                             ## for alpha_i
+                    (np.sum(comp) + len(info["modal"]), "softmax"),  ## for beta_i
                 ]
                 self.output_dim += 1 + np.sum(comp) + len(info["modal"])
+            
+            # categorical type 인 경우: one-hot
             else:
                 model.append(None)
                 self.components.append(None)
@@ -181,12 +185,14 @@ class DataTransformer:
         for id_, info in enumerate(self.meta):
             current = data[:, id_]
             if info["type"] == "continuous":
+                # MSN 적용 대상 컬럼인 경우: get alpha_i, beta_i
                 if id_ not in self.general_columns:
                     current = current.reshape([-1, 1])
                     means = self.model[id_].means_.reshape((1, self.n_clusters))
                     stds = np.sqrt(self.model[id_].covariances_).reshape(
                         (1, self.n_clusters)
                     )
+                    ## features: 각 mode 별 정규화 (alpha_i candidates)
                     features = np.empty(shape=(len(current), self.n_clusters))
                     if ispositive is True:
                         if id_ in positive_list:
@@ -195,10 +201,11 @@ class DataTransformer:
                         features = (current - means) / (4 * stds)
 
                     probs = self.model[id_].predict_proba(current.reshape([-1, 1]))
-                    n_opts = sum(self.components[id_])
-                    features = features[:, self.components[id_]]
-                    probs = probs[:, self.components[id_]]
+                    n_opts = sum(self.components[id_])             ## 해당 컬럼의 유효 mode 개수
+                    features = features[:, self.components[id_]]   ## 유효 mode 의 alpha_i 만 필터링
+                    probs = probs[:, self.components[id_]]         ## 유효 mode 의 확률만 필터링
 
+                    ## 해당 확률 기반 최적 mode 선택
                     opt_sel = np.zeros(len(data), dtype="int")
                     for i in range(len(data)):
                         pp = probs[i] + 1e-6
@@ -206,23 +213,24 @@ class DataTransformer:
                         opt_sel[i] = np.random.choice(np.arange(n_opts), p=pp)
 
                     idx = np.arange((len(features)))
-                    features = features[idx, opt_sel].reshape([-1, 1])
+                    features = features[idx, opt_sel].reshape([-1, 1])  ## (optimal) alpha_i list
                     features = np.clip(features, -0.99, 0.99)
                     probs_onehot = np.zeros_like(probs)
-                    probs_onehot[np.arange(len(probs)), opt_sel] = 1
+                    probs_onehot[np.arange(len(probs)), opt_sel] = 1    ## mode-indicator beta_i
 
                     re_ordered_phot = np.zeros_like(probs_onehot)
 
                     col_sums = probs_onehot.sum(axis=0)
-
                     n = probs_onehot.shape[1]
                     largest_indices = np.argsort(-1 * col_sums)[:n]
                     self.ordering.append(largest_indices)
+
                     for id, val in enumerate(largest_indices):
                         re_ordered_phot[:, id] = probs_onehot[:, val]
 
                     values += [features, re_ordered_phot]
 
+                # GT 적용 대상 컬럼인 경우: transform to x_t
                 else:
                     self.ordering.append(None)
 
@@ -235,6 +243,7 @@ class DataTransformer:
                     current = current.reshape([-1, 1])
                     values.append(current)
 
+            # MSN 적용 대상 mixed 컬럼인 경우: get alpha_i, beta_i
             elif info["type"] == "mixed":
                 means_0 = self.model[id_][0].means_.reshape([-1])
                 stds_0 = np.sqrt(self.model[id_][0].covariances_).reshape([-1])
@@ -243,6 +252,7 @@ class DataTransformer:
                 means_needed = []
                 stds_needed = []
 
+                ## -9999999 외의 modal 값에 대한 mean, sqrt 계산
                 for mode in info["modal"]:
                     if mode != -9999999:
                         dist = []
@@ -257,6 +267,7 @@ class DataTransformer:
                     means_needed.append(means_0[idx])
                     stds_needed.append(stds_0[idx])
 
+                ## mode 별 normalized alpha_i 를 저장
                 mode_vals = []
 
                 for i, j, k in zip(info["modal"], means_needed, stds_needed):
@@ -266,6 +277,7 @@ class DataTransformer:
                 if -9999999 in info["modal"]:
                     mode_vals.append(0)
 
+                # modal 이 아닌 mode 에 대한 alpha_i, beta_i 계산
                 current = current.reshape([-1, 1])
                 filter_arr = self.filter_arr[mixed_counter]
                 current = current[filter_arr]
@@ -282,8 +294,7 @@ class DataTransformer:
                     features = (current - means) / (4 * stds)
 
                 probs = self.model[id_][1].predict_proba(current.reshape([-1, 1]))
-
-                n_opts = sum(self.components[id_])  # 8
+                n_opts = sum(self.components[id_])
                 features = features[:, self.components[id_]]
                 probs = probs[:, self.components[id_]]
 
@@ -292,16 +303,20 @@ class DataTransformer:
                     pp = probs[i] + 1e-6
                     pp = pp / sum(pp)
                     opt_sel[i] = np.random.choice(np.arange(n_opts), p=pp)
+
                 idx = np.arange((len(features)))
                 features = features[idx, opt_sel].reshape([-1, 1])
                 features = np.clip(features, -0.99, 0.99)
                 probs_onehot = np.zeros_like(probs)
                 probs_onehot[np.arange(len(probs)), opt_sel] = 1
+                
                 extra_bits = np.zeros([len(current), len(info["modal"])])
                 temp_probs_onehot = np.concatenate([extra_bits, probs_onehot], axis=1)
                 final = np.zeros(
                     [len(data), 1 + probs_onehot.shape[1] + len(info["modal"])]
                 )
+
+                ## sjy: 얘는 뭐지...???
                 features_curser = 0
                 for idx, val in enumerate(data[:, id_]):
                     if val in info["modal"]:
@@ -319,15 +334,19 @@ class DataTransformer:
                 just_onehot = final[:, 1:]
                 re_ordered_jhot = np.zeros_like(just_onehot)
                 n = just_onehot.shape[1]
+
                 col_sums = just_onehot.sum(axis=0)
                 largest_indices = np.argsort(-1 * col_sums)[:n]
                 self.ordering.append(largest_indices)
+
                 for id, val in enumerate(largest_indices):
                     re_ordered_jhot[:, id] = just_onehot[:, val]
+
                 final_features = final[:, 0].reshape([-1, 1])
                 values += [final_features, re_ordered_jhot]
                 mixed_counter = mixed_counter + 1
 
+            # categorical 컬럼인 경우: get one-hot
             else:
                 self.ordering.append(None)
                 col_t = np.zeros([len(data), info["size"]])
