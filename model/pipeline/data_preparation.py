@@ -17,12 +17,17 @@ class DataPrep(object):
         ptype: dict,
         test_ratio: float,
     ):
-        self.categorical_columns = categorical           # cate type
-        self.log_columns = log                           # num type 중 long-tail dist.
-        self.mixed_columns = mixed                       # num + cate/null
-        self.general_columns = general                   # num type 중 single-mode gaussian | cate type 중 high class num 
-        self.non_categorical_columns = non_categorical
-        self.integer_columns = integer   
+        self.categorical_columns = categorical  # cate type
+        self.log_columns = log  # num type 중 long-tail dist.
+        self.mixed_columns = mixed  # num + cate/null
+        self.general_columns = (
+            general  # num type 중 single-mode gaussian | cate type 중 high class num
+        )
+        self.non_categorical_columns = (
+            non_categorical  # categorical 중 one-hot 안하고 MSN 적용할 컬럼들
+        )
+        self.integer_columns = integer
+        # 컬럼 인덱스 저장
         self.column_types = dict()
         self.column_types["categorical"] = []
         self.column_types["mixed"] = {}
@@ -57,24 +62,30 @@ class DataPrep(object):
         relevant_missing_columns = list(all_columns - irrelevant_missing_columns)
 
         # 수치형 컬럼 중 null 값 존재시에 -9999999 등록/추가하고 mixed 타입으로 변경
+        # for i in relevant_missing_columns:
+        #     if i in self.log_columns:
+        #         if "empty" in list(self.df[i].values):
+        #             self.df[i] = self.df[i].apply(
+        #                 lambda x: -9999999 if x == "empty" else x
+        #             )
+        #             self.mixed_columns[i] = [-9999999]
+        #     elif i in list(self.mixed_columns.keys()):
+        #         if "empty" in list(self.df[i].values):
+        #             self.df[i] = self.df[i].apply(
+        #                 lambda x: -9999999 if x == "empty" else x
+        #             )
+        #             self.mixed_columns[i].append(-9999999)
+        #     else:
+        #         if "empty" in list(self.df[i].values):
+        #             self.df[i] = self.df[i].apply(
+        #                 lambda x: -9999999 if x == "empty" else x
+        #             )
+        #             self.mixed_columns[i] = [-9999999]
         for i in relevant_missing_columns:
-            if i in self.log_columns:
-                if "empty" in list(self.df[i].values):
-                    self.df[i] = self.df[i].apply(
-                        lambda x: -9999999 if x == "empty" else x
-                    )
-                    self.mixed_columns[i] = [-9999999]
-            elif i in list(self.mixed_columns.keys()):
-                if "empty" in list(self.df[i].values):
-                    self.df[i] = self.df[i].apply(
-                        lambda x: -9999999 if x == "empty" else x
-                    )
+            if "empty" in self.df[i].values:
+                if i in self.mixed_columns.keys():
                     self.mixed_columns[i].append(-9999999)
-            else:
-                if "empty" in list(self.df[i].values):
-                    self.df[i] = self.df[i].apply(
-                        lambda x: -9999999 if x == "empty" else x
-                    )
+                else:
                     self.mixed_columns[i] = [-9999999]
 
         # log 분포 컬럼 전처리
@@ -107,18 +118,17 @@ class DataPrep(object):
             # 저자의 저서는 이미 수치형으로 인코딩된 카테공리형식의 컬럼이 들어옴
             if column in self.categorical_columns:
                 label_encoder = preprocessing.LabelEncoder()
-                self.df[column] = self.df[column].astype(str)
                 label_encoder.fit(self.df[column])
-                current_label_encoder = dict()
-                current_label_encoder["column"] = column
-                current_label_encoder["label_encoder"] = label_encoder
-                transformed_column = label_encoder.transform(self.df[column])
-                self.df[column] = transformed_column
+                # label_encoder.fit(self.df[column].astype(str))  # LabelEncoder 강제 형변환 불필요
+                self.df[column] = label_encoder.transform(self.df[column])
+                current_label_encoder = {
+                    "column": column,
+                    "label_encoder": label_encoder,
+                }
                 self.label_encoder_list.append(current_label_encoder)
                 self.column_types["categorical"].append(column_index)
 
-                # lsw: ?????? 잘못쓴건가? 
-                # -> sjy: class 수가 너무 많은 경우 general 로 처리할 수 있게
+                # sjy: class 수가 너무 많은 경우 general 로 처리할 수 있게
                 if column in self.general_columns:
                     self.column_types["general"].append(column_index)
 

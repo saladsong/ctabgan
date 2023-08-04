@@ -31,8 +31,8 @@ class CTABGAN:
         ],
         log_columns=[],
         mixed_columns={"capital-loss": [0.0], "capital-gain": [0.0]},
-        general_columns=["age"],
-        non_categorical_columns=[],
+        general_columns=["age"],  # categorical 중 one-hot 안하고 GT 적용할 컬럼들도 같이 적어줘야 함
+        non_categorical_columns=[],  # categorical 중 one-hot 안하고 MSN 적용할 컬럼들...  lsw: 헷갈림. 이름 변경필요
         integer_columns=[
             "age",
             "fnlwgt",
@@ -60,6 +60,7 @@ class CTABGAN:
     def fit(self):
         start_time = time.time()
         self.logger.info("[CTABGAN]: data preprocessor ready start")
+        # DataPrep: 데이터 전처리
         self.data_prep = DataPrep(
             self.raw_df,
             self.categorical_columns,
