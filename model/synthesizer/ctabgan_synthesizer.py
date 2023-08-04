@@ -31,7 +31,7 @@ class Classifier(Module):
     def __init__(self, input_dim, dis_dims, st_ed):
         super(Classifier, self).__init__()
         # Calculate the input dimension after excluding the range of st_ed
-        dim = input_dim - (st_ed[1] - st_ed[0])
+        dim = input_dim - (st_ed[1] - st_ed[0])   ## dims for feature(X) only
         seq = []
         self.str_end = st_ed
         # Building the sequential model layers
@@ -40,10 +40,10 @@ class Classifier(Module):
             dim = item
 
         # Deciding the final layer based on the range of st_ed
-        if (st_ed[1] - st_ed[0]) == 1:
+        if (st_ed[1] - st_ed[0]) == 1:    ## target 컬럼이 continuous (reg.)
             seq += [Linear(dim, 1)]
 
-        elif (st_ed[1] - st_ed[0]) == 2:
+        elif (st_ed[1] - st_ed[0]) == 2:  ## target 컬럼이 categorical (binary clf.)
             seq += [Linear(dim, 1), Sigmoid()]
         else:
             seq += [Linear(dim, (st_ed[1] - st_ed[0]))]
@@ -91,8 +91,8 @@ def apply_activate(data, output_info):
 def get_st_ed(target_col_index, output_info):
     # Retrieve start and end indices for a target column
     st = 0
-    c = 0
-    tc = 0
+    c = 0     # 확인한 original 컬럼 수
+    tc = 0    # 확인한 transformed 컬럼 수 (alpha_i, beta_i, gamma_i, etc.)
 
     for item in output_info:
         if c == target_col_index:
@@ -462,7 +462,7 @@ class CTABGANSynthesizer:
 
         # 컬럼 수 많아지는 경우 여기 늘려야함
         sides = [4, 8, 16, 24, 32, 64]
-        col_size_d = data_dim + self.cond_generator.n_opt
+        col_size_d = data_dim + self.cond_generator.n_opt  ## n_opt: 가용 conditioning 컬럼 개수
         for i in sides:
             if i * i >= col_size_d:
                 self.dside = i
@@ -488,7 +488,7 @@ class CTABGANSynthesizer:
         optimizerG = Adam(self.generator.parameters(), **optimizer_params)
         optimizerD = Adam(discriminator.parameters(), **optimizer_params)
 
-        st_ed = None  # lsw: 이거 뭐하는데 쓰는거임?
+        st_ed = None  # lsw: 이거 뭐하는데 쓰는거임? -> sjy: classifier 의 타겟 컬럼 idx 찾기 (df transform 으로 idx 가 변화)
         classifier = None
         optimizerC = None
         if target_index is not None:
@@ -639,14 +639,14 @@ class CTABGANSynthesizer:
 
                     c_loss = CrossEntropyLoss()
 
-                    if (st_ed[1] - st_ed[0]) == 1:
+                    if (st_ed[1] - st_ed[0]) == 1:  ## target 컬럼이 continuous (reg.)
                         c_loss = SmoothL1Loss()
                         real_label = real_label.type_as(real_pre)
                         fake_label = fake_label.type_as(fake_pre)
                         real_label = torch.reshape(real_label, real_pre.size())
                         fake_label = torch.reshape(fake_label, fake_pre.size())
 
-                    elif (st_ed[1] - st_ed[0]) == 2:
+                    elif (st_ed[1] - st_ed[0]) == 2:  ## target 컬럼이 categorical (binary clf.)
                         c_loss = BCELoss()
                         real_label = real_label.type_as(real_pre)
                         fake_label = fake_label.type_as(fake_pre)
@@ -692,6 +692,7 @@ class CTABGANSynthesizer:
         data = np.concatenate(data, axis=0)
         result, resample = self.transformer.inverse_transform(data)
 
+        # 원하는 n 개 데이터가 다 만들어지지 않은 경우 (invalid id 존재)
         while len(result) < n:
             data_resample = []
             steps_left = resample // self.batch_size + 1

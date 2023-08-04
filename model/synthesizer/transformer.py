@@ -356,9 +356,10 @@ class DataTransformer:
 
         return np.concatenate(values, axis=1)
 
+    # fake (generated) 를 원본 데이터 형태로 decode 
     def inverse_transform(self, data):
         data_t = np.zeros([len(data), len(self.meta)])
-        invalid_ids = []
+        invalid_ids = []  ## fake 를 decode 해보니 컬럼 조건(min, max) 에 위배되는 경우
         st = 0
         for id_, info in enumerate(self.meta):
             if info["type"] == "continuous":
