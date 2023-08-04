@@ -45,7 +45,7 @@ class DataTransformer:
                         {
                             "name": index,
                             "type": "categorical",
-                            "size": len(mapper), # 유효 카테고리 개수
+                            "size": len(mapper),  # 유효 카테고리 개수
                             "i2s": mapper,
                         }
                     )
@@ -102,14 +102,14 @@ class DataTransformer:
                     )
                     model.append(gm)
                     old_comp = gm.weights_ > self.eps
-                    comp = []    ## weight 가 epsilon 보다 크고 데이터 상 존재하는 mode(comp) 만 True
+                    comp = []  # weight 가 epsilon 보다 크고 데이터 상 존재하는 mode(comp) 만 True
                     for i in range(self.n_clusters):
                         if (i in (mode_freq)) & old_comp[i]:
                             comp.append(True)
                         else:
                             comp.append(False)
                     self.components.append(comp)
-                    self.output_info += [(1, "tanh", "no_g"), (np.sum(comp), "softmax")] ## for alpha_i, beta_i
+                    self.output_info += [(1, "tanh", "no_g"), (np.sum(comp), "softmax")]  # for alpha_i, beta_i
                     self.output_dim += 1 + np.sum(comp)
                 # single Gaussian 또는 large num cate 인 경우: GT
                 else:
@@ -166,8 +166,8 @@ class DataTransformer:
                 self.components.append(comp)
 
                 self.output_info += [
-                    (1, "tanh", "no_g"),                             ## for alpha_i
-                    (np.sum(comp) + len(info["modal"]), "softmax"),  ## for beta_i
+                    (1, "tanh", "no_g"),  # for alpha_i
+                    (np.sum(comp) + len(info["modal"]), "softmax"),  # for beta_i
                 ]
                 self.output_dim += 1 + np.sum(comp) + len(info["modal"])
             
@@ -201,9 +201,9 @@ class DataTransformer:
                         features = (current - means) / (4 * stds)
 
                     probs = self.model[id_].predict_proba(current.reshape([-1, 1]))
-                    n_opts = sum(self.components[id_])             ## 해당 컬럼의 유효 mode 개수
-                    features = features[:, self.components[id_]]   ## 유효 mode 의 alpha_i 만 필터링
-                    probs = probs[:, self.components[id_]]         ## 유효 mode 의 확률만 필터링
+                    n_opts = sum(self.components[id_])  # n_opts: 해당 컬럼의 유효 mode 개수
+                    features = features[:, self.components[id_]]  # features: 유효 mode 의 alpha_i 만 필터링
+                    probs = probs[:, self.components[id_]]  # probs: 유효 mode 의 확률만 필터링
 
                     ## 해당 확률 기반 최적 mode 선택
                     opt_sel = np.zeros(len(data), dtype="int")
@@ -213,10 +213,10 @@ class DataTransformer:
                         opt_sel[i] = np.random.choice(np.arange(n_opts), p=pp)
 
                     idx = np.arange((len(features)))
-                    features = features[idx, opt_sel].reshape([-1, 1])  ## (optimal) alpha_i list
+                    features = features[idx, opt_sel].reshape([-1, 1])  # (optimal) alpha_i list
                     features = np.clip(features, -0.99, 0.99)
                     probs_onehot = np.zeros_like(probs)
-                    probs_onehot[np.arange(len(probs)), opt_sel] = 1    ## mode-indicator beta_i
+                    probs_onehot[np.arange(len(probs)), opt_sel] = 1  # mode-indicator beta_i
 
                     re_ordered_phot = np.zeros_like(probs_onehot)
 
@@ -356,10 +356,10 @@ class DataTransformer:
 
         return np.concatenate(values, axis=1)
 
-    # fake (generated) 를 원본 데이터 형태로 decode 
+    # fake (generated) 를 원본 데이터 형태로 decode
     def inverse_transform(self, data):
         data_t = np.zeros([len(data), len(self.meta)])
-        invalid_ids = []  ## fake 를 decode 해보니 컬럼 조건(min, max) 에 위배되는 경우
+        invalid_ids = []  # fake 를 decode 해보니 컬럼 조건(min, max) 에 위배되는 경우
         st = 0
         for id_, info in enumerate(self.meta):
             if info["type"] == "continuous":

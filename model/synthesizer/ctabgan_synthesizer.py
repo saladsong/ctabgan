@@ -31,7 +31,7 @@ class Classifier(Module):
     def __init__(self, input_dim, dis_dims, st_ed):
         super(Classifier, self).__init__()
         # Calculate the input dimension after excluding the range of st_ed
-        dim = input_dim - (st_ed[1] - st_ed[0])   ## dims for feature(X) only
+        dim = input_dim - (st_ed[1] - st_ed[0])  # dims for feature(X) only
         seq = []
         self.str_end = st_ed
         # Building the sequential model layers
@@ -40,10 +40,10 @@ class Classifier(Module):
             dim = item
 
         # Deciding the final layer based on the range of st_ed
-        if (st_ed[1] - st_ed[0]) == 1:    ## target 컬럼이 continuous (reg.)
+        if (st_ed[1] - st_ed[0]) == 1:  # target 컬럼이 continuous (reg.)
             seq += [Linear(dim, 1)]
 
-        elif (st_ed[1] - st_ed[0]) == 2:  ## target 컬럼이 categorical (binary clf.)
+        elif (st_ed[1] - st_ed[0]) == 2:  # target 컬럼이 categorical (binary clf.)
             seq += [Linear(dim, 1), Sigmoid()]
         else:
             seq += [Linear(dim, (st_ed[1] - st_ed[0]))]
@@ -462,7 +462,7 @@ class CTABGANSynthesizer:
 
         # 컬럼 수 많아지는 경우 여기 늘려야함
         sides = [4, 8, 16, 24, 32, 64]
-        col_size_d = data_dim + self.cond_generator.n_opt  ## n_opt: 가용 conditioning 컬럼 개수
+        col_size_d = data_dim + self.cond_generator.n_opt  # n_opt: 가용 conditioning 컬럼 개수
         for i in sides:
             if i * i >= col_size_d:
                 self.dside = i
@@ -639,14 +639,16 @@ class CTABGANSynthesizer:
 
                     c_loss = CrossEntropyLoss()
 
-                    if (st_ed[1] - st_ed[0]) == 1:  ## target 컬럼이 continuous (reg.)
+                    ## target 컬럼이 continuous (reg.)
+                    if (st_ed[1] - st_ed[0]) == 1:   
                         c_loss = SmoothL1Loss()
                         real_label = real_label.type_as(real_pre)
                         fake_label = fake_label.type_as(fake_pre)
                         real_label = torch.reshape(real_label, real_pre.size())
                         fake_label = torch.reshape(fake_label, fake_pre.size())
 
-                    elif (st_ed[1] - st_ed[0]) == 2:  ## target 컬럼이 categorical (binary clf.)
+                    ## target 컬럼이 categorical (binary clf.)
+                    elif (st_ed[1] - st_ed[0]) == 2:
                         c_loss = BCELoss()
                         real_label = real_label.type_as(real_pre)
                         fake_label = fake_label.type_as(fake_pre)
