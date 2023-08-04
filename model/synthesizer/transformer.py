@@ -206,11 +206,11 @@ class DataTransformer:
                         features = (current - means) / (4 * stds)
 
                     probs = self.model[id_].predict_proba(current.reshape([-1, 1]))
-                    n_opts = sum(self.components[id_])  # 해당 컬럼의 유효 mode 개수
+                    n_opts = sum(self.components[id_])  # n_opts: 해당 컬럼의 유효 mode 개수
                     features = features[
                         :, self.components[id_]
-                    ]  # 유효 mode 의 alpha_i 만 필터링
-                    probs = probs[:, self.components[id_]]  # 유효 mode 의 확률만 필터링
+                    ]  # features: 유효 mode 의 alpha_i 만 필터링
+                    probs = probs[:, self.components[id_]]  # probs: 유효 mode 의 확률만 필터링
 
                     # 해당 확률 기반 최적 mode 선택
                     opt_sel = np.zeros(len(data), dtype="int")
@@ -367,9 +367,10 @@ class DataTransformer:
 
         return np.concatenate(values, axis=1)
 
+    # fake (generated) 를 원본 데이터 형태로 decode
     def inverse_transform(self, data):
         data_t = np.zeros([len(data), len(self.meta)])
-        invalid_ids = []
+        invalid_ids = []  # fake 를 decode 해보니 컬럼 조건(min, max) 에 위배되는 경우
         st = 0
         for id_, info in enumerate(self.meta):
             if info["type"] == "continuous":
