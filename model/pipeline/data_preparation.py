@@ -150,28 +150,25 @@ class DataPrep(object):
         # 카테고리 컬럼 역변환
         for i in range(len(self.label_encoder_list)):
             le = self.label_encoder_list[i]["label_encoder"]
-            df_sample[self.label_encoder_list[i]["column"]] = df_sample[
-                self.label_encoder_list[i]["column"]
-            ].astype(int)
             df_sample[self.label_encoder_list[i]["column"]] = le.inverse_transform(
-                df_sample[self.label_encoder_list[i]["column"]]
+                df_sample[self.label_encoder_list[i]["column"]].astype(int)
             )
 
         # 로그분포 역변환
         if self.log_columns:
-            for i in df_sample:
-                if i in self.log_columns:
-                    lower_bound = self.lower_bounds[i]
+            for column in df_sample:
+                if column in self.log_columns:
+                    lower_bound = self.lower_bounds[column]
                     if lower_bound > 0:
-                        df_sample[i].apply(lambda x: np.exp(x))
+                        df_sample[column].apply(lambda x: np.exp(x))
                     elif lower_bound == 0:
-                        df_sample[i] = df_sample[i].apply(
+                        df_sample[column] = df_sample[column].apply(
                             lambda x: np.ceil(np.exp(x) - eps)
                             if (np.exp(x) - eps) < 0
                             else (np.exp(x) - eps)
                         )
                     else:
-                        df_sample[i] = df_sample[i].apply(
+                        df_sample[column] = df_sample[column].apply(
                             lambda x: np.exp(x) - eps + lower_bound
                         )
 

@@ -28,6 +28,8 @@ import logging
 
 
 class Classifier(Module):
+    """auxiliary classifier"""
+
     def __init__(self, input_dim, dis_dims, st_ed):
         super(Classifier, self).__init__()
         # Calculate the input dimension after excluding the range of st_ed
