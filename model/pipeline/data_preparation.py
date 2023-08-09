@@ -41,6 +41,7 @@ class DataPrep(object):
             # target(y) 맨 뒤로 보내주기
             y_real = raw_df[target_col]
             X_real = raw_df.drop(columns=[target_col])
+            # lsw: 이거 왜 필요????
             X_train_real, _, y_train_real, _ = model_selection.train_test_split(
                 X_real, y_real, test_size=test_ratio, stratify=y_real, random_state=42
             )

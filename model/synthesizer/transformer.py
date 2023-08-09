@@ -2,19 +2,23 @@ import numpy as np
 import pandas as pd
 import torch
 from sklearn.mixture import BayesianGaussianMixture
+import logging
+from tqdm.auto import tqdm
+from typing import List
 
 
 class DataTransformer:
     def __init__(
         self,
-        train_data=pd.DataFrame,
-        categorical_list=[],
-        mixed_dict={},
-        general_list=[],
-        non_categorical_list=[],
-        n_clusters=10,
-        eps=0.005,
+        train_data: pd.DataFrame,
+        categorical_list: list = [],
+        mixed_dict: dict = {},
+        general_list: list = [],
+        non_categorical_list: list = [],
+        n_clusters: int = 10,
+        eps: float = 0.005,
     ):
+        self.logger = logging.getLogger()
         self.meta = None
         self.n_clusters = n_clusters
         self.eps = eps
@@ -24,12 +28,14 @@ class DataTransformer:
         self.general_columns = general_list
         self.non_categorical_columns = non_categorical_list
 
-    def get_metadata(self):
+    def get_metadata(self) -> List[dict]:
         meta = []
-
-        for index in range(self.train_data.shape[1]):
+        self.logger.info("[Transformer]: get metadata ...")
+        for index in tqdm(range(self.train_data.shape[1])):
             column = self.train_data.iloc[:, index]
+            # 범주형 컬럼
             if index in self.categorical_columns:
+                # 범주형 컬럼 중 연속형처럼 GT, MSN 적용할 컬럼
                 if index in self.non_categorical_columns:
                     meta.append(
                         {
@@ -49,7 +55,7 @@ class DataTransformer:
                             "i2s": mapper,
                         }
                     )
-
+            # mixed 컬럼
             elif index in self.mixed_columns.keys():
                 meta.append(
                     {
@@ -62,7 +68,7 @@ class DataTransformer:
                         ],  # given 0.0 or -9999999 for nan
                     }
                 )
-            # general type cols
+            # 연속형 컬럼
             else:
                 meta.append(
                     {
@@ -76,15 +82,18 @@ class DataTransformer:
         return meta
 
     def fit(self):
+        """VGM(MSN) 모델 피팅"""
         data = self.train_data.values
         self.meta = self.get_metadata()
-        model = []
+        model = []  # VGM Model 저장 영역
         self.ordering = []
-        self.output_info = []
-        self.output_dim = 0
-        self.components = []
+        self.output_info = []  # 데이터 인코딩 후 출력 정보 List[tuple]
+        self.output_dim = 0  # 데이터 인코딩 후 차원
+        self.components = []  # 컬럼별 MSN 모드별 유효여부 저장 영역 List[bool]
         self.filter_arr = []
-        for id_, info in enumerate(self.meta):
+
+        self.logger.info("[Transformer]: fitting start ...")
+        for id_, info in enumerate(tqdm(self.meta)):
             if info["type"] == "continuous":
                 # num. type & single Gaussian 이 아닌 경우: MSN (VGM)
                 if id_ not in self.general_columns:
@@ -97,34 +106,52 @@ class DataTransformer:
                         random_state=42,
                     )
                     gm.fit(data[:, id_].reshape([-1, 1]))
-                    mode_freq = (
-                        pd.Series(gm.predict(data[:, id_].reshape([-1, 1])))
-                        .value_counts()
-                        .keys()
-                    )
+
+                    # 유효한 모드 인디케이팅
+                    # lsw: 원본코드에서 mode_freq 찾는 부분 불필요... 심지어 freq 는 사용도 안함
                     model.append(gm)
-                    old_comp = gm.weights_ > self.eps
-                    comp = []  # weight 가 epsilon 보다 크고 데이터 상 존재하는 mode(comp) 만 True
-                    for i in range(self.n_clusters):
-                        if (i in (mode_freq)) & old_comp[i]:
-                            comp.append(True)
-                        else:
-                            comp.append(False)
+                    comp = (
+                        gm.weights_ > self.eps
+                    )  # weight 가 epsilon 보다 크고 데이터 상 존재하는 mode(comp) 만 True
                     self.components.append(comp)
+                    # 원본 코드
+                    # mode_freq = (
+                    #     pd.Series(gm.predict(data[:, id_].reshape([-1, 1])))
+                    #     .value_counts()
+                    #     .keys()
+                    # )
+                    # model.append(gm)
+                    # old_comp = gm.weights_ > self.eps
+                    # comp = []  # weight 가 epsilon 보다 크고 데이터 상 존재하는 mode(comp) 만 True
+                    # for i in range(self.n_clusters):
+                    #     if (i in (mode_freq)) & old_comp[i]:  # lsw: 이거는 당연히 돼야하는거 아님? i in (mode_freq)
+                    #         comp.append(True)
+                    #     else:
+                    #         comp.append(False)
+                    # self.components.append(comp)
+
                     self.output_info += [
-                        (1, "tanh", "no_g"),
-                        (np.sum(comp), "softmax"),
-                    ]  # for alpha_i, beta_i
+                        (
+                            1,
+                            "tanh",
+                            "no_g",
+                        ),  # for alpha_i  (len(alpha_i), activaton_fn, GT_indicator)
+                        (
+                            np.sum(comp),
+                            "softmax",
+                        ),  # for beta_i  (len(beta_i), activaton_fn)
+                    ]
                     self.output_dim += 1 + np.sum(comp)
-                # single Gaussian 또는 large num cate 인 경우: GT
-                else:
+                else:  # single Gaussian 또는 large num cate 인 경우: GT
                     model.append(None)
                     self.components.append(None)
-                    self.output_info += [(1, "tanh", "yes_g")]
+                    # "yes_g"는 GT 수행의 의미인듯
+                    self.output_info += [(1, "tanh", "yes_g")]  # for alpha_i
                     self.output_dim += 1
 
             # mixed type 인 경우: MSN (VGM)
             elif info["type"] == "mixed":
+                # modal(범주/Nan/null...) 포함 피팅
                 gm1 = BayesianGaussianMixture(
                     n_components=self.n_clusters,
                     weight_concentration_prior_type="dirichlet_process",
@@ -133,6 +160,7 @@ class DataTransformer:
                     n_init=1,
                     random_state=42,
                 )
+                # modal(범주/Nan/null...) 제거 후 피팅
                 gm2 = BayesianGaussianMixture(
                     n_components=self.n_clusters,
                     weight_concentration_prior_type="dirichlet_process",
@@ -144,7 +172,8 @@ class DataTransformer:
 
                 gm1.fit(data[:, id_].reshape([-1, 1]))
 
-                # modal 값이 아닌 데이터 샘플만 필터링 (T/F indicating)
+                # modal값이 아닌 데이터 샘플만 필터링 (T/F indicating)
+                #  -> mixed 애서 continuous 부분만
                 filter_arr = []
                 for element in data[:, id_]:
                     if element not in info["modal"]:
@@ -153,22 +182,25 @@ class DataTransformer:
                         filter_arr.append(False)
 
                 gm2.fit(data[:, id_][filter_arr].reshape([-1, 1]))
-                mode_freq = (
-                    pd.Series(gm2.predict(data[:, id_][filter_arr].reshape([-1, 1])))
-                    .value_counts()
-                    .keys()
-                )
                 self.filter_arr.append(filter_arr)
                 model.append((gm1, gm2))
-
-                old_comp = gm2.weights_ > self.eps
-                comp = []
-                for i in range(self.n_clusters):
-                    if (i in (mode_freq)) & old_comp[i]:
-                        comp.append(True)
-                    else:
-                        comp.append(False)
+                comp = (
+                    gm2.weights_ > self.eps
+                )  # weight 가 epsilon 보다 크고 데이터 상 존재하는 mode(comp) 만 True
                 self.components.append(comp)
+                # mode_freq = (
+                #     pd.Series(gm2.predict(data[:, id_][filter_arr].reshape([-1, 1])))
+                #     .value_counts()
+                #     .keys()
+                # )
+                # old_comp = gm2.weights_ > self.eps
+                # comp = []
+                # for i in range(self.n_clusters):
+                #     if (i in (mode_freq)) & old_comp[i]:
+                #         comp.append(True)
+                #     else:
+                #         comp.append(False)
+                # self.components.append(comp)
 
                 self.output_info += [
                     (1, "tanh", "no_g"),  # for alpha_i
@@ -180,11 +212,13 @@ class DataTransformer:
             else:
                 model.append(None)
                 self.components.append(None)
-                self.output_info += [(info["size"], "softmax")]
+                self.output_info += [(info["size"], "softmax")]  # for gamma_i
                 self.output_dim += info["size"]
         self.model = model
+        self.logger.info("[Transformer]: fitting end ...")
 
     def transform(self, data, ispositive=False, positive_list=None):
+        """encode data row"""
         values = []
         mixed_counter = 0
         for id_, info in enumerate(self.meta):
@@ -201,7 +235,9 @@ class DataTransformer:
                     features = np.empty(shape=(len(current), self.n_clusters))
                     if ispositive is True:
                         if id_ in positive_list:
-                            features = np.abs(current - means) / (4 * stds)
+                            features = np.abs(current - means) / (
+                                4 * stds
+                            )  # lsw: 약간 애매하지만 넘어가자
                     else:
                         features = (current - means) / (4 * stds)
 
@@ -217,12 +253,14 @@ class DataTransformer:
                     for i in range(len(data)):
                         pp = probs[i] + 1e-6
                         pp = pp / sum(pp)
+                        # lsw: 왜 랜덤이 들어감???????????? 논문에선 확률 가장높은 모드로 쓰는데?? 샘플링은 ctgan 방법임
                         opt_sel[i] = np.random.choice(np.arange(n_opts), p=pp)
 
                     idx = np.arange((len(features)))
                     features = features[idx, opt_sel].reshape(
                         [-1, 1]
                     )  # (optimal) alpha_i list
+                    # lsw: 클리핑 부분은 논문엔 없었음
                     features = np.clip(features, -0.99, 0.99)
                     probs_onehot = np.zeros_like(probs)
                     probs_onehot[
@@ -242,6 +280,7 @@ class DataTransformer:
                     values += [features, re_ordered_phot]
 
                 # GT 적용 대상 컬럼인 경우: transform to x_t
+                # lsw: 추후 데이터 미니 배치로 넣으면 이부분도 최소, 최대값 저장했다가 다시 쓰도록 리팩토링 해야할지도 ...
                 else:
                     self.ordering.append(None)
 

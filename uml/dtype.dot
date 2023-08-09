@@ -1,0 +1,34 @@
+// dot -Tpng comp.dot -o comp.png
+
+digraph g {
+    // graph [pad="0.5", nodesep="0.2", ranksep="0"];
+    // splines = ortho
+    splines = curved
+    node[shape = box]
+    edge[arrowhead = vee]
+
+
+    subgraph cluster_primitive {
+        label="primitive"
+        continuous
+        mixed
+        categorical
+    }
+
+    subgraph cluster_optional {
+        label="optional"
+        integer
+        log
+    }
+
+    msn [label="MSN"]
+    gt [label="GT"]
+    {continuous, mixed} -> msn
+    continuous -> gt
+    categorical -> non_categorical
+    non_categorical -> gt [label="high class" color="blue" fontcolor="blue"]
+    non_categorical -> msn
+    categorical -> one_hot
+    {msn, gt} -> log [style="dashed"]
+    {continuous, mixed} -> integer [style="dashed"]
+}

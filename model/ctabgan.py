@@ -59,7 +59,7 @@ class CTABGAN:
 
     def fit(self):
         start_time = time.time()
-        self.logger.info("[CTABGAN]: data preprocessor ready start")
+        self.logger.info("[CTABGAN]: build data preprocessor start")
         # DataPrep: 데이터 전처리
         self.data_prep = DataPrep(
             self.raw_df,
@@ -72,8 +72,8 @@ class CTABGAN:
             self.problem_type,
             self.test_ratio,
         )
-        self.logger.info("[CTABGAN]: data preprocessor ready end")
-        self.logger.info("[CTABGAN]: synthesizer fit start")
+        self.logger.info("[CTABGAN]: build data preprocessor end")
+        self.logger.info("[CTABGAN]: fit synthesizer start")
         # print(self.data_prep.df)
         # print(self.data_prep.column_types)
         self.synthesizer.fit(
@@ -84,7 +84,7 @@ class CTABGAN:
             non_categorical=self.data_prep.column_types["non_categorical"],
             ptype=self.problem_type,
         )
-        self.logger.info("[CTABGAN]: synthesizer fit end")
+        self.logger.info("[CTABGAN]: fit synthesizer end")
         end_time = time.time()
         self.logger.info(f"Finished training in {end_time - start_time} seconds.")
 

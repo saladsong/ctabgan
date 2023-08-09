@@ -25,6 +25,7 @@ from model.synthesizer.transformer import ImageTransformer, DataTransformer
 from model.privacy_utils.rdp_accountant import compute_rdp, get_privacy_spent
 from tqdm.auto import tqdm
 import logging
+from typing import List
 
 
 class Classifier(Module):
@@ -90,7 +91,15 @@ def apply_activate(data, output_info):
     return torch.cat(data_t, dim=1)
 
 
-def get_st_ed(target_col_index, output_info):
+def get_st_ed(target_col_index: int, output_info: List[tuple]):
+    """classifier 의 타겟 컬럼 idx 찾기 (df transform 으로 idx 가 변화)
+
+    Args:
+        target_col_index (int): 타겟 컬럼 인덱스
+        output_info (List[tuple]): 컬럼 변환 정보. [(info["size"], "softmax"), () ...]
+    Return:
+        (int, int):
+    """
     # Retrieve start and end indices for a target column
     st = 0
     c = 0  # 확인한 original 컬럼 수
@@ -263,10 +272,16 @@ class Sampler(object):
 
 
 class Discriminator(Module):
-    def __init__(self, side, layers):
+    def __init__(self, side: int, layers: List[Module]):
+        """build discriminator
+
+        Args:
+            side (int): 정사각 2d로 변환한 피처의 변의 길이
+            layers (List[Module]): 뉴럴넷 레이어들
+        """
         super(Discriminator, self).__init__()
         self.side = side
-        info = len(layers) - 2
+        info = len(layers) - 2  # 맨 마지막 conv, relu 제외
         self.seq = Sequential(*layers)
         self.seq_info = Sequential(*layers[:info])
 
@@ -275,7 +290,14 @@ class Discriminator(Module):
 
 
 class Generator(Module):
-    def __init__(self, side, layers):
+    """build generator
+
+    Args:
+        side (int): 정사각 2d로 변환한 피처의 변의 길이
+        layers (List[Module]): 뉴럴넷 레이어들
+    """
+
+    def __init__(self, side: int, layers: List[Module]):
         super(Generator, self).__init__()
         self.side = side
         self.seq = Sequential(*layers)
@@ -285,7 +307,7 @@ class Generator(Module):
 
 
 def determine_layers_disc(side, num_channels):
-    assert side >= 4 and side <= 64
+    # assert side >= 4 and side <= 64  # lsw: 불필요
 
     layer_dims = [(1, side), (num_channels, side // 2)]
 
@@ -315,7 +337,7 @@ def determine_layers_disc(side, num_channels):
 
 
 def determine_layers_gen(side, random_dim, num_channels):
-    assert side >= 4 and side <= 64
+    # assert side >= 4 and side <= 64  # lsw: 불필요
 
     layer_dims = [(1, side), (num_channels, side // 2)]
 
@@ -435,15 +457,17 @@ class CTABGANSynthesizer:
         non_categorical=[],
         ptype={},
     ):
+        # auxiliary classifier 타겟 컬럼 셋팅
+        # lsw: 추후 코드 최적화 필요
         problem_type = None
         target_index = None
-        if ptype:
+        if ptype:  # ex) {"Classification": "income"}
             problem_type = list(ptype.keys())[0]
             if problem_type:
                 target_index = train_data.columns.get_loc(ptype[problem_type])
 
-        # lsw: 실제 데이터 전처리하는 부분
-        self.logger.info("[CTAB-SYN]: fit data transformer")
+        # lsw: 실제 데이터 전처리(인코딩)하는 부분
+        self.logger.info("[CTAB-SYN]: fit data transformer start")
         self.transformer = DataTransformer(
             train_data=train_data,
             categorical_list=categorical,
@@ -452,6 +476,7 @@ class CTABGANSynthesizer:
             non_categorical_list=non_categorical,
         )
         self.transformer.fit()
+        self.logger.info("[CTAB-SYN]: fit data transformer end")
         self.logger.info("[CTAB-SYN]: now transform data start")
         train_data = self.transformer.transform(train_data.values)
         self.logger.info("[CTAB-SYN]: now transform data end")
@@ -479,19 +504,24 @@ class CTABGANSynthesizer:
                 self.gside = i
                 break
 
+        # generator build
         layers_G = determine_layers_gen(
             self.gside, self.random_dim + self.cond_generator.n_opt, self.num_channels
         )
-        layers_D = determine_layers_disc(self.dside, self.num_channels)
-
         self.generator = Generator(self.gside, layers_G).to(self.device)
+
+        # discriminator build
+        layers_D = determine_layers_disc(self.dside, self.num_channels)
         discriminator = Discriminator(self.dside, layers_D).to(self.device)
+
+        # set optimizer
         optimizer_params = dict(
             lr=2e-4, betas=(0.5, 0.9), eps=1e-3, weight_decay=self.l2scale
         )
         optimizerG = Adam(self.generator.parameters(), **optimizer_params)
         optimizerD = Adam(discriminator.parameters(), **optimizer_params)
 
+        # auxiliary classifier build
         st_ed = None  # lsw: 이거 뭐하는데 쓰는거임? -> sjy: classifier 의 타겟 컬럼 idx 찾기 (df transform 으로 idx 가 변화)
         classifier = None
         optimizerC = None
