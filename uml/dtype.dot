@@ -19,6 +19,7 @@ digraph g {
         label="optional"
         integer
         log
+        positive
     }
 
     msn [label="MSN"]
@@ -31,4 +32,5 @@ digraph g {
     categorical -> one_hot
     {msn, gt} -> log [style="dashed"]
     {continuous, mixed} -> integer [style="dashed"]
+    {continuous, mixed} -> positive [style="dashed"]
 }

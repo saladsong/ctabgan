@@ -42,13 +42,13 @@ class DataPrep(object):
             y_real = raw_df[target_col]
             X_real = raw_df.drop(columns=[target_col])
             # lsw: 이거 왜 필요????
-            X_train_real, _, y_train_real, _ = model_selection.train_test_split(
-                X_real, y_real, test_size=test_ratio, stratify=y_real, random_state=42
-            )
-
-            X_train_real[target_col] = y_train_real
-
-            self.df = X_train_real
+            # X_train_real, _, y_train_real, _ = model_selection.train_test_split(
+            #     X_real, y_real, test_size=test_ratio, stratify=y_real, random_state=42
+            # )
+            # X_train_real[target_col] = y_train_real
+            # self.df = X_train_real
+            X_real[target_col] = y_real
+            self.df = X_real
         else:
             self.df = raw_df
 

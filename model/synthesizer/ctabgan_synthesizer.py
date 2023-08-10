@@ -25,31 +25,39 @@ from model.synthesizer.transformer import ImageTransformer, DataTransformer
 from model.privacy_utils.rdp_accountant import compute_rdp, get_privacy_spent
 from tqdm.auto import tqdm
 import logging
-from typing import List
+from typing import List, Tuple
 
 
 class Classifier(Module):
-    """auxiliary classifier"""
+    """auxiliary classifier
+    1 hidden layer MLP
+    """
 
-    def __init__(self, input_dim, dis_dims, st_ed):
+    def __init__(self, input_dim, dis_dims, tcol_idx_st_ed_tuple):
         super(Classifier, self).__init__()
-        # Calculate the input dimension after excluding the range of st_ed
-        dim = input_dim - (st_ed[1] - st_ed[0])  # dims for feature(X) only
+        # Calculate the input dimension after excluding the range of tcol_idx_st_ed_tuple
+        dim = input_dim - (
+            tcol_idx_st_ed_tuple[1] - tcol_idx_st_ed_tuple[0]
+        )  # dims for feature(X) only
         seq = []
-        self.str_end = st_ed
+        self.str_end = tcol_idx_st_ed_tuple
         # Building the sequential model layers
         for item in list(dis_dims):
             seq += [Linear(dim, item), LeakyReLU(0.2), Dropout(0.5)]
             dim = item
 
-        # Deciding the final layer based on the range of st_ed
-        if (st_ed[1] - st_ed[0]) == 1:  # target 컬럼이 continuous (reg.)
+        # Deciding the final layer based on the range of tcol_idx_st_ed_tuple
+        if (
+            tcol_idx_st_ed_tuple[1] - tcol_idx_st_ed_tuple[0]
+        ) == 1:  # target 컬럼이 continuous (reg.)
             seq += [Linear(dim, 1)]
 
-        elif (st_ed[1] - st_ed[0]) == 2:  # target 컬럼이 categorical (binary clf.)
+        elif (
+            tcol_idx_st_ed_tuple[1] - tcol_idx_st_ed_tuple[0]
+        ) == 2:  # target 컬럼이 categorical (binary clf.)
             seq += [Linear(dim, 1), Sigmoid()]
-        else:
-            seq += [Linear(dim, (st_ed[1] - st_ed[0]))]
+        else:  # target 컬럼이 categorical (multi class clf.)
+            seq += [Linear(dim, (tcol_idx_st_ed_tuple[1] - tcol_idx_st_ed_tuple[0]))]
 
         self.seq = Sequential(*seq)
 
@@ -76,7 +84,7 @@ class Classifier(Module):
 
 
 def apply_activate(data, output_info):
-    # Apply activation functions to data based on output_info
+    """Apply activation functions to data based on output_info"""
     data_t = []
     st = 0
     for item in output_info:
@@ -91,14 +99,16 @@ def apply_activate(data, output_info):
     return torch.cat(data_t, dim=1)
 
 
-def get_st_ed(target_col_index: int, output_info: List[tuple]):
-    """classifier 의 타겟 컬럼 idx 찾기 (df transform 으로 idx 가 변화)
+def get_tcol_idx_st_ed_tuple(
+    target_col_index: int, output_info: List[tuple]
+) -> Tuple[int, int]:
+    """classifier 의 타겟 컬럼 인코딩 뒤의 (start_idx, end_idx) 찾기 (df transform 으로 인코딩 후 idx 가 변화)
 
     Args:
-        target_col_index (int): 타겟 컬럼 인덱스
-        output_info (List[tuple]): 컬럼 변환 정보. [(info["size"], "softmax"), () ...]
+        target_col_index (int): 인코딩전 타겟 컬럼 인덱스
+        output_info (List[tuple]): 컬럼 변환 정보. [(len(alpha_i), activaton_fn, GT_indicator), (len(beta_i), activaton_fn) ...]
     Return:
-        (int, int):
+        Tuple[int, int]: 타겟 컬럼 인코딩 뒤의 (start_idx, end_idx)
     """
     # Retrieve start and end indices for a target column
     st = 0
@@ -433,7 +443,7 @@ class CTABGANSynthesizer:
         num_channels=64,
         l2scale=1e-5,
         batch_size=500,
-        epochs=150,
+        epochs=1,
     ):
         # for logger
         self.logger = logging.getLogger()
@@ -463,8 +473,9 @@ class CTABGANSynthesizer:
         target_index = None
         if ptype:  # ex) {"Classification": "income"}
             problem_type = list(ptype.keys())[0]
-            if problem_type:
-                target_index = train_data.columns.get_loc(ptype[problem_type])
+            target_index = train_data.columns.get_loc(
+                ptype[problem_type]
+            )  # data_prep 에서 target_col 맨 마지막으로 밀었음
 
         # lsw: 실제 데이터 전처리(인코딩)하는 부분
         self.logger.info("[CTAB-SYN]: fit data transformer start")
@@ -522,12 +533,16 @@ class CTABGANSynthesizer:
         optimizerD = Adam(discriminator.parameters(), **optimizer_params)
 
         # auxiliary classifier build
-        st_ed = None  # lsw: 이거 뭐하는데 쓰는거임? -> sjy: classifier 의 타겟 컬럼 idx 찾기 (df transform 으로 idx 가 변화)
+        tcol_idx_st_ed_tuple = None  # lsw: 이거 뭐하는데 쓰는거임? -> sjy: classifier 의 타겟 컬럼 idx 찾기 (df transform 으로 idx 가 변화)
         classifier = None
         optimizerC = None
         if target_index is not None:
-            st_ed = get_st_ed(target_index, self.transformer.output_info)
-            classifier = Classifier(data_dim, self.class_dim, st_ed).to(self.device)
+            tcol_idx_st_ed_tuple = get_tcol_idx_st_ed_tuple(
+                target_index, self.transformer.output_info
+            )
+            classifier = Classifier(data_dim, self.class_dim, tcol_idx_st_ed_tuple).to(
+                self.device
+            )
             optimizerC = optim.Adam(classifier.parameters(), **optimizer_params)
 
         self.generator.apply(weights_init)
@@ -674,7 +689,7 @@ class CTABGANSynthesizer:
                     c_loss = CrossEntropyLoss()
 
                     ## target 컬럼이 continuous (reg.)
-                    if (st_ed[1] - st_ed[0]) == 1:
+                    if (tcol_idx_st_ed_tuple[1] - tcol_idx_st_ed_tuple[0]) == 1:
                         c_loss = SmoothL1Loss()
                         real_label = real_label.type_as(real_pre)
                         fake_label = fake_label.type_as(fake_pre)
@@ -682,7 +697,7 @@ class CTABGANSynthesizer:
                         fake_label = torch.reshape(fake_label, fake_pre.size())
 
                     ## target 컬럼이 categorical (binary clf.)
-                    elif (st_ed[1] - st_ed[0]) == 2:
+                    elif (tcol_idx_st_ed_tuple[1] - tcol_idx_st_ed_tuple[0]) == 2:
                         c_loss = BCELoss()
                         real_label = real_label.type_as(real_pre)
                         fake_label = fake_label.type_as(fake_pre)

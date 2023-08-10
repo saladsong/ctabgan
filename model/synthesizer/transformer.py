@@ -46,7 +46,8 @@ class DataTransformer:
                         }
                     )
                 else:
-                    mapper = column.value_counts().index.tolist()
+                    # mapper = column.value_counts().index.tolist()  # lsw: 인덱싱만 필요하므로 구태여 무겁게 모든 카운트 셀필요 없음
+                    mapper = column.unique().tolist()
                     meta.append(
                         {
                             "name": index,
@@ -86,7 +87,7 @@ class DataTransformer:
         data = self.train_data.values
         self.meta = self.get_metadata()
         model = []  # VGM Model 저장 영역
-        self.ordering = []
+        self.ordering = []  #
         self.output_info = []  # 데이터 인코딩 후 출력 정보 List[tuple]
         self.output_dim = 0  # 데이터 인코딩 후 차원
         self.components = []  # 컬럼별 MSN 모드별 유효여부 저장 영역 List[bool]
@@ -135,7 +136,7 @@ class DataTransformer:
                             1,
                             "tanh",
                             "no_g",
-                        ),  # for alpha_i  (len(alpha_i), activaton_fn, GT_indicator)
+                        ),  # for alpha_i  (len(alpha_i), activaton_fn, GT_indicator) // 'no_g' 이것 'get_tcol_idx_st_ed_tuple' 에 쓰임
                         (
                             np.sum(comp),
                             "softmax",
@@ -146,7 +147,9 @@ class DataTransformer:
                     model.append(None)
                     self.components.append(None)
                     # "yes_g"는 GT 수행의 의미인듯
-                    self.output_info += [(1, "tanh", "yes_g")]  # for alpha_i
+                    self.output_info += [
+                        (1, "tanh", "yes_g")
+                    ]  # for alpha_i // gt는 beta_i 불필요
                     self.output_dim += 1
 
             # mixed type 인 경우: MSN (VGM)
@@ -214,10 +217,12 @@ class DataTransformer:
                 self.components.append(None)
                 self.output_info += [(info["size"], "softmax")]  # for gamma_i
                 self.output_dim += info["size"]
-        self.model = model
+        self.model = model  # VGM Model 저장 영역
         self.logger.info("[Transformer]: fitting end ...")
 
-    def transform(self, data, ispositive=False, positive_list=None):
+    def transform(
+        self, data: np.ndarray, ispositive=False, positive_list=None
+    ) -> np.ndarray:
         """encode data row"""
         values = []
         mixed_counter = 0
@@ -237,7 +242,7 @@ class DataTransformer:
                         if id_ in positive_list:
                             features = np.abs(current - means) / (
                                 4 * stds
-                            )  # lsw: 약간 애매하지만 넘어가자
+                            )  # lsw: 0으로 자르는 것도 아니고 절대값? 약간 애매하지만 넘어가자
                     else:
                         features = (current - means) / (4 * stds)
 
@@ -245,8 +250,10 @@ class DataTransformer:
                     n_opts = sum(self.components[id_])  # n_opts: 해당 컬럼의 유효 mode 개수
                     features = features[
                         :, self.components[id_]
-                    ]  # features: 유효 mode 의 alpha_i 만 필터링
-                    probs = probs[:, self.components[id_]]  # probs: 유효 mode 의 확률만 필터링
+                    ]  # features: 유효 mode 의 alpha_i 만 필터링 (N * #valid_mode)
+                    probs = probs[
+                        :, self.components[id_]
+                    ]  # probs: 유효 mode 의 확률만 필터링 (N * #valid_mode)
 
                     # 해당 확률 기반 최적 mode 선택
                     opt_sel = np.zeros(len(data), dtype="int")
@@ -259,25 +266,33 @@ class DataTransformer:
                     idx = np.arange((len(features)))
                     features = features[idx, opt_sel].reshape(
                         [-1, 1]
-                    )  # (optimal) alpha_i list
-                    # lsw: 클리핑 부분은 논문엔 없었음
+                    )  # (optimal) alpha_i list (N*1)
+                    # lsw: 클리핑 부분은 논문엔 없었음, 그래도 얘도 tanh랑 맞출려고 사용하는 듯
                     features = np.clip(features, -0.99, 0.99)
-                    probs_onehot = np.zeros_like(probs)
+                    probs_onehot = np.zeros_like(probs)  # (N * #valid_mode)
                     probs_onehot[
                         np.arange(len(probs)), opt_sel
                     ] = 1  # mode-indicator beta_i
 
-                    re_ordered_phot = np.zeros_like(probs_onehot)
-
-                    col_sums = probs_onehot.sum(axis=0)
-                    n = probs_onehot.shape[1]
-                    largest_indices = np.argsort(-1 * col_sums)[:n]
-                    self.ordering.append(largest_indices)
+                    # lsw: re-ordering 하는 이유????
+                    # 앞에서 확률 가장높은 모드로 쓰지않고 ctgan 방법으로 beta 샘플링해서 무조건 맨 처음값이 1은 아니지만
+                    # 그래도 굳이 높은 확률 모드 순으로 리오더링 하는 이유는 없는듯
+                    # 그냥 연구자가 어느 오더의 모드에서 beta 샘플링 되었는지 쉽게 확인하기 위함일지도
+                    re_ordered_phot = np.zeros_like(probs_onehot)  # (N * #valid_mode)
+                    col_sums = probs_onehot.sum(axis=0)  # (#valid_mode,)
+                    largest_indices = np.argsort(-1 * col_sums)  # 큰값부터 인덱싱
+                    # lsw: 불필요
+                    # n = probs_onehot.shape[1]  # #valid_mode
+                    # largest_indices = np.argsort(-1 * col_sums)[:n]  # 큰값부터 인덱싱
+                    self.ordering.append(largest_indices)  # (#valid_mode,)
 
                     for id, val in enumerate(largest_indices):
                         re_ordered_phot[:, id] = probs_onehot[:, val]
 
-                    values += [features, re_ordered_phot]
+                    values += [
+                        features,
+                        re_ordered_phot,
+                    ]  # alpha_i (N * 1), beta_i (N * #valid_mode)
 
                 # GT 적용 대상 컬럼인 경우: transform to x_t
                 # lsw: 추후 데이터 미니 배치로 넣으면 이부분도 최소, 최대값 저장했다가 다시 쓰도록 리팩토링 해야할지도 ...
@@ -291,7 +306,7 @@ class DataTransformer:
                     current = (current - (info["min"])) / (info["max"] - info["min"])
                     current = current * 2 - 1
                     current = current.reshape([-1, 1])
-                    values.append(current)
+                    values.append(current)  # alpha_i (N * 1)
 
             # MSN 적용 대상 mixed 컬럼인 경우: get alpha_i, beta_i
             elif info["type"] == "mixed":
@@ -319,15 +334,14 @@ class DataTransformer:
 
                 # mode 별 normalized alpha_i 를 저장
                 mode_vals = []
-
+                # lsw: 이 코드는 -9999999 가 info["modal"]의 맨 마지막에 추가되므로 가능한 것임 - 안좋은 코드
                 for i, j, k in zip(info["modal"], means_needed, stds_needed):
                     this_val = np.abs(i - j) / (4 * k)
                     mode_vals.append(this_val)
-
                 if -9999999 in info["modal"]:
                     mode_vals.append(0)
 
-                # modal 이 아닌 mode 에 대한 alpha_i, beta_i 계산
+                # modal 이 아닌 continuous 값의 mode 에 대한 alpha_i, beta_i 계산
                 current = current.reshape([-1, 1])
                 filter_arr = self.filter_arr[mixed_counter]
                 current = current[filter_arr]
@@ -361,18 +375,25 @@ class DataTransformer:
                 probs_onehot[np.arange(len(probs)), opt_sel] = 1
 
                 extra_bits = np.zeros([len(current), len(info["modal"])])
-                temp_probs_onehot = np.concatenate([extra_bits, probs_onehot], axis=1)
+                temp_probs_onehot = np.concatenate(
+                    [extra_bits, probs_onehot], axis=1
+                )  # modal 을 MSN 앞에 붙이네
                 final = np.zeros(
-                    [len(data), 1 + probs_onehot.shape[1] + len(info["modal"])]
+                    [
+                        len(data),
+                        1 + probs_onehot.shape[1] + len(info["modal"]),
+                    ]  # (N * 1+ #vaild_mode + #modal)  // +1 은 alpha 위한 것
                 )
 
                 # sjy: 얘는 뭐지...???
+                #  -> lsw: final 내에 alpha, beta 채우는 과정
                 features_curser = 0
                 for idx, val in enumerate(data[:, id_]):
                     if val in info["modal"]:
-                        category_ = list(map(info["modal"].index, [val]))[0]
-                        final[idx, 0] = mode_vals[category_]
-                        final[idx, (category_ + 1)] = 1
+                        # category_ = list(map(info["modal"].index, [val]))[0]
+                        category_ = info["modal"].index(val)
+                        final[idx, 0] = mode_vals[category_]  # alpha_i
+                        final[idx, (category_ + 1)] = 1  # beta_i
 
                     else:
                         final[idx, 0] = features[features_curser]
@@ -383,17 +404,17 @@ class DataTransformer:
 
                 just_onehot = final[:, 1:]
                 re_ordered_jhot = np.zeros_like(just_onehot)
-                n = just_onehot.shape[1]
-
                 col_sums = just_onehot.sum(axis=0)
-                largest_indices = np.argsort(-1 * col_sums)[:n]
+                largest_indices = np.argsort(-1 * col_sums)
+                # n = just_onehot.shape[1]
+                # largest_indices = np.argsort(-1 * col_sums)[:n]
                 self.ordering.append(largest_indices)
 
                 for id, val in enumerate(largest_indices):
                     re_ordered_jhot[:, id] = just_onehot[:, val]
 
                 final_features = final[:, 0].reshape([-1, 1])
-                values += [final_features, re_ordered_jhot]
+                values += [final_features, re_ordered_jhot]  # alpha_i, beta_i
                 mixed_counter = mixed_counter + 1
 
             # categorical 컬럼인 경우: get one-hot
@@ -402,7 +423,7 @@ class DataTransformer:
                 col_t = np.zeros([len(data), info["size"]])
                 idx = list(map(info["i2s"].index, current))
                 col_t[np.arange(len(data)), idx] = 1
-                values.append(col_t)
+                values.append(col_t)  # gamma_i
 
         return np.concatenate(values, axis=1)
 
