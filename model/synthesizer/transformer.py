@@ -95,6 +95,8 @@ class DataTransformer:
 
         self.logger.info("[Transformer]: fitting start ...")
         for id_, info in enumerate(tqdm(self.meta)):
+            train_columns = self.train_data.columns
+            colname = train_columns[id_]
             if info["type"] == "continuous":
                 # num. type & single Gaussian 이 아닌 경우: MSN (VGM)
                 if id_ not in self.general_columns:
@@ -135,20 +137,21 @@ class DataTransformer:
                         (
                             1,
                             "tanh",
-                            "no_g",
-                        ),  # for alpha_i  (len(alpha_i), activaton_fn, GT_indicator) // 'no_g' 이것 'get_tcol_idx_st_ed_tuple' 에 쓰임
+                            colname,
+                            "msn",
+                        ),  # for alpha_i  (len(alpha_i), activaton_fn, col_name, GT_indicator) // 'msn' 이것 'get_tcol_idx_st_ed_tuple' 에 쓰임
                         (
                             np.sum(comp),
                             "softmax",
-                        ),  # for beta_i  (len(beta_i), activaton_fn)
+                            colname,
+                        ),  # for beta_i  (len(beta_i), activaton_fn, col_name)
                     ]
                     self.output_dim += 1 + np.sum(comp)
                 else:  # single Gaussian 또는 large num cate 인 경우: GT
                     model.append(None)
                     self.components.append(None)
-                    # "yes_g"는 GT 수행의 의미인듯
                     self.output_info += [
-                        (1, "tanh", "yes_g")
+                        (1, "tanh", colname, "gt")
                     ]  # for alpha_i // gt는 beta_i 불필요
                     self.output_dim += 1
 
@@ -206,8 +209,12 @@ class DataTransformer:
                 # self.components.append(comp)
 
                 self.output_info += [
-                    (1, "tanh", "no_g"),  # for alpha_i
-                    (np.sum(comp) + len(info["modal"]), "softmax"),  # for beta_i
+                    (1, "tanh", colname, "msn"),  # for alpha_i
+                    (
+                        np.sum(comp) + len(info["modal"]),
+                        "softmax",
+                        colname,
+                    ),  # for beta_i
                 ]
                 self.output_dim += 1 + np.sum(comp) + len(info["modal"])
 
@@ -215,7 +222,7 @@ class DataTransformer:
             else:
                 model.append(None)
                 self.components.append(None)
-                self.output_info += [(info["size"], "softmax")]  # for gamma_i
+                self.output_info += [(info["size"], "softmax", colname)]  # for gamma_i
                 self.output_dim += info["size"]
         self.model = model  # VGM Model 저장 영역
         self.logger.info("[Transformer]: fitting end ...")

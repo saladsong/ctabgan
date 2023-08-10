@@ -106,7 +106,7 @@ def get_tcol_idx_st_ed_tuple(
 
     Args:
         target_col_index (int): 인코딩전 타겟 컬럼 인덱스
-        output_info (List[tuple]): 컬럼 변환 정보. [(len(alpha_i), activaton_fn, GT_indicator), (len(beta_i), activaton_fn) ...]
+        output_info (List[tuple]): 컬럼 변환 정보. [(len(alpha_i), activaton_fn, col_name, GT_indicator), (len(beta_i), activaton_fn, col_name) ...]
     Return:
         Tuple[int, int]: 타겟 컬럼 인코딩 뒤의 (start_idx, end_idx)
     """
@@ -120,7 +120,7 @@ def get_tcol_idx_st_ed_tuple(
             break
         if item[1] == "tanh":
             st += item[0]
-            if item[2] == "yes_g":
+            if item[3] == "gt":
                 c += 1
         elif item[1] == "softmax":
             st += item[0]
@@ -386,13 +386,17 @@ def determine_layers_gen(side, random_dim, num_channels):
     return layers_G
 
 
-def slerp(val, low, high):
+def slerp(alpha: torch.Tensor, low: torch.Tensor, high: torch.Tensor) -> torch.Tensor:
+    """gradient_penalty 계산위한 real, fake data의 interpolation 계산
+    선형보간이 아니라 다른 방법 SLERP(Spherical Linear Interpolation) 사용하네??
+    SLERP는 특히 두 벡터가 크게 다를 때 유용하다고 함
+    """
     low_norm = low / torch.norm(low, dim=1, keepdim=True)
     high_norm = high / torch.norm(high, dim=1, keepdim=True)
-    omega = torch.acos((low_norm * high_norm).sum(1)).view(val.size(0), 1)
+    omega = torch.acos((low_norm * high_norm).sum(1)).view(alpha.size(0), 1)
     so = torch.sin(omega)
-    res = (torch.sin((1.0 - val) * omega) / so) * low + (
-        torch.sin(val * omega) / so
+    res = (torch.sin((1.0 - alpha) * omega) / so) * low + (
+        torch.sin(alpha * omega) / so
     ) * high
 
     return res
