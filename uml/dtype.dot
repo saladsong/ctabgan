@@ -9,21 +9,28 @@ digraph g {
 
 
     subgraph cluster_primitive {
-        label="primitive"
+        label="Primitive\n(cate, mixed를 입력으로 받고 나머지가 con)"
         continuous
         mixed
         categorical
     }
 
+    subgraph cluster_proc {
+        label="DataTransformer에서 처리"
+        msn [label="MSN"]
+        gt [label="GT"]
+        one_hot [label="ONE-HOT"]
+    }
+
     subgraph cluster_optional {
-        label="optional"
+        label="DataPrep에서 처리\n(optional)"
         integer
         log
         positive
+        // [style=filled fillcolor=lightyellow]
     }
 
-    msn [label="MSN"]
-    gt [label="GT"]
+
     {continuous, mixed} -> msn
     continuous -> gt
     categorical -> non_categorical

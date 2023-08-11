@@ -324,7 +324,8 @@ class DataTransformer:
                 means_needed = []
                 stds_needed = []
 
-                # -9999999 외의 modal 값에 대한 mean, sqrt 계산
+                # -9999999 외의 modal 값에 대한 mean, sqrt 계산 (normalize 에 활용)
+                # gm1 모델의 10개 mode 중, modal 값과 mean 값이 가장 가까운 mode 의 mean, sqrt 를 취함
                 for mode in info["modal"]:
                     if mode != -9999999:
                         dist = []
@@ -342,6 +343,7 @@ class DataTransformer:
                 # mode 별 normalized alpha_i 를 저장
                 mode_vals = []
                 # lsw: 이 코드는 -9999999 가 info["modal"]의 맨 마지막에 추가되므로 가능한 것임 - 안좋은 코드
+                # modal 값에 대한 alpha_i 계산
                 for i, j, k in zip(info["modal"], means_needed, stds_needed):
                     this_val = np.abs(i - j) / (4 * k)
                     mode_vals.append(this_val)
@@ -349,6 +351,7 @@ class DataTransformer:
                     mode_vals.append(0)
 
                 # modal 이 아닌 continuous 값의 mode 에 대한 alpha_i, beta_i 계산
+                # gm2 모델의 mean, std 활용
                 current = current.reshape([-1, 1])
                 filter_arr = self.filter_arr[mixed_counter]
                 current = current[filter_arr]
@@ -381,6 +384,8 @@ class DataTransformer:
                 probs_onehot = np.zeros_like(probs)
                 probs_onehot[np.arange(len(probs)), opt_sel] = 1
 
+                # modal 값 포함 전체 mode 에 대한 최종 concat vector (final) 생성
+                # final shape: (n * (1 for alpha_i + one-hot for modal + one-hot for modes))
                 extra_bits = np.zeros([len(current), len(info["modal"])])
                 temp_probs_onehot = np.concatenate(
                     [extra_bits, probs_onehot], axis=1
@@ -392,8 +397,7 @@ class DataTransformer:
                     ]  # (N * 1+ #vaild_mode + #modal)  // +1 은 alpha 위한 것
                 )
 
-                # sjy: 얘는 뭐지...???
-                #  -> lsw: final 내에 alpha, beta 채우는 과정
+                # final 내에 alpha, beta 채우는 과정
                 features_curser = 0
                 for idx, val in enumerate(data[:, id_]):
                     if val in info["modal"]:
@@ -409,6 +413,7 @@ class DataTransformer:
                         ][len(info["modal"]) :]
                         features_curser = features_curser + 1
 
+                # one-hot mode 순서 정렬 (빈도 수 높은 mode 순)
                 just_onehot = final[:, 1:]
                 re_ordered_jhot = np.zeros_like(just_onehot)
                 col_sums = just_onehot.sum(axis=0)
@@ -422,7 +427,7 @@ class DataTransformer:
 
                 final_features = final[:, 0].reshape([-1, 1])
                 values += [final_features, re_ordered_jhot]  # alpha_i, beta_i
-                mixed_counter = mixed_counter + 1
+                mixed_counter = mixed_counter + 1  # 인코딩 완료한 mixed 변수 수 +1
 
             # categorical 컬럼인 경우: get one-hot
             else:
