@@ -303,7 +303,7 @@ class DataTransformer:
                 stds_needed = []
 
                 # -9999999 외의 modal 값에 대한 mean, sqrt 계산 (normalize 에 활용)
-                # gm1 모델의 10개 mode 중, modal 값과 mean 값이 가장 가까운 mode 의 mean, sqrt 를 취함 
+                # gm1 모델의 10개 mode 중, modal 값과 mean 값이 가장 가까운 mode 의 mean, sqrt 를 취함
                 for mode in info["modal"]:
                     if mode != -9999999:
                         dist = []
@@ -400,7 +400,7 @@ class DataTransformer:
                 final_features = final[:, 0].reshape([-1, 1])
                 values += [final_features, re_ordered_jhot]
 
-                mixed_counter = mixed_counter + 1  ## 인코딩 완료한 mixed 변수 수 +1
+                mixed_counter = mixed_counter + 1  # 인코딩 완료한 mixed 변수 수 +1
 
             # categorical 컬럼인 경우: get one-hot
             else:
