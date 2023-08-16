@@ -6,6 +6,7 @@ import pandas as pd
 import time
 from model.pipeline.data_preparation import DataPrep
 from model.synthesizer.ctabgan_synthesizer import CTABGANSynthesizer
+from model.synthesizer.transformer import DataTransformer
 
 import warnings
 import logging
@@ -26,6 +27,7 @@ class CTABGAN:
         integer_columns: list = None,
         problem_type: dict = None,  # {"Classification": "income"} 포맷으로 입력
         params_ctabgan: dict = None,  # CTABGANSynthesizer 에 적용할 파라메터 딕셔너리
+        transformer: DataTransformer = None,
     ):
         self.__name__ = "CTABGAN"
         # set initial params
@@ -50,6 +52,7 @@ class CTABGAN:
         self.logger = logging.getLogger()
 
         self.synthesizer = CTABGANSynthesizer(**params_ctabgan)
+        self.transformer = transformer
         self.raw_df = raw_df
         self.categorical_columns = categorical_columns
         self.log_columns = log_columns
@@ -59,10 +62,16 @@ class CTABGAN:
         self.integer_columns = integer_columns
         self.problem_type = problem_type
 
+        self.is_fit_ = False
+
     def fit(self):
         start_time = time.time()
         self.logger.info("[CTABGAN]: build data preprocessor start")
-        # DataPrep: 데이터 전처리
+        # DataPrep: 데이터 전처리 (오래 걸리는 작업은 아님)
+        #   - missing value 처리
+        #   - mixed column modal 값 처리
+        #   - log 변환
+        #   - label encoding
         self.data_prep = DataPrep(
             self.raw_df,
             self.categorical_columns,
@@ -74,23 +83,47 @@ class CTABGAN:
             self.problem_type,
         )
         self.logger.info("[CTABGAN]: build data preprocessor end")
+
+        # set data transformer
+        if self.transformer is None or not self.transformer.is_fit_:
+            self.logger.info("[CTABGAN]: fit data transformer start")
+            self.transformer = DataTransformer(
+                categorical_list=self.data_prep.column_types["categorical"],
+                mixed_dict=self.data_prep.column_types["mixed"],
+                general_list=self.data_prep.column_types["general"],
+                non_categorical_list=self.data_prep.column_types["non_categorical"],
+            )
+            self.transformer.fit(train_data=self.data_prep.df)
+            self.logger.info("[CTABGAN]: fit data transformer end")
+            self.logger.info("[CTABGAN]: now transform data start")
+        else:
+            self.logger.info("[CTABGAN]: use already fitted transformer")
+
         self.logger.info("[CTABGAN]: fit synthesizer start")
         # print(self.data_prep.df)
         # print(self.data_prep.column_types)
         self.synthesizer.fit(
             train_data=self.data_prep.df,
-            categorical=self.data_prep.column_types["categorical"],
-            mixed=self.data_prep.column_types["mixed"],
-            general=self.data_prep.column_types["general"],
-            non_categorical=self.data_prep.column_types["non_categorical"],
+            data_transformer=self.transformer,
             ptype=self.problem_type,
         )
         self.logger.info("[CTABGAN]: fit synthesizer end")
         end_time = time.time()
         self.logger.info(f"Finished training in {end_time - start_time} seconds.")
+        self.is_fit_ = True
 
-    def generate_samples(self):
-        sample = self.synthesizer.sample(len(self.raw_df))
+    def generate_samples(self, n: int = None, transformer: DataTransformer = None):
+        assert self.is_fit_, "must fit the model first!!"
+
+        if isinstance(transformer, DataTransformer):
+            assert transformer.is_fit_, "you must use fitted data_transformer!!"
+            _transformer = transformer
+        else:
+            self.transformer
+
+        if n is None:
+            n = len(self.raw_df)
+        sample = self.synthesizer.sample(n, _transformer)
         sample_df = self.data_prep.inverse_prep(sample)
 
         return sample_df

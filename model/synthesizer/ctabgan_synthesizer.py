@@ -30,7 +30,7 @@ from typing import List, Tuple
 
 class Classifier(Module):
     """auxiliary classifier
-    1 hidden layer MLP
+    Simple MLP
     """
 
     def __init__(self, input_dim, dis_dims, tcol_idx_st_ed_tuple):
@@ -158,6 +158,7 @@ def maximum_interval(output_info):
 
 class Cond(object):
     def __init__(self, data, output_info):
+        """conditional vector 생성기"""
         self.model = []
         st = 0
         counter = 0
@@ -254,6 +255,9 @@ def cond_loss(data, output_info, c, m):
 
 class Sampler(object):
     def __init__(self, data, output_info):
+        """Training by sampling 기법을 수행키 위한 샘플러
+        학습 중 원본 데이터 샘플링을 위해 사용됨
+        """
         super(Sampler, self).__init__()
         self.data = data
         self.model = []
@@ -486,10 +490,7 @@ class CTABGANSynthesizer:
     def fit(
         self,
         train_data=pd.DataFrame,
-        categorical=[],
-        mixed={},
-        general=[],
-        non_categorical=[],
+        data_transformer=DataTransformer,
         ptype={},
     ):
         # auxiliary classifier 타겟 컬럼 셋팅
@@ -503,25 +504,14 @@ class CTABGANSynthesizer:
             )  # data_prep 에서 target_col 맨 마지막으로 밀었음
 
         # lsw: 실제 데이터 전처리(인코딩)하는 부분
-        self.logger.info("[CTAB-SYN]: fit data transformer start")
-        self.transformer = DataTransformer(
-            train_data=train_data,
-            categorical_list=categorical,
-            mixed_dict=mixed,
-            general_list=general,
-            non_categorical_list=non_categorical,
-        )
-        self.transformer.fit()
-        self.logger.info("[CTAB-SYN]: fit data transformer end")
-        self.logger.info("[CTAB-SYN]: now transform data start")
-        train_data = self.transformer.transform(train_data.values)
+        train_data = data_transformer.transform(train_data.values)
         self.logger.info("[CTAB-SYN]: now transform data end")
 
         # 데이터 샘플링 객체
-        data_sampler = Sampler(train_data, self.transformer.output_info)
-        data_dim = self.transformer.output_dim  # 전처리 완료된 데이터 차원 수
+        data_sampler = Sampler(train_data, data_transformer.output_info)
+        data_dim = data_transformer.output_dim  # 전처리 완료된 데이터 차원 수
         # 컨디션 벡터 생성기
-        self.cond_generator = Cond(train_data, self.transformer.output_info)
+        self.cond_generator = Cond(train_data, data_transformer.output_info)
 
         # 컬럼 수 많아지는 경우 여기 늘려야함
         # n_opt: 가용 conditioning 컬럼 개수
@@ -560,7 +550,7 @@ class CTABGANSynthesizer:
         optimizerC = None
         if target_index is not None:
             tcol_idx_st_ed_tuple = get_tcol_idx_st_ed_tuple(
-                target_index, self.transformer.output_info
+                target_index, data_transformer.output_info
             )
             self.classifier = Classifier(
                 data_dim, self.class_dim, tcol_idx_st_ed_tuple
@@ -615,7 +605,7 @@ class CTABGANSynthesizer:
 
                     fake = self.generator(noisez)
                     faket = self.Gtransformer.inverse_transform(fake)
-                    fakeact = apply_activate(faket, self.transformer.output_info)
+                    fakeact = apply_activate(faket, data_transformer.output_info)
 
                     fake_cat = torch.cat([fakeact, c], dim=1)
                     real_cat = torch.cat([real, c_perm], dim=1)
@@ -667,7 +657,7 @@ class CTABGANSynthesizer:
 
                 fake = self.generator(noisez)
                 faket = self.Gtransformer.inverse_transform(fake)
-                fakeact = apply_activate(faket, self.transformer.output_info)
+                fakeact = apply_activate(faket, data_transformer.output_info)
 
                 fake_cat = torch.cat([fakeact, c], dim=1)
                 fake_cat = self.Dtransformer.transform(fake_cat)
@@ -675,7 +665,7 @@ class CTABGANSynthesizer:
                 y_fake, info_fake = self.discriminator(fake_cat)
 
                 # l_gen
-                cross_entropy = cond_loss(faket, self.transformer.output_info, c, m)
+                cross_entropy = cond_loss(faket, data_transformer.output_info, c, m)
 
                 _, info_real = self.discriminator(real_cat_d)
 
@@ -703,7 +693,7 @@ class CTABGANSynthesizer:
                     # lsw: 그냥 위의 fake 그대로 쓰면 안됨? 왜 다시 게산하지?
                     fake = self.generator(noisez)
                     faket = self.Gtransformer.inverse_transform(fake)
-                    fakeact = apply_activate(faket, self.transformer.output_info)
+                    fakeact = apply_activate(faket, data_transformer.output_info)
 
                     real_pre, real_label = self.classifier(real)
                     fake_pre, fake_label = self.classifier(fakeact)
@@ -739,10 +729,10 @@ class CTABGANSynthesizer:
 
             epoch += 1
 
-    def sample(self, n):
+    def sample(self, n: int, data_transformer: DataTransformer):
         self.generator.eval()
 
-        output_info = self.transformer.output_info
+        output_info = data_transformer.output_info
         steps = n // self.batch_size + 1
 
         data = []
@@ -763,7 +753,7 @@ class CTABGANSynthesizer:
             data.append(fakeact.detach().cpu().numpy())
 
         data = np.concatenate(data, axis=0)
-        result, resample = self.transformer.inverse_transform(data)
+        result, resample = data_transformer.inverse_transform(data)
 
         # 원하는 n 개 데이터가 다 만들어지지 않은 경우 (invalid id 존재)
         while len(result) < n:
@@ -789,7 +779,7 @@ class CTABGANSynthesizer:
 
             data_resample = np.concatenate(data_resample, axis=0)
 
-            res, resample = self.transformer.inverse_transform(data_resample)
+            res, resample = data_transformer.inverse_transform(data_resample)
             result = np.concatenate([result, res], axis=0)
 
         return result[0:n]

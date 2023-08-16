@@ -13,7 +13,6 @@ RANDOM_SEED = 777
 class DataTransformer:
     def __init__(
         self,
-        train_data: pd.DataFrame,
         categorical_list: list = None,
         mixed_dict: dict = None,
         general_list: list = None,
@@ -35,17 +34,17 @@ class DataTransformer:
         self.meta = None
         self.n_clusters = n_clusters
         self.eps = eps
-        self.train_data = train_data
         self.categorical_columns = categorical_list
         self.mixed_columns = mixed_dict
         self.general_columns = general_list
         self.non_categorical_columns = non_categorical_list
+        self.is_fit_ = False
 
-    def get_metadata(self) -> List[dict]:
+    def get_metadata(self, df: pd.DataFrame) -> List[dict]:
         meta = []
         self.logger.info("[Transformer]: get metadata ...")
-        for index in tqdm(range(self.train_data.shape[1])):
-            column = self.train_data.iloc[:, index]
+        for index in tqdm(range(df.shape[1])):
+            column = df.iloc[:, index]
             # 범주형 컬럼
             if index in self.categorical_columns:
                 # 범주형 컬럼 중 연속형처럼 GT, MSN 적용할 컬럼
@@ -93,10 +92,10 @@ class DataTransformer:
 
         return meta
 
-    def fit(self):
+    def fit(self, train_data: pd.DataFrame):
         """VGM(MSN) 모델 피팅"""
-        data = self.train_data.values
-        self.meta = self.get_metadata()
+        data = train_data.values
+        self.meta = self.get_metadata(train_data)
         model = []  # VGM Model 저장 영역
         self.ordering = []  #
         self.output_info = []  # 데이터 인코딩 후 출력 정보 List[tuple]
@@ -106,7 +105,7 @@ class DataTransformer:
 
         self.logger.info("[Transformer]: fitting start ...")
         for id_, info in enumerate(tqdm(self.meta)):
-            train_columns = self.train_data.columns
+            train_columns = train_data.columns
             colname = train_columns[id_]
             if info["type"] == "continuous":
                 # num. type & single Gaussian 이 아닌 경우: MSN (VGM)
@@ -236,6 +235,7 @@ class DataTransformer:
                 self.output_info += [(info["size"], "softmax", colname)]  # for gamma_i
                 self.output_dim += info["size"]
         self.model = model  # VGM Model 저장 영역
+        self.is_fit_ = True
         self.logger.info("[Transformer]: fitting end ...")
 
     def transform(

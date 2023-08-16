@@ -14,18 +14,20 @@ import warnings
 
 warnings.filterwarnings("ignore")
 
+RANDOM_SEED = 777
+
 
 def supervised_model_training(x_train, y_train, x_test, y_test, model_name):
     if model_name == "lr":
-        model = LogisticRegression(random_state=42, max_iter=500)
+        model = LogisticRegression(random_state=RANDOM_SEED, max_iter=500)
     elif model_name == "svm":
-        model = svm.SVC(random_state=42, probability=True)
+        model = svm.SVC(random_state=RANDOM_SEED, probability=True)
     elif model_name == "dt":
-        model = tree.DecisionTreeClassifier(random_state=42)
+        model = tree.DecisionTreeClassifier(random_state=RANDOM_SEED)
     elif model_name == "rf":
-        model = RandomForestClassifier(random_state=42)
+        model = RandomForestClassifier(random_state=RANDOM_SEED)
     elif model_name == "mlp":
-        model = MLPClassifier(random_state=42, max_iter=100)
+        model = MLPClassifier(random_state=RANDOM_SEED, max_iter=100)
 
     model.fit(x_train, y_train)
     pred = model.predict(x_test)
@@ -71,7 +73,7 @@ def get_utility_metrics(
         data_real_y,
         test_size=test_ratio,
         stratify=data_real_y,
-        random_state=42,
+        random_state=RANDOM_SEED,
     )
 
     if scaler == "MinMax":
@@ -105,7 +107,7 @@ def get_utility_metrics(
             data_fake_y,
             test_size=test_ratio,
             stratify=data_fake_y,
-            random_state=42,
+            random_state=RANDOM_SEED,
         )
 
         if scaler == "MinMax":
@@ -206,10 +208,10 @@ def privacy_metrics(real_path, fake_path, data_percent=15):
     fake = pd.read_csv(fake_path).drop_duplicates(keep=False)
 
     real_refined = real.sample(
-        n=int(len(real) * (0.01 * data_percent)), random_state=42
+        n=int(len(real) * (0.01 * data_percent)), random_state=RANDOM_SEED
     ).to_numpy()
     fake_refined = fake.sample(
-        n=int(len(fake) * (0.01 * data_percent)), random_state=42
+        n=int(len(fake) * (0.01 * data_percent)), random_state=RANDOM_SEED
     ).to_numpy()
 
     scalerR = StandardScaler()

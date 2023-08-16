@@ -6,3 +6,4 @@ dython
 scipy
 tqdm
 termcolor
+wandb
