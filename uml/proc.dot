@@ -3,7 +3,7 @@
 digraph g {
     // graph [pad="0.5", nodesep="0.2", ranksep="0"];
     // splines = ortho
-    splines = curved
+    // splines = curved
     node[shape = box]
     edge[arrowhead = vee]
 
@@ -32,7 +32,8 @@ digraph g {
 
     pps -> gan
     gan -> constraint
-    constraint -> resample
+    constraint -> resample [label="반복"]
+    resample -> constraint
     resample -> derive
     derive -> eval
 

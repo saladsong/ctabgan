@@ -282,15 +282,16 @@ class Sampler(object):
 
 
 class Discriminator(Module):
-    def __init__(self, side: int, layers: List[Module]):
+    def __init__(self, side: int, num_channels: int):
         """build discriminator
 
         Args:
             side (int): 정사각 2d로 변환한 피처의 변의 길이
-            layers (List[Module]): 뉴럴넷 레이어들
+            num_channels (int): CNN 채널 수
         """
         super(Discriminator, self).__init__()
         self.side = side
+        layers = self._determine_layers_disc(side, num_channels)
         info = len(layers) - 2  # 맨 마지막 conv, relu 제외
         self.seq = Sequential(*layers)
         self.seq_info = Sequential(*layers[:info])
@@ -298,92 +299,108 @@ class Discriminator(Module):
     def forward(self, input):
         return (self.seq(input)), self.seq_info(input)
 
+    def _determine_layers_disc(self, side: int, num_channels: int) -> List[Module]:
+        """GAN discriminator를 구성할 torch.nn 레이어들 생성
+
+        Args:
+            side (int): 맨 처음 CNN 레이어의 정사각 이미지의 한 면 크기
+            num_channels (int): CNN 채널 수
+        Return:
+            List[Module]: torch.nn 레이어 리스트
+        """
+
+        layer_dims = [(1, side), (num_channels, side // 2)]  # (channel, side)
+
+        while layer_dims[-1][1] > 3 and len(layer_dims) < 4:
+            layer_dims.append((layer_dims[-1][0] * 2, layer_dims[-1][1] // 2))
+
+        layerNorms = []
+        num_c = num_channels
+        num_s = side / 2
+        for _ in range(len(layer_dims) - 1):
+            layerNorms.append([int(num_c), int(num_s), int(num_s)])
+            num_c = num_c * 2
+            num_s = num_s / 2
+
+        layers_D = []
+
+        for prev, curr, ln in zip(layer_dims, layer_dims[1:], layerNorms):
+            layers_D += [
+                Conv2d(prev[0], curr[0], 4, 2, 1, bias=False),
+                LayerNorm(ln),
+                LeakyReLU(0.2, inplace=True),
+            ]
+
+        layers_D += [Conv2d(layer_dims[-1][0], 1, layer_dims[-1][1], 1, 0), ReLU(True)]
+
+        return layers_D
+
 
 class Generator(Module):
-    """build generator
+    def __init__(self, side: int, random_dim: int, num_channels: int):
+        """build generator
 
-    Args:
-        side (int): 정사각 2d로 변환한 피처의 변의 길이
-        layers (List[Module]): 뉴럴넷 레이어들
-    """
-
-    def __init__(self, side: int, layers: List[Module]):
+        Args:
+            side (int): 정사각 2d로 변환한 피처의 변의 길이
+            random_dim (int): 입력 디멘전, (랜덤 분포 차원 + contional vector) 차원
+            num_channels (int): CNN 채널 수
+        """
         super(Generator, self).__init__()
         self.side = side
+        layers = self._determine_layers_gen(side, random_dim, num_channels)
         self.seq = Sequential(*layers)
 
     def forward(self, input_):
         return self.seq(input_)
 
+    def _determine_layers_gen(
+        self, side: int, random_dim: int, num_channels: int
+    ) -> List[Module]:
+        """GAN generator를 구성할 torch.nn 레이어들 생성
 
-def determine_layers_disc(side, num_channels):
-    # assert side >= 4 and side <= 64  # lsw: 불필요
+        Args:
+            side (int): 맨 처음 CNN 레이어의 정사각 이미지의 한 면 크기
+            random_dim (int): 입력 디멘전, (랜덤 분포 차원 + contional vector) 차원
+            num_channels (int): CNN 채널 수
+        Return:
+            List[Module]: torch.nn 레이어 리스트
+        """
 
-    layer_dims = [(1, side), (num_channels, side // 2)]
+        layer_dims = [(1, side), (num_channels, side // 2)]
 
-    while layer_dims[-1][1] > 3 and len(layer_dims) < 4:
-        layer_dims.append((layer_dims[-1][0] * 2, layer_dims[-1][1] // 2))
+        while layer_dims[-1][1] > 3 and len(layer_dims) < 4:
+            layer_dims.append((layer_dims[-1][0] * 2, layer_dims[-1][1] // 2))
 
-    layerNorms = []
-    num_c = num_channels
-    num_s = side / 2
-    for _ in range(len(layer_dims) - 1):
-        layerNorms.append([int(num_c), int(num_s), int(num_s)])
-        num_c = num_c * 2
-        num_s = num_s / 2
+        layerNorms = []
 
-    layers_D = []
+        num_c = num_channels * (2 ** (len(layer_dims) - 2))
+        num_s = int(side / (2 ** (len(layer_dims) - 1)))
+        for _ in range(len(layer_dims) - 1):
+            layerNorms.append([int(num_c), int(num_s), int(num_s)])
+            num_c = num_c / 2
+            num_s = num_s * 2
 
-    for prev, curr, ln in zip(layer_dims, layer_dims[1:], layerNorms):
-        layers_D += [
-            Conv2d(prev[0], curr[0], 4, 2, 1, bias=False),
-            LayerNorm(ln),
-            LeakyReLU(0.2, inplace=True),
+        layers_G = [
+            ConvTranspose2d(
+                random_dim,
+                layer_dims[-1][0],
+                layer_dims[-1][1],
+                1,
+                0,
+                output_padding=0,
+                bias=False,
+            )
         ]
 
-    layers_D += [Conv2d(layer_dims[-1][0], 1, layer_dims[-1][1], 1, 0), ReLU(True)]
-
-    return layers_D
-
-
-def determine_layers_gen(side, random_dim, num_channels):
-    # assert side >= 4 and side <= 64  # lsw: 불필요
-
-    layer_dims = [(1, side), (num_channels, side // 2)]
-
-    while layer_dims[-1][1] > 3 and len(layer_dims) < 4:
-        layer_dims.append((layer_dims[-1][0] * 2, layer_dims[-1][1] // 2))
-
-    layerNorms = []
-
-    num_c = num_channels * (2 ** (len(layer_dims) - 2))
-    num_s = int(side / (2 ** (len(layer_dims) - 1)))
-    for _ in range(len(layer_dims) - 1):
-        layerNorms.append([int(num_c), int(num_s), int(num_s)])
-        num_c = num_c / 2
-        num_s = num_s * 2
-
-    layers_G = [
-        ConvTranspose2d(
-            random_dim,
-            layer_dims[-1][0],
-            layer_dims[-1][1],
-            1,
-            0,
-            output_padding=0,
-            bias=False,
-        )
-    ]
-
-    for prev, curr, ln in zip(
-        reversed(layer_dims), reversed(layer_dims[:-1]), layerNorms
-    ):
-        layers_G += [
-            LayerNorm(ln),
-            ReLU(True),
-            ConvTranspose2d(prev[0], curr[0], 4, 2, 1, output_padding=0, bias=True),
-        ]
-    return layers_G
+        for prev, curr, ln in zip(
+            reversed(layer_dims), reversed(layer_dims[:-1]), layerNorms
+        ):
+            layers_G += [
+                LayerNorm(ln),
+                ReLU(True),
+                ConvTranspose2d(prev[0], curr[0], 4, 2, 1, output_padding=0, bias=True),
+            ]
+        return layers_G
 
 
 def slerp(alpha: torch.Tensor, low: torch.Tensor, high: torch.Tensor) -> torch.Tensor:
@@ -442,12 +459,13 @@ def weights_init(m):
 class CTABGANSynthesizer:
     def __init__(
         self,
+        *,
         class_dim: Tuple[int] = None,
-        random_dim: int = 100,
+        random_dim: int = 100,  # generartor 에 입력될 랜덤 분포 샘플 차원
         num_channels: int = 64,
         l2scale: float = 1e-5,
         batch_size: int = 500,
-        epochs: int = 1,
+        epochs: int = 50,
     ):
         if class_dim is None:
             class_dim = (256, 256, 256, 256)
@@ -506,54 +524,51 @@ class CTABGANSynthesizer:
         self.cond_generator = Cond(train_data, self.transformer.output_info)
 
         # 컬럼 수 많아지는 경우 여기 늘려야함
-        sides = [4, 8, 16, 24, 32, 64, 128, 256, 512]
-        col_size_d = (
-            data_dim + self.cond_generator.n_opt
-        )  # n_opt: 가용 conditioning 컬럼 개수
-        for i in sides:
-            if i * i >= col_size_d:
-                self.dside = i
-                break
-
-        sides = [4, 8, 16, 24, 32, 64, 128, 256, 512]  # sqaure matrix 의 H(W)
+        # n_opt: 가용 conditioning 컬럼 개수
+        col_size_d = data_dim + self.cond_generator.n_opt
         col_size_g = data_dim
-        for i in sides:
-            if i * i >= col_size_g:
-                self.gside = i
-                break
+        # 1d -> 2d sqaure matrix 변환 위한 side: H(W) 계산. side는 반드시 2의 배수여야 함
+        self.dside = int(np.ceil(col_size_d**0.5))
+        if self.dside % 2 == 1:
+            self.dside = self.dside + 1
+        self.gside = int(np.ceil(col_size_g**0.5))
+        if self.gside % 2 == 1:
+            self.gside = self.gside + 1
+        self.logger.info(f"[gside]: {self.gside}, [dside]: {self.dside}")
 
-        # generator build
-        layers_G = determine_layers_gen(
-            self.gside, self.random_dim + self.cond_generator.n_opt, self.num_channels
+        # build generator
+        col_size_d = self.random_dim + self.cond_generator.n_opt
+        self.generator = Generator(self.gside, col_size_d, self.num_channels).to(
+            self.device
         )
-        self.generator = Generator(self.gside, layers_G).to(self.device)
 
-        # discriminator build
-        layers_D = determine_layers_disc(self.dside, self.num_channels)
-        discriminator = Discriminator(self.dside, layers_D).to(self.device)
+        # build discriminator
+        self.discriminator = Discriminator(self.dside, self.num_channels).to(
+            self.device
+        )
 
         # set optimizer
         optimizer_params = dict(
             lr=2e-4, betas=(0.5, 0.9), eps=1e-3, weight_decay=self.l2scale
         )
         optimizerG = Adam(self.generator.parameters(), **optimizer_params)
-        optimizerD = Adam(discriminator.parameters(), **optimizer_params)
+        optimizerD = Adam(self.discriminator.parameters(), **optimizer_params)
 
         # auxiliary classifier build
         tcol_idx_st_ed_tuple = None  # lsw: 이거 뭐하는데 쓰는거임? -> sjy: classifier 의 타겟 컬럼 idx 찾기 (df transform 으로 idx 가 변화)
-        classifier = None
+        self.classifier = None
         optimizerC = None
         if target_index is not None:
             tcol_idx_st_ed_tuple = get_tcol_idx_st_ed_tuple(
                 target_index, self.transformer.output_info
             )
-            classifier = Classifier(data_dim, self.class_dim, tcol_idx_st_ed_tuple).to(
-                self.device
-            )
-            optimizerC = optim.Adam(classifier.parameters(), **optimizer_params)
+            self.classifier = Classifier(
+                data_dim, self.class_dim, tcol_idx_st_ed_tuple
+            ).to(self.device)
+            optimizerC = optim.Adam(self.classifier.parameters(), **optimizer_params)
 
         self.generator.apply(weights_init)
-        discriminator.apply(weights_init)
+        self.discriminator.apply(weights_init)
 
         self.Gtransformer = ImageTransformer(self.gside)
         self.Dtransformer = ImageTransformer(self.dside)
@@ -612,17 +627,17 @@ class CTABGANSynthesizer:
 
                     # Was loss 최적화 (l_default)
                     # lsw: 아래 GP까지 세개 한번에하면 안되나??, 왜 backward를 각각하지?
-                    d_real, _ = discriminator(real_cat_d)
+                    d_real, _ = self.discriminator(real_cat_d)
                     d_real = -torch.mean(d_real)
                     d_real.backward()
 
-                    d_fake, _ = discriminator(fake_cat_d)
+                    d_fake, _ = self.discriminator(fake_cat_d)
                     d_fake = torch.mean(d_fake)
                     d_fake.backward()
 
                     # GP 적용
                     pen = calc_gradient_penalty_slerp(
-                        discriminator,
+                        self.discriminator,
                         real_cat,
                         fake_cat,
                         self.Dtransformer,
@@ -657,12 +672,12 @@ class CTABGANSynthesizer:
                 fake_cat = torch.cat([fakeact, c], dim=1)
                 fake_cat = self.Dtransformer.transform(fake_cat)
 
-                y_fake, info_fake = discriminator(fake_cat)
+                y_fake, info_fake = self.discriminator(fake_cat)
 
                 # l_gen
                 cross_entropy = cond_loss(faket, self.transformer.output_info, c, m)
 
-                _, info_real = discriminator(real_cat_d)
+                _, info_real = self.discriminator(real_cat_d)
 
                 # l_default + l_gen
                 g = -torch.mean(y_fake) + cross_entropy
@@ -690,8 +705,8 @@ class CTABGANSynthesizer:
                     faket = self.Gtransformer.inverse_transform(fake)
                     fakeact = apply_activate(faket, self.transformer.output_info)
 
-                    real_pre, real_label = classifier(real)
-                    fake_pre, fake_label = classifier(fakeact)
+                    real_pre, real_label = self.classifier(real)
+                    fake_pre, fake_label = self.classifier(fakeact)
 
                     c_loss = CrossEntropyLoss()
 

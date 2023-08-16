@@ -7,6 +7,9 @@ from tqdm.auto import tqdm
 from typing import List
 
 
+RANDOM_SEED = 777
+
+
 class DataTransformer:
     def __init__(
         self,
@@ -114,7 +117,7 @@ class DataTransformer:
                         weight_concentration_prior=0.001,
                         max_iter=100,
                         n_init=1,
-                        random_state=42,
+                        random_state=RANDOM_SEED,
                     )
                     gm.fit(data[:, id_].reshape([-1, 1]))
 
@@ -172,7 +175,7 @@ class DataTransformer:
                     weight_concentration_prior=0.001,
                     max_iter=100,
                     n_init=1,
-                    random_state=42,
+                    random_state=RANDOM_SEED,
                 )
                 # modal(범주/Nan/null...) 제거 후 피팅
                 gm2 = BayesianGaussianMixture(
@@ -181,7 +184,7 @@ class DataTransformer:
                     weight_concentration_prior=0.001,
                     max_iter=100,
                     n_init=1,
-                    random_state=42,
+                    random_state=RANDOM_SEED,
                 )
 
                 gm1.fit(data[:, id_].reshape([-1, 1]))
@@ -569,6 +572,7 @@ class ImageTransformer:
 
     # zero-padding 후 sqaure matrix 형태로 변환
     def transform(self, data):
+        """Transform to shape (#batch, C, H, W)"""
         if self.height * self.height > len(data[0]):
             padding = torch.zeros(
                 (len(data), self.height * self.height - len(data[0]))
