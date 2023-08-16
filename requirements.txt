@@ -7,3 +7,5 @@ scipy
 tqdm
 termcolor
 wandb
+# for ai02
+urllib3<2.0

@@ -53,6 +53,7 @@ class CTABGAN:
         self.logger = logging.getLogger()
 
         self.synthesizer = CTABGANSynthesizer(**params_ctabgan)
+        self.params_ctabgan = params_ctabgan
         self.transformer = transformer
         self.raw_df = raw_df
         self.categorical_columns = categorical_columns
