@@ -150,10 +150,18 @@ def stat_sim(real_path, fake_path, cat_cols=None):
 
     figsize = (12, 12)
     real_corr = associations(
-        real, nominal_columns=cat_cols, figsize=figsize, title="real corr"
+        real,
+        nominal_columns=cat_cols,
+        figsize=figsize,
+        title="real corr",
+        nom_nom_assoc="theil",
     )
     fake_corr = associations(
-        fake, nominal_columns=cat_cols, figsize=figsize, title="fake corr"
+        fake,
+        nominal_columns=cat_cols,
+        figsize=figsize,
+        title="fake corr",
+        nom_nom_assoc="theil",
     )
 
     corr_dist = np.linalg.norm(real_corr["corr"] - fake_corr["corr"])

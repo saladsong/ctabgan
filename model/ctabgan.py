@@ -10,6 +10,7 @@ from model.synthesizer.transformer import DataTransformer
 
 import warnings
 import logging
+import wandb
 
 warnings.filterwarnings("ignore")
 
@@ -66,6 +67,17 @@ class CTABGAN:
 
     def fit(self):
         start_time = time.time()
+        # start a new wandb run to track this script
+        wandb.init(
+            # set the wandb project where this run will be logged
+            project="ctabgan-project",
+            # track hyperparameters and run metadata
+            config={
+                "architecture": "orignal",
+                **self.params_ctabgan,
+            },
+        )
+
         self.logger.info("[CTABGAN]: build data preprocessor start")
         # DataPrep: 데이터 전처리 (오래 걸리는 작업은 아님)
         #   - missing value 처리
@@ -111,6 +123,7 @@ class CTABGAN:
         end_time = time.time()
         self.logger.info(f"Finished training in {end_time - start_time} seconds.")
         self.is_fit_ = True
+        wandb.finish()
 
     def generate_samples(self, n: int = None, transformer: DataTransformer = None):
         assert self.is_fit_, "must fit the model first!!"
@@ -119,7 +132,7 @@ class CTABGAN:
             assert transformer.is_fit_, "you must use fitted data_transformer!!"
             _transformer = transformer
         else:
-            self.transformer
+            _transformer = self.transformer
 
         if n is None:
             n = len(self.raw_df)

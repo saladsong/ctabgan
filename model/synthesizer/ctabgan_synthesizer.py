@@ -25,6 +25,7 @@ from model.synthesizer.transformer import ImageTransformer, DataTransformer
 from model.privacy_utils.rdp_accountant import compute_rdp, get_privacy_spent
 from tqdm.auto import tqdm
 import logging
+import wandb
 from typing import List, Tuple
 
 
@@ -470,6 +471,7 @@ class CTABGANSynthesizer:
         l2scale: float = 1e-5,
         batch_size: int = 500,
         epochs: int = 50,
+        ci: int = 1,  # D(critic) 학습 - ci: 반복 횟수
     ):
         if class_dim is None:
             class_dim = (256, 256, 256, 256)
@@ -485,6 +487,7 @@ class CTABGANSynthesizer:
         self.l2scale = l2scale
         self.batch_size = batch_size
         self.epochs = epochs
+        self.ci = ci
         self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
     def fit(
@@ -563,21 +566,18 @@ class CTABGANSynthesizer:
         self.Gtransformer = ImageTransformer(self.gside)
         self.Dtransformer = ImageTransformer(self.dside)
 
-        epsilon = 0
         epoch = 0
-        steps = 0
-        ci = 1
 
         steps_per_epoch = max(1, len(train_data) // self.batch_size)
         for i in tqdm(range(self.epochs)):
             for id_ in tqdm(range(steps_per_epoch)):
                 # G(generator), D(critic), C(auxiliary classifier) 학습
-                # G: loss_g = l_default + l_info + l_downstream + l_gen
-                # D: loss_d = l_default(Was+GP)
-                # C: loss_c = Cross_entropy
+                # G: loss_g = loss_g_default + loss_g_info + loss_g_dstream + loss_g_gen
+                # D: loss_d = loss_d_was_gp (Was+GP)
+                # C: loss_c = loss_c_dstream
 
                 ### D(critic) 학습 - ci: 반복 횟수
-                for _ in range(ci):
+                for _ in range(self.ci):
                     # 노이즈(z) 및 컨디션 벡터(c) 샘플링
                     noisez = torch.randn(
                         self.batch_size, self.random_dim, device=self.device
@@ -615,15 +615,15 @@ class CTABGANSynthesizer:
 
                     optimizerD.zero_grad()
 
-                    # Was loss 최적화 (l_default)
+                    # Was loss 최적화 (loss_d_was_gp)
                     # lsw: 아래 GP까지 세개 한번에하면 안되나??, 왜 backward를 각각하지?
                     d_real, _ = self.discriminator(real_cat_d)
                     d_real = -torch.mean(d_real)
-                    d_real.backward()
+                    # d_real.backward()
 
                     d_fake, _ = self.discriminator(fake_cat_d)
                     d_fake = torch.mean(d_fake)
-                    d_fake.backward()
+                    # d_fake.backward()
 
                     # GP 적용
                     pen = calc_gradient_penalty_slerp(
@@ -633,9 +633,12 @@ class CTABGANSynthesizer:
                         self.Dtransformer,
                         self.device,
                     )
-                    pen.backward()
+                    # pen.backward()
+                    loss_d_was_gp = d_real + d_fake + pen
+                    loss_d_was_gp.backward()
 
                     optimizerD.step()
+                    wandb.log({"gp": pen, "loss_d_was_gp": loss_d_was_gp})
 
                 ### G(generator) 학습
 
@@ -664,16 +667,15 @@ class CTABGANSynthesizer:
 
                 y_fake, info_fake = self.discriminator(fake_cat)
 
-                # l_gen
+                # loss_g_gen
                 cross_entropy = cond_loss(faket, data_transformer.output_info, c, m)
 
                 _, info_real = self.discriminator(real_cat_d)
 
-                # l_default + l_gen
-                g = -torch.mean(y_fake) + cross_entropy
-                g.backward(retain_graph=True)
+                # loss_g_default
+                loss_g_default = -torch.mean(y_fake)
 
-                # l_info
+                # loss_g_info
                 loss_mean = torch.norm(
                     torch.mean(info_fake.view(self.batch_size, -1), dim=0)
                     - torch.mean(info_real.view(self.batch_size, -1), dim=0),
@@ -684,11 +686,20 @@ class CTABGANSynthesizer:
                     - torch.std(info_real.view(self.batch_size, -1), dim=0),
                     1,
                 )
-                loss_info = loss_mean + loss_std
-                loss_info.backward()
-                optimizerG.step()
+                loss_g_info = loss_mean + loss_std
 
-                # l_downstream
+                loss_g = loss_g_default + loss_g_info + cross_entropy
+                loss_g.backward()
+                optimizerG.step()
+                wandb.log(
+                    {
+                        "loss_g_default": loss_g_default,
+                        "loss_g_info": loss_g_info,
+                        "loss_g_gen": cross_entropy,
+                    }
+                )
+
+                # loss_g_dstream
                 if problem_type:
                     # lsw: 그냥 위의 fake 그대로 쓰면 안됨? 왜 다시 게산하지?
                     fake = self.generator(noisez)
@@ -714,18 +725,27 @@ class CTABGANSynthesizer:
                         real_label = real_label.type_as(real_pre)
                         fake_label = fake_label.type_as(fake_pre)
 
-                    loss_cc = c_loss(real_pre, real_label)
-                    loss_cg = c_loss(fake_pre, fake_label)
+                    loss_c_dstream = c_loss(real_pre, real_label)
+                    loss_g_dstream = c_loss(fake_pre, fake_label)
 
-                    # l_downstream for Generator
+                    # loss_g_dstream for Generator
                     optimizerG.zero_grad()
-                    loss_cg.backward()
+                    loss_g_dstream.backward()
                     optimizerG.step()
 
-                    # l_downstream for Classifier
+                    # loss_g_dstream for Classifier
                     optimizerC.zero_grad()
-                    loss_cc.backward()
+                    loss_c_dstream.backward()
                     optimizerC.step()
+                    wandb.log(
+                        {
+                            "loss_g_dstream": loss_g_dstream,
+                            "loss_g": loss_g + loss_g_dstream,
+                            "loss_c_dstream": loss_c_dstream,
+                        }
+                    )
+                else:
+                    wandb.log({"loss_g": loss_g})
 
             epoch += 1
 
