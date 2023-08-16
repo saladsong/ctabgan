@@ -15,7 +15,6 @@ class DataPrep(object):
         non_categorical: list,
         integer: list,
         ptype: dict,
-        test_ratio: float,
     ):
         self.categorical_columns = categorical  # cate type
         self.log_columns = log  # num type 중 long-tail dist.
@@ -54,36 +53,26 @@ class DataPrep(object):
 
         # data imputation
         # lsw: 이 부분은 데이터셋에 따라 변경 필요
-        self.df = self.df.replace(r" ", np.nan)
+        # self.df = self.df.replace(r" ", np.nan)
         self.df = self.df.fillna("empty")
+        # # 데이터 타입에 따른 fillna 수행
+        # for col in self.df.columns:
+        #     if self.df[col].dtype == "object":  # 문자열 타입
+        #         self.df[col].fillna("empty", inplace=True)
+        #     elif self.df[col].dtype in ["int", "float"]:  # 숫자 타입
+        #         self.df[col].fillna(-9999999, inplace=True)
 
         all_columns = set(self.df.columns)
         irrelevant_missing_columns = set(self.categorical_columns)
         # numeric, mixed type
         relevant_missing_columns = list(all_columns - irrelevant_missing_columns)
 
-        # 수치형 컬럼 중 null 값 존재시에 -9999999 등록/추가하고 mixed 타입으로 변경
-        # for i in relevant_missing_columns:
-        #     if i in self.log_columns:
-        #         if "empty" in list(self.df[i].values):
-        #             self.df[i] = self.df[i].apply(
-        #                 lambda x: -9999999 if x == "empty" else x
-        #             )
-        #             self.mixed_columns[i] = [-9999999]
-        #     elif i in list(self.mixed_columns.keys()):
-        #         if "empty" in list(self.df[i].values):
-        #             self.df[i] = self.df[i].apply(
-        #                 lambda x: -9999999 if x == "empty" else x
-        #             )
-        #             self.mixed_columns[i].append(-9999999)
-        #     else:
-        #         if "empty" in list(self.df[i].values):
-        #             self.df[i] = self.df[i].apply(
-        #                 lambda x: -9999999 if x == "empty" else x
-        #             )
-        #             self.mixed_columns[i] = [-9999999]
+        # numeric, mixed type 컬럼 중 null 값 존재시에 -9999999 등록/추가하고 mixed 타입으로 변경
         for i in relevant_missing_columns:
             if "empty" in self.df[i].values:
+                self.df[i] = self.df[i].replace(
+                    "empty", -9999999
+                )  # numeric, mixed type 은 null 값 -9999999 로 변경
                 if i in self.mixed_columns.keys():
                     self.mixed_columns[i].append(-9999999)
                 else:
@@ -120,7 +109,7 @@ class DataPrep(object):
             if column in self.categorical_columns:
                 label_encoder = preprocessing.LabelEncoder()
                 label_encoder.fit(self.df[column])
-                # label_encoder.fit(self.df[column].astype(str))  # LabelEncoder 강제 형변환 불필요
+                # label_encoder.fit(self.df[column].astype(str))
                 self.df[column] = label_encoder.transform(self.df[column])
                 current_label_encoder = {
                     "column": column,

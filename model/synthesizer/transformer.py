@@ -11,13 +11,23 @@ class DataTransformer:
     def __init__(
         self,
         train_data: pd.DataFrame,
-        categorical_list: list = [],
-        mixed_dict: dict = {},
-        general_list: list = [],
-        non_categorical_list: list = [],
+        categorical_list: list = None,
+        mixed_dict: dict = None,
+        general_list: list = None,
+        non_categorical_list: list = None,
         n_clusters: int = 10,
         eps: float = 0.005,
     ):
+        # set initial params
+        if categorical_list is None:
+            categorical_list = []
+        if mixed_dict is None:
+            mixed_dict = {}
+        if general_list is None:
+            general_list = []
+        if non_categorical_list is None:
+            non_categorical_list = []
+
         self.logger = logging.getLogger()
         self.meta = None
         self.n_clusters = n_clusters
@@ -64,9 +74,7 @@ class DataTransformer:
                         "type": "mixed",
                         "min": column.min(),
                         "max": column.max(),
-                        "modal": self.mixed_columns[
-                            index
-                        ],  # given 0.0 or -9999999 for nan
+                        "modal": self.mixed_columns[index],  # given -9999999 for nan
                     }
                 )
             # 연속형 컬럼
@@ -233,7 +241,7 @@ class DataTransformer:
         """encode data row"""
         values = []
         mixed_counter = 0
-        for id_, info in enumerate(self.meta):
+        for id_, info in enumerate(tqdm(self.meta)):
             current = data[:, id_]
             if info["type"] == "continuous":
                 # MSN 적용 대상 컬럼인 경우: get alpha_i, beta_i

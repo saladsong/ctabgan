@@ -5,3 +5,4 @@ scikit-learn
 dython
 scipy
 tqdm
+termcolor

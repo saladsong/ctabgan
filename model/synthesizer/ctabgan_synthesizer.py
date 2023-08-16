@@ -442,13 +442,16 @@ def weights_init(m):
 class CTABGANSynthesizer:
     def __init__(
         self,
-        class_dim=(256, 256, 256, 256),
-        random_dim=100,
-        num_channels=64,
-        l2scale=1e-5,
-        batch_size=500,
-        epochs=1,
+        class_dim: Tuple[int] = None,
+        random_dim: int = 100,
+        num_channels: int = 64,
+        l2scale: float = 1e-5,
+        batch_size: int = 500,
+        epochs: int = 1,
     ):
+        if class_dim is None:
+            class_dim = (256, 256, 256, 256)
+
         # for logger
         self.logger = logging.getLogger()
 
@@ -503,7 +506,7 @@ class CTABGANSynthesizer:
         self.cond_generator = Cond(train_data, self.transformer.output_info)
 
         # 컬럼 수 많아지는 경우 여기 늘려야함
-        sides = [4, 8, 16, 24, 32, 64]
+        sides = [4, 8, 16, 24, 32, 64, 128, 256, 512]
         col_size_d = (
             data_dim + self.cond_generator.n_opt
         )  # n_opt: 가용 conditioning 컬럼 개수
@@ -512,7 +515,7 @@ class CTABGANSynthesizer:
                 self.dside = i
                 break
 
-        sides = [4, 8, 16, 24, 32, 64]  # sqaure matrix 의 H(W)
+        sides = [4, 8, 16, 24, 32, 64, 128, 256, 512]  # sqaure matrix 의 H(W)
         col_size_g = data_dim
         for i in sides:
             if i * i >= col_size_g:

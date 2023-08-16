@@ -16,39 +16,41 @@ warnings.filterwarnings("ignore")
 class CTABGAN:
     def __init__(
         self,
-        raw_csv_path="Real_Datasets/Adult.csv",
-        test_ratio=0.20,
-        categorical_columns=[
-            "workclass",
-            "education",
-            "marital-status",
-            "occupation",
-            "relationship",
-            "race",
-            "gender",
-            "native-country",
-            "income",
-        ],
-        log_columns=[],
-        mixed_columns={"capital-loss": [0.0], "capital-gain": [0.0]},
-        general_columns=["age"],  # categorical 중 one-hot 안하고 GT 적용할 컬럼들도 같이 적어줘야 함
-        non_categorical_columns=[],  # categorical 중 one-hot 안하고 MSN 적용할 컬럼들...  lsw: 헷갈림. 이름 변경필요
-        integer_columns=[
-            "age",
-            "fnlwgt",
-            "capital-gain",
-            "capital-loss",
-            "hours-per-week",
-        ],
-        problem_type={"Classification": "income"},
+        raw_df: pd.DataFrame,
+        *,
+        categorical_columns: list = None,
+        log_columns: list = None,
+        mixed_columns: dict = None,  # {"capital-loss": [0.0], "capital-gain": [0.0]} 포맷으로 입력
+        general_columns: list = None,  # categorical 중 one-hot 안하고 GT 적용할 컬럼들도 같이 적어줘야 함
+        non_categorical_columns: list = None,  # categorical 중 one-hot 안하고 MSN 적용할 컬럼들...  lsw: 헷갈림. 이름 변경필요
+        integer_columns: list = None,
+        problem_type: dict = None,  # {"Classification": "income"} 포맷으로 입력
+        params_ctabgan: dict = None,  # CTABGANSynthesizer 에 적용할 파라메터 딕셔너리
     ):
         self.__name__ = "CTABGAN"
+        # set initial params
+        if categorical_columns is None:
+            categorical_columns = []
+        if log_columns is None:
+            log_columns = []
+        if mixed_columns is None:
+            mixed_columns = {}
+        if general_columns is None:
+            general_columns = []
+        if non_categorical_columns is None:
+            non_categorical_columns = []
+        if integer_columns is None:
+            integer_columns = []
+        if problem_type is None:
+            problem_type = {}
+        if params_ctabgan is None:
+            params_ctabgan = {}
+
         # for logger
         self.logger = logging.getLogger()
 
-        self.synthesizer = CTABGANSynthesizer()
-        self.raw_df = pd.read_csv(raw_csv_path)
-        self.test_ratio = test_ratio
+        self.synthesizer = CTABGANSynthesizer(**params_ctabgan)
+        self.raw_df = raw_df
         self.categorical_columns = categorical_columns
         self.log_columns = log_columns
         self.mixed_columns = mixed_columns
@@ -70,7 +72,6 @@ class CTABGAN:
             self.non_categorical_columns,
             self.integer_columns,
             self.problem_type,
-            self.test_ratio,
         )
         self.logger.info("[CTABGAN]: build data preprocessor end")
         self.logger.info("[CTABGAN]: fit synthesizer start")

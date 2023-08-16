@@ -1,0 +1,39 @@
+// dot -Tpng comp.dot -o comp.png
+
+digraph g {
+    // graph [pad="0.5", nodesep="0.2", ranksep="0"];
+    // splines = ortho
+    splines = curved
+    node[shape = box]
+    edge[arrowhead = vee]
+
+    pps [label="원시 데이터 전처리"]
+    // - 컬럼 메타정리 (con, cat, mixed, log ...)
+    // - 컬럼 관계 파악 (제약조건, 수식관계)
+    //   - 파생 컬럼 제거
+    // - 독립 컬럼 그룹 블록화 (상관관계)
+    
+    gan [label="CTAB-GAN 모델 데이터 합성"]
+
+    constraint [label="컬럼간 제약조건 체크"]
+    // - 제약조건 필터링
+    // - 수식관계 필터링
+
+    resample [label="제약조건 필터링으로 인한 리샘플링"]
+    // - 제약조건 필터링으로 인해 분포 너무 망가지지 않았는지 체크 필요
+
+    derive [label="파생컬럼 재현"]
+    // - 수식관계 이용 파새컬럼 재현
+
+    eval [label="품질지표 평가"]
+    // - JSD
+    // - diff. corr.
+    // - pMSE
+
+    pps -> gan
+    gan -> constraint
+    constraint -> resample
+    resample -> derive
+    derive -> eval
+
+}
