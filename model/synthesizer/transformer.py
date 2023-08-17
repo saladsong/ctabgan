@@ -5,7 +5,8 @@ from sklearn.mixture import BayesianGaussianMixture
 import logging
 from tqdm.auto import tqdm
 from typing import List
-
+import pickle
+import os
 
 RANDOM_SEED = 777
 
@@ -564,6 +565,23 @@ class DataTransformer:
         valid_ids = list(set(all_ids) - set(invalid_ids))
 
         return data_t[valid_ids], len(invalid_ids)
+
+    def save(self, mpath: str):
+        assert self.is_fit_, "only fitted model could be saved, fit first please..."
+        os.makedirs(mpath, exist_ok=True)
+
+        with open(os.path.join(mpath, "transformer.pickle"), "wb") as f:
+            pickle.dump(self, f)
+            self.logger.info(f"[DataTransformer]: Model saved at {mpath}")
+        return
+
+    @staticmethod
+    def load(mpath: str) -> "DataTransformer":
+        if not os.path.exists(mpath):
+            raise FileNotFoundError(f"[DataTransformer]: Model not exists at {mpath}")
+        with open(mpath, "rb") as f:
+            loaded_model = pickle.load(f)
+        return loaded_model
 
 
 class ImageTransformer:

@@ -1,5 +1,8 @@
 /**/__pycache__
 .ipynb_checkpoints
+*.ipynb
 dev
 Real_datasets/*
 Fake_datasets/*
+wandb
+save
