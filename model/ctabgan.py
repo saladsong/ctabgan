@@ -27,7 +27,6 @@ class CTABGAN:
         non_categorical_columns: list = None,  # categorical 중 one-hot 안하고 MSN 적용할 컬럼들...  lsw: 헷갈림. 이름 변경필요
         integer_columns: list = None,
         problem_type: dict = None,  # {"Classification": "income"} 포맷으로 입력
-        params_ctabgan: dict = None,  # CTABGANSynthesizer 에 적용할 파라메터 딕셔너리
         transformer: DataTransformer = None,
     ):
         self.__name__ = "CTABGAN"
@@ -46,15 +45,13 @@ class CTABGAN:
             integer_columns = []
         if problem_type is None:
             problem_type = {}
-        if params_ctabgan is None:
-            params_ctabgan = {}
 
         # for logger
         self.logger = logging.getLogger()
 
-        self.synthesizer = CTABGANSynthesizer(**params_ctabgan)
-        self.params_ctabgan = params_ctabgan
-        self.transformer = transformer
+        self.transformer = (
+            transformer  # transformer 의 경우 VGM 학습에 오랜 시간이 걸리므로 저장 후 재사용 가능토록 함.
+        )
         self.raw_df = raw_df
         self.categorical_columns = categorical_columns
         self.log_columns = log_columns
@@ -66,11 +63,8 @@ class CTABGAN:
 
         self.is_fit_ = False
 
-    def pps(self, transformer_save_path: str = None):
-        """본격적인 GAN 모델 학습에 앞서 입력 데이터의 인코딩에 사용되는 DataPrep, DataTransformer 를 적합 시키고 그 객체를 준비
-        Args:
-            transformer_save_path (str): transformer 저장 위치 path.  transformer 의 경우 VGM 학급에 오랜 시간이 걸리므로 저장 후 재사용 가능토록 함.
-        """
+    def pps(self):
+        """본격적인 GAN 모델 학습에 앞서 입력 데이터의 인코딩에 사용되는 DataPrep, DataTransformer 를 적합 시키고 그 객체를 준비"""
         self.logger.info("[CTABGAN]: build data preprocessor start")
         # DataPrep: 데이터 전처리 (오래 걸리는 작업은 아님)
         #   - missing value 처리
@@ -103,12 +97,12 @@ class CTABGAN:
         else:
             self.logger.info("[CTABGAN]: use already fitted transformer")
 
-        # save transforemer
-        if transformer_save_path is not None:
-            self.transformer.save(transformer_save_path)
-
-    def fit(self):
+    def fit(self, **kwargs):
+        """CTABGAN 모델 학습"""
         start_time = time.time()
+        self.synthesizer = CTABGANSynthesizer(**kwargs)
+        self.params_ctabgan = kwargs
+
         # start a new wandb run to track this script
         wandb.init(
             # set the wandb project where this run will be logged
