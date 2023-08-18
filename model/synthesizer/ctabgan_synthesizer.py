@@ -90,13 +90,13 @@ def apply_activate(data, output_info):
     st = 0
     for item in output_info:
         if item[1] == "tanh":
-            ed = st + item[0]
-            data_t.append(torch.tanh(data[:, st:ed]))
-            st = ed
+            end = st + item[0]
+            data_t.append(torch.tanh(data[:, st:end]))
+            st = end
         elif item[1] == "softmax":
-            ed = st + item[0]
-            data_t.append(F.gumbel_softmax(data[:, st:ed], tau=0.2))
-            st = ed
+            end = st + item[0]
+            data_t.append(F.gumbel_softmax(data[:, st:end], tau=0.2))
+            st = end
     return torch.cat(data_t, dim=1)
 
 
@@ -128,9 +128,9 @@ def get_tcol_idx_st_ed_tuple(
             c += 1
         tc += 1
 
-    ed = st + output_info[tc][0]
+    end = st + output_info[tc][0]
 
-    return (st, ed)
+    return (st, end)
 
 
 def random_choice_prob_index_sampling(probs, col_idx):
@@ -168,10 +168,10 @@ class Cond(object):
                 st += item[0]
                 continue
             elif item[1] == "softmax":
-                ed = st + item[0]
+                end = st + item[0]
                 counter += 1
-                self.model.append(np.argmax(data[:, st:ed], axis=-1))
-                st = ed
+                self.model.append(np.argmax(data[:, st:end], axis=-1))
+                st = end
 
         self.interval = []
         self.n_col = 0
@@ -184,9 +184,9 @@ class Cond(object):
                 st += item[0]
                 continue
             elif item[1] == "softmax":
-                ed = st + item[0]
-                tmp = np.sum(data[:, st:ed], axis=0)
-                tmp_sampling = np.sum(data[:, st:ed], axis=0)
+                end = st + item[0]
+                tmp = np.sum(data[:, st:end], axis=0)
+                tmp_sampling = np.sum(data[:, st:end], axis=0)
                 tmp = np.log(tmp + 1)
                 tmp = tmp / np.sum(tmp)
                 tmp_sampling = tmp_sampling / np.sum(tmp_sampling)
@@ -195,7 +195,7 @@ class Cond(object):
                 self.interval.append((self.n_opt, item[0]))
                 self.n_opt += item[0]
                 self.n_col += 1
-                st = ed
+                st = end
 
         self.interval = np.asarray(self.interval)
 
@@ -241,13 +241,13 @@ def cond_loss(data, output_info, c, m):
             continue
 
         elif item[1] == "softmax":
-            ed = st + item[0]
+            end = st + item[0]
             ed_c = st_c + item[0]
             tmp = F.cross_entropy(
-                data[:, st:ed], torch.argmax(c[:, st_c:ed_c], dim=1), reduction="none"
+                data[:, st:end], torch.argmax(c[:, st_c:ed_c], dim=1), reduction="none"
             )
             loss.append(tmp)
-            st = ed
+            st = end
             st_c = ed_c
 
     loss = torch.stack(loss, dim=1)
@@ -269,12 +269,12 @@ class Sampler(object):
                 st += item[0]
                 continue
             elif item[1] == "softmax":
-                ed = st + item[0]
+                end = st + item[0]
                 tmp = []
                 for j in range(item[0]):
                     tmp.append(np.nonzero(data[:, st + j])[0])
                 self.model.append(tmp)
-                st = ed
+                st = end
 
     def sample(self, n, col, opt):
         if col is None:

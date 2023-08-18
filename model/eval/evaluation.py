@@ -53,7 +53,7 @@ def supervised_model_training(x_train, y_train, x_test, y_test, model_name):
 
 def get_utility_metrics(
     real_path,
-    fake_paths,
+    fake_path,
     scaler="MinMax",
     classifiers=["lr", "dt", "rf", "mlp"],
     test_ratio=0.20,
@@ -96,45 +96,38 @@ def get_utility_metrics(
         )
         all_real_results.append(real_results)
 
-    all_fake_results_avg = []
-
-    for fake_path in fake_paths:
-        data_fake = pd.read_csv(fake_path).to_numpy()
-        data_fake_y = data_fake[:, -1]
-        data_fake_X = data_fake[:, : data_dim - 1]
-        X_train_fake, _, y_train_fake, _ = model_selection.train_test_split(
-            data_fake_X,
-            data_fake_y,
-            test_size=test_ratio,
-            stratify=data_fake_y,
-            random_state=RANDOM_SEED,
-        )
-
-        if scaler == "MinMax":
-            scaler_fake = MinMaxScaler()
-        else:
-            scaler_fake = StandardScaler()
-
-        scaler_fake.fit(data_fake_X)
-
-        X_train_fake_scaled = scaler_fake.transform(X_train_fake)
-
-        all_fake_results = []
-        for classifier in classifiers:
-            fake_results = supervised_model_training(
-                X_train_fake_scaled,
-                y_train_fake,
-                X_test_real_scaled,
-                y_test_real,
-                classifier,
-            )
-            all_fake_results.append(fake_results)
-
-        all_fake_results_avg.append(all_fake_results)
-
-    diff_results = np.array(all_real_results) - np.array(all_fake_results_avg).mean(
-        axis=0
+    data_fake = pd.read_csv(fake_path).to_numpy()
+    data_fake_y = data_fake[:, -1]
+    data_fake_X = data_fake[:, : data_dim - 1]
+    X_train_fake, _, y_train_fake, _ = model_selection.train_test_split(
+        data_fake_X,
+        data_fake_y,
+        test_size=test_ratio,
+        stratify=data_fake_y,
+        random_state=RANDOM_SEED,
     )
+
+    if scaler == "MinMax":
+        scaler_fake = MinMaxScaler()
+    else:
+        scaler_fake = StandardScaler()
+
+    scaler_fake.fit(data_fake_X)
+
+    X_train_fake_scaled = scaler_fake.transform(X_train_fake)
+
+    all_fake_results = []
+    for classifier in classifiers:
+        fake_results = supervised_model_training(
+            X_train_fake_scaled,
+            y_train_fake,
+            X_test_real_scaled,
+            y_test_real,
+            classifier,
+        )
+        all_fake_results.append(fake_results)
+
+    diff_results = np.array(all_real_results) - np.array(all_fake_results)
 
     return diff_results
 
