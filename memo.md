@@ -28,6 +28,8 @@ pyreverse -o png model
   - vgm 모델 저장/로드 구현 [x]
 - transformer.transform, inverse_transform 싱글 스레드로 되는데 컬럼 유닛모델별로 병렬처리 [x]
 - generator, discriminator side 자유롭도록 변경 [x]
+- gan 모델 포함 전체 저장/로드 구현
+- data 2d -> 3d 변경, gan channel 여러개 변경
 
 - 현재 1000 -> 6400 정도 뻥튀기
   - OOM 남

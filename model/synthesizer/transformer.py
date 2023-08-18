@@ -588,7 +588,7 @@ class DataTransformer:
         with Manager() as manager:
             # queue = manager.Queue()
             with Pool(num_workers) as pool:
-                with tqdm(total=data.shape[1]) as pbar:
+                with tqdm(total=len(self.meta)) as pbar:
                     results = []
                     # run multi processes
                     for i, info in enumerate(self.meta):
@@ -627,9 +627,9 @@ class DataTransformer:
         """generated data 를 원본 데이터 형태로 decode"""
         values = []
         invalid_ids_merged = []  # fake 를 decode 해보니 컬럼 조건(min, max) 에 위배되는 경우
-        st = 0
-        for info in tqdm(self.meta):
+        for i, info in enumerate(tqdm(self.meta)):
             id_ = info["name"]  # 0, 1, 2 ... 순서대로 들어있음
+            assert i == id_
             st, end = info["st"], info["end"]
             arr = data[:, st:end]
             decoded, _invalid_ids = decode_column(self, arr, info)
@@ -641,12 +641,50 @@ class DataTransformer:
         all_ids = np.arange(0, len(data))
         valid_ids = list(set(all_ids) - set(invalid_ids_merged))
 
-        # return values, len(invalid_ids_merged)
         return values[valid_ids], len(invalid_ids_merged)
 
     def _parallel_inverse_transform(self, data: np.ndarray) -> Tuple[np.ndarray, list]:
         """generated data 를 원본 데이터 형태로 parallel decode"""
-        pass
+        num_workers = int(cpu_count() * 0.9)
+        # queue = Queue()
+
+        def callback(result):
+            """tqdm 업데이트용 콜백함수"""
+            pbar.update(1)
+
+        values = []
+        invalid_ids_merged = []  # fake 를 decode 해보니 컬럼 조건(min, max) 에 위배되는 경우
+        st = 0
+        with Manager() as manager:
+            # queue = manager.Queue()
+            with Pool(num_workers) as pool:
+                with tqdm(total=len(self.meta)) as pbar:
+                    results = []
+                    # run multi processes
+                    for i, info in enumerate(self.meta):
+                        id_ = info["name"]
+                        assert i == id_
+                        st, end = info["st"], info["end"]
+                        arr = data[:, st:end]
+                        results.append(
+                            pool.apply_async(
+                                decode_column,
+                                args=(self, arr, info),
+                                callback=callback,
+                            )
+                        )
+                    # gather results
+                    for id_, r in enumerate(results):
+                        decoded, _invalid_ids = r.get()
+                        values.append(decoded)  # decoded (N,) 1d-array
+                        invalid_ids_merged += _invalid_ids
+
+        values = np.column_stack(values)  # make values (N, #columns) 2d-array
+        invalid_ids_merged = np.unique(invalid_ids_merged)
+        all_ids = np.arange(0, len(data))
+        valid_ids = list(set(all_ids) - set(invalid_ids_merged))
+
+        return values[valid_ids], len(invalid_ids_merged)
 
     def save(self, mpath: str):
         assert self.is_fit_, "only fitted model could be saved, fit first please..."
