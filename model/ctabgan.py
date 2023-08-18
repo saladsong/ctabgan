@@ -97,7 +97,7 @@ class CTABGAN:
         else:
             self.logger.info("[CTABGAN]: use already fitted transformer")
 
-    def fit(self, **kwargs):
+    def fit(self, use_parallel_transfrom: bool = False, **kwargs):
         """CTABGAN 모델 학습"""
         start_time = time.time()
         self.synthesizer = CTABGANSynthesizer(**kwargs)
@@ -121,6 +121,7 @@ class CTABGAN:
             train_data=self.data_prep.df,
             data_transformer=self.transformer,
             ptype=self.problem_type,
+            use_parallel_transfrom=use_parallel_transfrom,
         )
         self.logger.info("[CTABGAN]: fit synthesizer end")
         end_time = time.time()
@@ -129,7 +130,12 @@ class CTABGAN:
         self.is_fit_ = True
         wandb.finish()
 
-    def generate_samples(self, n: int = None, transformer: DataTransformer = None):
+    def generate_samples(
+        self,
+        n: int = None,
+        transformer: DataTransformer = None,
+        use_parallel_inverse_transfrom: bool = False,
+    ):
         assert self.is_fit_, "must fit the model first!!"
 
         if isinstance(transformer, DataTransformer):
@@ -140,7 +146,11 @@ class CTABGAN:
 
         if n is None:
             n = len(self.raw_df)
-        sample = self.synthesizer.sample(n, _transformer)
+        sample = self.synthesizer.sample(
+            n,
+            _transformer,
+            use_parallel_inverse_transfrom=use_parallel_inverse_transfrom,
+        )
         sample_df = self.data_prep.inverse_prep(sample)
 
         return sample_df

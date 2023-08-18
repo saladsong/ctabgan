@@ -492,23 +492,27 @@ class CTABGANSynthesizer:
 
     def fit(
         self,
-        train_data=pd.DataFrame,
-        data_transformer=DataTransformer,
-        ptype={},
+        train_data: pd.DataFrame,
+        data_transformer: DataTransformer,
+        ptype: dict = None,
+        use_parallel_transfrom: bool = False,
     ):
         # auxiliary classifier 타겟 컬럼 셋팅
         # lsw: 추후 코드 최적화 필요
         problem_type = None
         target_index = None
-        if ptype:  # ex) {"Classification": "income"}
+        if ptype is not None:  # ex) {"Classification": "income"}
             problem_type = list(ptype.keys())[0]
             target_index = train_data.columns.get_loc(
                 ptype[problem_type]
             )  # data_prep 에서 target_col 맨 마지막으로 밀었음
 
         # lsw: 실제 데이터 전처리(인코딩)하는 부분
-        train_data = data_transformer.transform(train_data.values)
-        self.logger.info("[CTAB-SYN]: now transform data end")
+        self.logger.info("[CTAB-SYN]: data transformation start")
+        train_data = data_transformer.transform(
+            train_data.values, use_parallel_transfrom=use_parallel_transfrom
+        )
+        self.logger.info("[CTAB-SYN]: data transformation end")
 
         # 데이터 샘플링 객체
         data_sampler = Sampler(train_data, data_transformer.output_info)
@@ -749,7 +753,12 @@ class CTABGANSynthesizer:
 
             epoch += 1
 
-    def sample(self, n: int, data_transformer: DataTransformer):
+    def sample(
+        self,
+        n: int,
+        data_transformer: DataTransformer,
+        use_parallel_inverse_transfrom: bool = False,
+    ):
         self.generator.eval()
 
         output_info = data_transformer.output_info
@@ -773,12 +782,19 @@ class CTABGANSynthesizer:
             data.append(fakeact.detach().cpu().numpy())
 
         data = np.concatenate(data, axis=0)
-        result, resample = data_transformer.inverse_transform(data)
+        self.logger.info("[CTAB-SYN]: data inverse transformation start")
+        result, num_for_resample = data_transformer.inverse_transform(
+            data, use_parallel_inverse_transfrom=use_parallel_inverse_transfrom
+        )
+        self.logger.info("[CTAB-SYN]: data inverse transformation end")
 
         # 원하는 n 개 데이터가 다 만들어지지 않은 경우 (invalid id 존재)
         while len(result) < n:
+            self.logger.info(
+                f"[CTAB-SYN]: sythesized data has {num_for_resample}/{n} ({round(num_for_resample/n * 100)}%) invalid row... so sample it again."
+            )
             data_resample = []
-            steps_left = resample // self.batch_size + 1
+            steps_left = num_for_resample // self.batch_size + 1
 
             for i in range(steps_left):
                 noisez = torch.randn(
@@ -799,7 +815,10 @@ class CTABGANSynthesizer:
 
             data_resample = np.concatenate(data_resample, axis=0)
 
-            res, resample = data_transformer.inverse_transform(data_resample)
+            res, num_for_resample = data_transformer.inverse_transform(
+                data_resample,
+                use_parallel_inverse_transfrom=use_parallel_inverse_transfrom,
+            )
             result = np.concatenate([result, res], axis=0)
 
         return result[0:n]

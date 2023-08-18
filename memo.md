@@ -26,7 +26,7 @@ pyreverse -o png model
   - data transformer 최상위로 올리기 [x]
   - data transformer 내에 train data 저장하는 부분 제거 [x]
   - vgm 모델 저장/로드 구현 [x]
-- transformer.transform 싱글 스레드로 되는데 컬럼 유닛모델별로 병렬처리
+- transformer.transform, inverse_transform 싱글 스레드로 되는데 컬럼 유닛모델별로 병렬처리 [x]
 - generator, discriminator side 자유롭도록 변경 [x]
 
 - 현재 1000 -> 6400 정도 뻥튀기

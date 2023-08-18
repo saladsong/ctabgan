@@ -7,7 +7,7 @@ from tqdm.auto import tqdm
 from typing import List, Union, Tuple
 import pickle
 import os
-from multiprocessing import Process, Queue, Pool, cpu_count
+from multiprocessing import Queue, Pool, Manager, cpu_count
 
 # from model.synthesizer.utils import get_tcol_idx_st_ed_tuple
 
@@ -20,7 +20,7 @@ def encode_column(
     info: dict,
     ispositive=False,
     positive_list=None,
-) -> Union[np.array, List[np.array]]:
+) -> Tuple[Union[np.ndarray, List[np.array]], np.ndarray]:
     """encode single column"""
     len_data = len(arr)
     id_ = info["name"]
@@ -80,7 +80,7 @@ def encode_column(
             # lsw: 불필요
             # n = probs_onehot.shape[1]  # #valid_mode
             # largest_indices = np.argsort(-1 * col_sums)[:n]  # 큰값부터 인덱싱
-            transformer.ordering[id_] = largest_indices  # (#valid_mode,)
+            order = largest_indices  # (#valid_mode,)
 
             for id, val in enumerate(largest_indices):
                 re_ordered_phot[:, id] = probs_onehot[:, val]
@@ -93,7 +93,7 @@ def encode_column(
         # GT 적용 대상 컬럼인 경우: transform to x_t
         # lsw: 추후 데이터 미니 배치로 넣으면 이부분도 최소, 최대값 저장했다가 다시 쓰도록 리팩토링 해야할지도 ...
         else:
-            transformer.ordering[id_] = None
+            order = None
 
             if id_ in transformer.non_categorical_columns:
                 info["min"] = -1e-3
@@ -209,7 +209,7 @@ def encode_column(
         largest_indices = np.argsort(-1 * col_sums)
         # n = just_onehot.shape[1]
         # largest_indices = np.argsort(-1 * col_sums)[:n]
-        transformer.ordering[id_] = largest_indices
+        order = largest_indices
 
         for id, val in enumerate(largest_indices):
             re_ordered_jhot[:, id] = just_onehot[:, val]
@@ -219,13 +219,13 @@ def encode_column(
 
     # categorical 컬럼인 경우: get one-hot
     else:
-        transformer.ordering[id_] = None
+        order = None
         col_t = np.zeros([len_data, info["size"]])
         idx = list(map(info["i2s"].index, arr))
         col_t[np.arange(len_data), idx] = 1
         ret = col_t  # gamma_i
 
-    return ret
+    return ret, order
 
 
 def decode_column(
@@ -234,6 +234,7 @@ def decode_column(
     """decode single column"""
     len_data = len(arr)
     id_ = info["name"]
+    order = transformer.ordering[id_]
     invalid_ids = []  # fake 를 decode 해보니 컬럼 조건(min, max) 에 위배되는 경우
     ret = None
     if info["type"] == "continuous":
@@ -241,7 +242,6 @@ def decode_column(
         if id_ not in transformer.general_columns:
             u = arr[:, 0]  # alphas
             v = arr[:, 1:]  # betas
-            order = transformer.ordering[id_]
             v_re_ordered = np.zeros_like(v)
 
             for id, val in enumerate(order):
@@ -284,7 +284,6 @@ def decode_column(
     elif info["type"] == "mixed":
         u = arr[:, 0]  # alphas
         full_v = arr[:, 1:]  # betas
-        order = transformer.ordering[id_]
         full_v_re_ordered = np.zeros_like(full_v)
 
         for id, val in enumerate(order):
@@ -364,7 +363,7 @@ class DataTransformer:
 
     def get_metadata(self, df: pd.DataFrame) -> List[dict]:
         meta = []
-        self.logger.info("[Transformer]: get metadata ...")
+        self.logger.info("[DataTransformer]: get metadata ...")
         for index in tqdm(range(df.shape[1])):
             column = df.iloc[:, index]
             # 범주형 컬럼
@@ -424,7 +423,7 @@ class DataTransformer:
         self.valid_mode_flags = []  # 컬럼별 MSN 모드별 유효여부 저장 영역 List[bool]
         self.filter_arr = []
 
-        self.logger.info("[Transformer]: fitting start ...")
+        self.logger.info("[DataTransformer]: fitting start ...")
         st = 0  # encoding 후 인덱스 추적용
         for id_, info in enumerate(tqdm(self.meta)):
             train_columns = train_data.columns
@@ -540,83 +539,96 @@ class DataTransformer:
 
         self.model = model  # VGM Model 저장 영역
         self.is_fit_ = True
-        self.logger.info("[Transformer]: fitting end ...")
+        self.logger.info("[DataTransformer]: fitting end ...")
 
     def transform(
-        self, data: np.ndarray, ispositive=False, positive_list=None
+        self,
+        data: np.ndarray,
+        *,
+        ispositive=False,
+        positive_list=None,
+        use_parallel_transfrom: bool = False,
     ) -> np.array:
         """encode data row"""
-        self.use_parallel_transfrom = False
-        if self.use_parallel_transfrom:
+        self.ordering = {}  # 높은 확률 모드 순으로 리오더링 하기 위해 활용, 매 transform 마다 초기화
+        if use_parallel_transfrom:
+            self.logger.info("[DataTransformer]: transform parallely")
             return self._parallel_transform(data, ispositive, positive_list)
         else:
+            self.logger.info("[DataTransformer]: transform sequencely")
             return self._transform(data, ispositive, positive_list)
-
-    def _parallel_transform(self, data):
-        pass
-
-    # def _parallel_transform(self, data):
-    #     # worker 정의
-    #     def worker(data_partition, queue, *args):
-    #         # 여기에 처리 로직의 일부를 넣는다.
-    #         result = None  # 해당 작업자의 처리 결과
-    #         queue.put(result)
-
-    #     num_workers = int(cpu_count() * 0.9)
-    #     queue = Queue()
-
-    #     # processes = []
-    #     # for partition in partitions:
-    #     #     p = Process(target=worker, args=(partition, queue))
-    #     #     processes.append(p)
-    #     #     p.start()
-
-    #     # results = [queue.get() for _ in processes]
-
-    #     # for p in processes:
-    #     #     p.join()
-
-    #     # Pool을 사용하여 병렬 처리
-    #     with Pool(num_workers) as pool:
-    #         results = pool.starmap(
-    #             worker, [(partition, queue) for partition in partitions]
-    #         )
-
-    #     return np.concatenate(results, axis=0)
 
     def _transform(
         self, data: np.ndarray, ispositive=False, positive_list=None
     ) -> np.ndarray:
-        self.ordering = {}  # 높은 확률 모드 순으로 리오더링 하기 위해 활용,
         values = []
-        for info in tqdm(self.meta):
+        for i, info in enumerate(tqdm(self.meta)):
             id_ = info["name"]
+            assert i == id_
             arr = data[:, id_]
-            encoded = encode_column(self, arr, info, ispositive, positive_list)
+            encoded, order = encode_column(self, arr, info, ispositive, positive_list)
+            self.ordering[id_] = order
             if isinstance(encoded, list):
                 values += encoded
             else:
                 values.append(encoded)
         return np.concatenate(values, axis=1)
 
-    def invrese_transform(self, data: np.ndarray) -> Tuple[np.ndarray, int]:
+    def _parallel_transform(
+        self, data: np.ndarray, ispositive=False, positive_list=None
+    ) -> np.ndarray:
+        num_workers = int(cpu_count() * 0.9)
+        # queue = Queue()
+
+        def callback(result):
+            """tqdm 업데이트용 콜백함수"""
+            pbar.update(1)
+
+        values = []
+        with Manager() as manager:
+            # queue = manager.Queue()
+            with Pool(num_workers) as pool:
+                with tqdm(total=data.shape[1]) as pbar:
+                    results = []
+                    # run multi processes
+                    for i, info in enumerate(self.meta):
+                        id_ = info["name"]
+                        assert i == id_
+                        arr = data[:, id_]
+                        results.append(
+                            pool.apply_async(
+                                encode_column,
+                                args=(self, arr, info, ispositive, positive_list),
+                                callback=callback,
+                            )
+                        )
+                    # gather results
+                    for id_, r in enumerate(results):
+                        encoded, order = r.get()
+                        self.ordering[id_] = order
+                        if isinstance(encoded, list):
+                            values += encoded
+                        else:
+                            values.append(encoded)
+        return np.concatenate(values, axis=1)
+
+    def inverse_transform(
+        self, data: np.ndarray, *, use_parallel_inverse_transfrom: bool = False
+    ) -> Tuple[np.ndarray, int]:
         """decode data row"""
-        self.use_parallel_inverse_transfrom = False
-        if self.use_parallel_inverse_transfrom:
+        if use_parallel_inverse_transfrom:
+            self.logger.info("[DataTransformer]: inverse transform parallely")
             return self._parallel_inverse_transform(data)
         else:
+            self.logger.info("[DataTransformer]: inverse transform sequencely")
             return self._inverse_transform(data)
-
-    def _parallel_inverse_transform(self, data: np.ndarray) -> Tuple[np.ndarray, list]:
-        """generated data 를 원본 데이터 형태로 parallel decode"""
-        pass
 
     def _inverse_transform(self, data: np.ndarray) -> Tuple[np.ndarray, int]:
         """generated data 를 원본 데이터 형태로 decode"""
         values = []
         invalid_ids_merged = []  # fake 를 decode 해보니 컬럼 조건(min, max) 에 위배되는 경우
         st = 0
-        for info in self.meta:
+        for info in tqdm(self.meta):
             id_ = info["name"]  # 0, 1, 2 ... 순서대로 들어있음
             st, end = info["st"], info["end"]
             arr = data[:, st:end]
@@ -631,6 +643,10 @@ class DataTransformer:
 
         # return values, len(invalid_ids_merged)
         return values[valid_ids], len(invalid_ids_merged)
+
+    def _parallel_inverse_transform(self, data: np.ndarray) -> Tuple[np.ndarray, list]:
+        """generated data 를 원본 데이터 형태로 parallel decode"""
+        pass
 
     def save(self, mpath: str):
         assert self.is_fit_, "only fitted model could be saved, fit first please..."
