@@ -21,8 +21,9 @@ from torch.nn import (
     SmoothL1Loss,
     LayerNorm,
 )
+
+# from model.privacy_utils.rdp_accountant import compute_rdp, get_privacy_spent
 from model.synthesizer.transformer import ImageTransformer, DataTransformer
-from model.privacy_utils.rdp_accountant import compute_rdp, get_privacy_spent
 from tqdm.auto import tqdm
 import logging
 import wandb
@@ -37,48 +38,40 @@ class Classifier(Module):
     def __init__(self, input_dim, dis_dims, tcol_idx_st_ed_tuple):
         super(Classifier, self).__init__()
         # Calculate the input dimension after excluding the range of tcol_idx_st_ed_tuple
-        dim = input_dim - (
-            tcol_idx_st_ed_tuple[1] - tcol_idx_st_ed_tuple[0]
-        )  # dims for feature(X) only
+        st, end = tcol_idx_st_ed_tuple
+        self.st_end = tcol_idx_st_ed_tuple
+        dim = input_dim - (end - st)  # dims for feature(X) only
         seq = []
-        self.str_end = tcol_idx_st_ed_tuple
         # Building the sequential model layers
         for item in list(dis_dims):
             seq += [Linear(dim, item), LeakyReLU(0.2), Dropout(0.5)]
             dim = item
 
         # Deciding the final layer based on the range of tcol_idx_st_ed_tuple
-        if (
-            tcol_idx_st_ed_tuple[1] - tcol_idx_st_ed_tuple[0]
-        ) == 1:  # target 컬럼이 continuous (reg.)
+        if (end - st) == 1:  # target 컬럼이 continuous (reg.)
             seq += [Linear(dim, 1)]
 
-        elif (
-            tcol_idx_st_ed_tuple[1] - tcol_idx_st_ed_tuple[0]
-        ) == 2:  # target 컬럼이 categorical (binary clf.)
+        elif (end - st) == 2:  # target 컬럼이 categorical (binary clf.)
             seq += [Linear(dim, 1), Sigmoid()]
         else:  # target 컬럼이 categorical (multi class clf.)
-            seq += [Linear(dim, (tcol_idx_st_ed_tuple[1] - tcol_idx_st_ed_tuple[0]))]
+            seq += [Linear(dim, (end - st))]
 
         self.seq = Sequential(*seq)
 
     def forward(self, input):
         label = None
-        # Extracting label based on the range of str_end
-        if (self.str_end[1] - self.str_end[0]) == 1:
-            label = input[:, self.str_end[0] : self.str_end[1]]
+        st, end = self.st_end
+        # Extracting label based on the range of st_end
+        if (end - st) == 1:
+            label = input[:, st:end]
         else:
-            label = torch.argmax(input[:, self.str_end[0] : self.str_end[1]], axis=-1)
+            label = torch.argmax(input[:, st:end], axis=-1)
 
         # Concatenate the input by excluding the range of str_end
-        new_imp = torch.cat(
-            (input[:, : self.str_end[0]], input[:, self.str_end[1] :]), 1
-        )
+        new_imp = torch.cat((input[:, :st], input[:, end:]), 1)
 
         # Return the model's output and the label
-        if ((self.str_end[1] - self.str_end[0]) == 2) | (
-            (self.str_end[1] - self.str_end[0]) == 1
-        ):
+        if ((end - st) == 2) | ((end - st) == 1):
             return self.seq(new_imp).view(-1), label
         else:
             return self.seq(new_imp), label
@@ -109,7 +102,7 @@ def get_tcol_idx_st_ed_tuple(
         target_col_index (int): 인코딩전 타겟 컬럼 인덱스
         output_info (List[tuple]): 컬럼 변환 정보. [(len(alpha_i), activaton_fn, col_name, GT_indicator), (len(beta_i), activaton_fn, col_name) ...]
     Return:
-        Tuple[int, int]: 타겟 컬럼 인코딩 뒤의 (start_idx, end_idx)
+        Tuple[int, int]: 타겟 컬럼 인코딩 뒤의 (start_idx, end_idx). msn의 경우 뒤의 beta 부분 제외하고 alpha 부분만 리턴, auxiliary classifier 에서 (end-st) 개수로 clf/reg 판단하므로
     """
     # Retrieve start and end indices for a target column
     st = 0

@@ -22,6 +22,7 @@ def encode_column(
     positive_list=None,
 ) -> Tuple[Union[np.ndarray, List[np.array]], np.ndarray]:
     """encode single column"""
+    np.random.seed(RANDOM_SEED)  # 병렬처리시 반드시 여기에 정의되어야 함.... 약간 모호하나 보수적으로
     len_data = len(arr)
     id_ = info["name"]
     ret = None
@@ -141,6 +142,7 @@ def encode_column(
 
         # modal 이 아닌 continuous 값의 mode 에 대한 alpha_i, beta_i 계산
         # gm2 모델의 mean, std 활용
+        arr_orig = arr.copy()  # 뒤에서 재사용되므로 복사 필요
         arr = arr.reshape([-1, 1])
         filter_arr = info["filter_arr"]
         arr = arr[filter_arr]
@@ -188,7 +190,7 @@ def encode_column(
 
         # final 내에 alpha, beta 채우는 과정
         features_curser = 0
-        for idx, val in enumerate(arr):
+        for idx, val in enumerate(arr_orig):
             if val in info["modal"]:
                 # category_ = list(map(info["modal"].index, [val]))[0]
                 category_ = info["modal"].index(val)
@@ -232,6 +234,7 @@ def decode_column(
     transformer: "DataTransformer", arr: np.ndarray, info: dict
 ) -> Tuple[np.ndarray, list]:
     """decode single column"""
+    np.random.seed(RANDOM_SEED)  # 병렬처리시 반드시 여기에 정의되어야 함.... 약간 모호하나 보수적으로
     len_data = len(arr)
     id_ = info["name"]
     order = transformer.ordering[id_]

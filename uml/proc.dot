@@ -6,6 +6,7 @@ digraph g {
     // splines = curved
     node[shape = box]
     edge[arrowhead = vee]
+    compound=true
 
     pps [label="원시 데이터 전처리"]
     // - 컬럼 메타정리 (con, cat, mixed, log ...)
@@ -13,17 +14,23 @@ digraph g {
     //   - 파생 컬럼 제거
     // - 독립 컬럼 그룹 블록화 (상관관계)
     
-    gan [label="CTAB-GAN 모델 데이터 합성"]
+    gan [label="CTAB-GAN 모델 학습"]
 
-    constraint [label="컬럼간 제약조건 체크"]
-    // - 제약조건 필터링
-    // - 수식관계 필터링
+    subgraph cluster_synthe {
+        label="합성 데이터 재현"
+        sample [label="데이터 샘플링"]
+        // - 제약조건 필터링으로 인해 분포 너무 망가지지 않았는지 체크 필요
 
-    resample [label="제약조건 필터링으로 인한 리샘플링"]
-    // - 제약조건 필터링으로 인해 분포 너무 망가지지 않았는지 체크 필요
+        constraint [label="컬럼간 제약조건 체크"]
+        // - 제약조건 필터링
+        // - 수식관계 필터링
 
-    derive [label="파생컬럼 재현"]
-    // - 수식관계 이용 파새컬럼 재현
+        derive [label="수식 파생컬럼 재현"]
+        // - 수식관계 이용 파생컬럼 재현
+
+        {rank = same; constraint; derive;}
+    }
+
 
     eval [label="품질지표 평가"]
     // - JSD
@@ -31,10 +38,10 @@ digraph g {
     // - pMSE
 
     pps -> gan
-    gan -> constraint
-    constraint -> resample [label="반복"]
-    resample -> constraint
-    resample -> derive
-    derive -> eval
+    gan -> sample
+    sample -> derive [label="제약조건 필터링으로 인한 리샘플링 반복"]
+    derive -> constraint
+    constraint -> sample
+    constraint -> eval [ltail=cluster_synthe]
 
 }
