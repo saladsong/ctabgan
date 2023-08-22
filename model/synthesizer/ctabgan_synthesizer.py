@@ -770,7 +770,9 @@ class CTABGANSynthesizer:
         n: int,
         data_transformer: DataTransformer,
         use_parallel_inverse_transfrom: bool = False,
+        resample_invalid: bool = True,
     ):
+        self.logger.info("[CTAB-SYN]: data sampling start")
         self.generator.eval()
 
         output_info = data_transformer.output_info
@@ -801,7 +803,7 @@ class CTABGANSynthesizer:
         self.logger.info("[CTAB-SYN]: data inverse transformation end")
 
         # 원하는 n 개 데이터가 다 만들어지지 않은 경우 (invalid id 존재)
-        while len(result) < n:
+        while resample_invalid and len(result) < n:
             self.logger.info(
                 f"[CTAB-SYN]: sythesized data has {num_for_resample}/{n} ({round(num_for_resample/n * 100)}%) invalid row... so sample it again."
             )
@@ -833,6 +835,7 @@ class CTABGANSynthesizer:
             )
             result = np.concatenate([result, res], axis=0)
 
+        self.logger.info("[CTAB-SYN]: data sampling end")
         return result[0:n]
 
     def save_generator(self, mpath: str) -> None:
