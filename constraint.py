@@ -318,7 +318,7 @@ constraints = [
         "columns": ["자발한도감액횟수_R12M", "자발한도감액금액_R12M", "자발한도감액후경과월"],
         "fname": "cc_02_0010",
         "type": "constraint",
-        "content": "IF 자발한도감액횟수_R12M >0: (자발한도감액금액_R12M >0) & (자발한도감액후경과월 IS NOT NULL)",
+        "content": "IF 자발한도감액횟수_R12M >0: (자발한도감액금액_R12M >0) & (자발한도감액후경과월 <12)",
     },
     {
         "columns": ["연체감액여부_R3M", "강제한도감액횟수_R12M"],
@@ -336,7 +336,7 @@ constraints = [
         "columns": ["강제한도감액횟수_R12M", "강제한도감액금액_R12M", "강제한도감액후경과월"],
         "fname": "cc_02_0013",
         "type": "constraint",
-        "content": "IF 강제한도감액횟수_R12M >0: (강제한도감액금액_R12M >0) & (강제한도감액후경과월 IS NOT NULL)",
+        "content": "IF 강제한도감액횟수_R12M >0: (강제한도감액금액_R12M >0) & (강제한도감액후경과월 <12)",
     },
     {
         "columns": ["한도증액횟수_R12M"],
@@ -348,7 +348,7 @@ constraints = [
         "columns": ["한도증액횟수_R12M", "한도증액금액_R12M", "한도증액후경과월"],
         "fname": "cc_02_0015",
         "type": "constraint",
-        "content": "IF 한도증액횟수_R12M >0: (한도증액금액_R12M >0) & (한도증액후경과월 IS NOT NULL)",
+        "content": "IF 한도증액횟수_R12M >0: (한도증액금액_R12M >0) & (한도증액후경과월 <12)",
     },
     {
         "columns": ["상향가능CA한도금액", "카드이용한도금액", "상향가능한도금액", "CA한도금액"],
@@ -499,10 +499,10 @@ constraints = [
 
     # 5.잔액 테이블 컬럼 Constraints
     {
-        "columns": ["잔액_B0M", "카드이용한도금액", "청구금액_B0"],
+        "columns": ["잔액_B0M", "카드이용한도금액"],
         "fname": "cc_05_0001",
         "type": "constraint",
-        "content": "잔액_B0M <= 카드이용한도금액 - 청구금액_B0",
+        "content": "잔액_B0M <= 카드이용한도금액",
     },
     {
         "columns": ["잔액_일시불_B0M", "잔액_할부_B0M", "잔액_리볼빙일시불이월_B0M", "카드이용한도금액"],
@@ -613,10 +613,16 @@ constraints = [
         "content": "인입횟수_ARS_B0M <= 인입횟수_ARS_R6M",
     },
     {
-        "columns": ["이용메뉴건수_ARS_B0M", "이용메뉴건수_ARS_R6M", "인입횟수_ARS_R6M"],
+        "columns": ["이용메뉴건수_ARS_B0M", "이용메뉴건수_ARS_R6M"],
         "fname": "cc_06_0002",
         "type": "constraint",
-        "content": "이용메뉴건수_ARS_B0M <= 이용메뉴건수_ARS_R6M  <= 인입횟수_ARS_R6M",
+        "content": "이용메뉴건수_ARS_B0M <= 이용메뉴건수_ARS_R6M",
+    },
+    {
+        "columns": ["이용메뉴건수_ARS_R6M", "인입횟수_ARS_R6M"],
+        "fname": "cc_06_0064",
+        "type": "constraint",
+        "content": "이용메뉴건수_ARS_R6M >= 인입횟수_ARS_R6M",
     },
     {
         "columns": ["인입일수_ARS_B0M", "인입일수_ARS_R6M"],
@@ -640,7 +646,7 @@ constraints = [
         "columns": ["이용메뉴건수_ARS_B0M", "인입횟수_ARS_B0M"],
         "fname": "cc_06_0006",
         "type": "constraint",
-        "content": "이용메뉴건수_ARS_B0M <= 인입횟수_ARS_B0M",
+        "content": "이용메뉴건수_ARS_B0M >= 인입횟수_ARS_B0M",
     },
     {
         "columns": ["인입일수_ARS_B0M", "인입횟수_ARS_B0M"],
@@ -978,14 +984,14 @@ constraints = [
         "type": "constraint",
         "content": "당사멤버쉽_방문월수_R6M <= 당사멤버쉽_방문횟수_R6M",
     },
-
-    # 6.채널활동 테이블 컬럼 Formula
     {
-        "columns": ["IB상담건수_VOC_B0M", "IB상담건수_금감원_B0M"],
-        "fname": "cf_06_0046",
+        "columns": ["상담건수_B0M", "IB상담건수_VOC_B0M", "IB상담건수_금감원_B0M"],
+        "fname": "cc_06_0063",
         "type": "formula",
-        "content": "상담건수_B0M = SUM(IB상담건수_VOC_B0M, IB상담건수_금감원_B0M)",
+        "content": "상담건수_B0M >= SUM(IB상담건수_VOC_B0M, IB상담건수_금감원_B0M)",
     },
+
+    # 6.채널활동 테이블 컬럼 Formula 
     {
         "columns": ["IB상담건수_VOC민원_B0M", "IB상담건수_VOC불만_B0M"],
         "fname": "cf_06_0066",
@@ -2024,16 +2030,16 @@ constraints = [
         "content": "이용개월수_전체_R3M <= 이용개월수_전체_R6M",
     },
     {
-        "columns": ["이용개월수_신용_R6M", "이용개월수_체크_R6M", "이용개월수_카드론_R6M", "이용개월수_전체_R6M"],
+        "columns": ["이용개월수_신용_R6M", "이용개월수_카드론_R6M", "이용개월수_전체_R6M"],
         "fname": "cc_03_0142",
         "type": "constraint",
-        "content": "MAX(이용개월수_신용_R6M, 이용개월수_체크_R6M, 이용개월수_카드론_R6M) <= 이용개월수_전체_R6M",
+        "content": "MAX(이용개월수_신용_R6M, 이용개월수_카드론_R6M) <= 이용개월수_전체_R6M",
     },
     {
-        "columns": ["이용개월수_신용_R3M", "이용개월수_체크_R3M", "이용개월수_카드론_R3M", "이용개월수_전체_R3M"],
+        "columns": ["이용개월수_신용_R3M", "이용개월수_카드론_R3M", "이용개월수_전체_R3M"],
         "fname": "cc_03_0143",
         "type": "constraint",
-        "content": "MAX(이용개월수_신용_R3M, 이용개월수_체크_R3M, 이용개월수_카드론_R3M) <= 이용개월수_전체_R3M",
+        "content": "MAX(이용개월수_신용_R3M, 이용개월수_카드론_R3M) <= 이용개월수_전체_R3M",
     },
     {
         "columns": ["이용개월수_결제일_R3M", "이용개월수_결제일_R6M"],
@@ -2218,15 +2224,15 @@ constraints = [
         "content": "이용금액_부분무이자_R12M = SUM(할부금액_부분_3M_R12M, 할부금액_부분_6M_R12M, 할부금액_부분_12M_R12M, 할부금액_부분_14M_R12M)",
     },
     {
-        "columns": ["최대이용금액_신판_R12M", "최대이용금액_CA_R12M"],
-        "fname": "cf_03_0063",
-        "type": "formula",
+        "columns": ["최대이용금액_신용_R12M", "최대이용금액_신판_R12M", "최대이용금액_CA_R12M"],
+        "fname": "cc_03_0156",
+        "type": "constraint",
         "content": "최대이용금액_신용_R12M = MAX(최대이용금액_신판_R12M, 최대이용금액_CA_R12M)",
     },
     {
-        "columns": ["최대이용금액_일시불_R12M", "최대이용금액_할부_R12M"],
-        "fname": "cf_03_0064",
-        "type": "formula",
+        "columns": ["최대이용금액_신판_R12M", "최대이용금액_일시불_R12M", "최대이용금액_할부_R12M"],
+        "fname": "cc_03_0157",
+        "type": "constraint",
         "content": "최대이용금액_신판_R12M = MAX(최대이용금액_일시불_R12M, 최대이용금액_할부_R12M)",
     },
     {
@@ -2310,9 +2316,9 @@ constraints = [
     {
         "columns": ["쇼핑_도소매_이용금액", "쇼핑_백화점_이용금액", "쇼핑_마트_이용금액", "쇼핑_슈퍼마켓_이용금액", \
                     "쇼핑_편의점_이용금액", "쇼핑_아울렛_이용금액", "쇼핑_온라인_이용금액", "쇼핑_기타_이용금액"],
-        "fname": "cf_03_0176",
-        "type": "formula",
-        "content": "쇼핑_전체_이용금액 = SUM(쇼핑_도소매_이용금액, 백화점, 마트, 슈퍼마켓, 편의점, 아울렛, 온라인, 기타)",
+        "fname": "cc_03_0155",
+        "type": "constraint",
+        "content": "쇼핑_전체_이용금액 >= SUM(쇼핑_도소매_이용금액, 백화점, 마트, 슈퍼마켓, 편의점, 아울렛, 온라인, 기타)",
     },
     {
         "columns": ["교통_주유이용금액", "교통_정비이용금액", "교통_통행료이용금액", \
@@ -3065,10 +3071,10 @@ def cc_02_0009(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
 def cc_02_0010(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     """
     formula:
-        IF 자발한도감액횟수_R12M >0: (자발한도감액금액_R12M >0) & (자발한도감액후경과월 IS NOT NULL)
+        IF 자발한도감액횟수_R12M >0: (자발한도감액금액_R12M >0) & (자발한도감액후경과월 <12)
     """
     dd = df[["자발한도감액횟수_R12M", "자발한도감액금액_R12M", "자발한도감액후경과월"]]
-    ret = dd.apply(lambda x: (x[1]>0)*(pd.isna(x[2])) if x[0] > 0 else True, axis=1)
+    ret = dd.apply(lambda x: (x[1]>0)*(x[2]<12) if x[0] > 0 else True, axis=1)
     return ret
 
 @constraint_udf
@@ -3094,10 +3100,10 @@ def cc_02_0012(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
 def cc_02_0013(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     """
     formula:
-        IF 강제한도감액횟수_R12M >0: (강제한도감액금액_R12M >0) & (강제한도감액후경과월 IS NOT NULL)
+        IF 강제한도감액횟수_R12M >0: (강제한도감액금액_R12M >0) & (강제한도감액후경과월 <12)
     """
     dd = df[["강제한도감액횟수_R12M", "강제한도감액금액_R12M", "강제한도감액후경과월"]]
-    ret = dd.apply(lambda x: (x[1]>0)*(pd.isna(x[2])) if x[0] > 0 else True, axis=1)
+    ret = dd.apply(lambda x: (x[1]>0)*(x[2]<12) if x[0] > 0 else True, axis=1)
     return ret
 
 @constraint_udf
@@ -3113,10 +3119,10 @@ def cc_02_0014(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
 def cc_02_0015(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     """
     formula:
-        IF 한도증액횟수_R12M >0: (한도증액금액_R12M >0) & (한도증액후경과월 IS NOT NULL)
+        IF 한도증액횟수_R12M >0: (한도증액금액_R12M >0) & (한도증액후경과월 <12)
     """
     dd = df[["한도증액횟수_R12M", "한도증액금액_R12M", "한도증액후경과월"]]
-    ret = dd.apply(lambda x: (x[1]>0)*(pd.isna(x[2])) if x[0] > 0 else True, axis=1)
+    ret = dd.apply(lambda x: (x[1]>0)*(x[2]<12) if x[0] > 0 else True, axis=1)
     return ret
 
 @constraint_udf
@@ -3354,10 +3360,10 @@ def cf_04_0032(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
 def cc_05_0001(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     """
     Constraint:
-        잔액_B0M <= 카드이용한도금액 - 청구금액_B0
+        잔액_B0M <= 카드이용한도금액
     """
-    c1, c2, c3 = df["잔액_B0M"], df["카드이용한도금액"], df["청구금액_B0"]
-    return c1 <= (c2 - c3)
+    c1, c2 = df["잔액_B0M"], df["카드이용한도금액"]
+    return c1 <= c2
 
 @constraint_udf
 def cc_05_0002(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
@@ -3532,10 +3538,19 @@ def cc_06_0001(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
 def cc_06_0002(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     """
     Constraint:
-        이용메뉴건수_ARS_B0M <= 이용메뉴건수_ARS_R6M  <= 인입횟수_ARS_R6M
+        이용메뉴건수_ARS_B0M <= 이용메뉴건수_ARS_R6M
     """
-    c1, c2, c3 = df["이용메뉴건수_ARS_B0M"], df["이용메뉴건수_ARS_R6M"], df["인입횟수_ARS_R6M"]
-    return (c1 <= c2)*(c2 <= c3)
+    c1, c2 = df["이용메뉴건수_ARS_B0M"], df["이용메뉴건수_ARS_R6M"]
+    return c1 <= c2
+
+@constraint_udf
+def cc_06_0064(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        이용메뉴건수_ARS_R6M >= 인입횟수_ARS_R6M
+    """
+    c1, c2 = df["이용메뉴건수_ARS_R6M"], df["인입횟수_ARS_R6M"]
+    return (c1 >= c2)
 
 @constraint_udf
 def cc_06_0003(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
@@ -3569,10 +3584,10 @@ def cc_06_0005(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
 def cc_06_0006(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     """
     Constraint:
-        이용메뉴건수_ARS_B0M <= 인입횟수_ARS_B0M
+        이용메뉴건수_ARS_B0M >= 인입횟수_ARS_B0M
     """
     c1, c2 = df["이용메뉴건수_ARS_B0M"], df["인입횟수_ARS_B0M"]
-    return c1 <= c2
+    return c1 >= c2
 
 @constraint_udf
 def cc_06_0007(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
@@ -4087,18 +4102,18 @@ def cc_06_0062(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     return c1 <= c2
 
 
-
+## 수식 -> 제약조건으로 변경
 @constraint_udf
-def cf_06_0046(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+def cc_06_0063(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     """
     formula:
-        상담건수_B0M = SUM(IB상담건수_VOC_B0M, IB상담건수_금감원_B0M)
+        상담건수_B0M >= SUM(IB상담건수_VOC_B0M, IB상담건수_금감원_B0M)
     """
     c1, c2 = df["IB상담건수_VOC_B0M"], df["IB상담건수_금감원_B0M"]
     res = c1 + c2
 
     c = df['상담건수_B0M']
-    return c == res
+    return c >= res
 
 @constraint_udf
 def cf_06_0066(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
@@ -5556,6 +5571,8 @@ def cc_03_0154(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     c = df['이용건수_간편결제_B0M']
     return c >= res
 
+
+
 ###
 
 @constraint_udf
@@ -5726,9 +5743,9 @@ def cc_03_0141(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
 def cc_03_0142(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     """
     Constraint:
-       MAX(이용개월수_신용_R6M, 이용개월수_체크_R6M, 이용개월수_카드론_R6M) <= 이용개월수_전체_R6M
+       MAX(이용개월수_신용_R6M, 이용개월수_카드론_R6M) <= 이용개월수_전체_R6M
     """
-    dd = df[["이용개월수_신용_R6M","이용개월수_체크_R6M","이용개월수_카드론_R6M"]]
+    dd = df[["이용개월수_신용_R6M", "이용개월수_카드론_R6M"]]
     c_m = dd.max(axis=1)
     c1 = df["이용개월수_전체_R6M"]
     return c_m <= c1
@@ -5737,9 +5754,9 @@ def cc_03_0142(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
 def cc_03_0143(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     """
     Constraint:
-       MAX(이용개월수_신용_R3M, 이용개월수_체크_R3M, 이용개월수_카드론_R3M) <= 이용개월수_전체_R3M
+       MAX(이용개월수_신용_R3M, 이용개월수_카드론_R3M) <= 이용개월수_전체_R3M
     """
-    dd = df[["이용개월수_신용_R3M", "이용개월수_체크_R3M", "이용개월수_카드론_R3M"]]
+    dd = df[["이용개월수_신용_R3M", "이용개월수_카드론_R3M"]]
     c_m = dd.max(axis=1)
     c1 = df["이용개월수_전체_R3M"]
     return c_m <= c1
@@ -6138,29 +6155,32 @@ def cf_03_0059(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     c = df['이용금액_부분무이자_R12M']
     return c == res
 
+
+# 수식 -> 제약조건으로 변경됨
 @constraint_udf
-def cf_03_0063(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+def cc_03_0156(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     """
     formula:
-        최대이용금액_신용_R12M = MAX(최대이용금액_신판_R12M, 최대이용금액_CA_R12M)
+        최대이용금액_신용_R12M >= MAX(최대이용금액_신판_R12M, 최대이용금액_CA_R12M)
     """
     dd = df[["최대이용금액_신판_R12M", "최대이용금액_CA_R12M"]]
     res = dd.max(axis=1).astype(int)
 
     c = df['최대이용금액_신용_R12M']
-    return c == res
+    return c >= res
 
+# 수식 -> 제약조건으로 변경됨
 @constraint_udf
-def cf_03_0064(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+def cc_03_0157(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     """
     formula:
-        최대이용금액_신판_R12M = MAX(최대이용금액_일시불_R12M, 최대이용금액_할부_R12M)
+        최대이용금액_신판_R12M >= MAX(최대이용금액_일시불_R12M, 최대이용금액_할부_R12M)
     """
     dd = df[["최대이용금액_일시불_R12M", "최대이용금액_할부_R12M"]]
     res = dd.max(axis=1).astype(int)
 
     c = df['최대이용금액_신판_R12M']
-    return c == res
+    return c >= res
 
 
 @constraint_udf
@@ -6319,18 +6339,19 @@ def cf_03_0126(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     c = df['이용금액_할부_R3M']
     return c == res
 
+# 수식 -> 제약조건으로 변경됨
 @constraint_udf
-def cf_03_0176(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+def cc_03_0155(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     """
-    formula:
-        쇼핑_전체_이용금액 = SUM(쇼핑_도소매_이용금액, 백화점, 마트, 슈퍼마켓, 편의점, 아울렛, 온라인, 기타)
+    Constraint:
+        쇼핑_전체_이용금액 >= SUM(쇼핑_도소매_이용금액, 백화점, 마트, 슈퍼마켓, 편의점, 아울렛, 온라인, 기타)
     """
     dd = df[["쇼핑_도소매_이용금액", "쇼핑_백화점_이용금액", "쇼핑_마트_이용금액", "쇼핑_슈퍼마켓_이용금액", \
              "쇼핑_편의점_이용금액", "쇼핑_아울렛_이용금액", "쇼핑_온라인_이용금액", "쇼핑_기타_이용금액"]]
     res = dd.sum(axis=1).astype(int)
 
     c = df['쇼핑_전체_이용금액']
-    return c == res
+    return c >= res
 
 @constraint_udf
 def cf_03_0183(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
