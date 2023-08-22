@@ -485,7 +485,7 @@ class CTABGANSynthesizer:
         self.epochs = epochs
         self.ci = ci
         self.lr = lr
-        self.betas = self.betas
+        self.betas = betas
         self.weight_decay = weight_decay
         if device is None:
             device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
