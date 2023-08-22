@@ -91,17 +91,40 @@ class DataPrep(object):
                 self.lower_bounds[log_column] = lower
                 # 그 후 로그변환 수행 (유효값들만)
                 if lower > 0:
-                    self.df[log_column] = self.df[log_column].apply(
-                        lambda x: np.log(x) if x != -9999999 else -9999999
-                    )
+
+                    def apply_log(x):
+                        return np.log(x) if x != -9999999 else -9999999
+
+                    self.df[log_column] = self.df[log_column].apply(apply_log)
+                    # mixed_columns 이면서 log 분포인경우 모드들도 로그변횐 필요해서 추가
+                    if log_column in self.mixed_columns.keys():
+                        self.mixed_columns[log_column] = [
+                            apply_log(x) for x in self.mixed_columns[log_column]
+                        ]
                 elif lower == 0:
-                    self.df[log_column] = self.df[log_column].apply(
-                        lambda x: np.log(x + eps) if x != -9999999 else -9999999
-                    )
+
+                    def apply_log(x):
+                        return np.log(x + eps) if x != -9999999 else -9999999
+
+                    self.df[log_column] = self.df[log_column].apply(apply_log)
+                    if log_column in self.mixed_columns.keys():
+                        self.mixed_columns[log_column] = [
+                            apply_log(x) for x in self.mixed_columns[log_column]
+                        ]
                 else:
-                    self.df[log_column] = self.df[log_column].apply(
-                        lambda x: np.log(x - lower + eps) if x != -9999999 else -9999999
-                    )
+
+                    def apply_log(x):
+                        return (
+                            lambda x: np.log(x - lower + eps)
+                            if x != -9999999
+                            else -9999999
+                        )
+
+                    self.df[log_column] = self.df[log_column].apply(apply_log)
+                    if log_column in self.mixed_columns.keys():
+                        self.mixed_columns[log_column] = [
+                            apply_log(x) for x in self.mixed_columns[log_column]
+                        ]
 
         for column_index, column in enumerate(self.df.columns):
             # 카테고리 컬럼인경우 더미화
@@ -118,13 +141,12 @@ class DataPrep(object):
                 self.label_encoder_list.append(current_label_encoder)
                 self.column_types["categorical"].append(column_index)
 
-                # sjy: class 수가 너무 많은 경우 general 로 처리할 수 있게
-                if column in self.general_columns:
-                    self.column_types["general"].append(column_index)
-
                 # sjy: 실제로는 cate. type 이지만 num. type 으로 간주하고 MSN 처리할 수 있게
                 if column in self.non_categorical_columns:
                     self.column_types["non_categorical"].append(column_index)
+                    # sjy: class 수가 너무 많은 경우 general 로 처리할 수 있게
+                    if column in self.general_columns:
+                        self.column_types["general"].append(column_index)
 
             elif column in self.mixed_columns:
                 self.column_types["mixed"][column_index] = self.mixed_columns[column]

@@ -27,6 +27,7 @@ from model.synthesizer.transformer import ImageTransformer, DataTransformer
 from tqdm.auto import tqdm
 import logging
 import wandb
+import os
 from typing import List, Tuple
 
 
@@ -364,7 +365,7 @@ class Generator(Module):
             List[Module]: torch.nn 레이어 리스트
         """
 
-        layer_dims = [(1, side), (num_channels, side // 2)]
+        layer_dims = [(1, side), (num_channels, side // 2)]  # (channel, side)
 
         while layer_dims[-1][1] > 3 and len(layer_dims) < 4:
             layer_dims.append((layer_dims[-1][0] * 2, layer_dims[-1][1] // 2))
@@ -483,6 +484,8 @@ class CTABGANSynthesizer:
         self.ci = ci
         self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
+        self.is_fit_ = False
+
     def fit(
         self,
         train_data: pd.DataFrame,
@@ -522,8 +525,11 @@ class CTABGANSynthesizer:
         if self.dside % 2 == 1:
             self.dside = self.dside + 1
         self.gside = int(np.ceil(col_size_g**0.5))
-        if self.gside % 2 == 1:
-            self.gside = self.gside + 1
+        if self.gside % 8 != 0:
+            # self.gside = self.gside + 1
+            # 현재 generator 레이어가 2배로 늘리는게 3번 들어감, 때문에 gside = 2^3 의 배수가 되어야 shape 가 맞음
+            # 추후 generator 구조 변경되면 함께 수정 필요
+            self.gside = ((self.gside // 8) + 1) * 8
         self.logger.info(f"[gside]: {self.gside}, [dside]: {self.dside}")
 
         # build generator
@@ -538,9 +544,11 @@ class CTABGANSynthesizer:
         )
 
         # set optimizer
-        optimizer_params = dict(
-            lr=2e-4, betas=(0.5, 0.9), eps=1e-3, weight_decay=self.l2scale
-        )
+        # 이부분 설정으로 빼기
+        optimizer_params = dict(lr=1e-5, weight_decay=self.l2scale)
+        # optimizer_params = dict(
+        #     lr=2e-4, betas=(0.5, 0.9), eps=1e-3, weight_decay=self.l2scale
+        # )
         optimizerG = Adam(self.generator.parameters(), **optimizer_params)
         optimizerD = Adam(self.discriminator.parameters(), **optimizer_params)
 
@@ -746,6 +754,8 @@ class CTABGANSynthesizer:
 
             epoch += 1
 
+        self.is_fit_ = True
+
     def sample(
         self,
         n: int,
@@ -815,3 +825,22 @@ class CTABGANSynthesizer:
             result = np.concatenate([result, res], axis=0)
 
         return result[0:n]
+
+    # def save(self, mpath: str):
+    #     assert self.is_fit_, "only fitted model could be saved, fit first please..."
+    #     os.makedirs(mpath, exist_ok=True)
+    #     mpath = os.path.join(mpath, "generator.pth")
+    #     torch.save(mpath)
+
+    #     # with open(mpath, "wb") as f:
+    #     #     pickle.dump(self, f)
+    #     #     self.logger.info(f"[DataTransformer]: Model saved at {mpath}")
+    #     return
+
+    # @staticmethod
+    # def load(mpath: str) -> "DataTransformer":
+    #     if not os.path.exists(mpath):
+    #         raise FileNotFoundError(f"[DataTransformer]: Model not exists at {mpath}")
+    #     with open(mpath, "rb") as f:
+    #         loaded_model = pickle.load(f)
+    #     return loaded_model

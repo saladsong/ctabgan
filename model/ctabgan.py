@@ -28,6 +28,7 @@ class CTABGAN:
         integer_columns: list = None,
         problem_type: dict = None,  # {"Classification": "income"} 포맷으로 입력
         transformer: DataTransformer = None,
+        project: str = "ctabgan-project",  # wandb config
     ):
         self.__name__ = "CTABGAN"
         # set initial params
@@ -60,6 +61,8 @@ class CTABGAN:
         self.non_categorical_columns = non_categorical_columns
         self.integer_columns = integer_columns
         self.problem_type = problem_type
+        # for wandb
+        self.project = project
 
         self.is_fit_ = False
 
@@ -106,7 +109,7 @@ class CTABGAN:
         # start a new wandb run to track this script
         wandb.init(
             # set the wandb project where this run will be logged
-            project="ctabgan-project",
+            project=self.project,
             # track hyperparameters and run metadata
             config={
                 "architecture": "orignal",
