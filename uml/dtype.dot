@@ -35,7 +35,7 @@ digraph g {
     continuous -> gt
     categorical -> non_categorical
     non_categorical -> gt [label="high class" color="blue" fontcolor="blue"]
-    non_categorical -> msn
+    non_categorical -> msn [label="not used" color="orange" fontcolor="orange"]
     categorical -> one_hot
     {msn, gt} -> log [style="dashed"]
     {continuous, mixed} -> integer [style="dashed"]

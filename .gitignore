@@ -6,3 +6,4 @@ Real_datasets/*
 Fake_datasets/*
 wandb
 save
+model/**/__init__.py

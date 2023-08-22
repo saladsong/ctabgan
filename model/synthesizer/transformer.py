@@ -24,7 +24,7 @@ def encode_column(
     """encode single column"""
     np.random.seed(RANDOM_SEED)  # 병렬처리시 반드시 여기에 정의되어야 함.... 약간 모호하나 보수적으로
     len_data = len(arr)
-    id_ = info["name"]
+    id_ = info["idx"]
     ret = None
 
     if info["type"] == "continuous":
@@ -236,7 +236,7 @@ def decode_column(
     """decode single column"""
     np.random.seed(RANDOM_SEED)  # 병렬처리시 반드시 여기에 정의되어야 함.... 약간 모호하나 보수적으로
     len_data = len(arr)
-    id_ = info["name"]
+    id_ = info["idx"]
     order = transformer.ordering[id_]
     invalid_ids = []  # fake 를 decode 해보니 컬럼 조건(min, max) 에 위배되는 경우
     ret = None
@@ -369,25 +369,27 @@ class DataTransformer:
         self.logger.info("[DataTransformer]: get metadata ...")
         for index in tqdm(range(df.shape[1])):
             column = df.iloc[:, index]
+            colname = df.columns[index]
             # 범주형 컬럼
             if index in self.categorical_columns:
                 # 범주형 컬럼 중 연속형처럼 GT, MSN 적용할 컬럼
                 if index in self.non_categorical_columns:
                     meta.append(
                         {
-                            "name": index,
+                            "idx": index,
                             "type": "continuous",
+                            "name": colname,
                             "min": column.min(),
                             "max": column.max(),
                         }
                     )
                 else:
-                    # mapper = column.value_counts().index.tolist()  # lsw: 인덱싱만 필요하므로 구태여 무겁게 모든 카운트 셀필요 없음
                     mapper = column.unique().tolist()
                     meta.append(
                         {
-                            "name": index,
+                            "idx": index,
                             "type": "categorical",
+                            "name": colname,
                             "size": len(mapper),  # 유효 카테고리 개수
                             "i2s": mapper,
                         }
@@ -396,8 +398,9 @@ class DataTransformer:
             elif index in self.mixed_columns.keys():
                 meta.append(
                     {
-                        "name": index,
+                        "idx": index,
                         "type": "mixed",
+                        "name": colname,
                         "min": column.min(),
                         "max": column.max(),
                         "modal": self.mixed_columns[index],  # given -9999999 for nan
@@ -407,8 +410,9 @@ class DataTransformer:
             else:
                 meta.append(
                     {
-                        "name": index,
+                        "idx": index,
                         "type": "continuous",
+                        "name": colname,
                         "min": column.min(),
                         "max": column.max(),
                     }
@@ -566,7 +570,7 @@ class DataTransformer:
     ) -> np.ndarray:
         values = []
         for i, info in enumerate(tqdm(self.meta)):
-            id_ = info["name"]
+            id_ = info["idx"]
             assert i == id_
             arr = data[:, id_]
             encoded, order = encode_column(self, arr, info, ispositive, positive_list)
@@ -595,7 +599,7 @@ class DataTransformer:
                     results = []
                     # run multi processes
                     for i, info in enumerate(self.meta):
-                        id_ = info["name"]
+                        id_ = info["idx"]
                         assert i == id_
                         arr = data[:, id_]
                         results.append(
@@ -631,7 +635,7 @@ class DataTransformer:
         values = []
         invalid_ids_merged = []  # fake 를 decode 해보니 컬럼 조건(min, max) 에 위배되는 경우
         for i, info in enumerate(tqdm(self.meta)):
-            id_ = info["name"]  # 0, 1, 2 ... 순서대로 들어있음
+            id_ = info["idx"]  # 0, 1, 2 ... 순서대로 들어있음
             assert i == id_
             st, end = info["st"], info["end"]
             arr = data[:, st:end]
@@ -665,7 +669,7 @@ class DataTransformer:
                     results = []
                     # run multi processes
                     for i, info in enumerate(self.meta):
-                        id_ = info["name"]
+                        id_ = info["idx"]
                         assert i == id_
                         st, end = info["st"], info["end"]
                         arr = data[:, st:end]
