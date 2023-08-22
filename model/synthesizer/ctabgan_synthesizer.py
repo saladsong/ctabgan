@@ -462,10 +462,13 @@ class CTABGANSynthesizer:
         class_dim: Tuple[int] = None,
         random_dim: int = 100,  # generartor 에 입력될 랜덤 분포 샘플 차원
         num_channels: int = 64,
-        l2scale: float = 1e-5,
         batch_size: int = 500,
         epochs: int = 50,
         ci: int = 1,  # D(critic) 학습 - ci: 반복 횟수
+        lr: float = 1e-5,  # adam optimizer learning rate
+        betas: Tuple[float, float] = (0.9, 0.999),  # adam optimizer betas
+        weight_decay: float = 1e-5,  # adam optimizer betas weight_decay
+        device: str = None,
     ):
         if class_dim is None:
             class_dim = (256, 256, 256, 256)
@@ -478,11 +481,15 @@ class CTABGANSynthesizer:
         self.num_channels = num_channels
         self.dside = None
         self.gside = None
-        self.l2scale = l2scale
         self.batch_size = batch_size
         self.epochs = epochs
         self.ci = ci
-        self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        self.lr = lr
+        self.betas = self.betas
+        self.weight_decay = weight_decay
+        if device is None:
+            device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        self.device = device
 
         self.is_fit_ = False
 
@@ -545,9 +552,11 @@ class CTABGANSynthesizer:
 
         # set optimizer
         # 이부분 설정으로 빼기
-        optimizer_params = dict(lr=1e-5, weight_decay=self.l2scale)
+        optimizer_params = dict(
+            lr=self.lr, betas=self.betas, weight_decay=self.weight_decay
+        )
         # optimizer_params = dict(
-        #     lr=2e-4, betas=(0.5, 0.9), eps=1e-3, weight_decay=self.l2scale
+        #     lr=2e-4, betas=(0.5, 0.9), eps=1e-3, weight_decay=self.weight_decay
         # )
         optimizerG = Adam(self.generator.parameters(), **optimizer_params)
         optimizerD = Adam(self.discriminator.parameters(), **optimizer_params)

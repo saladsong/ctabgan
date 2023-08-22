@@ -114,11 +114,7 @@ class DataPrep(object):
                 else:
 
                     def apply_log(x):
-                        return (
-                            lambda x: np.log(x - lower + eps)
-                            if x != -9999999
-                            else -9999999
-                        )
+                        return np.log(x - lower + eps) if x != -9999999 else -9999999
 
                     self.df[log_column] = self.df[log_column].apply(apply_log)
                     if log_column in self.mixed_columns.keys():
