@@ -835,21 +835,24 @@ class CTABGANSynthesizer:
 
         return result[0:n]
 
-    # def save(self, mpath: str):
-    #     assert self.is_fit_, "only fitted model could be saved, fit first please..."
-    #     os.makedirs(mpath, exist_ok=True)
-    #     mpath = os.path.join(mpath, "generator.pth")
-    #     torch.save(mpath)
+    def save_generator(self, mpath: str) -> None:
+        assert self.is_fit_, "only fitted model could be saved, fit first please..."
+        os.makedirs(mpath, exist_ok=True)
+        mpath = os.path.join(mpath, "generator.pth")
+        torch.save(self.generator, mpath)
+        self.logger.info(f"[CTAB-SYN]: Generator saved at {mpath}")
+        return
 
-    #     # with open(mpath, "wb") as f:
-    #     #     pickle.dump(self, f)
-    #     #     self.logger.info(f"[DataTransformer]: Model saved at {mpath}")
-    #     return
+    def load_generator(self, mpath: str) -> None:
+        if not os.path.exists(mpath):
+            raise FileNotFoundError(
+                f"[CTAB-SYN]: Generator model not exists at {mpath}"
+            )
 
-    # @staticmethod
-    # def load(mpath: str) -> "DataTransformer":
-    #     if not os.path.exists(mpath):
-    #         raise FileNotFoundError(f"[DataTransformer]: Model not exists at {mpath}")
-    #     with open(mpath, "rb") as f:
-    #         loaded_model = pickle.load(f)
-    #     return loaded_model
+        self.logger.info(f"[CTAB-SYN]: Generator is loaded at {mpath}")
+        generator = torch.load(mpath)
+        generator.eval()
+        generator.to(self.device)
+        self.generator = generator
+
+        return
