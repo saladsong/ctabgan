@@ -77,7 +77,9 @@ class DataPrep(object):
                 # 유효한 값만 탐색하며 최소값 뽑기
                 valid_indices = []
                 for idx, val in enumerate(self.df[log_column].values):
-                    if val != -9999999:
+                    if val != -9999999 and val not in self.mixed_columns.get(
+                        log_column, []
+                    ):
                         valid_indices.append(idx)
                 eps = 1
                 lower = np.min(self.df[log_column].iloc[valid_indices].values)
@@ -86,36 +88,57 @@ class DataPrep(object):
                 if lower > 0:
 
                     def apply_log(x):
-                        return np.log(x) if x != -9999999 else -9999999
+                        return (
+                            np.log(x)
+                            if x != -9999999
+                            and x not in self.mixed_columns.get(log_column, [])
+                            else x
+                        )
 
-                    self.df[log_column] = self.df[log_column].apply(apply_log)
-                    # mixed_columns 이면서 log 분포인경우 모드들도 로그변환 필요해서 추가
-                    # lsw: load/save 타 환경에서 하는 경우 역시 floating point error 발생...
-                    # mixed-log 를 강건하게 처리할 코드 필요 - 모드는 로그변환하면 안됨
-                    if log_column in self.mixed_columns.keys():
-                        self.mixed_columns[log_column] = [
-                            apply_log(x) for x in self.mixed_columns[log_column]
-                        ]
+                    self.df.loc[valid_indices, log_column] = self.df.loc[
+                        valid_indices, log_column
+                    ].apply(apply_log)
+                    # # mixed_columns 이면서 log 분포인경우 모드들도 로그변환 필요해서 추가
+                    # # lsw: load/save 타 환경에서 하는 경우 역시 floating point error 발생...
+                    # # mixed-log 를 강건하게 처리할 코드 필요 - 모드는 로그변환하면 안됨
+                    # if log_column in self.mixed_columns.keys():
+                    #     self.mixed_columns[log_column] = [
+                    #         apply_log(x) for x in self.mixed_columns[log_column]
+                    #     ]
                 elif lower == 0:
 
                     def apply_log(x):
-                        return np.log(x + eps) if x != -9999999 else -9999999
+                        return (
+                            np.log(x + eps)
+                            if x != -9999999
+                            and x not in self.mixed_columns.get(log_column, [])
+                            else x
+                        )
 
-                    self.df[log_column] = self.df[log_column].apply(apply_log)
-                    if log_column in self.mixed_columns.keys():
-                        self.mixed_columns[log_column] = [
-                            apply_log(x) for x in self.mixed_columns[log_column]
-                        ]
+                    self.df.loc[valid_indices, log_column] = self.df.loc[
+                        valid_indices, log_column
+                    ].apply(apply_log)
+                    # if log_column in self.mixed_columns.keys():
+                    #     self.mixed_columns[log_column] = [
+                    #         apply_log(x) for x in self.mixed_columns[log_column]
+                    #     ]
                 else:
 
                     def apply_log(x):
-                        return np.log(x - lower + eps) if x != -9999999 else -9999999
+                        return (
+                            np.log(x - lower + eps)
+                            if x != -9999999
+                            and x not in self.mixed_columns.get(log_column, [])
+                            else x
+                        )
 
-                    self.df[log_column] = self.df[log_column].apply(apply_log)
-                    if log_column in self.mixed_columns.keys():
-                        self.mixed_columns[log_column] = [
-                            apply_log(x) for x in self.mixed_columns[log_column]
-                        ]
+                    self.df.loc[valid_indices, log_column] = self.df.loc[
+                        valid_indices, log_column
+                    ].apply(apply_log)
+                    # if log_column in self.mixed_columns.keys():
+                    #     self.mixed_columns[log_column] = [
+                    #         apply_log(x) for x in self.mixed_columns[log_column]
+                    #     ]
 
         for column_index, column in enumerate(self.df.columns):
             # 카테고리 컬럼인경우 더미화
@@ -162,18 +185,32 @@ class DataPrep(object):
             for column in df_sample:
                 if column in self.log_columns:
                     lower_bound = self.lower_bounds[column]
+                    modes = self.mixed_columns[column]
+
+                    # 유효한 값만 탐색하며 역변환
+                    valid_indices = []
+                    for idx, val in enumerate(df_sample[column].values):
+                        if val != -9999999 and val not in self.mixed_columns.get(
+                            column, []
+                        ):
+                            valid_indices.append(idx)
+
                     if lower_bound > 0:
-                        df_sample[column].apply(lambda x: np.exp(x))
+                        df_sample.loc[valid_indices, column] = df_sample.loc[
+                            valid_indices, column
+                        ].apply(lambda x: np.exp(x))
                     elif lower_bound == 0:
-                        df_sample[column] = df_sample[column].apply(
+                        df_sample.loc[valid_indices, column] = df_sample.loc[
+                            valid_indices, column
+                        ].apply(
                             lambda x: np.ceil(np.exp(x) - eps)
                             if (np.exp(x) - eps) < 0
                             else (np.exp(x) - eps)
                         )
                     else:
-                        df_sample[column] = df_sample[column].apply(
-                            lambda x: np.exp(x) - eps + lower_bound
-                        )
+                        df_sample.loc[valid_indices, column] = df_sample.loc[
+                            valid_indices, column
+                        ].apply(lambda x: np.exp(x) - eps + lower_bound)
 
         # 정수형 타입 반올림
         if self.integer_columns:
