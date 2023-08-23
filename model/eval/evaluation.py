@@ -52,13 +52,13 @@ def supervised_model_training(x_train, y_train, x_test, y_test, model_name):
 
 
 def get_utility_metrics(
-    real_path,
-    fake_path,
+    real: pd.DataFrame,
+    fake: pd.DataFrame,
     scaler="MinMax",
     classifiers=["lr", "dt", "rf", "mlp"],
     test_ratio=0.20,
 ):
-    data_real = pd.read_csv(real_path).to_numpy()
+    data_real = real.to_numpy()
     data_dim = data_real.shape[1]
 
     data_real_y = data_real[:, -1]
@@ -96,7 +96,7 @@ def get_utility_metrics(
         )
         all_real_results.append(real_results)
 
-    data_fake = pd.read_csv(fake_path).to_numpy()
+    data_fake = fake.to_numpy()
     data_fake_y = data_fake[:, -1]
     data_fake_X = data_fake[:, : data_dim - 1]
     X_train_fake, _, y_train_fake, _ = model_selection.train_test_split(
@@ -132,11 +132,8 @@ def get_utility_metrics(
     return diff_results
 
 
-def stat_sim(real_path, fake_path, cat_cols=None):
+def stat_sim(real: pd.DataFrame, fake: pd.DataFrame, cat_cols=None):
     Stat_dict = {}
-
-    real = pd.read_csv(real_path)
-    fake = pd.read_csv(fake_path)
 
     really = real.copy()
     fakey = fake.copy()

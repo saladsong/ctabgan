@@ -9,35 +9,43 @@ digraph g {
 
 
     subgraph cluster_primitive {
-        label="Primitive\n(- cate, mixed를 입력으로 받고 나머지가 con\n- mutual exclusive)"
+        label="가장 바깥과, DataTransformer.get_metadata에서 구분\n(- cate, mixed를 입력으로 받고 나머지가 con\n- mutual exclusive)"
         continuous
-        mixed
-        categorical
+        mixed [style=filled fillcolor=pink]
+        categorical [style=filled fillcolor=pink]
     }
 
     subgraph cluster_proc {
-        label="DataTransformer에서 처리"
+        label="DataTransformer.transform에서 처리\n(mutual exclusive)"
         msn [label="MSN"]
-        gt [label="GT"]
+        gt [label="GT" style=filled fillcolor=pink]
         one_hot [label="ONE-HOT"]
     }
 
-    subgraph cluster_optional {
+    subgraph cluster_opt_dp {
         label="DataPrep에서 처리\n(optional)"
-        integer
-        log
-        positive
+        integer [style=filled fillcolor=pink]
+        log [style=filled fillcolor=pink]
         // [style=filled fillcolor=lightyellow]
     }
 
+
+    subgraph cluster_opt_trs {
+        label="DataTransformer에서 처리\n(optional)"
+        positive [style=filled fillcolor=orange]
+        // [style=filled fillcolor=lightyellow]
+    }
+
+    non_categorical [style=filled fillcolor=pink]
 
     {continuous, mixed} -> msn
     continuous -> gt
     categorical -> non_categorical
     non_categorical -> gt [label="high class" color="blue" fontcolor="blue"]
-    non_categorical -> msn [label="not used" color="orange" fontcolor="orange"]
+    // non_categorical -> msn
+    non_categorical -> msn [label="prefer" color="orange" fontcolor="orange"]
     categorical -> one_hot
     {msn, gt} -> log [style="dashed"]
-    {continuous, mixed} -> integer [style="dashed"]
-    {continuous, mixed} -> positive [style="dashed"]
+    {msn, gt} -> integer [style="dashed"]
+    {msn, gt} -> positive [style="dashed"]
 }

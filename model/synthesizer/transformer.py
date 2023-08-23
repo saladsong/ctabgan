@@ -619,7 +619,7 @@ class DataTransformer:
 
     def inverse_transform(
         self, data: np.ndarray, *, use_parallel_inverse_transfrom: bool = False
-    ) -> Tuple[np.ndarray, int]:
+    ) -> Tuple[np.ndarray, np.ndarray]:
         """decode data row"""
         if use_parallel_inverse_transfrom:
             self.logger.info("[DataTransformer]: inverse transform parallely")
@@ -628,7 +628,7 @@ class DataTransformer:
             self.logger.info("[DataTransformer]: inverse transform sequencely")
             return self._inverse_transform(data)
 
-    def _inverse_transform(self, data: np.ndarray) -> Tuple[np.ndarray, int]:
+    def _inverse_transform(self, data: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
         """generated data 를 원본 데이터 형태로 decode"""
         values = []
         invalid_ids_merged = []  # fake 를 decode 해보니 컬럼 조건(min, max) 에 위배되는 경우
@@ -643,12 +643,14 @@ class DataTransformer:
 
         values = np.column_stack(values)  # make values (N, #columns) 2d-array
         invalid_ids_merged = np.unique(invalid_ids_merged)
-        all_ids = np.arange(0, len(data))
-        valid_ids = list(set(all_ids) - set(invalid_ids_merged))
+        return values, invalid_ids_merged
+        # all_ids = np.arange(0, len(data))
+        # valid_ids = list(set(all_ids) - set(invalid_ids_merged))
+        # return values[valid_ids], len(invalid_ids_merged)
 
-        return values[valid_ids], len(invalid_ids_merged)
-
-    def _parallel_inverse_transform(self, data: np.ndarray) -> Tuple[np.ndarray, list]:
+    def _parallel_inverse_transform(
+        self, data: np.ndarray
+    ) -> Tuple[np.ndarray, np.ndarray]:
         """generated data 를 원본 데이터 형태로 parallel decode"""
         num_workers = int(cpu_count() * 0.9)
         # queue = Queue()
@@ -686,10 +688,10 @@ class DataTransformer:
 
         values = np.column_stack(values)  # make values (N, #columns) 2d-array
         invalid_ids_merged = np.unique(invalid_ids_merged)
-        all_ids = np.arange(0, len(data))
-        valid_ids = list(set(all_ids) - set(invalid_ids_merged))
-
-        return values[valid_ids], len(invalid_ids_merged)
+        return values, invalid_ids_merged
+        # all_ids = np.arange(0, len(data))
+        # valid_ids = list(set(all_ids) - set(invalid_ids_merged))
+        # return values[valid_ids], len(invalid_ids_merged)
 
     def save(self, mpath: str):
         assert self.is_fit_, "only fitted model could be saved, fit first please..."

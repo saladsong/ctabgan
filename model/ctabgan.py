@@ -136,10 +136,11 @@ class CTABGAN:
     def generate_samples(
         self,
         n: int = None,
-        *,
         transformer: DataTransformer = None,
+        *,
         use_parallel_inverse_transfrom: bool = False,
         resample_invalid: bool = True,
+        times_resample: int = 10,
     ):
         assert self.is_fit_, "must fit the model first!!"
 
@@ -153,9 +154,10 @@ class CTABGAN:
             n = len(self.raw_df)
         sample = self.synthesizer.sample(
             n,
-            _transformer,
+            data_transformer=_transformer,
             use_parallel_inverse_transfrom=use_parallel_inverse_transfrom,
             resample_invalid=resample_invalid,
+            times_resample=times_resample,
         )
         sample_df = self.data_prep.inverse_prep(sample)
 

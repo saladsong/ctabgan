@@ -771,8 +771,10 @@ class CTABGANSynthesizer:
         self,
         n: int,
         data_transformer: DataTransformer,
+        *,
         use_parallel_inverse_transfrom: bool = False,
         resample_invalid: bool = True,
+        times_resample: int = 10,  # 리샘플링 무한정 하지 않으려고
     ):
         self.logger.info("[CTAB-SYN]: data sampling start")
         self.generator.eval()
@@ -799,43 +801,62 @@ class CTABGANSynthesizer:
 
         data = np.concatenate(data, axis=0)
         self.logger.info("[CTAB-SYN]: data inverse transformation start")
-        result, num_for_resample = data_transformer.inverse_transform(
+        result, invalid_ids = data_transformer.inverse_transform(
             data, use_parallel_inverse_transfrom=use_parallel_inverse_transfrom
         )
         self.logger.info("[CTAB-SYN]: data inverse transformation end")
+        if resample_invalid:
+            num_for_resample = len(invalid_ids)
+            all_ids = np.arange(0, len(result))
+            valid_ids = list(set(all_ids) - set(invalid_ids))
+            result = result[valid_ids]  # valid_result
 
-        # 원하는 n 개 데이터가 다 만들어지지 않은 경우 (invalid id 존재)
-        while resample_invalid and len(result) < n:
-            self.logger.info(
-                f"[CTAB-SYN]: sythesized data has {num_for_resample}/{n} ({round(num_for_resample/n * 100)}%) invalid row... so sample it again."
-            )
-            data_resample = []
-            steps_left = num_for_resample // self.batch_size + 1
-
-            for i in range(steps_left):
-                noisez = torch.randn(
-                    self.batch_size, self.random_dim, device=self.device
+            # 원하는 n 개 데이터가 다 만들어지지 않은 경우 (invalid id 존재)
+            resample_cnt = 0
+            while len(result) < n and resample_cnt < times_resample:
+                self.logger.info(
+                    f"[CTAB-SYN]: sythesized data has {num_for_resample}/{n} ({round(num_for_resample/n * 100)}%) invalid row... so sample it again."
                 )
-                condvec = self.cond_generator.sample(self.batch_size)
-                c = condvec
-                c = torch.from_numpy(c).to(self.device)
-                noisez = torch.cat([noisez, c], dim=1)
-                noisez = noisez.view(
-                    self.batch_size, self.random_dim + self.cond_generator.n_opt, 1, 1
+                self.logger.info(
+                    f"[CTAB-SYN]: resample count ({resample_cnt}/{times_resample})"
+                )
+                data_resample = []
+                steps_left = num_for_resample // self.batch_size + 1
+
+                for i in range(steps_left):
+                    noisez = torch.randn(
+                        self.batch_size, self.random_dim, device=self.device
+                    )
+                    condvec = self.cond_generator.sample(self.batch_size)
+                    c = condvec
+                    c = torch.from_numpy(c).to(self.device)
+                    noisez = torch.cat([noisez, c], dim=1)
+                    noisez = noisez.view(
+                        self.batch_size,
+                        self.random_dim + self.cond_generator.n_opt,
+                        1,
+                        1,
+                    )
+
+                    fake = self.generator(noisez)
+                    faket = self.Gtransformer.inverse_transform(fake)
+                    fakeact = apply_activate(faket, output_info)
+                    data_resample.append(fakeact.detach().cpu().numpy())
+
+                data_resample = np.concatenate(data_resample, axis=0)
+
+                new_result, invalid_ids = data_transformer.inverse_transform(
+                    data_resample,
+                    use_parallel_inverse_transfrom=use_parallel_inverse_transfrom,
                 )
 
-                fake = self.generator(noisez)
-                faket = self.Gtransformer.inverse_transform(fake)
-                fakeact = apply_activate(faket, output_info)
-                data_resample.append(fakeact.detach().cpu().numpy())
-
-            data_resample = np.concatenate(data_resample, axis=0)
-
-            res, num_for_resample = data_transformer.inverse_transform(
-                data_resample,
-                use_parallel_inverse_transfrom=use_parallel_inverse_transfrom,
-            )
-            result = np.concatenate([result, res], axis=0)
+                num_for_resample = len(invalid_ids)
+                all_ids = np.arange(0, len(new_result))
+                valid_ids = list(set(all_ids) - set(invalid_ids))
+                result = new_result[valid_ids]  # valid_result
+                # merge previous result
+                result = np.concatenate([result, new_result], axis=0)
+                resample_cnt += 1
 
         self.logger.info("[CTAB-SYN]: data sampling end")
         return result[0:n]
