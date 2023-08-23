@@ -465,7 +465,7 @@ class CTABGANSynthesizer:
         batch_size: int = 500,
         epochs: int = 50,
         ci: int = 1,  # D(critic) 학습 - ci: 반복 횟수
-        lr: float = 1e-5,  # adam optimizer learning rate
+        lr: float = 2e-4,  # adam optimizer learning rate
         betas: Tuple[float, float] = (0.9, 0.999),  # adam optimizer betas
         weight_decay: float = 1e-5,  # adam optimizer betas weight_decay
         device: str = None,
@@ -565,8 +565,10 @@ class CTABGANSynthesizer:
         optimizerG = Adam(self.generator.parameters(), **optimizer_params)
         optimizerD = Adam(self.discriminator.parameters(), **optimizer_params)
 
-        # auxiliary classifier build
-        tcol_idx_st_ed_tuple = None  # lsw: 이거 뭐하는데 쓰는거임? -> sjy: classifier 의 타겟 컬럼 idx 찾기 (df transform 으로 idx 가 변화)
+        # build auxiliary classifier
+        tcol_idx_st_ed_tuple = (
+            None  # classifier 의 타겟 컬럼 idx 찾기 (df transform 인코딩 전후로 idx 가 변화)
+        )
         self.classifier = None
         optimizerC = None
         if target_index is not None:
@@ -585,6 +587,16 @@ class CTABGANSynthesizer:
         self.Dtransformer = ImageTransformer(self.dside)
 
         steps_per_epoch = max(1, len(train_data) // self.batch_size)
+        # set learning rate scheduler (cosine annealing)
+        schedulerG = optim.lr_scheduler.CosineAnnealingLR(
+            optimizerG, T_max=steps_per_epoch * self.epochs, eta_min=self.lr * 0.01
+        )
+        schedulerD = optim.lr_scheduler.CosineAnnealingLR(
+            optimizerD, T_max=steps_per_epoch * self.epochs, eta_min=self.lr * 0.01
+        )
+        schedulerC = optim.lr_scheduler.CosineAnnealingLR(
+            optimizerC, T_max=steps_per_epoch * self.epochs, eta_min=self.lr * 0.01
+        )
         for epoch in tqdm(range(self.epochs)):
             for id_ in tqdm(range(steps_per_epoch)):
                 # G(generator), D(critic), C(auxiliary classifier) 학습
@@ -708,11 +720,9 @@ class CTABGANSynthesizer:
                 loss_g.backward()
                 optimizerG.step()
                 wandblog = {
-                    {
-                        "loss_g_default": loss_g_default,
-                        "loss_g_info": loss_g_info,
-                        "loss_g_gen": cross_entropy,
-                    }
+                    "loss_g_default": loss_g_default,
+                    "loss_g_info": loss_g_info,
+                    "loss_g_gen": cross_entropy,
                 }
 
                 # loss_g_dstream
@@ -759,10 +769,22 @@ class CTABGANSynthesizer:
                             "loss_g": loss_g + loss_g_dstream,
                             "loss_c_dstream": loss_c_dstream,
                             "epoch": epoch,
+                            "lr": optimizerG.param_groups[0]["lr"],
                         }
                     )
                 else:
-                    wandblog.update({"loss_g": loss_g, "epoch": epoch})
+                    wandblog.update(
+                        {
+                            "loss_g": loss_g,
+                            "epoch": epoch,
+                            "lr": optimizerG.param_groups[0]["lr"],
+                        }
+                    )
+
+                # update learning rate
+                schedulerG.step()
+                schedulerD.step()
+                schedulerC.step()
                 wandb.log(wandblog)  # 시각화 데이터 등록
 
         self.is_fit_ = True
