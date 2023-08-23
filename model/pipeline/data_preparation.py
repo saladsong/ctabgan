@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
 from sklearn import preprocessing
-from sklearn import model_selection
 
 
 class DataPrep(object):
@@ -40,12 +39,6 @@ class DataPrep(object):
             # target(y) 맨 뒤로 보내주기
             y_real = raw_df[target_col]
             X_real = raw_df.drop(columns=[target_col])
-            # lsw: 이거 왜 필요????
-            # X_train_real, _, y_train_real, _ = model_selection.train_test_split(
-            #     X_real, y_real, test_size=test_ratio, stratify=y_real, random_state=777
-            # )
-            # X_train_real[target_col] = y_train_real
-            # self.df = X_train_real
             X_real[target_col] = y_real
             self.df = X_real
         else:
@@ -96,7 +89,9 @@ class DataPrep(object):
                         return np.log(x) if x != -9999999 else -9999999
 
                     self.df[log_column] = self.df[log_column].apply(apply_log)
-                    # mixed_columns 이면서 log 분포인경우 모드들도 로그변횐 필요해서 추가
+                    # mixed_columns 이면서 log 분포인경우 모드들도 로그변환 필요해서 추가
+                    # lsw: load/save 타 환경에서 하는 경우 역시 floating point error 발생...
+                    # mixed-log 를 강건하게 처리할 코드 필요 - 모드는 로그변환하면 안됨
                     if log_column in self.mixed_columns.keys():
                         self.mixed_columns[log_column] = [
                             apply_log(x) for x in self.mixed_columns[log_column]

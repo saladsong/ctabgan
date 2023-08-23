@@ -9,8 +9,6 @@ import pickle
 import os
 from multiprocessing import Queue, Pool, Manager, cpu_count
 
-# from model.synthesizer.utils import get_tcol_idx_st_ed_tuple
-
 RANDOM_SEED = 777
 
 

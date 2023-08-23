@@ -469,6 +469,8 @@ class CTABGANSynthesizer:
         betas: Tuple[float, float] = (0.9, 0.999),  # adam optimizer betas
         weight_decay: float = 1e-5,  # adam optimizer betas weight_decay
         device: str = None,
+        generator_device: str = None,
+        discriminator_device: str = None,
     ):
         if class_dim is None:
             class_dim = (256, 256, 256, 256)
@@ -490,6 +492,8 @@ class CTABGANSynthesizer:
         if device is None:
             device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         self.device = device
+        self.generator_device = generator_device
+        self.discriminator_device = discriminator_device
 
         self.is_fit_ = False
 
@@ -580,10 +584,8 @@ class CTABGANSynthesizer:
         self.Gtransformer = ImageTransformer(self.gside)
         self.Dtransformer = ImageTransformer(self.dside)
 
-        epoch = 0
-
         steps_per_epoch = max(1, len(train_data) // self.batch_size)
-        for i in tqdm(range(self.epochs)):
+        for epoch in tqdm(range(self.epochs)):
             for id_ in tqdm(range(steps_per_epoch)):
                 # G(generator), D(critic), C(auxiliary classifier) 학습
                 # G: loss_g = loss_g_default + loss_g_info + loss_g_dstream + loss_g_gen
@@ -705,13 +707,13 @@ class CTABGANSynthesizer:
                 loss_g = loss_g_default + loss_g_info + cross_entropy
                 loss_g.backward()
                 optimizerG.step()
-                wandb.log(
+                wandblog = {
                     {
                         "loss_g_default": loss_g_default,
                         "loss_g_info": loss_g_info,
                         "loss_g_gen": cross_entropy,
                     }
-                )
+                }
 
                 # loss_g_dstream
                 if problem_type:
@@ -751,17 +753,17 @@ class CTABGANSynthesizer:
                     optimizerC.zero_grad()
                     loss_c_dstream.backward()
                     optimizerC.step()
-                    wandb.log(
+                    wandblog.update(
                         {
                             "loss_g_dstream": loss_g_dstream,
                             "loss_g": loss_g + loss_g_dstream,
                             "loss_c_dstream": loss_c_dstream,
+                            "epoch": epoch,
                         }
                     )
                 else:
-                    wandb.log({"loss_g": loss_g})
-
-            epoch += 1
+                    wandblog.update({"loss_g": loss_g, "epoch": epoch})
+                wandb.log(wandblog)  # 시각화 데이터 등록
 
         self.is_fit_ = True
 
