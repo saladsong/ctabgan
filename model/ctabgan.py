@@ -164,11 +164,16 @@ class CTABGAN:
         return sample_df
 
     def load_generator(
-        self, *, gside: int, params_ctabgan: dict, use_parallel_transfrom: bool = True
+        self,
+        *,
+        gpath: str,
+        gside: int,
+        params_ctabgan: dict,
+        use_parallel_transfrom: bool = True,
     ):
         # generator 로드
         self.synthesizer = CTABGANSynthesizer(**params_ctabgan)
-        self.synthesizer.load_generator("./save/hana/generator-128.pth")
+        self.synthesizer.load_generator(gpath)
         self.synthesizer.is_fit_ = True
         self.is_fit_ = True
 
