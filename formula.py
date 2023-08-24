@@ -1,5 +1,6 @@
 # 수식으로 합성 가능한 파생 컬럼 생성용
 # (v.1) 1개월치 데이터 내에서의 파생 관계만 고려되어 있음
+# (v.1.5) validity 검증 후 수식>조건 수정 및 중복 컬럼 반영
 # for each formula fx,
 # I: 전체 데이터프레임 (CTAB-GAN+ 알고리즘 수행 결과 생성되는 데이터)
 # O: 파생 컬럼
@@ -77,12 +78,6 @@ constraints = [
         "content": "이용금액_R3M_신용체크 = 이용금액_R3M_신용 + 이용금액_R3M_체크",
     },
     {
-        "columns": ["이용금액_해외"],
-        "fname": "cf_01_0077",
-        "type": "formula",
-        "content": "이용가능여부_해외겸용_본인 = IF 이용금액_해외>0 THEN '1' ELSE '0'",
-    },
-    {
         "columns": ["할인금액_기본연회비_B0M", "청구금액_기본연회비_B0M"],
         "fname": "cf_01_0083",
         "type": "formula",
@@ -93,6 +88,13 @@ constraints = [
         "fname": "cf_01_0084",
         "type": "formula",
         "content": "제휴연회비_B0M = 할인금액_제휴연회비_B0M+청구금액_제휴연회비_B0M",
+    },
+    # 2.신용 테이블 컬럼 Formula
+    {
+        "columns": ["이용거절여부_카드론"],
+        "fname": "cf_02_0030",
+        "type": "formula",
+        "content": "IF 이용거절여부_카드론=='1' THEN 카드론동의여부='N' ELSE 카드론동의여부='Y'",
     },
     # 4.청구 테이블 컬럼 Formula
     {
@@ -144,12 +146,6 @@ constraints = [
         "content": "연체잔액_B0M = SUM(연체잔액_일시불_B0M, 할부, 현금서비스, 카드론, 대환론)",
     },
     # 6.채널활동 테이블 컬럼 Formula
-    {
-        "columns": ["IB상담건수_VOC_B0M", "IB상담건수_금감원_B0M"],
-        "fname": "cf_06_0046",
-        "type": "formula",
-        "content": "상담건수_B0M = SUM(IB상담건수_VOC_B0M, IB상담건수_금감원_B0M)",
-    },
     {
         "columns": ["IB상담건수_VOC민원_B0M", "IB상담건수_VOC불만_B0M"],
         "fname": "cf_06_0066",
@@ -359,18 +355,6 @@ constraints = [
         "content": "이용금액_부분무이자_R12M = SUM(할부금액_부분_3M_R12M, 할부금액_부분_6M_R12M, 할부금액_부분_12M_R12M, 할부금액_부분_14M_R12M)",
     },
     {
-        "columns": ["최대이용금액_신판_R12M", "최대이용금액_CA_R12M"],
-        "fname": "cf_03_0063",
-        "type": "formula",
-        "content": "최대이용금액_신용_R12M = MAX(최대이용금액_신판_R12M, 최대이용금액_CA_R12M)",
-    },
-    {
-        "columns": ["최대이용금액_일시불_R12M", "최대이용금액_할부_R12M"],
-        "fname": "cf_03_0064",
-        "type": "formula",
-        "content": "최대이용금액_신판_R12M = MAX(최대이용금액_일시불_R12M, 최대이용금액_할부_R12M)",
-    },
-    {
         "columns": ["최대이용금액_할부_유이자_R12M", "최대이용금액_할부_무이자_R12M", "최대이용금액_부분무이자_R12M"],
         "fname": "cf_03_0066",
         "type": "formula",
@@ -449,19 +433,28 @@ constraints = [
         "content": "이용금액_할부_R3M = SUM(이용금액_할부_유이자_R3M, 이용금액_할부_무이자_R3M, 이용금액_부분무이자_R3M)",
     },
     {
-        "columns": [
-            "쇼핑_도소매_이용금액",
-            "쇼핑_백화점_이용금액",
-            "쇼핑_마트_이용금액",
-            "쇼핑_슈퍼마켓_이용금액",
-            "쇼핑_편의점_이용금액",
-            "쇼핑_아울렛_이용금액",
-            "쇼핑_온라인_이용금액",
-            "쇼핑_기타_이용금액",
-        ],
-        "fname": "cf_03_0176",
+        "columns": ["쇼핑_전체_이용금액"],
+        "fname": "cf_03_0158",
         "type": "formula",
-        "content": "쇼핑_전체_이용금액 = SUM(쇼핑_도소매_이용금액, 백화점, 마트, 슈퍼마켓, 편의점, 아울렛, 온라인, 기타)",
+        "content": "이용금액_쇼핑 = 쇼핑_전체_이용금액",
+    },
+    {
+        "columns": ["교통_전체이용금액"],
+        "fname": "cf_03_0160",
+        "type": "formula",
+        "content": "이용금액_교통 = 교통_전체이용금액",
+    },
+    {
+        "columns": ["납부_전체이용금액"],
+        "fname": "cf_03_0162",
+        "type": "formula",
+        "content": "이용금액_납부 = 납부_전체이용금액",
+    },
+    {
+        "columns": ["여유_전체이용금액"],
+        "fname": "cf_03_0164",
+        "type": "formula",
+        "content": "이용금액_여유생활 = 여유_전체이용금액",
     },
     {
         "columns": [
@@ -897,84 +890,6 @@ constraints = [
         "content": "최종카드론이용경과월 = MONTHS_BETWEEN(LAST_DAY(기준년월), 최종이용일자_카드론)",
     },
     {
-        "columns": [
-            "이용금액_당사페이_R6M",
-            "이용금액_당사기타_R6M",
-            "이용금액_A페이_R6M",
-            "이용금액_B페이_R6M",
-            "이용금액_C페이_R6M",
-            "이용금액_D페이_R6M",
-        ],
-        "fname": "cf_03_0344",
-        "type": "formula",
-        "content": "이용금액_간편결제_R6M = SUM(이용금액_당사페이_R6M, 당사기타, A페이, B페이, C페이, D페이)",
-    },
-    {
-        "columns": [
-            "이용건수_당사페이_R6M",
-            "이용건수_당사기타_R6M",
-            "이용건수_A페이_R6M",
-            "이용건수_B페이_R6M",
-            "이용건수_C페이_R6M",
-            "이용건수_D페이_R6M",
-        ],
-        "fname": "cf_03_0351",
-        "type": "formula",
-        "content": "이용건수_간편결제_R6M = SUM(이용건수_당사페이_R6M, 당사기타, A페이, B페이, C페이, D페이)",
-    },
-    {
-        "columns": [
-            "이용금액_당사페이_R3M",
-            "이용금액_당사기타_R3M",
-            "이용금액_A페이_R3M",
-            "이용금액_B페이_R3M",
-            "이용금액_C페이_R3M",
-            "이용금액_D페이_R3M",
-        ],
-        "fname": "cf_03_0358",
-        "type": "formula",
-        "content": "이용금액_간편결제_R3M = SUM(이용금액_당사페이_R3M, 당사기타, A페이, B페이, C페이, D페이)",
-    },
-    {
-        "columns": [
-            "이용건수_당사페이_R3M",
-            "이용건수_당사기타_R3M",
-            "이용건수_A페이_R3M",
-            "이용건수_B페이_R3M",
-            "이용건수_C페이_R3M",
-            "이용건수_D페이_R3M",
-        ],
-        "fname": "cf_03_0365",
-        "type": "formula",
-        "content": "이용건수_간편결제_R3M = SUM(이용건수_당사페이_R3M, 당사기타, A페이, B페이, C페이, D페이)",
-    },
-    {
-        "columns": [
-            "이용금액_당사페이_B0M",
-            "이용금액_당사기타_B0M",
-            "이용금액_A페이_B0M",
-            "이용금액_B페이_B0M",
-            "이용금액_C페이_B0M",
-            "이용금액_D페이_B0M",
-        ],
-        "fname": "cf_03_0372",
-        "type": "formula",
-        "content": "이용금액_간편결제_B0M = SUM(이용금액_당사페이_B0M, 당사기타, A페이, B페이, C페이, D페이)",
-    },
-    {
-        "columns": [
-            "이용건수_당사페이_B0M",
-            "이용건수_당사기타_B0M",
-            "이용건수_A페이_B0M",
-            "이용건수_B페이_B0M",
-            "이용건수_C페이_B0M",
-            "이용건수_D페이_B0M",
-        ],
-        "fname": "cf_03_0379",
-        "type": "formula",
-        "content": "이용건수_간편결제_B0M = SUM(이용건수_당사페이_B0M, 당사기타, A페이, B페이, C페이, D페이)",
-    },
-    {
         "columns": ["정상청구원금_B0M", "선입금원금_B0M", "정상입금원금_B0M"],
         "fname": "cf_03_0408",
         "type": "formula",
@@ -1078,17 +993,6 @@ def cf_01_0054(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
 
 
 @constraint_udf
-def cf_01_0077(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
-    """
-    formula:
-        이용가능여부_해외겸용_본인 = IF 이용금액_해외>0 THEN '1' ELSE '0'
-    """
-    dd = df[["이용금액_해외"]]
-    res = dd.apply(lambda x: "1" if x[0] > 0 else "0", axis=1)
-    return res
-
-
-@constraint_udf
 def cf_01_0083(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
     formula:
@@ -1107,6 +1011,17 @@ def cf_01_0084(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
     c1, c2 = df["할인금액_제휴연회비_B0M"], df["청구금액_제휴연회비_B0M"]
     res = c1 + c2
+    return res
+
+
+@constraint_udf
+def cf_02_0030(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
+    """
+    formula:
+        IF 이용거절여부_카드론=='1' THEN 카드론동의여부='N' ELSE 카드론동의여부='Y'
+    """
+    dd = df[["이용거절여부_카드론"]]
+    res = dd.apply(lambda x: "N" if x[0]=='1' else "Y", axis=1)
     return res
 
 
@@ -1179,17 +1094,6 @@ def cf_05_0018(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     c1, c2, c3 = df["연체잔액_일시불_B0M"], df["연체잔액_할부_B0M"], df["연체잔액_현금서비스_B0M"]
     c4, c5 = df["연체잔액_카드론_B0M"], df["연체잔액_대환론_B0M"]
     res = c1 + c2 + c3 + c4 + c5
-    return res
-
-
-@constraint_udf
-def cf_06_0046(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
-    """
-    formula:
-        상담건수_B0M = SUM(IB상담건수_VOC_B0M, IB상담건수_금감원_B0M)
-    """
-    c1, c2 = df["IB상담건수_VOC_B0M"], df["IB상담건수_금감원_B0M"]
-    res = c1 + c2
     return res
 
 
@@ -1587,28 +1491,6 @@ def cf_03_0059(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
 
 
 @constraint_udf
-def cf_03_0063(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
-    """
-    formula:
-        최대이용금액_신용_R12M = MAX(최대이용금액_신판_R12M, 최대이용금액_CA_R12M)
-    """
-    dd = df[["최대이용금액_신판_R12M", "최대이용금액_CA_R12M"]]
-    res = dd.max(axis=1).astype(int)
-    return res
-
-
-@constraint_udf
-def cf_03_0064(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
-    """
-    formula:
-        최대이용금액_신판_R12M = MAX(최대이용금액_일시불_R12M, 최대이용금액_할부_R12M)
-    """
-    dd = df[["최대이용금액_일시불_R12M", "최대이용금액_할부_R12M"]]
-    res = dd.max(axis=1).astype(int)
-    return res
-
-
-@constraint_udf
 def cf_03_0066(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
     formula:
@@ -1752,24 +1634,42 @@ def cf_03_0126(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
 
 
 @constraint_udf
-def cf_03_0176(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+def cf_03_0158(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
     formula:
-        쇼핑_전체_이용금액 = SUM(쇼핑_도소매_이용금액, 백화점, 마트, 슈퍼마켓, 편의점, 아울렛, 온라인, 기타)
+        이용금액_쇼핑 = 쇼핑_전체_이용금액
     """
-    dd = df[
-        [
-            "쇼핑_도소매_이용금액",
-            "쇼핑_백화점_이용금액",
-            "쇼핑_마트_이용금액",
-            "쇼핑_슈퍼마켓_이용금액",
-            "쇼핑_편의점_이용금액",
-            "쇼핑_아울렛_이용금액",
-            "쇼핑_온라인_이용금액",
-            "쇼핑_기타_이용금액",
-        ]
-    ]
-    res = dd.sum(axis=1).astype(int)
+    res = df["쇼핑_전체_이용금액"]
+    return res
+
+
+@constraint_udf
+def cf_03_0160(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+    """
+    formula:
+        이용금액_교통 = 교통_전체이용금액
+    """
+    res = df["교통_전체이용금액"]
+    return res
+
+
+@constraint_udf
+def cf_03_0162(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+    """
+    formula:
+        이용금액_납부 = 납부_전체이용금액
+    """
+    res = df["납부_전체이용금액"]
+    return res
+
+
+@constraint_udf
+def cf_03_0164(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+    """
+    formula:
+        이용금액_여유생활 = 여유_전체이용금액
+    """
+    res = df["여유_전체이용금액"]
     return res
 
 
@@ -2590,73 +2490,6 @@ def cf_03_0281(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     )
     res = tmp_res.apply(lambda x: 999 if x == 999 else x.years * 12 + x.months)
     return res
-
-
-# @constraint_udf
-# def cf_03_0344(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
-#     """
-#     formula:
-#         이용금액_간편결제_R6M = SUM(이용금액_당사페이_R6M, 당사기타, A페이, B페이, C페이, D페이)
-#     """
-#     dd = df[["이용금액_당사페이_R6M", "이용금액_당사기타_R6M", "이용금액_A페이_R6M", "이용금액_B페이_R6M", \
-#              "이용금액_C페이_R6M", "이용금액_D페이_R6M"]]
-#     res = dd.sum(axis=1).astype(int)
-#     return res
-
-# @constraint_udf
-# def cf_03_0351(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
-#     """
-#     formula:
-#         이용건수_간편결제_R6M = SUM(이용건수_당사페이_R6M, 당사기타, A페이, B페이, C페이, D페이)
-#     """
-#     dd = df[["이용건수_당사페이_R6M", "이용건수_당사기타_R6M", "이용건수_A페이_R6M", "이용건수_B페이_R6M", \
-#                     "이용건수_C페이_R6M", "이용건수_D페이_R6M"]]
-#     res = dd.sum(axis=1).astype(int)
-#     return res
-
-# @constraint_udf
-# def cf_03_0358(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
-#     """
-#     formula:
-#         이용금액_간편결제_R3M = SUM(이용금액_당사페이_R3M, 당사기타, A페이, B페이, C페이, D페이)
-#     """
-#     dd = df[["이용금액_당사페이_R3M", "이용금액_당사기타_R3M", "이용금액_A페이_R3M", "이용금액_B페이_R3M", \
-#              "이용금액_C페이_R3M", "이용금액_D페이_R3M"]]
-#     res = dd.sum(axis=1).astype(int)
-#     return res
-
-# @constraint_udf
-# def cf_03_0365(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
-#     """
-#     formula:
-#         이용건수_간편결제_R3M = SUM(이용건수_당사페이_R3M, 당사기타, A페이, B페이, C페이, D페이)
-#     """
-#     dd = df[["이용건수_당사페이_R3M", "이용건수_당사기타_R3M", "이용건수_A페이_R3M", "이용건수_B페이_R3M", \
-#                     "이용건수_C페이_R3M", "이용건수_D페이_R3M"]]
-#     res = dd.sum(axis=1).astype(int)
-#     return res
-
-# @constraint_udf
-# def cf_03_0372(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
-#     """
-#     formula:
-#         이용금액_간편결제_B0M = SUM(이용금액_당사페이_B0M, 당사기타, A페이, B페이, C페이, D페이)
-#     """
-#     dd = df[["이용금액_당사페이_B0M", "이용금액_당사기타_B0M", "이용금액_A페이_B0M", "이용금액_B페이_B0M", \
-#              "이용금액_C페이_B0M", "이용금액_D페이_B0M"]]
-#     res = dd.sum(axis=1).astype(int)
-#     return res
-
-# @constraint_udf
-# def cf_03_0379(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
-#     """
-#     formula:
-#         이용건수_간편결제_B0M = SUM(이용건수_당사페이_B0M, 당사기타, A페이, B페이, C페이, D페이)
-#     """
-#     dd = df[["이용건수_당사페이_B0M", "이용건수_당사기타_B0M", "이용건수_A페이_B0M", "이용건수_B페이_B0M", \
-#                     "이용건수_C페이_B0M", "이용건수_D페이_B0M"]]
-#     res = dd.sum(axis=1).astype(int)
-#     return res
 
 
 @constraint_udf
