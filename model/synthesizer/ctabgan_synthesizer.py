@@ -806,7 +806,8 @@ class CTABGANSynthesizer:
 
         data = []
 
-        for i in range(steps):
+        self.logger.info("[CTAB-SYN]: generate raw encode vectors start")
+        for i in tqdm(range(steps)):
             noisez = torch.randn(self.batch_size, self.random_dim, device=self.device)
             condvec = self.cond_generator.sample(self.batch_size)
             c = condvec
@@ -820,6 +821,7 @@ class CTABGANSynthesizer:
             faket = self.Gtransformer.inverse_transform(fake)
             fakeact = apply_activate(faket, output_info)
             data.append(fakeact.detach().cpu().numpy())
+        self.logger.info("[CTAB-SYN]: generate raw encode vectors end")
 
         data = np.concatenate(data, axis=0)
         self.logger.info("[CTAB-SYN]: data inverse transformation start")
@@ -845,7 +847,8 @@ class CTABGANSynthesizer:
                 data_resample = []
                 steps_left = num_for_resample // self.batch_size + 1
 
-                for i in range(steps_left):
+                self.logger.info("[CTAB-SYN]: generate raw encode vectors start")
+                for i in tqdm(range(steps_left)):
                     noisez = torch.randn(
                         self.batch_size, self.random_dim, device=self.device
                     )
@@ -864,13 +867,16 @@ class CTABGANSynthesizer:
                     faket = self.Gtransformer.inverse_transform(fake)
                     fakeact = apply_activate(faket, output_info)
                     data_resample.append(fakeact.detach().cpu().numpy())
+                self.logger.info("[CTAB-SYN]: generate raw encode vectors end")
 
                 data_resample = np.concatenate(data_resample, axis=0)
 
+                self.logger.info("[CTAB-SYN]: data inverse transformation start")
                 new_result, invalid_ids = data_transformer.inverse_transform(
                     data_resample,
                     use_parallel_inverse_transfrom=use_parallel_inverse_transfrom,
                 )
+                self.logger.info("[CTAB-SYN]: data inverse transformation end")
 
                 num_for_resample = len(invalid_ids)
                 all_ids = np.arange(0, len(new_result))
