@@ -5,8 +5,8 @@ Generative model training algorithm based on the CTABGANSynthesiser
 import pandas as pd
 import time
 from model.pipeline.data_preparation import DataPrep
-from model.synthesizer.ctabgan_synthesizer import CTABGANSynthesizer
-from model.synthesizer.transformer import DataTransformer
+from model.synthesizer.ctabgan_synthesizer import CTABGANSynthesizer, Cond
+from model.synthesizer.transformer import DataTransformer, ImageTransformer
 
 import warnings
 import logging
@@ -162,3 +162,24 @@ class CTABGAN:
         sample_df = self.data_prep.inverse_prep(sample)
 
         return sample_df
+
+    def load_generator(
+        self, *, gside: int, params_ctabgan: dict, use_parallel_transfrom: bool = True
+    ):
+        # generator 로드
+        self.synthesizer = CTABGANSynthesizer(**params_ctabgan)
+        self.synthesizer.load_generator("./save/hana/generator-128.pth")
+        self.synthesizer.is_fit_ = True
+        self.is_fit_ = True
+
+        # 이미지 트랜스포머 빌드
+        self.synthesizer.gside = gside
+        self.synthesizer.Gtransformer = ImageTransformer(self.synthesizer.gside)
+
+        # 컨디션 벡터 생성기 빌드
+        data_transformer = self.transformer
+        assert data_transformer.is_fit_, "transformer should already be fitted!"
+        train_data = data_transformer.transform(
+            self.data_prep.df.values, use_parallel_transfrom=use_parallel_transfrom
+        )
+        self.synthesizer.cond_generator = Cond(train_data, data_transformer.output_info)

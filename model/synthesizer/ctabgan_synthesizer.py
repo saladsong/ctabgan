@@ -910,5 +910,6 @@ class CTABGANSynthesizer:
         generator.eval()
         generator.to(self.device)
         self.generator = generator
+        self.is_fit_ = True
 
         return
