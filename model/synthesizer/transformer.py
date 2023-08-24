@@ -694,9 +694,10 @@ class DataTransformer:
         # return values[valid_ids], len(invalid_ids_merged)
 
     def save(self, mpath: str):
+        """확장자는 *.pickle 로"""
         assert self.is_fit_, "only fitted model could be saved, fit first please..."
         os.makedirs(mpath, exist_ok=True)
-        mpath = os.path.join(mpath, "transformer.pickle")
+        # mpath = os.path.join(mpath, "transformer.pickle")
 
         with open(mpath, "wb") as f:
             pickle.dump(self, f)

@@ -884,9 +884,11 @@ class CTABGANSynthesizer:
         return result[0:n]
 
     def save_generator(self, mpath: str) -> None:
+        """확장자는 *.pth 로"""
+
         assert self.is_fit_, "only fitted model could be saved, fit first please..."
         os.makedirs(mpath, exist_ok=True)
-        mpath = os.path.join(mpath, "generator.pth")
+        # mpath = os.path.join(mpath, "generator.pth")
         torch.save(self.generator, mpath)
         self.logger.info(f"[CTAB-SYN]: Generator saved at {mpath}")
         return

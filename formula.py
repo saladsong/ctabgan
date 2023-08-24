@@ -94,7 +94,6 @@ constraints = [
         "type": "formula",
         "content": "제휴연회비_B0M = 할인금액_제휴연회비_B0M+청구금액_제휴연회비_B0M",
     },
-
     # 4.청구 테이블 컬럼 Formula
     {
         "columns": ["대표청구서수령지구분코드"],
@@ -118,23 +117,32 @@ constraints = [
         "type": "formula",
         "content": "마일_적립포인트_R3M = 포인트_마일리지_건별_R3M + 포인트_마일리지_월적립_R3M",
     },
-
     # 5.잔액 테이블 컬럼 Formula
     {
-        "columns": ["잔액_일시불_B0M", "잔액_할부_B0M", "잔액_현금서비스_B0M", \
-                    "잔액_리볼빙일시불이월_B0M", "잔액_리볼빙CA이월_B0M", "잔액_카드론_B0M"],
+        "columns": [
+            "잔액_일시불_B0M",
+            "잔액_할부_B0M",
+            "잔액_현금서비스_B0M",
+            "잔액_리볼빙일시불이월_B0M",
+            "잔액_리볼빙CA이월_B0M",
+            "잔액_카드론_B0M",
+        ],
         "fname": "cf_05_0006",
         "type": "formula",
         "content": "잔액_B0M = SUM(잔액_일시불_B0M, 할부, 현금서비스, 리볼빙일시불이월, 리볼빙CA이월, 카드론)",
     },
     {
-        "columns": ["연체잔액_일시불_B0M", "연체잔액_할부_B0M", "연체잔액_현금서비스_B0M", \
-                    "연체잔액_카드론_B0M", "연체잔액_대환론_B0M"],
+        "columns": [
+            "연체잔액_일시불_B0M",
+            "연체잔액_할부_B0M",
+            "연체잔액_현금서비스_B0M",
+            "연체잔액_카드론_B0M",
+            "연체잔액_대환론_B0M",
+        ],
         "fname": "cf_05_0018",
         "type": "formula",
         "content": "연체잔액_B0M = SUM(연체잔액_일시불_B0M, 할부, 현금서비스, 카드론, 대환론)",
     },
-
     # 6.채널활동 테이블 컬럼 Formula
     {
         "columns": ["IB상담건수_VOC_B0M", "IB상담건수_금감원_B0M"],
@@ -154,7 +162,6 @@ constraints = [
         "type": "formula",
         "content": "IB상담건수_VOC_R6M = SUM(IB상담건수_VOC민원_R6M, IB상담건수_VOC불만_R6M)",
     },
-
     # 3.승인.매출 테이블 컬럼 Formula
     {
         "columns": ["최종이용일자_신판", "최종이용일자_CA", "최종이용일자_카드론"],
@@ -170,163 +177,196 @@ constraints = [
     },
     {
         "columns": ["이용건수_신판_B0M", "이용건수_CA_B0M"],
-        "fname": "cf_03_0013"
+        "fname": "cf_03_0013",
         "type": "formula",
         "content": "이용건수_신용_B0M = 이용건수_신판_B0M + 이용건수_CA_B0M",
     },
     {
         "columns": ["이용건수_일시불_B0M", "이용건수_할부_B0M"],
-        "fname": "cf_03_0014"
+        "fname": "cf_03_0014",
         "type": "formula",
         "content": "이용건수_신판_B0M = 이용건수_일시불_B0M + 이용건수_할부_B0M",
     },
     {
-        "columns": ["이용건수_할부_유이자_B0M", "이용건수_할부_무이자_B0M","이용건수_부분무이자_B0M"],
-        "fname": "cf_03_0016"
+        "columns": ["이용건수_할부_유이자_B0M", "이용건수_할부_무이자_B0M", "이용건수_부분무이자_B0M"],
+        "fname": "cf_03_0016",
         "type": "formula",
         "content": "이용건수_할부_B0M = 이용건수_할부_유이자_B0M + 이용건수_할부_무이자_B0M + 이용건수_부분무이자_B0M",
     },
     {
         "columns": ["이용금액_신판_B0M", "이용금액_CA_B0M"],
-        "fname": "cf_03_0023"
+        "fname": "cf_03_0023",
         "type": "formula",
         "content": "이용금액_신용_B0M = 이용금액_신판_B0M + 이용금액_CA_B0M",
     },
-     {
+    {
         "columns": ["이용금액_일시불_B0M", "이용금액_할부_B0M"],
-        "fname": "cf_03_0024"
+        "fname": "cf_03_0024",
         "type": "formula",
         "content": "이용금액_신판_B0M = 이용금액_일시불_B0M + 이용금액_할부_B0M",
     },
-     {
-        "columns": ["이용금액_할부_유이자_B0M", "이용금액_할부_무이자_B0M","이용금액_부분무이자_B0M"],
-        "fname": "cf_03_0026"
+    {
+        "columns": ["이용금액_할부_유이자_B0M", "이용금액_할부_무이자_B0M", "이용금액_부분무이자_B0M"],
+        "fname": "cf_03_0026",
         "type": "formula",
         "content": "이용금액_할부_B0M = 이용금액_할부_유이자_B0M + 이용금액_할부_무이자_B0M + 이용금액_부분무이자_B0M",
     },
     {
         "columns": ["이용후경과월_신판", "이용후경과월_CA"],
-        "fname": "cf_03_0033"
+        "fname": "cf_03_0033",
         "type": "formula",
         "content": "이용후경과월_신용 = MIN(이용후경과월_신판, 이용후경과월_CA)",
     },
     {
-        "columns": ["이용후경과월_일시불", "이용후경과월_할부",],
-        "fname": "cf_03_0034"
+        "columns": [
+            "이용후경과월_일시불",
+            "이용후경과월_할부",
+        ],
+        "fname": "cf_03_0034",
         "type": "formula",
         "content": "이용후경과월_신판 = MIN(이용후경과월_일시불, 이용후경과월_할부)",
     },
     {
         "columns": ["기준년월", "최종이용일자_일시불"],
-        "fname": "cf_03_0035"
+        "fname": "cf_03_0035",
         "type": "formula",
         "content": "이용후경과월_일시불 = MONTHS_BETWEEN(LAST_DAY(기준년월), 최종이용일자_일시불)",
     },
     {
         "columns": ["이용후경과월_할부_유이자", "이용후경과월_할부_무이자", "이용후경과월_부분무이자"],
-        "fname": "cf_03_0036"
+        "fname": "cf_03_0036",
         "type": "formula",
         "content": "이용후경과월_할부 = MIN(이용후경과월_할부_유이자, 이용후경과월_할부_무이자, 이용후경과월_부분무이자)",
     },
     {
         "columns": ["기준년월", "최종이용일자_CA"],
-        "fname": "cf_03_0040"
+        "fname": "cf_03_0040",
         "type": "formula",
         "content": "이용후경과월_CA = MONTHS_BETWEEN(LAST_DAY(기준년월), 최종이용일자_CA)",
     },
     {
         "columns": ["기준년월", "최종이용일자_체크"],
-        "fname": "cf_03_0041"
+        "fname": "cf_03_0041",
         "type": "formula",
         "content": "이용후경과월_체크 = MONTHS_BETWEEN(LAST_DAY(기준년월), 최종이용일자_체크)",
     },
     {
         "columns": ["기준년월", "최종이용일자_카드론"],
-        "fname": "cf_03_0042"
+        "fname": "cf_03_0042",
         "type": "formula",
         "content": "이용후경과월_카드론 = MONTHS_BETWEEN(LAST_DAY(기준년월), 최종이용일자_카드론)",
     },
     {
         "columns": ["이용건수_신판_R12M", "이용건수_CA_R12M"],
-        "fname": "cf_03_0043"
+        "fname": "cf_03_0043",
         "type": "formula",
         "content": "이용건수_신용_R12M = SUM(이용건수_신판_R12M, 이용건수_CA_R12M)",
     },
     {
         "columns": ["이용건수_일시불_R12M", "이용건수_할부_R12M"],
-        "fname": "cf_03_0044"
+        "fname": "cf_03_0044",
         "type": "formula",
         "content": "이용건수_신판_R12M = SUM(이용건수_일시불_R12M, 이용건수_할부_R12M)",
     },
     {
         "columns": ["이용건수_할부_유이자_R12M", "이용건수_할부_무이자_R12M", "이용건수_부분무이자_R12M"],
-        "fname": "cf_03_0046"
+        "fname": "cf_03_0046",
         "type": "formula",
         "content": "이용건수_할부_R12M = SUM(이용건수_할부_유이자_R12M, 이용건수_할부_무이자_R12M, 이용건수_부분무이자_R12M)",
     },
     {
-        "columns": ["할부건수_유이자_3M_R12M", "할부건수_유이자_6M_R12M", "할부건수_유이자_12M_R12M", "할부건수_유이자_14M_R12M"],
-        "fname": "cf_03_0047"
+        "columns": [
+            "할부건수_유이자_3M_R12M",
+            "할부건수_유이자_6M_R12M",
+            "할부건수_유이자_12M_R12M",
+            "할부건수_유이자_14M_R12M",
+        ],
+        "fname": "cf_03_0047",
         "type": "formula",
         "content": "이용건수_할부_유이자_R12M = SUM(할부건수_유이자_3M_R12M, 할부건수_유이자_6M_R12M, 할부건수_유이자_12M_R12M, 할부건수_유이자_14M_R12M)",
     },
     {
-        "columns": ["할부건수_무이자_3M_R12M", "할부건수_무이자_6M_R12M", "할부건수_무이자_12M_R12M", "할부건수_무이자_14M_R12M"],
-        "fname": "cf_03_0048"
+        "columns": [
+            "할부건수_무이자_3M_R12M",
+            "할부건수_무이자_6M_R12M",
+            "할부건수_무이자_12M_R12M",
+            "할부건수_무이자_14M_R12M",
+        ],
+        "fname": "cf_03_0048",
         "type": "formula",
         "content": "이용건수_할부_무이자_R12M = SUM(할부건수_무이자_3M_R12M, 할부건수_무이자_6M_R12M, 할부건수_무이자_12M_R12M, 할부건수_무이자_14M_R12M)",
     },
     {
-        "columns": ["할부건수_부분_3M_R12M", "할부건수_부분_6M_R12M", "할부건수_부분_12M_R12M", "할부건수_부분_14M_R12M"],
-        "fname": "cf_03_0049"
+        "columns": [
+            "할부건수_부분_3M_R12M",
+            "할부건수_부분_6M_R12M",
+            "할부건수_부분_12M_R12M",
+            "할부건수_부분_14M_R12M",
+        ],
+        "fname": "cf_03_0049",
         "type": "formula",
         "content": "이용건수_부분무이자_R12M = SUM(할부건수_부분_3M_R12M, 할부건수_부분_6M_R12M, 할부건수_부분_12M_R12M, 할부건수_부분_14M_R12M)",
     },
     {
         "columns": ["이용금액_신판_R12M", "이용금액_CA_R12M"],
-        "fname": "cf_03_0053"
+        "fname": "cf_03_0053",
         "type": "formula",
         "content": "이용금액_신용_R12M = SUM(이용금액_신판_R12M, 이용금액_CA_R12M)",
     },
     {
         "columns": ["이용금액_일시불_R12M", "이용금액_할부_R12M"],
-        "fname": "cf_03_0054"
+        "fname": "cf_03_0054",
         "type": "formula",
         "content": "이용금액_신판_R12M = SUM(이용금액_일시불_R12M, 이용금액_할부_R12M)",
     },
     {
         "columns": ["이용금액_할부_유이자_R12M", "이용금액_할부_무이자_R12M", "이용금액_부분무이자_R12M"],
-        "fname": "cf_03_0056"
+        "fname": "cf_03_0056",
         "type": "formula",
         "content": "이용금액_할부_R12M = SUM(이용금액_할부_유이자_R12M, 이용금액_할부_무이자_R12M, 이용금액_부분무이자_R12M)",
     },
     {
-        "columns": ["할부금액_유이자_3M_R12M", "할부금액_유이자_6M_R12M", "할부금액_유이자_12M_R12M", "할부금액_유이자_14M_R12M"],
-        "fname": "cf_03_0057"
+        "columns": [
+            "할부금액_유이자_3M_R12M",
+            "할부금액_유이자_6M_R12M",
+            "할부금액_유이자_12M_R12M",
+            "할부금액_유이자_14M_R12M",
+        ],
+        "fname": "cf_03_0057",
         "type": "formula",
         "content": "이용금액_할부_유이자_R12M = SUM(할부금액_유이자_3M_R12M, 할부금액_유이자_6M_R12M, 할부금액_유이자_12M_R12M, 할부금액_유이자_14M_R12M)",
     },
     {
-        "columns": ["할부금액_무이자_3M_R12M", "할부금액_무이자_6M_R12M", "할부금액_무이자_12M_R12M", "할부금액_무이자_14M_R12M"],
-        "fname": "cf_03_0058"
+        "columns": [
+            "할부금액_무이자_3M_R12M",
+            "할부금액_무이자_6M_R12M",
+            "할부금액_무이자_12M_R12M",
+            "할부금액_무이자_14M_R12M",
+        ],
+        "fname": "cf_03_0058",
         "type": "formula",
         "content": "이용금액_할부_무이자_R12M = SUM(할부금액_무이자_3M_R12M, 할부금액_무이자_6M_R12M, 할부금액_무이자_12M_R12M, 할부금액_무이자_14M_R12M)",
     },
     {
-        "columns": ["할부금액_부분_3M_R12M", "할부금액_부분_6M_R12M", "할부금액_부분_12M_R12M", "할부금액_부분_14M_R12M"],
-        "fname": "cf_03_0059"
+        "columns": [
+            "할부금액_부분_3M_R12M",
+            "할부금액_부분_6M_R12M",
+            "할부금액_부분_12M_R12M",
+            "할부금액_부분_14M_R12M",
+        ],
+        "fname": "cf_03_0059",
         "type": "formula",
         "content": "이용금액_부분무이자_R12M = SUM(할부금액_부분_3M_R12M, 할부금액_부분_6M_R12M, 할부금액_부분_12M_R12M, 할부금액_부분_14M_R12M)",
     },
     {
         "columns": ["최대이용금액_신판_R12M", "최대이용금액_CA_R12M"],
-        "fname": "cf_03_0063"
+        "fname": "cf_03_0063",
         "type": "formula",
         "content": "최대이용금액_신용_R12M = MAX(최대이용금액_신판_R12M, 최대이용금액_CA_R12M)",
     },
     {
         "columns": ["최대이용금액_일시불_R12M", "최대이용금액_할부_R12M"],
-        "fname": "cf_03_0064"
+        "fname": "cf_03_0064",
         "type": "formula",
         "content": "최대이용금액_신판_R12M = MAX(최대이용금액_일시불_R12M, 최대이용금액_할부_R12M)",
     },
@@ -337,7 +377,7 @@ constraints = [
         "content": "최대이용금액_할부_R12M = MAX(최대이용금액_할부_유이자_R12M, 할부_무이자, 부분무이자)",
     },
     {
-        "columns": ["이용건수_신판_R6M",  "이용건수_CA_R6M"],
+        "columns": ["이용건수_신판_R6M", "이용건수_CA_R6M"],
         "fname": "cf_03_0083",
         "type": "formula",
         "content": "이용건수_신용_R6M = SUM(이용건수_신판_R6M, 이용건수_CA_R6M)",
@@ -355,7 +395,7 @@ constraints = [
         "content": "이용건수_할부_R6M = SUM(이용건수_할부_유이자_R6M, 이용건수_할부_무이자_R6M, 이용건수_부분무이자_R6M)",
     },
     {
-        "columns": ["이용금액_신판_R6M",  "이용금액_CA_R6M"],
+        "columns": ["이용금액_신판_R6M", "이용금액_CA_R6M"],
         "fname": "cf_03_0093",
         "type": "formula",
         "content": "이용금액_신용_R6M = SUM(이용금액_신판_R6M, 이용금액_CA_R6M)",
@@ -373,7 +413,7 @@ constraints = [
         "content": "이용금액_할부_R6M = SUM(이용금액_할부_유이자_R6M, 이용금액_할부_무이자_R6M, 이용금액_부분무이자_R6M)",
     },
     {
-        "columns": ["이용건수_신판_R3M",  "이용건수_CA_R3M"],
+        "columns": ["이용건수_신판_R3M", "이용건수_CA_R3M"],
         "fname": "cf_03_0113",
         "type": "formula",
         "content": "이용건수_신용_R3M = SUM(이용건수_신판_R3M, 이용건수_CA_R3M)",
@@ -391,7 +431,7 @@ constraints = [
         "content": "이용건수_할부_R3M = SUM(이용건수_할부_유이자_R3M, 이용건수_할부_무이자_R3M, 이용건수_부분무이자_R3M)",
     },
     {
-        "columns": ["이용금액_신판_R3M",  "이용금액_CA_R3M"],
+        "columns": ["이용금액_신판_R3M", "이용금액_CA_R3M"],
         "fname": "cf_03_0123",
         "type": "formula",
         "content": "이용금액_신용_R3M = SUM(이용금액_신판_R3M, 이용금액_CA_R3M)",
@@ -409,169 +449,359 @@ constraints = [
         "content": "이용금액_할부_R3M = SUM(이용금액_할부_유이자_R3M, 이용금액_할부_무이자_R3M, 이용금액_부분무이자_R3M)",
     },
     {
-        "columns": ["쇼핑_도소매_이용금액", "쇼핑_백화점_이용금액", "쇼핑_마트_이용금액", "쇼핑_슈퍼마켓_이용금액", \
-                    "쇼핑_편의점_이용금액", "쇼핑_아울렛_이용금액", "쇼핑_온라인_이용금액", "쇼핑_기타_이용금액"],
+        "columns": [
+            "쇼핑_도소매_이용금액",
+            "쇼핑_백화점_이용금액",
+            "쇼핑_마트_이용금액",
+            "쇼핑_슈퍼마켓_이용금액",
+            "쇼핑_편의점_이용금액",
+            "쇼핑_아울렛_이용금액",
+            "쇼핑_온라인_이용금액",
+            "쇼핑_기타_이용금액",
+        ],
         "fname": "cf_03_0176",
         "type": "formula",
         "content": "쇼핑_전체_이용금액 = SUM(쇼핑_도소매_이용금액, 백화점, 마트, 슈퍼마켓, 편의점, 아울렛, 온라인, 기타)",
     },
     {
-        "columns": ["교통_주유이용금액", "교통_정비이용금액", "교통_통행료이용금액", \
-                    "교통_버스지하철이용금액", "교통_택시이용금액", "교통_철도버스이용금액"],
+        "columns": [
+            "교통_주유이용금액",
+            "교통_정비이용금액",
+            "교통_통행료이용금액",
+            "교통_버스지하철이용금액",
+            "교통_택시이용금액",
+            "교통_철도버스이용금액",
+        ],
         "fname": "cf_03_0183",
         "type": "formula",
         "content": "교통_전체이용금액 = SUM(교통_주유이용금액, 정비, 통행료, 버스지하철, 택시, 철도버스)",
     },
     {
-        "columns": ["여유_운동이용금액", "여유_Pet이용금액", "여유_공연이용금액", "여유_공원이용금액", \
-                    "여유_숙박이용금액", "여유_여행이용금액", "여유_항공이용금액", "여유_기타이용금액"],
+        "columns": [
+            "여유_운동이용금액",
+            "여유_Pet이용금액",
+            "여유_공연이용금액",
+            "여유_공원이용금액",
+            "여유_숙박이용금액",
+            "여유_여행이용금액",
+            "여유_항공이용금액",
+            "여유_기타이용금액",
+        ],
         "fname": "cf_03_0192",
         "type": "formula",
         "content": "여유_전체이용금액 = SUM(여유_운동이용금액, Pet, 공연, 공원, 숙박, 여행, 항공, 기타)",
     },
     {
-        "columns": ["납부_통신비이용금액", "납부_관리비이용금액", "납부_렌탈료이용금액", "납부_가스전기료이용금액", \
-                    "납부_보험료이용금액", "납부_유선방송이용금액", "납부_건강연금이용금액", "납부_기타이용금액"],
+        "columns": [
+            "납부_통신비이용금액",
+            "납부_관리비이용금액",
+            "납부_렌탈료이용금액",
+            "납부_가스전기료이용금액",
+            "납부_보험료이용금액",
+            "납부_유선방송이용금액",
+            "납부_건강연금이용금액",
+            "납부_기타이용금액",
+        ],
         "fname": "cf_03_0201",
         "type": "formula",
         "content": "납부_전체이용금액 = SUM(납부_통신비이용금액, 관리비, 렌탈료, 가스전기료, 보험료, 유선방송, 건강연금, 기타)",
     },
     {
-        "columns": ["이용금액_쇼핑", "이용금액_요식", "이용금액_교통", "이용금액_의료", "이용금액_납부",\
-                    "이용금액_교육", "이용금액_여유생활", "이용금액_사교활동", "이용금액_일상생활", "이용금액_해외"],
+        "columns": [
+            "이용금액_쇼핑",
+            "이용금액_요식",
+            "이용금액_교통",
+            "이용금액_의료",
+            "이용금액_납부",
+            "이용금액_교육",
+            "이용금액_여유생활",
+            "이용금액_사교활동",
+            "이용금액_일상생활",
+            "이용금액_해외",
+        ],
         "fname": "cf_03_0202",
         "type": "formula",
         "content": "_1순위업종 = ARGMAX(이용금액_쇼핑, 요식, 교통, 의료, 납부, 교육, 여유생활, 사교활동, 일상생활, 해외)",
     },
     {
-        "columns": ["이용금액_쇼핑", "이용금액_요식", "이용금액_교통", "이용금액_의료", "이용금액_납부",\
-                    "이용금액_교육", "이용금액_여유생활", "이용금액_사교활동", "이용금액_일상생활", "이용금액_해외"],
+        "columns": [
+            "이용금액_쇼핑",
+            "이용금액_요식",
+            "이용금액_교통",
+            "이용금액_의료",
+            "이용금액_납부",
+            "이용금액_교육",
+            "이용금액_여유생활",
+            "이용금액_사교활동",
+            "이용금액_일상생활",
+            "이용금액_해외",
+        ],
         "fname": "cf_03_0203",
         "type": "formula",
         "content": "_1순위업종_이용금액 = MAX(이용금액_쇼핑, 요식, 교통, 의료, 납부, 교육, 여유생활, 사교활동, 일상생활, 해외)",
     },
     {
-        "columns": ["이용금액_쇼핑", "이용금액_요식", "이용금액_교통", "이용금액_의료", "이용금액_납부",\
-                    "이용금액_교육", "이용금액_여유생활", "이용금액_사교활동", "이용금액_일상생활", "이용금액_해외"],
+        "columns": [
+            "이용금액_쇼핑",
+            "이용금액_요식",
+            "이용금액_교통",
+            "이용금액_의료",
+            "이용금액_납부",
+            "이용금액_교육",
+            "이용금액_여유생활",
+            "이용금액_사교활동",
+            "이용금액_일상생활",
+            "이용금액_해외",
+        ],
         "fname": "cf_03_0204",
         "type": "formula",
         "content": "_3순위업종 = ARG3rd(이용금액_쇼핑, 요식, 교통, 의료, 납부, 교육, 여유생활, 사교활동, 일상생활, 해외)",
     },
     {
-        "columns": ["이용금액_쇼핑", "이용금액_요식", "이용금액_교통", "이용금액_의료", "이용금액_납부",\
-                    "이용금액_교육", "이용금액_여유생활", "이용금액_사교활동", "이용금액_일상생활", "이용금액_해외"],
+        "columns": [
+            "이용금액_쇼핑",
+            "이용금액_요식",
+            "이용금액_교통",
+            "이용금액_의료",
+            "이용금액_납부",
+            "이용금액_교육",
+            "이용금액_여유생활",
+            "이용금액_사교활동",
+            "이용금액_일상생활",
+            "이용금액_해외",
+        ],
         "fname": "cf_03_0205",
         "type": "formula",
         "content": "_3순위업종_이용금액 = 3rd(이용금액_쇼핑, 요식, 교통, 의료, 납부, 교육, 여유생활, 사교활동, 일상생활, 해외)",
     },
     {
-        "columns": ["쇼핑_도소매_이용금액", "쇼핑_백화점_이용금액", "쇼핑_마트_이용금액", "쇼핑_슈퍼마켓_이용금액", \
-                    "쇼핑_편의점_이용금액", "쇼핑_아울렛_이용금액", "쇼핑_온라인_이용금액", "쇼핑_기타_이용금액"],
+        "columns": [
+            "쇼핑_도소매_이용금액",
+            "쇼핑_백화점_이용금액",
+            "쇼핑_마트_이용금액",
+            "쇼핑_슈퍼마켓_이용금액",
+            "쇼핑_편의점_이용금액",
+            "쇼핑_아울렛_이용금액",
+            "쇼핑_온라인_이용금액",
+            "쇼핑_기타_이용금액",
+        ],
         "fname": "cf_03_0206",
         "type": "formula",
         "content": "_1순위쇼핑업종 = ARGMAX(쇼핑_도소매_이용금액, 백화점, 마트, 슈퍼마켓, 편의점, 아울렛, 온라인, 기타)",
     },
     {
-        "columns": ["쇼핑_도소매_이용금액", "쇼핑_백화점_이용금액", "쇼핑_마트_이용금액", "쇼핑_슈퍼마켓_이용금액", \
-                    "쇼핑_편의점_이용금액", "쇼핑_아울렛_이용금액", "쇼핑_온라인_이용금액", "쇼핑_기타_이용금액"],
+        "columns": [
+            "쇼핑_도소매_이용금액",
+            "쇼핑_백화점_이용금액",
+            "쇼핑_마트_이용금액",
+            "쇼핑_슈퍼마켓_이용금액",
+            "쇼핑_편의점_이용금액",
+            "쇼핑_아울렛_이용금액",
+            "쇼핑_온라인_이용금액",
+            "쇼핑_기타_이용금액",
+        ],
         "fname": "cf_03_0207",
         "type": "formula",
         "content": "_1순위쇼핑업종_이용금액 = MAX(쇼핑_도소매_이용금액, 백화점, 마트, 슈퍼마켓, 편의점, 아울렛, 온라인, 기타)",
     },
     {
-        "columns": ["쇼핑_도소매_이용금액", "쇼핑_백화점_이용금액", "쇼핑_마트_이용금액", "쇼핑_슈퍼마켓_이용금액", \
-                    "쇼핑_편의점_이용금액", "쇼핑_아울렛_이용금액", "쇼핑_온라인_이용금액", "쇼핑_기타_이용금액"],
+        "columns": [
+            "쇼핑_도소매_이용금액",
+            "쇼핑_백화점_이용금액",
+            "쇼핑_마트_이용금액",
+            "쇼핑_슈퍼마켓_이용금액",
+            "쇼핑_편의점_이용금액",
+            "쇼핑_아울렛_이용금액",
+            "쇼핑_온라인_이용금액",
+            "쇼핑_기타_이용금액",
+        ],
         "fname": "cf_03_0208",
         "type": "formula",
         "content": "_3순위쇼핑업종 = ARG3rd(쇼핑_도소매_이용금액, 백화점, 마트, 슈퍼마켓, 편의점, 아울렛, 온라인, 기타)",
     },
     {
-        "columns": ["쇼핑_도소매_이용금액", "쇼핑_백화점_이용금액", "쇼핑_마트_이용금액", "쇼핑_슈퍼마켓_이용금액", \
-                    "쇼핑_편의점_이용금액", "쇼핑_아울렛_이용금액", "쇼핑_온라인_이용금액", "쇼핑_기타_이용금액"],
+        "columns": [
+            "쇼핑_도소매_이용금액",
+            "쇼핑_백화점_이용금액",
+            "쇼핑_마트_이용금액",
+            "쇼핑_슈퍼마켓_이용금액",
+            "쇼핑_편의점_이용금액",
+            "쇼핑_아울렛_이용금액",
+            "쇼핑_온라인_이용금액",
+            "쇼핑_기타_이용금액",
+        ],
         "fname": "cf_03_0209",
         "type": "formula",
         "content": "_3순위쇼핑업종_이용금액 = 3rd(쇼핑_도소매_이용금액, 백화점, 마트, 슈퍼마켓, 편의점, 아울렛, 온라인, 기타)",
     },
     {
-        "columns": ["교통_주유이용금액", "교통_정비이용금액", "교통_통행료이용금액", \
-                    "교통_버스지하철이용금액", "교통_택시이용금액", "교통_철도버스이용금액"],
+        "columns": [
+            "교통_주유이용금액",
+            "교통_정비이용금액",
+            "교통_통행료이용금액",
+            "교통_버스지하철이용금액",
+            "교통_택시이용금액",
+            "교통_철도버스이용금액",
+        ],
         "fname": "cf_03_0210",
         "type": "formula",
         "content": "_1순위교통업종 = ARGMAX(교통_주유이용금액, 정비, 통행료, 버스지하철, 택시, 철도버스)",
     },
     {
-        "columns": ["교통_주유이용금액", "교통_정비이용금액", "교통_통행료이용금액", \
-                    "교통_버스지하철이용금액", "교통_택시이용금액", "교통_철도버스이용금액"],
+        "columns": [
+            "교통_주유이용금액",
+            "교통_정비이용금액",
+            "교통_통행료이용금액",
+            "교통_버스지하철이용금액",
+            "교통_택시이용금액",
+            "교통_철도버스이용금액",
+        ],
         "fname": "cf_03_0211",
         "type": "formula",
         "content": "_1순위교통업종_이용금액 = MAX(교통_주유이용금액, 정비, 통행료, 버스지하철, 택시, 철도버스)",
     },
     {
-        "columns": ["교통_주유이용금액", "교통_정비이용금액", "교통_통행료이용금액", \
-                    "교통_버스지하철이용금액", "교통_택시이용금액", "교통_철도버스이용금액"],
+        "columns": [
+            "교통_주유이용금액",
+            "교통_정비이용금액",
+            "교통_통행료이용금액",
+            "교통_버스지하철이용금액",
+            "교통_택시이용금액",
+            "교통_철도버스이용금액",
+        ],
         "fname": "cf_03_0212",
         "type": "formula",
         "content": "_3순위교통업종 = ARG3rd(교통_주유이용금액, 정비, 통행료, 버스지하철, 택시, 철도버스)",
     },
     {
-        "columns": ["교통_주유이용금액", "교통_정비이용금액", "교통_통행료이용금액", \
-                    "교통_버스지하철이용금액", "교통_택시이용금액", "교통_철도버스이용금액"],
+        "columns": [
+            "교통_주유이용금액",
+            "교통_정비이용금액",
+            "교통_통행료이용금액",
+            "교통_버스지하철이용금액",
+            "교통_택시이용금액",
+            "교통_철도버스이용금액",
+        ],
         "fname": "cf_03_0213",
         "type": "formula",
         "content": "_3순위교통업종_이용금액 = 3rd(교통_주유이용금액, 정비, 통행료, 버스지하철, 택시, 철도버스)",
     },
     {
-        "columns": ["여유_운동이용금액", "여유_Pet이용금액", "여유_공연이용금액", "여유_공원이용금액", \
-                    "여유_숙박이용금액", "여유_여행이용금액", "여유_항공이용금액", "여유_기타이용금액"],
+        "columns": [
+            "여유_운동이용금액",
+            "여유_Pet이용금액",
+            "여유_공연이용금액",
+            "여유_공원이용금액",
+            "여유_숙박이용금액",
+            "여유_여행이용금액",
+            "여유_항공이용금액",
+            "여유_기타이용금액",
+        ],
         "fname": "cf_03_0214",
         "type": "formula",
         "content": "_1순위여유업종 = ARGMAX(여유_운동이용금액, Pet, 공연, 공원, 숙박, 여행, 항공, 기타)",
     },
     {
-        "columns": ["여유_운동이용금액", "여유_Pet이용금액", "여유_공연이용금액", "여유_공원이용금액", \
-                    "여유_숙박이용금액", "여유_여행이용금액", "여유_항공이용금액", "여유_기타이용금액"],
+        "columns": [
+            "여유_운동이용금액",
+            "여유_Pet이용금액",
+            "여유_공연이용금액",
+            "여유_공원이용금액",
+            "여유_숙박이용금액",
+            "여유_여행이용금액",
+            "여유_항공이용금액",
+            "여유_기타이용금액",
+        ],
         "fname": "cf_03_0215",
         "type": "formula",
         "content": "_1순위여유업종_이용금액 = MAX(여유_운동이용금액, Pet, 공연, 공원, 숙박, 여행, 항공, 기타)",
     },
     {
-        "columns": ["여유_운동이용금액", "여유_Pet이용금액", "여유_공연이용금액", "여유_공원이용금액", \
-                    "여유_숙박이용금액", "여유_여행이용금액", "여유_항공이용금액", "여유_기타이용금액"],
+        "columns": [
+            "여유_운동이용금액",
+            "여유_Pet이용금액",
+            "여유_공연이용금액",
+            "여유_공원이용금액",
+            "여유_숙박이용금액",
+            "여유_여행이용금액",
+            "여유_항공이용금액",
+            "여유_기타이용금액",
+        ],
         "fname": "cf_03_0216",
         "type": "formula",
         "content": "_3순위여유업종 = ARG3rd(여유_운동이용금액, Pet, 공연, 공원, 숙박, 여행, 항공, 기타)",
     },
     {
-        "columns": ["여유_운동이용금액", "여유_Pet이용금액", "여유_공연이용금액", "여유_공원이용금액", \
-                    "여유_숙박이용금액", "여유_여행이용금액", "여유_항공이용금액", "여유_기타이용금액"],
+        "columns": [
+            "여유_운동이용금액",
+            "여유_Pet이용금액",
+            "여유_공연이용금액",
+            "여유_공원이용금액",
+            "여유_숙박이용금액",
+            "여유_여행이용금액",
+            "여유_항공이용금액",
+            "여유_기타이용금액",
+        ],
         "fname": "cf_03_0217",
         "type": "formula",
         "content": "_3순위여유업종_이용금액 = 3rd(여유_운동이용금액, Pet, 공연, 공원, 숙박, 여행, 항공, 기타)",
     },
     {
-        "columns": ["납부_통신비이용금액", "납부_관리비이용금액", "납부_렌탈료이용금액", "납부_가스전기료이용금액", \
-                    "납부_보험료이용금액", "납부_유선방송이용금액", "납부_건강연금이용금액", "납부_기타이용금액"],
+        "columns": [
+            "납부_통신비이용금액",
+            "납부_관리비이용금액",
+            "납부_렌탈료이용금액",
+            "납부_가스전기료이용금액",
+            "납부_보험료이용금액",
+            "납부_유선방송이용금액",
+            "납부_건강연금이용금액",
+            "납부_기타이용금액",
+        ],
         "fname": "cf_03_0218",
         "type": "formula",
         "content": "_1순위납부업종 = ARGMAX(납부_통신비이용금액, 관리비, 렌탈료, 가스전기료, 보험료, 유선방송, 건강연금, 기타)",
     },
     {
-        "columns": ["납부_통신비이용금액", "납부_관리비이용금액", "납부_렌탈료이용금액", "납부_가스전기료이용금액", \
-                    "납부_보험료이용금액", "납부_유선방송이용금액", "납부_건강연금이용금액", "납부_기타이용금액"],
+        "columns": [
+            "납부_통신비이용금액",
+            "납부_관리비이용금액",
+            "납부_렌탈료이용금액",
+            "납부_가스전기료이용금액",
+            "납부_보험료이용금액",
+            "납부_유선방송이용금액",
+            "납부_건강연금이용금액",
+            "납부_기타이용금액",
+        ],
         "fname": "cf_03_0219",
         "type": "formula",
         "content": "_1순위납부업종_이용금액 = MAX(납부_통신비이용금액, 관리비, 렌탈료, 가스전기료, 보험료, 유선방송, 건강연금, 기타)",
     },
     {
-        "columns": ["납부_통신비이용금액", "납부_관리비이용금액", "납부_렌탈료이용금액", "납부_가스전기료이용금액", \
-                    "납부_보험료이용금액", "납부_유선방송이용금액", "납부_건강연금이용금액", "납부_기타이용금액"],
+        "columns": [
+            "납부_통신비이용금액",
+            "납부_관리비이용금액",
+            "납부_렌탈료이용금액",
+            "납부_가스전기료이용금액",
+            "납부_보험료이용금액",
+            "납부_유선방송이용금액",
+            "납부_건강연금이용금액",
+            "납부_기타이용금액",
+        ],
         "fname": "cf_03_0220",
         "type": "formula",
         "content": "_3순위납부업종 = ARG3rd(납부_통신비이용금액, 관리비, 렌탈료, 가스전기료, 보험료, 유선방송, 건강연금, 기타)",
     },
     {
-        "columns": ["납부_통신비이용금액", "납부_관리비이용금액", "납부_렌탈료이용금액", "납부_가스전기료이용금액", \
-                    "납부_보험료이용금액", "납부_유선방송이용금액", "납부_건강연금이용금액", "납부_기타이용금액"],
+        "columns": [
+            "납부_통신비이용금액",
+            "납부_관리비이용금액",
+            "납부_렌탈료이용금액",
+            "납부_가스전기료이용금액",
+            "납부_보험료이용금액",
+            "납부_유선방송이용금액",
+            "납부_건강연금이용금액",
+            "납부_기타이용금액",
+        ],
         "fname": "cf_03_0221",
         "type": "formula",
         "content": "_3순위납부업종_이용금액 = 3rd(납부_통신비이용금액, 관리비, 렌탈료, 가스전기료, 보험료, 유선방송, 건강연금, 기타)",
@@ -625,20 +855,41 @@ constraints = [
         "content": "할부금액_14M_R12M = SUM(할부금액_유이자_14M_R12M, 할부금액_무이자_14M_R12M, 할부금액_부분_14M_R12M)",
     },
     {
-        "columns": ["RP건수_통신_B0M", "RP건수_아파트_B0M", "RP건수_제휴사서비스직접판매_B0M", "RP건수_렌탈_B0M", "RP건수_가스_B0M", \
-                    "RP건수_전기_B0M", "RP건수_보험_B0M", "RP건수_학습비_B0M", "RP건수_유선방송_B0M", "RP건수_건강_B0M", "RP건수_교통_B0M"],
+        "columns": [
+            "RP건수_통신_B0M",
+            "RP건수_아파트_B0M",
+            "RP건수_제휴사서비스직접판매_B0M",
+            "RP건수_렌탈_B0M",
+            "RP건수_가스_B0M",
+            "RP건수_전기_B0M",
+            "RP건수_보험_B0M",
+            "RP건수_학습비_B0M",
+            "RP건수_유선방송_B0M",
+            "RP건수_건강_B0M",
+            "RP건수_교통_B0M",
+        ],
         "fname": "cf_03_0254",
         "type": "formula",
         "content": "RP건수_B0M = SUM(RP건수_통신_B0M, 아파트, 제휴사서비스직접판매, 렌탈, 가스, 전기, 보험, 학습비, 유선방송, 건강, 교통)",
     },
     {
-        "columns": ["RP후경과월_통신", "RP후경과월_아파트", "RP후경과월_제휴사직접판매", "RP후경과월_렌탈", "RP후경과월_가스", \
-                    "RP후경과월_전기", "RP후경과월_보험", "RP후경과월_학습비", "RP후경과월_유선방송", "RP후경과월_건강", "RP후경과월_교통"],
+        "columns": [
+            "RP후경과월_통신",
+            "RP후경과월_아파트",
+            "RP후경과월_제휴사직접판매",
+            "RP후경과월_렌탈",
+            "RP후경과월_가스",
+            "RP후경과월_전기",
+            "RP후경과월_보험",
+            "RP후경과월_학습비",
+            "RP후경과월_유선방송",
+            "RP후경과월_건강",
+            "RP후경과월_교통",
+        ],
         "fname": "cf_03_0268",
         "type": "formula",
         "content": "RP후경과월 = MIN(RP후경과월_통신, 아파트, 제휴사서비스직접판매, 렌탈, 가스, 전기, 보험, 학습비, 유선방송, 건강, 교통)",
     },
-
     {
         "columns": ["기준년월", "최종이용일자_카드론"],
         "fname": "cf_03_0281",
@@ -646,43 +897,79 @@ constraints = [
         "content": "최종카드론이용경과월 = MONTHS_BETWEEN(LAST_DAY(기준년월), 최종이용일자_카드론)",
     },
     {
-        "columns": ["이용금액_당사페이_R6M", "이용금액_당사기타_R6M", "이용금액_A페이_R6M", "이용금액_B페이_R6M", \
-                    "이용금액_C페이_R6M", "이용금액_D페이_R6M"],
+        "columns": [
+            "이용금액_당사페이_R6M",
+            "이용금액_당사기타_R6M",
+            "이용금액_A페이_R6M",
+            "이용금액_B페이_R6M",
+            "이용금액_C페이_R6M",
+            "이용금액_D페이_R6M",
+        ],
         "fname": "cf_03_0344",
         "type": "formula",
         "content": "이용금액_간편결제_R6M = SUM(이용금액_당사페이_R6M, 당사기타, A페이, B페이, C페이, D페이)",
     },
     {
-        "columns": ["이용건수_당사페이_R6M", "이용건수_당사기타_R6M", "이용건수_A페이_R6M", "이용건수_B페이_R6M", \
-                    "이용건수_C페이_R6M", "이용건수_D페이_R6M"],
+        "columns": [
+            "이용건수_당사페이_R6M",
+            "이용건수_당사기타_R6M",
+            "이용건수_A페이_R6M",
+            "이용건수_B페이_R6M",
+            "이용건수_C페이_R6M",
+            "이용건수_D페이_R6M",
+        ],
         "fname": "cf_03_0351",
         "type": "formula",
         "content": "이용건수_간편결제_R6M = SUM(이용건수_당사페이_R6M, 당사기타, A페이, B페이, C페이, D페이)",
     },
     {
-        "columns": ["이용금액_당사페이_R3M", "이용금액_당사기타_R3M", "이용금액_A페이_R3M", "이용금액_B페이_R3M", \
-                    "이용금액_C페이_R3M", "이용금액_D페이_R3M"],
+        "columns": [
+            "이용금액_당사페이_R3M",
+            "이용금액_당사기타_R3M",
+            "이용금액_A페이_R3M",
+            "이용금액_B페이_R3M",
+            "이용금액_C페이_R3M",
+            "이용금액_D페이_R3M",
+        ],
         "fname": "cf_03_0358",
         "type": "formula",
         "content": "이용금액_간편결제_R3M = SUM(이용금액_당사페이_R3M, 당사기타, A페이, B페이, C페이, D페이)",
     },
     {
-        "columns": ["이용건수_당사페이_R3M", "이용건수_당사기타_R3M", "이용건수_A페이_R3M", "이용건수_B페이_R3M", \
-                    "이용건수_C페이_R3M", "이용건수_D페이_R3M"],
+        "columns": [
+            "이용건수_당사페이_R3M",
+            "이용건수_당사기타_R3M",
+            "이용건수_A페이_R3M",
+            "이용건수_B페이_R3M",
+            "이용건수_C페이_R3M",
+            "이용건수_D페이_R3M",
+        ],
         "fname": "cf_03_0365",
         "type": "formula",
         "content": "이용건수_간편결제_R3M = SUM(이용건수_당사페이_R3M, 당사기타, A페이, B페이, C페이, D페이)",
     },
     {
-        "columns": ["이용금액_당사페이_B0M", "이용금액_당사기타_B0M", "이용금액_A페이_B0M", "이용금액_B페이_B0M", \
-                    "이용금액_C페이_B0M", "이용금액_D페이_B0M"],
+        "columns": [
+            "이용금액_당사페이_B0M",
+            "이용금액_당사기타_B0M",
+            "이용금액_A페이_B0M",
+            "이용금액_B페이_B0M",
+            "이용금액_C페이_B0M",
+            "이용금액_D페이_B0M",
+        ],
         "fname": "cf_03_0372",
         "type": "formula",
         "content": "이용금액_간편결제_B0M = SUM(이용금액_당사페이_B0M, 당사기타, A페이, B페이, C페이, D페이)",
     },
     {
-        "columns": ["이용건수_당사페이_B0M", "이용건수_당사기타_B0M", "이용건수_A페이_B0M", "이용건수_B페이_B0M", \
-                    "이용건수_C페이_B0M", "이용건수_D페이_B0M"],
+        "columns": [
+            "이용건수_당사페이_B0M",
+            "이용건수_당사기타_B0M",
+            "이용건수_A페이_B0M",
+            "이용건수_B페이_B0M",
+            "이용건수_C페이_B0M",
+            "이용건수_D페이_B0M",
+        ],
         "fname": "cf_03_0379",
         "type": "formula",
         "content": "이용건수_간편결제_B0M = SUM(이용건수_당사페이_B0M, 당사기타, A페이, B페이, C페이, D페이)",
@@ -705,12 +992,12 @@ constraints = [
         "type": "formula",
         "content": "연체입금원금_B5M = 정상청구원금_B5M - (선입금원금_B5M + 정상입금원금_B5M)",
     },
-
 ]
 
 # --------- constraint/formula 함수 정의 ---------
 # cc: check constraint
 # cf: check formula
+
 
 @constraint_udf
 def cf_01_0018(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
@@ -719,10 +1006,21 @@ def cf_01_0018(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
         입회경과개월수_신용 = MONTHS_BETWEEN(LAST_DAY(기준년월), 입회일자_신용)
     """
     dd = df[["기준년월", "입회일자_신용"]]
-    tmp_res = dd.apply(lambda x: relativedelta(datetime(year=int(x[0][:4]), month=int(x[0][4:6]), day=1)+relativedelta(months=1, days=-1), \
-            datetime.strptime(x[1], '%Y%m%d')) if not pd.isna(x[1]) else 999, axis=1)
-    res = tmp_res.apply(lambda x: x if x==999 else x.years*12 + x.months + int(x.days>0))
+    tmp_res = dd.apply(
+        lambda x: relativedelta(
+            datetime(year=int(x[0][:4]), month=int(x[0][4:6]), day=1)
+            + relativedelta(months=1, days=-1),
+            datetime.strptime(x[1], "%Y%m%d"),
+        )
+        if not pd.isna(x[1])
+        else 999,
+        axis=1,
+    )
+    res = tmp_res.apply(
+        lambda x: x if x == 999 else x.years * 12 + x.months + int(x.days > 0)
+    )
     return res
+
 
 @constraint_udf
 def cf_01_0023(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
@@ -731,8 +1029,9 @@ def cf_01_0023(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
         회원여부_연체 = CASE WHEN `이용횟수_연체_B0M` > 0 THEN '1' ELSE '0'
     """
     dd = df[["이용횟수_연체_B0M"]]
-    res = dd.apply(lambda x: '1' if x[0] > 0 else '0', axis=1)
+    res = dd.apply(lambda x: "1" if x[0] > 0 else "0", axis=1)
     return res
+
 
 @constraint_udf
 def cf_01_0039(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
@@ -744,6 +1043,7 @@ def cf_01_0039(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     res = c1 + c2
     return res
 
+
 @constraint_udf
 def cf_01_0044(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
@@ -753,6 +1053,7 @@ def cf_01_0044(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     c1, c2 = df["이용가능카드수_신용"], df["이용가능카드수_체크"]
     res = c1 + c2
     return res
+
 
 @constraint_udf
 def cf_01_0049(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
@@ -764,6 +1065,7 @@ def cf_01_0049(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     res = c1 + c2
     return res
 
+
 @constraint_udf
 def cf_01_0054(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
@@ -774,6 +1076,7 @@ def cf_01_0054(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     res = c1 + c2
     return res
 
+
 @constraint_udf
 def cf_01_0077(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
     """
@@ -781,8 +1084,9 @@ def cf_01_0077(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
         이용가능여부_해외겸용_본인 = IF 이용금액_해외>0 THEN '1' ELSE '0'
     """
     dd = df[["이용금액_해외"]]
-    res = dd.apply(lambda x: '1' if x[0] > 0 else '0', axis=1)
+    res = dd.apply(lambda x: "1" if x[0] > 0 else "0", axis=1)
     return res
+
 
 @constraint_udf
 def cf_01_0083(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
@@ -794,6 +1098,7 @@ def cf_01_0083(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     res = c1 + c2
     return res
 
+
 @constraint_udf
 def cf_01_0084(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
@@ -804,6 +1109,7 @@ def cf_01_0084(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     res = c1 + c2
     return res
 
+
 @constraint_udf
 def cf_04_0011(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
     """
@@ -813,11 +1119,22 @@ def cf_04_0011(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
         ELIF 구분코드 IN ('H') THEN 05.당사멤버십, ELIF 구분코드 IN ('T') THEN 07.기타,
         ELIF 구분코드 IN ('0') THEN 99.미수령
     """
-    code_map = {'1': '01.우편', '3': '01.우편', '2': '02.이메일', 'L': '03.LMS', 'S': '03.LMS',
-                'K': '04.카카오', 'H': '05.당사멤버십', 'T': '07.기타', '_': '07.기타', '0': '99.미수령',}
+    code_map = {
+        "1": "01.우편",
+        "3": "01.우편",
+        "2": "02.이메일",
+        "L": "03.LMS",
+        "S": "03.LMS",
+        "K": "04.카카오",
+        "H": "05.당사멤버십",
+        "T": "07.기타",
+        "_": "07.기타",
+        "0": "99.미수령",
+    }
     c1 = df["대표청구서수령지구분코드"]
     res = list(map(lambda x: code_map[x], c1))
     return res
+
 
 @constraint_udf
 def cf_04_0027(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
@@ -828,6 +1145,7 @@ def cf_04_0027(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     c1, c2 = df["포인트_포인트_건별_R3M"], df["포인트_포인트_월적립_R3M"]
     res = c1 + c2
     return res
+
 
 @constraint_udf
 def cf_04_0032(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
@@ -851,6 +1169,7 @@ def cf_05_0006(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     res = c1 + c2 + c3 + c4 + c5 + c6
     return res
 
+
 @constraint_udf
 def cf_05_0018(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
@@ -873,6 +1192,7 @@ def cf_06_0046(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     res = c1 + c2
     return res
 
+
 @constraint_udf
 def cf_06_0066(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
@@ -882,6 +1202,7 @@ def cf_06_0066(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     c1, c2 = df["IB상담건수_VOC민원_B0M"], df["IB상담건수_VOC불만_B0M"]
     res = c1 + c2
     return res
+
 
 @constraint_udf
 def cf_06_0089(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
@@ -898,11 +1219,12 @@ def cf_06_0089(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
 def cf_03_0006(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
     formula:
-        최종이용일자_기본 = MAX(최종이용일자_신판, 최종이용일자_CA, 최종이용일자_카드론) 
+        최종이용일자_기본 = MAX(최종이용일자_신판, 최종이용일자_CA, 최종이용일자_카드론)
     """
     dd = df[["최종이용일자_신판", "최종이용일자_CA", "최종이용일자_카드론"]]
     res = dd.max(axis=1).astype(int).astype(str)
     return res
+
 
 @constraint_udf
 def cf_03_0007(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
@@ -914,6 +1236,7 @@ def cf_03_0007(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     res = dd.max(axis=1).astype(int).astype(str)
     return res
 
+
 @constraint_udf
 def cf_03_0013(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
@@ -923,6 +1246,7 @@ def cf_03_0013(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     c1, c2 = df["이용건수_신판_B0M"], df["이용건수_CA_B0M"]
     res = c1 + c2
     return res
+
 
 @constraint_udf
 def cf_03_0014(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
@@ -934,6 +1258,7 @@ def cf_03_0014(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     res = c1 + c2
     return res
 
+
 @constraint_udf
 def cf_03_0016(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
@@ -941,8 +1266,9 @@ def cf_03_0016(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
         이용건수_할부_B0M = 이용건수_할부_유이자_B0M + 이용건수_할부_무이자_B0M + 이용건수_부분무이자_B0M
     """
     c1, c2, c3 = df["이용건수_할부_유이자_B0M"], df["이용건수_할부_무이자_B0M"], df["이용건수_부분무이자_B0M"]
-    res = c1 + c2 +c3
+    res = c1 + c2 + c3
     return res
+
 
 @constraint_udf
 def cf_03_0023(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
@@ -954,6 +1280,7 @@ def cf_03_0023(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     res = c1 + c2
     return res
 
+
 @constraint_udf
 def cf_03_0024(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
@@ -964,6 +1291,7 @@ def cf_03_0024(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     res = c1 + c2
     return res
 
+
 @constraint_udf
 def cf_03_0026(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
@@ -971,8 +1299,9 @@ def cf_03_0026(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
         이용금액_할부_B0M = 이용금액_할부_유이자_B0M + 이용금액_할부_무이자_B0M + 이용금액_부분무이자_B0M
     """
     c1, c2, c3 = df["이용금액_할부_유이자_B0M"], df["이용금액_할부_무이자_B0M"], df["이용금액_부분무이자_B0M"]
-    res = c1 + c2 +c3
+    res = c1 + c2 + c3
     return res
+
 
 @constraint_udf
 def cf_03_0033(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
@@ -984,6 +1313,7 @@ def cf_03_0033(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     res = dd.min(axis=1).astype(int)
     return res
 
+
 @constraint_udf
 def cf_03_0034(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
@@ -994,6 +1324,7 @@ def cf_03_0034(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     res = dd.min(axis=1).astype(int)
     return res
 
+
 @constraint_udf
 def cf_03_0035(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
@@ -1001,11 +1332,20 @@ def cf_03_0035(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
         이용후경과월_일시불 = MONTHS_BETWEEN(LAST_DAY(기준년월), 최종이용일자_일시불)
     """
     dd = df[["기준년월", "최종이용일자_일시불"]]
-    tmp_res = dd.apply(lambda x: relativedelta(datetime(year=int(x[0][:4]), month=int(x[0][4:6]), day=1)+relativedelta(months=1, days=-1),
-             datetime.strptime(x[1], '%Y%m%d')) if (not pd.isna(x[1]))*(x[1]!='10101') else 999, axis=1)
-    res = tmp_res.apply(lambda x: 12 if x==999 else x.years*12 + x.months)
+    tmp_res = dd.apply(
+        lambda x: relativedelta(
+            datetime(year=int(x[0][:4]), month=int(x[0][4:6]), day=1)
+            + relativedelta(months=1, days=-1),
+            datetime.strptime(x[1], "%Y%m%d"),
+        )
+        if (not pd.isna(x[1])) * (x[1] != "10101")
+        else 999,
+        axis=1,
+    )
+    res = tmp_res.apply(lambda x: 12 if x == 999 else x.years * 12 + x.months)
     res = res.apply(lambda x: 12 if x > 12 else x)
     return res
+
 
 @constraint_udf
 def cf_03_0036(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
@@ -1017,6 +1357,7 @@ def cf_03_0036(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     res = dd.min(axis=1).astype(int)
     return res
 
+
 @constraint_udf
 def cf_03_0040(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
@@ -1024,11 +1365,20 @@ def cf_03_0040(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
         이용후경과월_CA = MONTHS_BETWEEN(LAST_DAY(기준년월), 최종이용일자_CA)
     """
     dd = df[["기준년월", "최종이용일자_CA"]]
-    tmp_res = dd.apply(lambda x: relativedelta(datetime(year=int(x[0][:4]), month=int(x[0][4:6]), day=1)+relativedelta(months=1, days=-1), \
-             datetime.strptime(x[1], '%Y%m%d')) if (not pd.isna(x[1]))*(x[1]!='10101') else 999, axis=1)
-    res = tmp_res.apply(lambda x: 12 if x==999 else x.years*12 + x.months)
+    tmp_res = dd.apply(
+        lambda x: relativedelta(
+            datetime(year=int(x[0][:4]), month=int(x[0][4:6]), day=1)
+            + relativedelta(months=1, days=-1),
+            datetime.strptime(x[1], "%Y%m%d"),
+        )
+        if (not pd.isna(x[1])) * (x[1] != "10101")
+        else 999,
+        axis=1,
+    )
+    res = tmp_res.apply(lambda x: 12 if x == 999 else x.years * 12 + x.months)
     res = res.apply(lambda x: 12 if x > 12 else x)
     return res
+
 
 @constraint_udf
 def cf_03_0041(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
@@ -1037,11 +1387,20 @@ def cf_03_0041(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
         이용후경과월_체크 = MONTHS_BETWEEN(LAST_DAY(기준년월), 최종이용일자_체크)
     """
     dd = df[["기준년월", "최종이용일자_체크"]]
-    tmp_res = dd.apply(lambda x: relativedelta(datetime(year=int(x[0][:4]), month=int(x[0][4:6]), day=1)+relativedelta(months=1, days=-1), \
-             datetime.strptime(x[1], '%Y%m%d')) if (not pd.isna(x[1]))*(x[1]!='10101') else 999, axis=1)
-    res = tmp_res.apply(lambda x: 12 if x==999 else x.years*12 + x.months)
+    tmp_res = dd.apply(
+        lambda x: relativedelta(
+            datetime(year=int(x[0][:4]), month=int(x[0][4:6]), day=1)
+            + relativedelta(months=1, days=-1),
+            datetime.strptime(x[1], "%Y%m%d"),
+        )
+        if (not pd.isna(x[1])) * (x[1] != "10101")
+        else 999,
+        axis=1,
+    )
+    res = tmp_res.apply(lambda x: 12 if x == 999 else x.years * 12 + x.months)
     res = res.apply(lambda x: 12 if x > 12 else x)
     return res
+
 
 @constraint_udf
 def cf_03_0042(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
@@ -1050,11 +1409,20 @@ def cf_03_0042(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
         이용후경과월_카드론 = MONTHS_BETWEEN(LAST_DAY(기준년월), 최종이용일자_카드론)
     """
     dd = df[["기준년월", "최종이용일자_카드론"]]
-    tmp_res = dd.apply(lambda x: relativedelta(datetime(year=int(x[0][:4]), month=int(x[0][4:6]), day=1)+relativedelta(months=1, days=-1), \
-             datetime.strptime(x[1], '%Y%m%d')) if (not pd.isna(x[1]))*(x[1]!='10101') else 999, axis=1)
-    res = tmp_res.apply(lambda x: 12 if x==999 else x.years*12 + x.months)
+    tmp_res = dd.apply(
+        lambda x: relativedelta(
+            datetime(year=int(x[0][:4]), month=int(x[0][4:6]), day=1)
+            + relativedelta(months=1, days=-1),
+            datetime.strptime(x[1], "%Y%m%d"),
+        )
+        if (not pd.isna(x[1])) * (x[1] != "10101")
+        else 999,
+        axis=1,
+    )
+    res = tmp_res.apply(lambda x: 12 if x == 999 else x.years * 12 + x.months)
     res = res.apply(lambda x: 12 if x > 12 else x)
     return res
+
 
 @constraint_udf
 def cf_03_0043(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
@@ -1066,15 +1434,17 @@ def cf_03_0043(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     res = c1 + c2
     return res
 
+
 @constraint_udf
 def cf_03_0044(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
     formula:
        이용건수_신판_R12M = SUM(이용건수_일시불_R12M, 이용건수_할부_R12M)
     """
-    c1, c2= df["이용건수_일시불_R12M"], df["이용건수_할부_R12M"]
+    c1, c2 = df["이용건수_일시불_R12M"], df["이용건수_할부_R12M"]
     res = c1 + c2
     return res
+
 
 @constraint_udf
 def cf_03_0046(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
@@ -1086,15 +1456,22 @@ def cf_03_0046(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     res = c1 + c2 + c3
     return res
 
+
 @constraint_udf
 def cf_03_0047(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
     formula:
        이용건수_할부_유이자_R12M = SUM(할부건수_유이자_3M_R12M, 할부건수_유이자_6M_R12M, 할부건수_유이자_12M_R12M, 할부건수_유이자_14M_R12M)
     """
-    c1, c2, c3, c4 = df["할부건수_유이자_3M_R12M"], df["할부건수_유이자_6M_R12M"], df["할부건수_유이자_12M_R12M"], df["할부건수_유이자_14M_R12M"],
+    c1, c2, c3, c4 = (
+        df["할부건수_유이자_3M_R12M"],
+        df["할부건수_유이자_6M_R12M"],
+        df["할부건수_유이자_12M_R12M"],
+        df["할부건수_유이자_14M_R12M"],
+    )
     res = c1 + c2 + c3 + c4
     return res
+
 
 @constraint_udf
 def cf_03_0048(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
@@ -1102,9 +1479,15 @@ def cf_03_0048(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     formula:
        이용건수_할부_무이자_R12M = SUM(할부건수_무이자_3M_R12M, 할부건수_무이자_6M_R12M, 할부건수_무이자_12M_R12M, 할부건수_무이자_14M_R12M)
     """
-    c1, c2, c3, c4 = df["할부건수_무이자_3M_R12M"], df["할부건수_무이자_6M_R12M"], df["할부건수_무이자_12M_R12M"], df["할부건수_무이자_14M_R12M"]
+    c1, c2, c3, c4 = (
+        df["할부건수_무이자_3M_R12M"],
+        df["할부건수_무이자_6M_R12M"],
+        df["할부건수_무이자_12M_R12M"],
+        df["할부건수_무이자_14M_R12M"],
+    )
     res = c1 + c2 + c3 + c4
     return res
+
 
 @constraint_udf
 def cf_03_0049(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
@@ -1112,9 +1495,15 @@ def cf_03_0049(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     formula:
        이용건수_부분무이자_R12M = SUM(할부건수_부분_3M_R12M, 할부건수_부분_6M_R12M, 할부건수_부분_12M_R12M, 할부건수_부분_14M_R12M)
     """
-    c1, c2, c3, c4 = df["할부건수_부분_3M_R12M"], df["할부건수_부분_6M_R12M"], df["할부건수_부분_12M_R12M"], df["할부건수_부분_14M_R12M"]
+    c1, c2, c3, c4 = (
+        df["할부건수_부분_3M_R12M"],
+        df["할부건수_부분_6M_R12M"],
+        df["할부건수_부분_12M_R12M"],
+        df["할부건수_부분_14M_R12M"],
+    )
     res = c1 + c2 + c3 + c4
     return res
+
 
 @constraint_udf
 def cf_03_0053(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
@@ -1126,6 +1515,7 @@ def cf_03_0053(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     res = c1 + c2
     return res
 
+
 @constraint_udf
 def cf_03_0054(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
@@ -1135,6 +1525,7 @@ def cf_03_0054(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     c1, c2 = df["이용금액_일시불_R12M"], df["이용금액_할부_R12M"]
     res = c1 + c2
     return res
+
 
 @constraint_udf
 def cf_03_0056(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
@@ -1146,15 +1537,22 @@ def cf_03_0056(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     res = c1 + c2 + c3
     return res
 
+
 @constraint_udf
 def cf_03_0057(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
     formula:
        이용금액_할부_유이자_R12M = SUM(할부금액_유이자_3M_R12M, 할부금액_유이자_6M_R12M, 할부금액_유이자_12M_R12M, 할부금액_유이자_14M_R12M)
     """
-    c1, c2, c3, c4 = df["할부금액_유이자_3M_R12M"], df["할부금액_유이자_6M_R12M"], df["할부금액_유이자_12M_R12M"], df["할부금액_유이자_14M_R12M"]
+    c1, c2, c3, c4 = (
+        df["할부금액_유이자_3M_R12M"],
+        df["할부금액_유이자_6M_R12M"],
+        df["할부금액_유이자_12M_R12M"],
+        df["할부금액_유이자_14M_R12M"],
+    )
     res = c1 + c2 + c3 + c4
     return res
+
 
 @constraint_udf
 def cf_03_0058(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
@@ -1162,19 +1560,31 @@ def cf_03_0058(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     formula:
        이용금액_할부_무이자_R12M = SUM(할부금액_무이자_3M_R12M, 할부금액_무이자_6M_R12M, 할부금액_무이자_12M_R12M, 할부금액_무이자_14M_R12M)
     """
-    c1, c2, c3, c4 = df["할부금액_무이자_3M_R12M"], df["할부금액_무이자_6M_R12M"], df["할부금액_무이자_12M_R12M"], df["할부금액_무이자_14M_R12M"]
+    c1, c2, c3, c4 = (
+        df["할부금액_무이자_3M_R12M"],
+        df["할부금액_무이자_6M_R12M"],
+        df["할부금액_무이자_12M_R12M"],
+        df["할부금액_무이자_14M_R12M"],
+    )
     res = c1 + c2 + c3 + c4
     return res
+
 
 @constraint_udf
 def cf_03_0059(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
     formula:
-       이용금액_부분무이자_R12M = SUM(할부금액_부분_3M_R12M, 할부금액_부분_6M_R12M, 할부금액_부분_12M_R12M, 할부금액_부분_14M_R12M) = 
+       이용금액_부분무이자_R12M = SUM(할부금액_부분_3M_R12M, 할부금액_부분_6M_R12M, 할부금액_부분_12M_R12M, 할부금액_부분_14M_R12M) =
     """
-    c1, c2, c3, c4 = df["할부금액_부분_3M_R12M"], df["할부금액_부분_6M_R12M"], df["할부금액_부분_12M_R12M"], df["할부금액_부분_14M_R12M"]
+    c1, c2, c3, c4 = (
+        df["할부금액_부분_3M_R12M"],
+        df["할부금액_부분_6M_R12M"],
+        df["할부금액_부분_12M_R12M"],
+        df["할부금액_부분_14M_R12M"],
+    )
     res = c1 + c2 + c3 + c4
     return res
+
 
 @constraint_udf
 def cf_03_0063(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
@@ -1185,6 +1595,7 @@ def cf_03_0063(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     dd = df[["최대이용금액_신판_R12M", "최대이용금액_CA_R12M"]]
     res = dd.max(axis=1).astype(int)
     return res
+
 
 @constraint_udf
 def cf_03_0064(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
@@ -1207,15 +1618,17 @@ def cf_03_0066(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     res = dd.max(axis=1).astype(int)
     return res
 
+
 @constraint_udf
 def cf_03_0083(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
     formula:
         이용건수_신용_R6M = SUM(이용건수_신판_R6M, 이용건수_CA_R6M)
     """
-    dd = df[["이용건수_신판_R6M",  "이용건수_CA_R6M"]]
+    dd = df[["이용건수_신판_R6M", "이용건수_CA_R6M"]]
     res = dd.sum(axis=1).astype(int)
     return res
+
 
 @constraint_udf
 def cf_03_0084(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
@@ -1227,6 +1640,7 @@ def cf_03_0084(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     res = dd.sum(axis=1).astype(int)
     return res
 
+
 @constraint_udf
 def cf_03_0086(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
@@ -1237,15 +1651,17 @@ def cf_03_0086(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     res = dd.sum(axis=1).astype(int)
     return res
 
+
 @constraint_udf
 def cf_03_0093(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
     formula:
         이용금액_신용_R6M = SUM(이용금액_신판_R6M, 이용금액_CA_R6M)
     """
-    dd = df[["이용금액_신판_R6M",  "이용금액_CA_R6M"]]
+    dd = df[["이용금액_신판_R6M", "이용금액_CA_R6M"]]
     res = dd.sum(axis=1).astype(int)
     return res
+
 
 @constraint_udf
 def cf_03_0094(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
@@ -1257,6 +1673,7 @@ def cf_03_0094(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     res = dd.sum(axis=1).astype(int)
     return res
 
+
 @constraint_udf
 def cf_03_0096(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
@@ -1267,15 +1684,17 @@ def cf_03_0096(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     res = dd.sum(axis=1).astype(int)
     return res
 
+
 @constraint_udf
 def cf_03_0113(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
     formula:
         이용건수_신용_R3M = SUM(이용건수_신판_R3M, 이용건수_CA_R3M)
     """
-    dd = df[["이용건수_신판_R3M",  "이용건수_CA_R3M"]]
+    dd = df[["이용건수_신판_R3M", "이용건수_CA_R3M"]]
     res = dd.sum(axis=1).astype(int)
     return res
+
 
 @constraint_udf
 def cf_03_0114(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
@@ -1287,6 +1706,7 @@ def cf_03_0114(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     res = dd.sum(axis=1).astype(int)
     return res
 
+
 @constraint_udf
 def cf_03_0116(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
@@ -1297,15 +1717,17 @@ def cf_03_0116(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     res = dd.sum(axis=1).astype(int)
     return res
 
+
 @constraint_udf
 def cf_03_0123(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
     formula:
         이용금액_신용_R3M = SUM(이용금액_신판_R3M, 이용금액_CA_R3M)
     """
-    dd = df[["이용금액_신판_R3M",  "이용금액_CA_R3M"]]
+    dd = df[["이용금액_신판_R3M", "이용금액_CA_R3M"]]
     res = dd.sum(axis=1).astype(int)
     return res
+
 
 @constraint_udf
 def cf_03_0124(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
@@ -1317,6 +1739,7 @@ def cf_03_0124(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     res = dd.sum(axis=1).astype(int)
     return res
 
+
 @constraint_udf
 def cf_03_0126(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
@@ -1327,16 +1750,28 @@ def cf_03_0126(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     res = dd.sum(axis=1).astype(int)
     return res
 
+
 @constraint_udf
 def cf_03_0176(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
     formula:
         쇼핑_전체_이용금액 = SUM(쇼핑_도소매_이용금액, 백화점, 마트, 슈퍼마켓, 편의점, 아울렛, 온라인, 기타)
     """
-    dd = df[["쇼핑_도소매_이용금액", "쇼핑_백화점_이용금액", "쇼핑_마트_이용금액", "쇼핑_슈퍼마켓_이용금액", \
-             "쇼핑_편의점_이용금액", "쇼핑_아울렛_이용금액", "쇼핑_온라인_이용금액", "쇼핑_기타_이용금액"]]
+    dd = df[
+        [
+            "쇼핑_도소매_이용금액",
+            "쇼핑_백화점_이용금액",
+            "쇼핑_마트_이용금액",
+            "쇼핑_슈퍼마켓_이용금액",
+            "쇼핑_편의점_이용금액",
+            "쇼핑_아울렛_이용금액",
+            "쇼핑_온라인_이용금액",
+            "쇼핑_기타_이용금액",
+        ]
+    ]
     res = dd.sum(axis=1).astype(int)
     return res
+
 
 @constraint_udf
 def cf_03_0183(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
@@ -1344,10 +1779,19 @@ def cf_03_0183(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     formula:
         교통_전체이용금액 = SUM(교통_주유이용금액, 정비, 통행료, 버스지하철, 택시, 철도버스)
     """
-    dd = df[["교통_주유이용금액", "교통_정비이용금액", "교통_통행료이용금액", \
-             "교통_버스지하철이용금액", "교통_택시이용금액", "교통_철도버스이용금액"]]
+    dd = df[
+        [
+            "교통_주유이용금액",
+            "교통_정비이용금액",
+            "교통_통행료이용금액",
+            "교통_버스지하철이용금액",
+            "교통_택시이용금액",
+            "교통_철도버스이용금액",
+        ]
+    ]
     res = dd.sum(axis=1).astype(int)
     return res
+
 
 @constraint_udf
 def cf_03_0192(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
@@ -1355,10 +1799,21 @@ def cf_03_0192(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     formula:
         여유_전체이용금액 = SUM(여유_운동이용금액, Pet, 공연, 공원, 숙박, 여행, 항공, 기타)
     """
-    dd = df[["여유_운동이용금액", "여유_Pet이용금액", "여유_공연이용금액", "여유_공원이용금액", \
-             "여유_숙박이용금액", "여유_여행이용금액", "여유_항공이용금액", "여유_기타이용금액"]]
+    dd = df[
+        [
+            "여유_운동이용금액",
+            "여유_Pet이용금액",
+            "여유_공연이용금액",
+            "여유_공원이용금액",
+            "여유_숙박이용금액",
+            "여유_여행이용금액",
+            "여유_항공이용금액",
+            "여유_기타이용금액",
+        ]
+    ]
     res = dd.sum(axis=1).astype(int)
     return res
+
 
 @constraint_udf
 def cf_03_0201(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
@@ -1366,10 +1821,21 @@ def cf_03_0201(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     formula:
         납부_전체이용금액 = SUM(납부_통신비이용금액, 관리비, 렌탈료, 가스전기료, 보험료, 유선방송, 건강연금, 기타)
     """
-    dd = df[["납부_통신비이용금액", "납부_관리비이용금액", "납부_렌탈료이용금액", "납부_가스전기료이용금액", \
-             "납부_보험료이용금액", "납부_유선방송이용금액", "납부_건강연금이용금액", "납부_기타이용금액"]]
+    dd = df[
+        [
+            "납부_통신비이용금액",
+            "납부_관리비이용금액",
+            "납부_렌탈료이용금액",
+            "납부_가스전기료이용금액",
+            "납부_보험료이용금액",
+            "납부_유선방송이용금액",
+            "납부_건강연금이용금액",
+            "납부_기타이용금액",
+        ]
+    ]
     res = dd.sum(axis=1).astype(int)
     return res
+
 
 @constraint_udf
 def cf_03_0202(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
@@ -1377,14 +1843,39 @@ def cf_03_0202(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     formula:
         _1순위업종 = ARGMAX(이용금액_쇼핑, 요식, 교통, 의료, 납부, 교육, 여유생활, 사교활동, 일상생활, 해외)
     """
-    dd = df[["이용금액_쇼핑", "이용금액_요식", "이용금액_교통", "이용금액_의료", "이용금액_납부",\
-             "이용금액_교육", "이용금액_여유생활", "이용금액_사교활동", "이용금액_일상생활", "이용금액_해외"]]
-    dd['_max'] = dd.max(axis=1)
+    dd = df[
+        [
+            "이용금액_쇼핑",
+            "이용금액_요식",
+            "이용금액_교통",
+            "이용금액_의료",
+            "이용금액_납부",
+            "이용금액_교육",
+            "이용금액_여유생활",
+            "이용금액_사교활동",
+            "이용금액_일상생활",
+            "이용금액_해외",
+        ]
+    ]
+    dd["_max"] = dd.max(axis=1)
 
-    code_map = {0: '쇼핑', 1: '요식', 2: '교통', 3: '의료', 4: '납부', \
-                5: '교육', 6: '여유생활', 7: '사교활동', 8: '일상생활', 9: '해외'}
-    res = dd.apply(lambda x: np.where(x[:-1]==x[-1])[0][0] if x[-1]>0 else 'nan', axis=1).replace(code_map)
+    code_map = {
+        0: "쇼핑",
+        1: "요식",
+        2: "교통",
+        3: "의료",
+        4: "납부",
+        5: "교육",
+        6: "여유생활",
+        7: "사교활동",
+        8: "일상생활",
+        9: "해외",
+    }
+    res = dd.apply(
+        lambda x: np.where(x[:-1] == x[-1])[0][0] if x[-1] > 0 else "nan", axis=1
+    ).replace(code_map)
     return res
+
 
 @constraint_udf
 def cf_03_0203(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
@@ -1392,10 +1883,23 @@ def cf_03_0203(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     formula:
         _1순위업종_이용금액 = MAX(이용금액_쇼핑, 요식, 교통, 의료, 납부, 교육, 여유생활, 사교활동, 일상생활, 해외)
     """
-    dd = df[["이용금액_쇼핑", "이용금액_요식", "이용금액_교통", "이용금액_의료", "이용금액_납부",\
-             "이용금액_교육", "이용금액_여유생활", "이용금액_사교활동", "이용금액_일상생활", "이용금액_해외"]]
+    dd = df[
+        [
+            "이용금액_쇼핑",
+            "이용금액_요식",
+            "이용금액_교통",
+            "이용금액_의료",
+            "이용금액_납부",
+            "이용금액_교육",
+            "이용금액_여유생활",
+            "이용금액_사교활동",
+            "이용금액_일상생활",
+            "이용금액_해외",
+        ]
+    ]
     res = dd.max(axis=1).astype(int)
     return res
+
 
 @constraint_udf
 def cf_03_0204(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
@@ -1403,16 +1907,41 @@ def cf_03_0204(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     formula:
         _3순위업종 = ARG3rd(이용금액_쇼핑, 요식, 교통, 의료, 납부, 교육, 여유생활, 사교활동, 일상생활, 해외)
     """
-    dd = df[["이용금액_쇼핑", "이용금액_요식", "이용금액_교통", "이용금액_의료", "이용금액_납부",\
-             "이용금액_교육", "이용금액_여유생활", "이용금액_사교활동", "이용금액_일상생활", "이용금액_해외"]]
-    
-    # 3순위 업종 존재여부
-    dd['is_valid'] = dd.apply(lambda x: sum(x>0)>2, axis=1)
+    dd = df[
+        [
+            "이용금액_쇼핑",
+            "이용금액_요식",
+            "이용금액_교통",
+            "이용금액_의료",
+            "이용금액_납부",
+            "이용금액_교육",
+            "이용금액_여유생활",
+            "이용금액_사교활동",
+            "이용금액_일상생활",
+            "이용금액_해외",
+        ]
+    ]
 
-    code_map = {0: '쇼핑', 1: '요식', 2: '교통', 3: '의료', 4: '납부', \
-                5: '교육', 6: '여유생활', 7: '사교활동', 8: '일상생활', 9: '해외'}
-    res = dd.apply(lambda x: np.argsort(x[:-1])[-3] if x[-1] else 'nan', axis=1).replace(code_map)
+    # 3순위 업종 존재여부
+    dd["is_valid"] = dd.apply(lambda x: sum(x > 0) > 2, axis=1)
+
+    code_map = {
+        0: "쇼핑",
+        1: "요식",
+        2: "교통",
+        3: "의료",
+        4: "납부",
+        5: "교육",
+        6: "여유생활",
+        7: "사교활동",
+        8: "일상생활",
+        9: "해외",
+    }
+    res = dd.apply(
+        lambda x: np.argsort(x[:-1])[-3] if x[-1] else "nan", axis=1
+    ).replace(code_map)
     return res
+
 
 @constraint_udf
 def cf_03_0205(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
@@ -1420,14 +1949,27 @@ def cf_03_0205(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     formula:
         _3순위업종_이용금액 = 3rd(이용금액_쇼핑, 요식, 교통, 의료, 납부, 교육, 여유생활, 사교활동, 일상생활, 해외)
     """
-    dd = df[["이용금액_쇼핑", "이용금액_요식", "이용금액_교통", "이용금액_의료", "이용금액_납부",\
-             "이용금액_교육", "이용금액_여유생활", "이용금액_사교활동", "이용금액_일상생활", "이용금액_해외"]]
-    
+    dd = df[
+        [
+            "이용금액_쇼핑",
+            "이용금액_요식",
+            "이용금액_교통",
+            "이용금액_의료",
+            "이용금액_납부",
+            "이용금액_교육",
+            "이용금액_여유생활",
+            "이용금액_사교활동",
+            "이용금액_일상생활",
+            "이용금액_해외",
+        ]
+    ]
+
     # 3순위 업종 존재여부
-    dd['is_valid'] = dd.apply(lambda x: sum(x>0)>2, axis=1)
+    dd["is_valid"] = dd.apply(lambda x: sum(x > 0) > 2, axis=1)
 
     res = dd.apply(lambda x: np.sort(x[:-1])[-3] if x[-1] else 0, axis=1)
     return res
+
 
 @constraint_udf
 def cf_03_0206(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
@@ -1435,14 +1977,35 @@ def cf_03_0206(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     formula:
         _1순위쇼핑업종 = ARGMAX(쇼핑_도소매_이용금액, 백화점, 마트, 슈퍼마켓, 편의점, 아울렛, 온라인, 기타)
     """
-    dd = df[["쇼핑_도소매_이용금액", "쇼핑_백화점_이용금액", "쇼핑_마트_이용금액", "쇼핑_슈퍼마켓_이용금액", \
-             "쇼핑_편의점_이용금액", "쇼핑_아울렛_이용금액", "쇼핑_온라인_이용금액", "쇼핑_기타_이용금액"]]
-    dd['_max'] = dd.max(axis=1).astype(int)
+    dd = df[
+        [
+            "쇼핑_도소매_이용금액",
+            "쇼핑_백화점_이용금액",
+            "쇼핑_마트_이용금액",
+            "쇼핑_슈퍼마켓_이용금액",
+            "쇼핑_편의점_이용금액",
+            "쇼핑_아울렛_이용금액",
+            "쇼핑_온라인_이용금액",
+            "쇼핑_기타_이용금액",
+        ]
+    ]
+    dd["_max"] = dd.max(axis=1).astype(int)
 
-    code_map = {0: '도소매', 1: '백화점', 2: '마트', 3: '슈퍼마켓', \
-                4: '편의점', 5: '아울렛', 6: '온라인', 7: '쇼핑기타'}
-    res = dd.apply(lambda x: np.where(x[:-1]==x[-1])[0][0] if x[-1]>0 else 'nan', axis=1).replace(code_map)
+    code_map = {
+        0: "도소매",
+        1: "백화점",
+        2: "마트",
+        3: "슈퍼마켓",
+        4: "편의점",
+        5: "아울렛",
+        6: "온라인",
+        7: "쇼핑기타",
+    }
+    res = dd.apply(
+        lambda x: np.where(x[:-1] == x[-1])[0][0] if x[-1] > 0 else "nan", axis=1
+    ).replace(code_map)
     return res
+
 
 @constraint_udf
 def cf_03_0207(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
@@ -1450,10 +2013,21 @@ def cf_03_0207(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     formula:
         _1순위쇼핑업종_이용금액 = MAX(쇼핑_도소매_이용금액, 백화점, 마트, 슈퍼마켓, 편의점, 아울렛, 온라인, 기타)
     """
-    dd = df[["쇼핑_도소매_이용금액", "쇼핑_백화점_이용금액", "쇼핑_마트_이용금액", "쇼핑_슈퍼마켓_이용금액", \
-             "쇼핑_편의점_이용금액", "쇼핑_아울렛_이용금액", "쇼핑_온라인_이용금액", "쇼핑_기타_이용금액"]]
+    dd = df[
+        [
+            "쇼핑_도소매_이용금액",
+            "쇼핑_백화점_이용금액",
+            "쇼핑_마트_이용금액",
+            "쇼핑_슈퍼마켓_이용금액",
+            "쇼핑_편의점_이용금액",
+            "쇼핑_아울렛_이용금액",
+            "쇼핑_온라인_이용금액",
+            "쇼핑_기타_이용금액",
+        ]
+    ]
     res = dd.max(axis=1).astype(int)
     return res
+
 
 @constraint_udf
 def cf_03_0208(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
@@ -1461,16 +2035,37 @@ def cf_03_0208(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     formula:
         _3순위쇼핑업종 = ARG3rd(쇼핑_도소매_이용금액, 백화점, 마트, 슈퍼마켓, 편의점, 아울렛, 온라인, 기타)
     """
-    dd = df[["쇼핑_도소매_이용금액", "쇼핑_백화점_이용금액", "쇼핑_마트_이용금액", "쇼핑_슈퍼마켓_이용금액", \
-             "쇼핑_편의점_이용금액", "쇼핑_아울렛_이용금액", "쇼핑_온라인_이용금액", "쇼핑_기타_이용금액"]]
-    
-    # 3순위 업종 존재여부
-    dd['is_valid'] = dd.apply(lambda x: sum(x>0)>2, axis=1)
+    dd = df[
+        [
+            "쇼핑_도소매_이용금액",
+            "쇼핑_백화점_이용금액",
+            "쇼핑_마트_이용금액",
+            "쇼핑_슈퍼마켓_이용금액",
+            "쇼핑_편의점_이용금액",
+            "쇼핑_아울렛_이용금액",
+            "쇼핑_온라인_이용금액",
+            "쇼핑_기타_이용금액",
+        ]
+    ]
 
-    code_map = {0: '도소매', 1: '백화점', 2: '마트', 3: '슈퍼마켓', \
-                4: '편의점', 5: '아울렛', 6: '온라인', 7: '쇼핑기타'}
-    res = dd.apply(lambda x: np.argsort(x[:-1])[-3] if x[-1] else 'nan', axis=1).replace(code_map)
+    # 3순위 업종 존재여부
+    dd["is_valid"] = dd.apply(lambda x: sum(x > 0) > 2, axis=1)
+
+    code_map = {
+        0: "도소매",
+        1: "백화점",
+        2: "마트",
+        3: "슈퍼마켓",
+        4: "편의점",
+        5: "아울렛",
+        6: "온라인",
+        7: "쇼핑기타",
+    }
+    res = dd.apply(
+        lambda x: np.argsort(x[:-1])[-3] if x[-1] else "nan", axis=1
+    ).replace(code_map)
     return res
+
 
 @constraint_udf
 def cf_03_0209(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
@@ -1478,14 +2073,25 @@ def cf_03_0209(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     formula:
         _3순위쇼핑업종_이용금액 = 3rd(쇼핑_도소매_이용금액, 백화점, 마트, 슈퍼마켓, 편의점, 아울렛, 온라인, 기타)
     """
-    dd = df[["쇼핑_도소매_이용금액", "쇼핑_백화점_이용금액", "쇼핑_마트_이용금액", "쇼핑_슈퍼마켓_이용금액", \
-             "쇼핑_편의점_이용금액", "쇼핑_아울렛_이용금액", "쇼핑_온라인_이용금액", "쇼핑_기타_이용금액"]]
-    
+    dd = df[
+        [
+            "쇼핑_도소매_이용금액",
+            "쇼핑_백화점_이용금액",
+            "쇼핑_마트_이용금액",
+            "쇼핑_슈퍼마켓_이용금액",
+            "쇼핑_편의점_이용금액",
+            "쇼핑_아울렛_이용금액",
+            "쇼핑_온라인_이용금액",
+            "쇼핑_기타_이용금액",
+        ]
+    ]
+
     # 3순위 업종 존재여부
-    dd['is_valid'] = dd.apply(lambda x: sum(x>0)>2, axis=1)
+    dd["is_valid"] = dd.apply(lambda x: sum(x > 0) > 2, axis=1)
 
     res = dd.apply(lambda x: np.sort(x[:-1])[-3] if x[-1] else 0, axis=1)
     return res
+
 
 @constraint_udf
 def cf_03_0210(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
@@ -1493,13 +2099,24 @@ def cf_03_0210(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     formula:
         _1순위교통업종 = ARGMAX(교통_주유이용금액, 정비, 통행료, 버스지하철, 택시, 철도버스)
     """
-    dd = df[["교통_주유이용금액", "교통_정비이용금액", "교통_통행료이용금액", \
-             "교통_버스지하철이용금액", "교통_택시이용금액", "교통_철도버스이용금액"]]
-    dd['_max'] = dd.max(axis=1).astype(int)
+    dd = df[
+        [
+            "교통_주유이용금액",
+            "교통_정비이용금액",
+            "교통_통행료이용금액",
+            "교통_버스지하철이용금액",
+            "교통_택시이용금액",
+            "교통_철도버스이용금액",
+        ]
+    ]
+    dd["_max"] = dd.max(axis=1).astype(int)
 
-    code_map = {0: '주유', 1: '정비', 2: '통행료', 3: '버스지하철', 4: '택시', 5: '철도버스'}
-    res = dd.apply(lambda x: np.where(x[:-1]==x[-1])[0][0] if x[-1]>0 else 'nan', axis=1).replace(code_map)
+    code_map = {0: "주유", 1: "정비", 2: "통행료", 3: "버스지하철", 4: "택시", 5: "철도버스"}
+    res = dd.apply(
+        lambda x: np.where(x[:-1] == x[-1])[0][0] if x[-1] > 0 else "nan", axis=1
+    ).replace(code_map)
     return res
+
 
 @constraint_udf
 def cf_03_0211(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
@@ -1507,10 +2124,19 @@ def cf_03_0211(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     formula:
         _1순위교통업종_이용금액 = MAX(교통_주유이용금액, 정비, 통행료, 버스지하철, 택시, 철도버스)
     """
-    dd = df[["교통_주유이용금액", "교통_정비이용금액", "교통_통행료이용금액", \
-             "교통_버스지하철이용금액", "교통_택시이용금액", "교통_철도버스이용금액"]]
+    dd = df[
+        [
+            "교통_주유이용금액",
+            "교통_정비이용금액",
+            "교통_통행료이용금액",
+            "교통_버스지하철이용금액",
+            "교통_택시이용금액",
+            "교통_철도버스이용금액",
+        ]
+    ]
     res = dd.max(axis=1).astype(int)
     return res
+
 
 @constraint_udf
 def cf_03_0212(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
@@ -1518,15 +2144,26 @@ def cf_03_0212(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     formula:
         _3순위교통업종 = ARG3rd(교통_주유이용금액, 정비, 통행료, 버스지하철, 택시, 철도버스)
     """
-    dd = df[["교통_주유이용금액", "교통_정비이용금액", "교통_통행료이용금액", \
-             "교통_버스지하철이용금액", "교통_택시이용금액", "교통_철도버스이용금액"]]
-    
-    # 3순위 업종 존재여부
-    dd['is_valid'] = dd.apply(lambda x: sum(x>0)>2, axis=1)
+    dd = df[
+        [
+            "교통_주유이용금액",
+            "교통_정비이용금액",
+            "교통_통행료이용금액",
+            "교통_버스지하철이용금액",
+            "교통_택시이용금액",
+            "교통_철도버스이용금액",
+        ]
+    ]
 
-    code_map = {0: '주유', 1: '정비', 2: '통행료', 3: '버스지하철', 4: '택시', 5: '철도버스'}
-    res = dd.apply(lambda x: np.argsort(x[:-1])[-3] if x[-1] else 'nan', axis=1).replace(code_map)
+    # 3순위 업종 존재여부
+    dd["is_valid"] = dd.apply(lambda x: sum(x > 0) > 2, axis=1)
+
+    code_map = {0: "주유", 1: "정비", 2: "통행료", 3: "버스지하철", 4: "택시", 5: "철도버스"}
+    res = dd.apply(
+        lambda x: np.argsort(x[:-1])[-3] if x[-1] else "nan", axis=1
+    ).replace(code_map)
     return res
+
 
 @constraint_udf
 def cf_03_0213(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
@@ -1534,14 +2171,23 @@ def cf_03_0213(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     formula:
         _3순위교통업종_이용금액 = 3rd(교통_주유이용금액, 정비, 통행료, 버스지하철, 택시, 철도버스)
     """
-    dd = df[["교통_주유이용금액", "교통_정비이용금액", "교통_통행료이용금액", \
-             "교통_버스지하철이용금액", "교통_택시이용금액", "교통_철도버스이용금액"]]
-    
+    dd = df[
+        [
+            "교통_주유이용금액",
+            "교통_정비이용금액",
+            "교통_통행료이용금액",
+            "교통_버스지하철이용금액",
+            "교통_택시이용금액",
+            "교통_철도버스이용금액",
+        ]
+    ]
+
     # 3순위 업종 존재여부
-    dd['is_valid'] = dd.apply(lambda x: sum(x>0)>2, axis=1)
+    dd["is_valid"] = dd.apply(lambda x: sum(x > 0) > 2, axis=1)
 
     res = dd.apply(lambda x: np.sort(x[:-1])[-3] if x[-1] else 0, axis=1)
     return res
+
 
 @constraint_udf
 def cf_03_0214(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
@@ -1549,13 +2195,35 @@ def cf_03_0214(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     formula:
         _1순위여유업종 = ARGMAX(여유_운동이용금액, Pet, 공연, 공원, 숙박, 여행, 항공, 기타)
     """
-    dd = df[["여유_운동이용금액", "여유_Pet이용금액", "여유_공연이용금액", "여유_공원이용금액", \
-             "여유_숙박이용금액", "여유_여행이용금액", "여유_항공이용금액", "여유_기타이용금액"]]
-    dd['_max'] = dd.max(axis=1).astype(int)
+    dd = df[
+        [
+            "여유_운동이용금액",
+            "여유_Pet이용금액",
+            "여유_공연이용금액",
+            "여유_공원이용금액",
+            "여유_숙박이용금액",
+            "여유_여행이용금액",
+            "여유_항공이용금액",
+            "여유_기타이용금액",
+        ]
+    ]
+    dd["_max"] = dd.max(axis=1).astype(int)
 
-    code_map = {0: '운동', 1: 'Pet', 2: '공연', 3: '공원', 4: '숙박', 5: '여행', 6: '항공', 7: '여유기타'}
-    res = dd.apply(lambda x: np.where(x[:-1]==x[-1])[0][0] if x[-1]>0 else 'nan', axis=1).replace(code_map)
+    code_map = {
+        0: "운동",
+        1: "Pet",
+        2: "공연",
+        3: "공원",
+        4: "숙박",
+        5: "여행",
+        6: "항공",
+        7: "여유기타",
+    }
+    res = dd.apply(
+        lambda x: np.where(x[:-1] == x[-1])[0][0] if x[-1] > 0 else "nan", axis=1
+    ).replace(code_map)
     return res
+
 
 @constraint_udf
 def cf_03_0215(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
@@ -1563,10 +2231,21 @@ def cf_03_0215(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     formula:
         _1순위여유업종_이용금액 = MAX(여유_운동이용금액, Pet, 공연, 공원, 숙박, 여행, 항공, 기타)
     """
-    dd = df[["여유_운동이용금액", "여유_Pet이용금액", "여유_공연이용금액", "여유_공원이용금액", \
-             "여유_숙박이용금액", "여유_여행이용금액", "여유_항공이용금액", "여유_기타이용금액"]]
+    dd = df[
+        [
+            "여유_운동이용금액",
+            "여유_Pet이용금액",
+            "여유_공연이용금액",
+            "여유_공원이용금액",
+            "여유_숙박이용금액",
+            "여유_여행이용금액",
+            "여유_항공이용금액",
+            "여유_기타이용금액",
+        ]
+    ]
     res = dd.max(axis=1).astype(int)
     return res
+
 
 @constraint_udf
 def cf_03_0216(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
@@ -1574,15 +2253,37 @@ def cf_03_0216(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     formula:
         _3순위여유업종 = ARG3rd(여유_운동이용금액, Pet, 공연, 공원, 숙박, 여행, 항공, 기타)
     """
-    dd = df[["여유_운동이용금액", "여유_Pet이용금액", "여유_공연이용금액", "여유_공원이용금액", \
-             "여유_숙박이용금액", "여유_여행이용금액", "여유_항공이용금액", "여유_기타이용금액"]]
-    
-    # 3순위 업종 존재여부
-    dd['is_valid'] = dd.apply(lambda x: sum(x>0)>2, axis=1)
+    dd = df[
+        [
+            "여유_운동이용금액",
+            "여유_Pet이용금액",
+            "여유_공연이용금액",
+            "여유_공원이용금액",
+            "여유_숙박이용금액",
+            "여유_여행이용금액",
+            "여유_항공이용금액",
+            "여유_기타이용금액",
+        ]
+    ]
 
-    code_map = {0: '운동', 1: 'Pet', 2: '공연', 3: '공원', 4: '숙박', 5: '여행', 6: '항공', 7: '여유기타'}
-    res = dd.apply(lambda x: np.argsort(x[:-1])[-3] if x[-1] else 'nan', axis=1).replace(code_map)
+    # 3순위 업종 존재여부
+    dd["is_valid"] = dd.apply(lambda x: sum(x > 0) > 2, axis=1)
+
+    code_map = {
+        0: "운동",
+        1: "Pet",
+        2: "공연",
+        3: "공원",
+        4: "숙박",
+        5: "여행",
+        6: "항공",
+        7: "여유기타",
+    }
+    res = dd.apply(
+        lambda x: np.argsort(x[:-1])[-3] if x[-1] else "nan", axis=1
+    ).replace(code_map)
     return res
+
 
 @constraint_udf
 def cf_03_0217(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
@@ -1590,14 +2291,25 @@ def cf_03_0217(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     formula:
         _3순위여유업종_이용금액 = 3rd(여유_운동이용금액, Pet, 공연, 공원, 숙박, 여행, 항공, 기타)
     """
-    dd = df[["여유_운동이용금액", "여유_Pet이용금액", "여유_공연이용금액", "여유_공원이용금액", \
-             "여유_숙박이용금액", "여유_여행이용금액", "여유_항공이용금액", "여유_기타이용금액"]]
-    
+    dd = df[
+        [
+            "여유_운동이용금액",
+            "여유_Pet이용금액",
+            "여유_공연이용금액",
+            "여유_공원이용금액",
+            "여유_숙박이용금액",
+            "여유_여행이용금액",
+            "여유_항공이용금액",
+            "여유_기타이용금액",
+        ]
+    ]
+
     # 3순위 업종 존재여부
-    dd['is_valid'] = dd.apply(lambda x: sum(x>0)>2, axis=1)
+    dd["is_valid"] = dd.apply(lambda x: sum(x > 0) > 2, axis=1)
 
     res = dd.apply(lambda x: np.sort(x[:-1])[-3] if x[-1] else 0, axis=1)
     return res
+
 
 @constraint_udf
 def cf_03_0218(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
@@ -1605,14 +2317,35 @@ def cf_03_0218(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     formula:
         _1순위납부업종 = ARGMAX(납부_통신비이용금액, 관리비, 렌탈료, 가스전기료, 보험료, 유선방송, 건강연금, 기타)
     """
-    dd = df[["납부_통신비이용금액", "납부_관리비이용금액", "납부_렌탈료이용금액", "납부_가스전기료이용금액", \
-             "납부_보험료이용금액", "납부_유선방송이용금액", "납부_건강연금이용금액", "납부_기타이용금액"]]
-    dd['_max'] = dd.max(axis=1).astype(int)
+    dd = df[
+        [
+            "납부_통신비이용금액",
+            "납부_관리비이용금액",
+            "납부_렌탈료이용금액",
+            "납부_가스전기료이용금액",
+            "납부_보험료이용금액",
+            "납부_유선방송이용금액",
+            "납부_건강연금이용금액",
+            "납부_기타이용금액",
+        ]
+    ]
+    dd["_max"] = dd.max(axis=1).astype(int)
 
-    code_map = {0: '통신비', 1: '관리비', 2: '렌탈료', 3: '가스전기료', 4: '보험료', \
-                5: '유선방송', 6: '건강연금', 7: '납부기타'}
-    res = dd.apply(lambda x: np.where(x[:-1]==x[-1])[0][0] if x[-1]>0 else 'nan', axis=1).replace(code_map)
+    code_map = {
+        0: "통신비",
+        1: "관리비",
+        2: "렌탈료",
+        3: "가스전기료",
+        4: "보험료",
+        5: "유선방송",
+        6: "건강연금",
+        7: "납부기타",
+    }
+    res = dd.apply(
+        lambda x: np.where(x[:-1] == x[-1])[0][0] if x[-1] > 0 else "nan", axis=1
+    ).replace(code_map)
     return res
+
 
 @constraint_udf
 def cf_03_0219(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
@@ -1620,10 +2353,21 @@ def cf_03_0219(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     formula:
         _1순위납부업종_이용금액 = MAX(납부_통신비이용금액, 관리비, 렌탈료, 가스전기료, 보험료, 유선방송, 건강연금, 기타)
     """
-    dd = df[["납부_통신비이용금액", "납부_관리비이용금액", "납부_렌탈료이용금액", "납부_가스전기료이용금액", \
-             "납부_보험료이용금액", "납부_유선방송이용금액", "납부_건강연금이용금액", "납부_기타이용금액"]]
+    dd = df[
+        [
+            "납부_통신비이용금액",
+            "납부_관리비이용금액",
+            "납부_렌탈료이용금액",
+            "납부_가스전기료이용금액",
+            "납부_보험료이용금액",
+            "납부_유선방송이용금액",
+            "납부_건강연금이용금액",
+            "납부_기타이용금액",
+        ]
+    ]
     res = dd.max(axis=1).astype(int)
     return res
+
 
 @constraint_udf
 def cf_03_0220(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
@@ -1631,16 +2375,37 @@ def cf_03_0220(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     formula:
         _3순위납부업종 = ARG3rd(납부_통신비이용금액, 관리비, 렌탈료, 가스전기료, 보험료, 유선방송, 건강연금, 기타)
     """
-    dd = df[["납부_통신비이용금액", "납부_관리비이용금액", "납부_렌탈료이용금액", "납부_가스전기료이용금액", \
-             "납부_보험료이용금액", "납부_유선방송이용금액", "납부_건강연금이용금액", "납부_기타이용금액"]]
-    
-    # 3순위 업종 존재여부
-    dd['is_valid'] = dd.apply(lambda x: sum(x>0)>2, axis=1)
+    dd = df[
+        [
+            "납부_통신비이용금액",
+            "납부_관리비이용금액",
+            "납부_렌탈료이용금액",
+            "납부_가스전기료이용금액",
+            "납부_보험료이용금액",
+            "납부_유선방송이용금액",
+            "납부_건강연금이용금액",
+            "납부_기타이용금액",
+        ]
+    ]
 
-    code_map = {0: '통신비', 1: '관리비', 2: '렌탈료', 3: '가스전기료', 4: '보험료', \
-                5: '유선방송', 6: '건강연금', 7: '납부기타'}
-    res = dd.apply(lambda x: np.argsort(x[:-1])[-3] if x[-1] else 'nan', axis=1).replace(code_map)
+    # 3순위 업종 존재여부
+    dd["is_valid"] = dd.apply(lambda x: sum(x > 0) > 2, axis=1)
+
+    code_map = {
+        0: "통신비",
+        1: "관리비",
+        2: "렌탈료",
+        3: "가스전기료",
+        4: "보험료",
+        5: "유선방송",
+        6: "건강연금",
+        7: "납부기타",
+    }
+    res = dd.apply(
+        lambda x: np.argsort(x[:-1])[-3] if x[-1] else "nan", axis=1
+    ).replace(code_map)
     return res
+
 
 @constraint_udf
 def cf_03_0221(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
@@ -1648,14 +2413,25 @@ def cf_03_0221(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     formula:
         _3순위납부업종_이용금액 = 3rd(납부_통신비이용금액, 관리비, 렌탈료, 가스전기료, 보험료, 유선방송, 건강연금, 기타)
     """
-    dd = df[["납부_통신비이용금액", "납부_관리비이용금액", "납부_렌탈료이용금액", "납부_가스전기료이용금액", \
-             "납부_보험료이용금액", "납부_유선방송이용금액", "납부_건강연금이용금액", "납부_기타이용금액"]]
-    
+    dd = df[
+        [
+            "납부_통신비이용금액",
+            "납부_관리비이용금액",
+            "납부_렌탈료이용금액",
+            "납부_가스전기료이용금액",
+            "납부_보험료이용금액",
+            "납부_유선방송이용금액",
+            "납부_건강연금이용금액",
+            "납부_기타이용금액",
+        ]
+    ]
+
     # 3순위 업종 존재여부
-    dd['is_valid'] = dd.apply(lambda x: sum(x>0)>2, axis=1)
+    dd["is_valid"] = dd.apply(lambda x: sum(x > 0) > 2, axis=1)
 
     res = dd.apply(lambda x: np.sort(x[:-1])[-3] if x[-1] else 0, axis=1)
     return res
+
 
 @constraint_udf
 def cf_03_0222(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
@@ -1667,6 +2443,7 @@ def cf_03_0222(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     res = dd.sum(axis=1).astype(int)
     return res
 
+
 @constraint_udf
 def cf_03_0223(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
@@ -1676,6 +2453,7 @@ def cf_03_0223(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     dd = df[["할부건수_유이자_6M_R12M", "할부건수_무이자_6M_R12M", "할부건수_부분_6M_R12M"]]
     res = dd.sum(axis=1).astype(int)
     return res
+
 
 @constraint_udf
 def cf_03_0224(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
@@ -1687,6 +2465,7 @@ def cf_03_0224(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     res = dd.sum(axis=1).astype(int)
     return res
 
+
 @constraint_udf
 def cf_03_0225(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
@@ -1696,6 +2475,7 @@ def cf_03_0225(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     dd = df[["할부건수_유이자_14M_R12M", "할부건수_무이자_14M_R12M", "할부건수_부분_14M_R12M"]]
     res = dd.sum(axis=1).astype(int)
     return res
+
 
 @constraint_udf
 def cf_03_0226(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
@@ -1707,6 +2487,7 @@ def cf_03_0226(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     res = dd.sum(axis=1).astype(int)
     return res
 
+
 @constraint_udf
 def cf_03_0227(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
@@ -1716,6 +2497,7 @@ def cf_03_0227(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     dd = df[["할부금액_유이자_6M_R12M", "할부금액_무이자_6M_R12M", "할부금액_부분_6M_R12M"]]
     res = dd.sum(axis=1).astype(int)
     return res
+
 
 @constraint_udf
 def cf_03_0228(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
@@ -1727,6 +2509,7 @@ def cf_03_0228(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     res = dd.sum(axis=1).astype(int)
     return res
 
+
 @constraint_udf
 def cf_03_0229(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
@@ -1737,16 +2520,31 @@ def cf_03_0229(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     res = dd.sum(axis=1).astype(int)
     return res
 
+
 @constraint_udf
 def cf_03_0254(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
     formula:
         RP건수_B0M = SUM(RP건수_통신_B0M, 아파트, 제휴사서비스직접판매, 렌탈, 가스, 전기, 보험, 학습비, 유선방송, 건강, 교통)
     """
-    dd = df[["RP건수_통신_B0M", "RP건수_아파트_B0M", "RP건수_제휴사서비스직접판매_B0M", "RP건수_렌탈_B0M", "RP건수_가스_B0M", \
-             "RP건수_전기_B0M", "RP건수_보험_B0M", "RP건수_학습비_B0M", "RP건수_유선방송_B0M", "RP건수_건강_B0M", "RP건수_교통_B0M"]]
+    dd = df[
+        [
+            "RP건수_통신_B0M",
+            "RP건수_아파트_B0M",
+            "RP건수_제휴사서비스직접판매_B0M",
+            "RP건수_렌탈_B0M",
+            "RP건수_가스_B0M",
+            "RP건수_전기_B0M",
+            "RP건수_보험_B0M",
+            "RP건수_학습비_B0M",
+            "RP건수_유선방송_B0M",
+            "RP건수_건강_B0M",
+            "RP건수_교통_B0M",
+        ]
+    ]
     res = dd.sum(axis=1).astype(int)
     return res
+
 
 @constraint_udf
 def cf_03_0268(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
@@ -1754,10 +2552,24 @@ def cf_03_0268(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     formula:
         RP후경과월 = MIN(RP후경과월_통신, 아파트, 제휴사서비스직접판매, 렌탈, 가스, 전기, 보험, 학습비, 유선방송, 건강, 교통)
     """
-    dd = df[["RP후경과월_통신", "RP후경과월_아파트", "RP후경과월_제휴사서비스직접판매", "RP후경과월_렌탈", "RP후경과월_가스", \
-            "RP후경과월_전기", "RP후경과월_보험", "RP후경과월_학습비", "RP후경과월_유선방송", "RP후경과월_건강", "RP후경과월_교통"]]
+    dd = df[
+        [
+            "RP후경과월_통신",
+            "RP후경과월_아파트",
+            "RP후경과월_제휴사서비스직접판매",
+            "RP후경과월_렌탈",
+            "RP후경과월_가스",
+            "RP후경과월_전기",
+            "RP후경과월_보험",
+            "RP후경과월_학습비",
+            "RP후경과월_유선방송",
+            "RP후경과월_건강",
+            "RP후경과월_교통",
+        ]
+    ]
     res = dd.min(axis=1).astype(int)
     return res
+
 
 @constraint_udf
 def cf_03_0281(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
@@ -1766,10 +2578,19 @@ def cf_03_0281(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
         최종카드론이용경과월 = MONTHS_BETWEEN(LAST_DAY(기준년월), 최종이용일자_카드론)
     """
     dd = df[["기준년월", "최종이용일자_카드론"]]
-    tmp_res = dd.apply(lambda x: relativedelta(datetime(year=int(x[0][:4]), month=int(x[0][4:6]), day=1)+relativedelta(months=1, days=-1), \
-             datetime.strptime(x[1], '%Y%m%d')) if (not pd.isna(x[1]))*(x[1]!='10101') else 999, axis=1)
-    res = tmp_res.apply(lambda x: 999 if x==999 else x.years*12 + x.months)
+    tmp_res = dd.apply(
+        lambda x: relativedelta(
+            datetime(year=int(x[0][:4]), month=int(x[0][4:6]), day=1)
+            + relativedelta(months=1, days=-1),
+            datetime.strptime(x[1], "%Y%m%d"),
+        )
+        if (not pd.isna(x[1])) * (x[1] != "10101")
+        else 999,
+        axis=1,
+    )
+    res = tmp_res.apply(lambda x: 999 if x == 999 else x.years * 12 + x.months)
     return res
+
 
 # @constraint_udf
 # def cf_03_0344(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
@@ -1837,6 +2658,7 @@ def cf_03_0281(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
 #     res = dd.sum(axis=1).astype(int)
 #     return res
 
+
 @constraint_udf
 def cf_03_0408(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
@@ -1846,6 +2668,7 @@ def cf_03_0408(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     c1, c2, c3 = df["정상청구원금_B0M"], df["선입금원금_B0M"], df["정상입금원금_B0M"]
     res = c1 - (c2 + c3)
     return res
+
 
 @constraint_udf
 def cf_03_0409(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
@@ -1857,6 +2680,7 @@ def cf_03_0409(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     res = c1 - (c2 + c3)
     return res
 
+
 @constraint_udf
 def cf_03_0410(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
@@ -1866,6 +2690,3 @@ def cf_03_0410(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     c1, c2, c3 = df["정상청구원금_B5M"], df["선입금원금_B5M"], df["정상입금원금_B5M"]
     res = c1 - (c2 + c3)
     return res
-
-
- cf_03_0410(df)
