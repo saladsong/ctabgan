@@ -1,5 +1,6 @@
 # 컬럼 간 제약조건 또는 파생수식 만족 여부 검증용
 # (v.1) 1개월치 데이터 내에서의 파생 관계만 고려되어 있음
+# (v.1.5) validity 검증 후 수식>조건 수정 및 중복 컬럼 반영
 # for each constraint/formula fx,
 # I: 전체 데이터프레임
 # O: Boolean 컬럼
