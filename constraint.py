@@ -202,6 +202,18 @@ constraints = [
         "type": "constraint",
         "content": "기타면제카드수_B0M <= 연회비할인카드수_B0M",
     },
+    {
+        "columns": ["소지카드수_유효_신용", "유효카드수_신용"],
+        "fname": "cc_01_0028",
+        "type": "constraint",
+        "content": "소지카드수_유효_신용 <= 유효카드수_신용",
+    },
+    {
+        "columns": ["소지카드수_이용가능_신용", "이용가능카드수_신용"],
+        "fname": "cc_01_0029",
+        "type": "constraint",
+        "content": "소지카드수_이용가능_신용 <= 이용가능카드수_신용",
+    },
     # 1.회원 테이블 컬럼 Formula
     {
         "columns": ["기준년월", "입회일자_신용"],
@@ -360,6 +372,15 @@ constraints = [
         "type": "constraint",
         "content": "월상환론상향가능한도금액 <= 5000만원-월상환론한도금액",
     },
+
+    # 2.신용 테이블 컬럼 Formula
+    {
+        "columns": ["이용거절여부_카드론"],
+        "fname": "cf_02_0030",
+        "type": "formula",
+        "content": "IF 이용거절여부_카드론=='1' THEN 카드론동의여부='N' ELSE 카드론동의여부='Y'",
+    },
+    
     # 4.청구 테이블 컬럼 Constraints
     {
         "columns": ["청구서발송여부_B0", "청구서발송여부_R3M"],
@@ -1746,6 +1767,21 @@ constraints = [
         "content": "이용금액_쇼핑 + 이용금액_요식 + 이용금액_교통 + 이용금액_의료 + 이용금액_납부 + 이용금액_교육 + 이용금액_여유생활 + 이용금액_사교활동 + 이용금액_일상생활 + 이용금액_해외 <= 이용금액_업종기준",
     },
     {
+        "columns": [
+            "쇼핑_도소매_이용금액",
+            "쇼핑_백화점_이용금액",
+            "쇼핑_마트_이용금액",
+            "쇼핑_슈퍼마켓_이용금액",
+            "쇼핑_편의점_이용금액",
+            "쇼핑_아울렛_이용금액",
+            "쇼핑_온라인_이용금액",
+            "쇼핑_기타_이용금액",
+        ],
+        "fname": "cc_03_0155",
+        "type": "constraint",
+        "content": "쇼핑_전체_이용금액 >= SUM(쇼핑_도소매_이용금액, 백화점, 마트, 슈퍼마켓, 편의점, 아울렛, 온라인, 기타)",
+    },
+    {
         "columns": ["_3순위업종_이용금액", "_1순위업종_이용금액"],
         "fname": "cc_03_0081",
         "type": "constraint",
@@ -1992,6 +2028,19 @@ constraints = [
         "fname": "cc_03_0120",
         "type": "constraint",
         "content": "이용금액_간편결제_B0M <= 이용금액_간편결제_R3M <= 이용금액_간편결제_R6M",
+    }, 
+    {
+        "columns": [
+            "이용금액_당사페이_R6M",
+            "이용금액_당사기타_R6M",
+            "이용금액_A페이_R6M",
+            "이용금액_B페이_R6M",
+            "이용금액_C페이_R6M",
+            "이용금액_D페이_R6M",
+        ],
+        "fname": "cc_03_0149",
+        "type": "constraint",
+        "content": "이용금액_간편결제_R6M >= SUM(이용금액_당사페이_R6M, 당사기타, A페이, B페이, C페이, D페이)",
     },
     {
         "columns": ["이용금액_당사페이_B0M", "이용금액_당사페이_R3M", "이용금액_당사페이_R6M"],
@@ -2036,6 +2085,19 @@ constraints = [
         "content": "이용건수_간편결제_B0M <= 이용건수_간편결제_R3M <= 이용건수_간편결제_R6M",
     },
     {
+        "columns": [
+            "이용건수_당사페이_R6M",
+            "이용건수_당사기타_R6M",
+            "이용건수_A페이_R6M",
+            "이용건수_B페이_R6M",
+            "이용건수_C페이_R6M",
+            "이용건수_D페이_R6M",
+        ],
+        "fname": "cc_03_0150",
+        "type": "constraint",
+        "content": "이용건수_간편결제_R6M >= SUM(이용건수_당사페이_R6M, 당사기타, A페이, B페이, C페이, D페이)",
+    },
+    {
         "columns": ["이용건수_당사페이_B0M", "이용건수_당사페이_R3M", "이용건수_당사페이_R6M"],
         "fname": "cc_03_0128",
         "type": "constraint",
@@ -2070,6 +2132,58 @@ constraints = [
         "fname": "cc_03_0133",
         "type": "constraint",
         "content": "이용건수_D페이_B0M  <=이용건수_D페이_R3M <= 이용건수_D페이_R6M",
+    },
+    {
+        "columns": [
+            "이용금액_당사페이_R3M",
+            "이용금액_당사기타_R3M",
+            "이용금액_A페이_R3M",
+            "이용금액_B페이_R3M",
+            "이용금액_C페이_R3M",
+            "이용금액_D페이_R3M",
+        ],
+        "fname": "cc_03_0151",
+        "type": "constraint",
+        "content": "이용금액_간편결제_R3M >= SUM(이용금액_당사페이_R3M, 당사기타, A페이, B페이, C페이, D페이)",
+    },
+    {
+        "columns": [
+            "이용건수_당사페이_R3M",
+            "이용건수_당사기타_R3M",
+            "이용건수_A페이_R3M",
+            "이용건수_B페이_R3M",
+            "이용건수_C페이_R3M",
+            "이용건수_D페이_R3M",
+        ],
+        "fname": "cc_03_0152",
+        "type": "constraint",
+        "content": "이용건수_간편결제_R3M >= SUM(이용건수_당사페이_R3M, 당사기타, A페이, B페이, C페이, D페이)",
+    },
+    {
+        "columns": [
+            "이용금액_당사페이_B0M",
+            "이용금액_당사기타_B0M",
+            "이용금액_A페이_B0M",
+            "이용금액_B페이_B0M",
+            "이용금액_C페이_B0M",
+            "이용금액_D페이_B0M",
+        ],
+        "fname": "cc_03_0153",
+        "type": "constraint",
+        "content": "이용금액_간편결제_B0M >= SUM(이용금액_당사페이_B0M, 당사기타, A페이, B페이, C페이, D페이)",
+    },
+    {
+        "columns": [
+            "이용건수_당사페이_B0M",
+            "이용건수_당사기타_B0M",
+            "이용건수_A페이_B0M",
+            "이용건수_B페이_B0M",
+            "이용건수_C페이_B0M",
+            "이용건수_D페이_B0M",
+        ],
+        "fname": "cc_03_0154",
+        "type": "constraint",
+        "content": "이용건수_간편결제_B0M >= SUM(이용건수_당사페이_B0M, 당사기타, A페이, B페이, C페이, D페이)",
     },
     {
         "columns": ["이용횟수_선결제_R6M", "이용개월수_선결제_R6M"],
@@ -2418,19 +2532,28 @@ constraints = [
         "content": "이용금액_할부_R3M = SUM(이용금액_할부_유이자_R3M, 이용금액_할부_무이자_R3M, 이용금액_부분무이자_R3M)",
     },
     {
-        "columns": [
-            "쇼핑_도소매_이용금액",
-            "쇼핑_백화점_이용금액",
-            "쇼핑_마트_이용금액",
-            "쇼핑_슈퍼마켓_이용금액",
-            "쇼핑_편의점_이용금액",
-            "쇼핑_아울렛_이용금액",
-            "쇼핑_온라인_이용금액",
-            "쇼핑_기타_이용금액",
-        ],
-        "fname": "cc_03_0155",
-        "type": "constraint",
-        "content": "쇼핑_전체_이용금액 >= SUM(쇼핑_도소매_이용금액, 백화점, 마트, 슈퍼마켓, 편의점, 아울렛, 온라인, 기타)",
+        "columns": ["쇼핑_전체_이용금액"],
+        "fname": "cf_03_0158",
+        "type": "formula",
+        "content": "이용금액_쇼핑 = 쇼핑_전체_이용금액",
+    },
+    {
+        "columns": ["교통_전체이용금액"],
+        "fname": "cf_03_0160",
+        "type": "formula",
+        "content": "이용금액_교통 = 교통_전체이용금액",
+    },
+    {
+        "columns": ["납부_전체이용금액"],
+        "fname": "cf_03_0162",
+        "type": "formula",
+        "content": "이용금액_납부 = 납부_전체이용금액",
+    },
+    {
+        "columns": ["여유_전체이용금액"],
+        "fname": "cf_03_0164",
+        "type": "formula",
+        "content": "이용금액_여유생활 = 여유_전체이용금액",
     },
     {
         "columns": [
@@ -2866,84 +2989,6 @@ constraints = [
         "content": "최종카드론이용경과월 = MONTHS_BETWEEN(LAST_DAY(기준년월), 최종이용일자_카드론)",
     },
     {
-        "columns": [
-            "이용금액_당사페이_R6M",
-            "이용금액_당사기타_R6M",
-            "이용금액_A페이_R6M",
-            "이용금액_B페이_R6M",
-            "이용금액_C페이_R6M",
-            "이용금액_D페이_R6M",
-        ],
-        "fname": "cf_03_0344",
-        "type": "formula",
-        "content": "이용금액_간편결제_R6M = SUM(이용금액_당사페이_R6M, 당사기타, A페이, B페이, C페이, D페이)",
-    },
-    {
-        "columns": [
-            "이용건수_당사페이_R6M",
-            "이용건수_당사기타_R6M",
-            "이용건수_A페이_R6M",
-            "이용건수_B페이_R6M",
-            "이용건수_C페이_R6M",
-            "이용건수_D페이_R6M",
-        ],
-        "fname": "cf_03_0351",
-        "type": "formula",
-        "content": "이용건수_간편결제_R6M = SUM(이용건수_당사페이_R6M, 당사기타, A페이, B페이, C페이, D페이)",
-    },
-    {
-        "columns": [
-            "이용금액_당사페이_R3M",
-            "이용금액_당사기타_R3M",
-            "이용금액_A페이_R3M",
-            "이용금액_B페이_R3M",
-            "이용금액_C페이_R3M",
-            "이용금액_D페이_R3M",
-        ],
-        "fname": "cf_03_0358",
-        "type": "formula",
-        "content": "이용금액_간편결제_R3M = SUM(이용금액_당사페이_R3M, 당사기타, A페이, B페이, C페이, D페이)",
-    },
-    {
-        "columns": [
-            "이용건수_당사페이_R3M",
-            "이용건수_당사기타_R3M",
-            "이용건수_A페이_R3M",
-            "이용건수_B페이_R3M",
-            "이용건수_C페이_R3M",
-            "이용건수_D페이_R3M",
-        ],
-        "fname": "cf_03_0365",
-        "type": "formula",
-        "content": "이용건수_간편결제_R3M = SUM(이용건수_당사페이_R3M, 당사기타, A페이, B페이, C페이, D페이)",
-    },
-    {
-        "columns": [
-            "이용금액_당사페이_B0M",
-            "이용금액_당사기타_B0M",
-            "이용금액_A페이_B0M",
-            "이용금액_B페이_B0M",
-            "이용금액_C페이_B0M",
-            "이용금액_D페이_B0M",
-        ],
-        "fname": "cf_03_0372",
-        "type": "formula",
-        "content": "이용금액_간편결제_B0M = SUM(이용금액_당사페이_B0M, 당사기타, A페이, B페이, C페이, D페이)",
-    },
-    {
-        "columns": [
-            "이용건수_당사페이_B0M",
-            "이용건수_당사기타_B0M",
-            "이용건수_A페이_B0M",
-            "이용건수_B페이_B0M",
-            "이용건수_C페이_B0M",
-            "이용건수_D페이_B0M",
-        ],
-        "fname": "cf_03_0379",
-        "type": "formula",
-        "content": "이용건수_간편결제_B0M = SUM(이용건수_당사페이_B0M, 당사기타, A페이, B페이, C페이, D페이)",
-    },
-    {
         "columns": ["정상청구원금_B0M", "선입금원금_B0M", "정상입금원금_B0M"],
         "fname": "cf_03_0408",
         "type": "formula",
@@ -3267,6 +3312,26 @@ def cc_01_0027(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
 
 
 @constraint_udf
+def cc_01_0028(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        소지카드수_유효_신용 <= 유효카드수_신용
+    """
+    c1, c2 = df["소지카드수_유효_신용"], df["유효카드수_신용"]
+    return c1 <= c2
+
+
+@constraint_udf
+def cc_01_0029(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        소지카드수_이용가능_신용 <= 이용가능카드수_신용
+    """
+    c1, c2 = df["소지카드수_이용가능_신용"], df["이용가능카드수_신용"]
+    return c1 <= c2
+
+
+@constraint_udf
 def cf_01_0018(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     """
     formula:
@@ -3353,19 +3418,6 @@ def cf_01_0054(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     res = c1 + c2
 
     c = df["이용금액_R3M_신용체크"]
-    return c == res
-
-
-@constraint_udf
-def cf_01_0077(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
-    """
-    formula:
-        이용가능여부_해외겸용_본인 = IF 이용금액_해외>0 THEN '1' ELSE '0'
-    """
-    dd = df[["이용금액_해외"]]
-    res = dd.apply(lambda x: "1" if x[0] > 0 else "0", axis=1)
-
-    c = df["이용가능여부_해외겸용_본인"]
     return c == res
 
 
@@ -3568,6 +3620,19 @@ def cc_02_0017(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     """
     c1, c2 = df["월상환론상향가능한도금액"], df["월상환론한도금액"]
     return (c1 + c2) <= 50000000
+
+
+@constraint_udf
+def cf_02_0030(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF 이용거절여부_카드론=='1' THEN 카드론동의여부='N' ELSE 카드론동의여부='Y'
+    """
+    dd = df[["이용거절여부_카드론"]]
+    res = dd.apply(lambda x: "N" if x[0]=='1' else "Y", axis=1)
+
+    c = df["카드론동의여부"]
+    return c == res
 
 
 @constraint_udf
@@ -5870,6 +5935,31 @@ def cc_03_0080(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     return c1 >= dd.sum(axis=1)
 
 
+# 수식 -> 제약조건으로 변경됨
+@constraint_udf
+def cc_03_0155(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        쇼핑_전체_이용금액 >= SUM(쇼핑_도소매_이용금액, 백화점, 마트, 슈퍼마켓, 편의점, 아울렛, 온라인, 기타)
+    """
+    dd = df[
+        [
+            "쇼핑_도소매_이용금액",
+            "쇼핑_백화점_이용금액",
+            "쇼핑_마트_이용금액",
+            "쇼핑_슈퍼마켓_이용금액",
+            "쇼핑_편의점_이용금액",
+            "쇼핑_아울렛_이용금액",
+            "쇼핑_온라인_이용금액",
+            "쇼핑_기타_이용금액",
+        ]
+    ]
+    res = dd.sum(axis=1).astype(int)
+
+    c = df["쇼핑_전체_이용금액"]
+    return c >= res
+
+
 @constraint_udf
 def cc_03_0081(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     """
@@ -6320,6 +6410,76 @@ def cc_03_0149(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
 
 
 @constraint_udf
+def cc_03_0121(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+       이용금액_당사페이_B0M <= 이용금액_당사페이_R3M <= 이용금액_당사페이_R6M
+    """
+    c1, c2, c3 = df["이용금액_당사페이_B0M"], df["이용금액_당사페이_R3M"], df["이용금액_당사페이_R6M"]
+    return (c1 <= c2) & (c2 <= c3)
+
+
+@constraint_udf
+def cc_03_0122(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+       이용금액_당사기타_B0M <=이용금액_당사기타_R3M <= 이용금액_당사기타_R6M
+    """
+    c1, c2, c3 = df["이용금액_당사기타_B0M"], df["이용금액_당사기타_R3M"], df["이용금액_당사기타_R6M"]
+    return (c1 <= c2) & (c2 <= c3)
+
+
+@constraint_udf
+def cc_03_0123(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+       이용금액_A페이_B0M <=이용금액_A페이_R3M <= 이용금액_A페이_R6M
+    """
+    c1, c2, c3 = df["이용금액_A페이_B0M"], df["이용금액_A페이_R3M"], df["이용금액_A페이_R6M"]
+    return (c1 <= c2) & (c2 <= c3)
+
+
+@constraint_udf
+def cc_03_0124(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+       이용금액_B페이_B0M <=이용금액_B페이_R3M <= 이용금액_B페이_R6M
+    """
+    c1, c2, c3 = df["이용금액_B페이_B0M"], df["이용금액_B페이_R3M"], df["이용금액_B페이_R6M"]
+    return (c1 <= c2) & (c2 <= c3)
+
+
+@constraint_udf
+def cc_03_0125(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+       이용금액_C페이_B0M <=이용금액_C페이_R3M <= 이용금액_C페이_R6M
+    """
+    c1, c2, c3 = df["이용금액_C페이_B0M"], df["이용금액_C페이_R3M"], df["이용금액_C페이_R6M"]
+    return (c1 <= c2) & (c2 <= c3)
+
+
+@constraint_udf
+def cc_03_0126(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+       이용금액_D페이_B0M <=이용금액_D페이_R3M <= 이용금액_D페이_R6M
+    """
+    c1, c2, c3 = df["이용금액_D페이_B0M"], df["이용금액_D페이_R3M"], df["이용금액_D페이_R6M"]
+    return (c1 <= c2) & (c2 <= c3)
+
+
+@constraint_udf
+def cc_03_0127(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+       이용건수_간편결제_B0M <= 이용건수_간편결제_R3M <= 이용건수_간편결제_R6M
+    """
+    c1, c2, c3 = df["이용건수_간편결제_B0M"], df["이용건수_간편결제_R3M"], df["이용건수_간편결제_R6M"]
+    return (c1 <= c2) & (c2 <= c3)
+
+
+@constraint_udf
 def cc_03_0150(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     """
     formula:
@@ -6339,6 +6499,66 @@ def cc_03_0150(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
 
     c = df["이용건수_간편결제_R6M"]
     return c >= res
+
+
+@constraint_udf
+def cc_03_0128(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+       이용건수_당사페이_B0M <= 이용건수_당사페이_R3M <= 이용건수_당사페이_R6M
+    """
+    c1, c2, c3 = df["이용건수_당사페이_B0M"], df["이용건수_당사페이_R3M"], df["이용건수_당사페이_R6M"]
+    return (c1 <= c2) & (c2 <= c3)
+
+
+@constraint_udf
+def cc_03_0129(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+       이용건수_당사기타_B0M <=이용건수_당사기타_R3M <= 이용건수_당사기타_R6M
+    """
+    c1, c2, c3 = df["이용건수_당사기타_B0M"], df["이용건수_당사기타_R3M"], df["이용건수_당사기타_R6M"]
+    return (c1 <= c2) & (c2 <= c3)
+
+
+@constraint_udf
+def cc_03_0130(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+       이용건수_A페이_B0M <=이용건수_A페이_R3M <= 이용건수_A페이_R6M
+    """
+    c1, c2, c3 = df["이용건수_A페이_B0M"], df["이용건수_A페이_R3M"], df["이용건수_A페이_R6M"]
+    return (c1 <= c2) & (c2 <= c3)
+
+
+@constraint_udf
+def cc_03_0131(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+       이용건수_B페이_B0M <=이용건수_B페이_R3M <= 이용건수_B페이_R6M
+    """
+    c1, c2, c3 = df["이용건수_B페이_B0M"], df["이용건수_B페이_R3M"], df["이용건수_B페이_R6M"]
+    return (c1 <= c2) & (c2 <= c3)
+
+
+@constraint_udf
+def cc_03_0132(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+       이용건수_C페이_B0M <=이용건수_C페이_R3M <= 이용건수_C페이_R6M
+    """
+    c1, c2, c3 = df["이용건수_C페이_B0M"], df["이용건수_C페이_R3M"], df["이용건수_C페이_R6M"]
+    return (c1 <= c2) & (c2 <= c3)
+
+
+@constraint_udf
+def cc_03_0133(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+       이용건수_D페이_B0M <=이용건수_D페이_R3M <= 이용건수_D페이_R6M
+    """
+    c1, c2, c3 = df["이용건수_D페이_B0M"], df["이용건수_D페이_R3M"], df["이용건수_D페이_R6M"]
+    return (c1 <= c2) & (c2 <= c3)
 
 
 @constraint_udf
@@ -6427,139 +6647,6 @@ def cc_03_0154(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
 
     c = df["이용건수_간편결제_B0M"]
     return c >= res
-
-
-###
-
-
-@constraint_udf
-def cc_03_0121(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
-    """
-    Constraint:
-       이용금액_당사페이_B0M <= 이용금액_당사페이_R3M <= 이용금액_당사페이_R6M
-    """
-    c1, c2, c3 = df["이용금액_당사페이_B0M"], df["이용금액_당사페이_R3M"], df["이용금액_당사페이_R6M"]
-    return (c1 <= c2) & (c2 <= c3)
-
-
-@constraint_udf
-def cc_03_0122(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
-    """
-    Constraint:
-       이용금액_당사기타_B0M <=이용금액_당사기타_R3M <= 이용금액_당사기타_R6M
-    """
-    c1, c2, c3 = df["이용금액_당사기타_B0M"], df["이용금액_당사기타_R3M"], df["이용금액_당사기타_R6M"]
-    return (c1 <= c2) & (c2 <= c3)
-
-
-@constraint_udf
-def cc_03_0123(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
-    """
-    Constraint:
-       이용금액_A페이_B0M <=이용금액_A페이_R3M <= 이용금액_A페이_R6M
-    """
-    c1, c2, c3 = df["이용금액_A페이_B0M"], df["이용금액_A페이_R3M"], df["이용금액_A페이_R6M"]
-    return (c1 <= c2) & (c2 <= c3)
-
-
-@constraint_udf
-def cc_03_0124(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
-    """
-    Constraint:
-       이용금액_B페이_B0M <=이용금액_B페이_R3M <= 이용금액_B페이_R6M
-    """
-    c1, c2, c3 = df["이용금액_B페이_B0M"], df["이용금액_B페이_R3M"], df["이용금액_B페이_R6M"]
-    return (c1 <= c2) & (c2 <= c3)
-
-
-@constraint_udf
-def cc_03_0125(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
-    """
-    Constraint:
-       이용금액_C페이_B0M <=이용금액_C페이_R3M <= 이용금액_C페이_R6M
-    """
-    c1, c2, c3 = df["이용금액_C페이_B0M"], df["이용금액_C페이_R3M"], df["이용금액_C페이_R6M"]
-    return (c1 <= c2) & (c2 <= c3)
-
-
-@constraint_udf
-def cc_03_0126(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
-    """
-    Constraint:
-       이용금액_D페이_B0M <=이용금액_D페이_R3M <= 이용금액_D페이_R6M
-    """
-    c1, c2, c3 = df["이용금액_D페이_B0M"], df["이용금액_D페이_R3M"], df["이용금액_D페이_R6M"]
-    return (c1 <= c2) & (c2 <= c3)
-
-
-@constraint_udf
-def cc_03_0127(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
-    """
-    Constraint:
-       이용건수_간편결제_B0M <= 이용건수_간편결제_R3M <= 이용건수_간편결제_R6M
-    """
-    c1, c2, c3 = df["이용건수_간편결제_B0M"], df["이용건수_간편결제_R3M"], df["이용건수_간편결제_R6M"]
-    return (c1 <= c2) & (c2 <= c3)
-
-
-@constraint_udf
-def cc_03_0128(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
-    """
-    Constraint:
-       이용건수_당사페이_B0M <= 이용건수_당사페이_R3M <= 이용건수_당사페이_R6M
-    """
-    c1, c2, c3 = df["이용건수_당사페이_B0M"], df["이용건수_당사페이_R3M"], df["이용건수_당사페이_R6M"]
-    return (c1 <= c2) & (c2 <= c3)
-
-
-@constraint_udf
-def cc_03_0129(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
-    """
-    Constraint:
-       이용건수_당사기타_B0M <=이용건수_당사기타_R3M <= 이용건수_당사기타_R6M
-    """
-    c1, c2, c3 = df["이용건수_당사기타_B0M"], df["이용건수_당사기타_R3M"], df["이용건수_당사기타_R6M"]
-    return (c1 <= c2) & (c2 <= c3)
-
-
-@constraint_udf
-def cc_03_0130(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
-    """
-    Constraint:
-       이용건수_A페이_B0M <=이용건수_A페이_R3M <= 이용건수_A페이_R6M
-    """
-    c1, c2, c3 = df["이용건수_A페이_B0M"], df["이용건수_A페이_R3M"], df["이용건수_A페이_R6M"]
-    return (c1 <= c2) & (c2 <= c3)
-
-
-@constraint_udf
-def cc_03_0131(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
-    """
-    Constraint:
-       이용건수_B페이_B0M <=이용건수_B페이_R3M <= 이용건수_B페이_R6M
-    """
-    c1, c2, c3 = df["이용건수_B페이_B0M"], df["이용건수_B페이_R3M"], df["이용건수_B페이_R6M"]
-    return (c1 <= c2) & (c2 <= c3)
-
-
-@constraint_udf
-def cc_03_0132(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
-    """
-    Constraint:
-       이용건수_C페이_B0M <=이용건수_C페이_R3M <= 이용건수_C페이_R6M
-    """
-    c1, c2, c3 = df["이용건수_C페이_B0M"], df["이용건수_C페이_R3M"], df["이용건수_C페이_R6M"]
-    return (c1 <= c2) & (c2 <= c3)
-
-
-@constraint_udf
-def cc_03_0133(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
-    """
-    Constraint:
-       이용건수_D페이_B0M <=이용건수_D페이_R3M <= 이용건수_D페이_R6M
-    """
-    c1, c2, c3 = df["이용건수_D페이_B0M"], df["이용건수_D페이_R3M"], df["이용건수_D페이_R6M"]
-    return (c1 <= c2) & (c2 <= c3)
 
 
 @constraint_udf
@@ -7339,29 +7426,48 @@ def cf_03_0126(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     return c == res
 
 
-# 수식 -> 제약조건으로 변경됨
 @constraint_udf
-def cc_03_0155(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+def cf_03_0158(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     """
-    Constraint:
-        쇼핑_전체_이용금액 >= SUM(쇼핑_도소매_이용금액, 백화점, 마트, 슈퍼마켓, 편의점, 아울렛, 온라인, 기타)
+    formula:
+        이용금액_쇼핑 = 쇼핑_전체_이용금액
     """
-    dd = df[
-        [
-            "쇼핑_도소매_이용금액",
-            "쇼핑_백화점_이용금액",
-            "쇼핑_마트_이용금액",
-            "쇼핑_슈퍼마켓_이용금액",
-            "쇼핑_편의점_이용금액",
-            "쇼핑_아울렛_이용금액",
-            "쇼핑_온라인_이용금액",
-            "쇼핑_기타_이용금액",
-        ]
-    ]
-    res = dd.sum(axis=1).astype(int)
+    res = df["쇼핑_전체_이용금액"]
+    c = df["이용금액_쇼핑"]
+    return c == res
 
-    c = df["쇼핑_전체_이용금액"]
-    return c >= res
+
+@constraint_udf
+def cf_03_0160(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        이용금액_교통 = 교통_전체이용금액
+    """
+    res = df["교통_전체이용금액"]
+    c = df["이용금액_교통"]
+    return c == res
+
+
+@constraint_udf
+def cf_03_0162(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        이용금액_납부 = 납부_전체이용금액
+    """
+    res = df["납부_전체이용금액"]
+    c = df["이용금액_납부"]
+    return c == res
+
+
+@constraint_udf
+def cf_03_0164(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        이용금액_여유생활 = 여유_전체이용금액
+    """
+    res = df["여유_전체이용금액"]
+    c = df["이용금액_여유생활"]
+    return c == res
 
 
 @constraint_udf
