@@ -79,7 +79,9 @@ class Classifier(Module):
 
 
 def apply_activate(data, output_info):
-    """Apply activation functions to data based on output_info"""
+    """Apply activation functions to data based on output_info
+    CNN 통과시 정사각 모양 만드느라 zero-padding 넣어준 것도 여기서 잘라냄
+    """
     data_t = []
     st = 0
     for item in output_info:
@@ -196,14 +198,15 @@ class Cond(object):
     def sample_train(self, batch):
         if self.n_col == 0:
             return None
-        batch = batch
-
-        idx = np.random.choice(np.arange(self.n_col), batch)
-
-        vec = np.zeros((batch, self.n_opt), dtype="float32")
-        mask = np.zeros((batch, self.n_col), dtype="float32")
+        # 원본 피처 에서 하나씩 랜덤 선택
+        idx = np.random.choice(np.arange(self.n_col), batch)  # (#batch)
+        # self.n_opt = encode 이후 컨디션 벡터 길이 (beta + gamma)
+        vec = np.zeros((batch, self.n_opt), dtype="float32")  # (#batch, #opt)
+        # self.n_col = encode 이전 원본 피처 수
+        mask = np.zeros((batch, self.n_col), dtype="float32")  # (#batch, #cols)
         mask[np.arange(batch), idx] = 1
-        opt1prime = random_choice_prob_index(self.p[idx])
+        # opt 각 모드에서 선택된 곳을 1로 인디케이팅
+        opt1prime = random_choice_prob_index(self.p[idx])  # (#batch,)
         for i in np.arange(batch):
             vec[i, self.interval[idx[i], 0] + opt1prime[i]] = 1
 
@@ -212,10 +215,7 @@ class Cond(object):
     def sample(self, batch):
         if self.n_col == 0:
             return None
-        batch = batch
-
         idx = np.random.choice(np.arange(self.n_col), batch)
-
         vec = np.zeros((batch, self.n_opt), dtype="float32")
         opt1prime = random_choice_prob_index_sampling(self.p_sampling, idx)
 
@@ -625,7 +625,7 @@ class CTABGANSynthesizer:
 
                     # 배치 사이즈만큼 real data 샘플링
                     perm = np.arange(self.batch_size)
-                    np.random.shuffle(perm)
+                    np.random.shuffle(perm)  # lsw: 굳이 셔플이 필요한가???
                     real = data_sampler.sample(self.batch_size, col[perm], opt[perm])
                     c_perm = c[perm]
 
@@ -644,14 +644,11 @@ class CTABGANSynthesizer:
                     optimizerD.zero_grad()
 
                     # Was loss 최적화 (loss_d_was_gp)
-                    # lsw: 아래 GP까지 세개 한번에하면 안되나??, 왜 backward를 각각하지?
                     d_real, _ = self.discriminator(real_cat_d)
                     d_real = -torch.mean(d_real)
-                    # d_real.backward()
 
                     d_fake, _ = self.discriminator(fake_cat_d)
                     d_fake = torch.mean(d_fake)
-                    # d_fake.backward()
 
                     # GP 적용
                     pen = calc_gradient_penalty_slerp(

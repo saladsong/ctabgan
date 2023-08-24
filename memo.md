@@ -28,16 +28,17 @@ pyreverse -o png model
   - vgm 모델 저장/로드 구현 [x]
 - transformer.transform, inverse_transform 싱글 스레드로 되는데 컬럼 유닛모델별로 병렬처리 [x]
 - generator, discriminator side 자유롭도록 변경 [x]
-- gan 모델 포함 전체 저장/로드 구현
-- data 2d -> 3d 변경, gan channel 여러개 변경
+- gan 모델 포함 전체 저장/로드 구현 [...]
+- data 2d -> 3d 변경, gan channel 여러개 변경 [...]
   - 시계열 차원 → CNN 채널 차원으로 적용
-- CNN 피처 중 파생 컬럼 마스킹시계열 차원 → CNN 채널 차원으로 적용
-- CNN 피처 중 파생 컬럼 마스킹
+  - CNN 피처 중 파생 컬럼 마스킹
 - wandb 프로젝트명, cpu core 수 등 파라메터 밖으로 꺼내기 [x]
 - 추후 gpu 메모리 모자랄 경우 대비해서 adam 대신 rmsprop 도 고려 해야함... WAS GAN 이랑 상충하는 부분은 없나?
 - 배치 사이즈 늘리기 위해 discriminator, generator 각각 다른 gpu에 올릴 수 있도록 [...]
 - inv_transform 에서 invalid resample 로직 밖으로 빼내기 [x]
 - eval 코드도 병렬 최적화 필요
+- 99999999 -> 100000000 로 변경되는거 체크
+- min-max 벗어나는 부분이 모드에 있을경우 inv prep 안돰 이건 해결해야 함
 
 - 현재 1000 -> 6400 정도 뻥튀기
   - OOM 남
