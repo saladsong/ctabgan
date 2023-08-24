@@ -253,12 +253,6 @@ constraints = [
         "content": "이용금액_R3M_신용체크 = 이용금액_R3M_신용 + 이용금액_R3M_체크",
     },
     {
-        "columns": ["이용금액_해외"],
-        "fname": "cf_01_0077",
-        "type": "formula",
-        "content": "이용가능여부_해외겸용_본인 = IF 이용금액_해외>0 THEN '1' ELSE '0'",
-    },
-    {
         "columns": ["할인금액_기본연회비_B0M", "청구금액_기본연회비_B0M"],
         "fname": "cf_01_0083",
         "type": "formula",
@@ -486,10 +480,10 @@ constraints = [
         "content": "할인금액_청구서_B0M <= 할인금액_청구서_R3M",
     },
     {
-        "columns": ["혜택수혜금액_B0M", "혜택수혜금액_R3M"],
+        "columns": ["혜택수혜금액", "혜택수혜금액_R3M"],
         "fname": "cc_04_0018",
         "type": "constraint",
-        "content": "혜택수혜금액_B0M <= 혜택수혜금액_R3M",
+        "content": "혜택수혜금액 <= 혜택수혜금액_R3M",
     },
     # 4.청구 테이블 컬럼 Formula
     {
@@ -3814,9 +3808,9 @@ def cc_04_0017(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
 def cc_04_0018(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     """
     Constraint:
-        혜택수혜금액_B0M <= 혜택수혜금액_R3M
+        혜택수혜금액 <= 혜택수혜금액_R3M
     """
-    c1, c2 = df["혜택수혜금액_B0M"], df["혜택수혜금액_R3M"]
+    c1, c2 = df["혜택수혜금액"], df["혜택수혜금액_R3M"]
     return c1 <= c2
 
 
@@ -8314,7 +8308,7 @@ def cf_03_0268(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
         [
             "RP후경과월_통신",
             "RP후경과월_아파트",
-            "RP후경과월_제휴사직접판매",
+            "RP후경과월_제휴사서비스직접판매",
             "RP후경과월_렌탈",
             "RP후경과월_가스",
             "RP후경과월_전기",
