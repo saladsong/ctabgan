@@ -86,59 +86,17 @@ class DataPrep(object):
                 self.lower_bounds[log_column] = lower
                 # 그 후 로그변환 수행 (유효값들만)
                 if lower > 0:
-
-                    def apply_log(x):
-                        return (
-                            np.log(x)
-                            if x != -9999999
-                            and x not in self.mixed_columns.get(log_column, [])
-                            else x
-                        )
-
                     self.df.loc[valid_indices, log_column] = self.df.loc[
                         valid_indices, log_column
-                    ].apply(apply_log)
-                    # # mixed_columns 이면서 log 분포인경우 모드들도 로그변환 필요해서 추가
-                    # # lsw: load/save 타 환경에서 하는 경우 역시 floating point error 발생...
-                    # # mixed-log 를 강건하게 처리할 코드 필요 - 모드는 로그변환하면 안됨
-                    # if log_column in self.mixed_columns.keys():
-                    #     self.mixed_columns[log_column] = [
-                    #         apply_log(x) for x in self.mixed_columns[log_column]
-                    #     ]
+                    ].apply(lambda x: np.log(x))
                 elif lower == 0:
-
-                    def apply_log(x):
-                        return (
-                            np.log(x + eps)
-                            if x != -9999999
-                            and x not in self.mixed_columns.get(log_column, [])
-                            else x
-                        )
-
                     self.df.loc[valid_indices, log_column] = self.df.loc[
                         valid_indices, log_column
-                    ].apply(apply_log)
-                    # if log_column in self.mixed_columns.keys():
-                    #     self.mixed_columns[log_column] = [
-                    #         apply_log(x) for x in self.mixed_columns[log_column]
-                    #     ]
+                    ].apply(lambda x: np.log(x + eps))
                 else:
-
-                    def apply_log(x):
-                        return (
-                            np.log(x - lower + eps)
-                            if x != -9999999
-                            and x not in self.mixed_columns.get(log_column, [])
-                            else x
-                        )
-
                     self.df.loc[valid_indices, log_column] = self.df.loc[
                         valid_indices, log_column
-                    ].apply(apply_log)
-                    # if log_column in self.mixed_columns.keys():
-                    #     self.mixed_columns[log_column] = [
-                    #         apply_log(x) for x in self.mixed_columns[log_column]
-                    #     ]
+                    ].apply(lambda x: np.log(x - lower + eps))
 
         for column_index, column in enumerate(self.df.columns):
             # 카테고리 컬럼인경우 더미화
@@ -185,7 +143,6 @@ class DataPrep(object):
             for column in df_sample:
                 if column in self.log_columns:
                     lower_bound = self.lower_bounds[column]
-                    modes = self.mixed_columns[column]
 
                     # 유효한 값만 탐색하며 역변환
                     valid_indices = []
