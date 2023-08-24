@@ -215,6 +215,18 @@ constraints = [
         "type": "constraint",
         "content": "소지카드수_이용가능_신용 <= 이용가능카드수_신용",
     },
+    {
+        "columns": ["소지여부_신용", "소지카드수_유효_신용"],
+        "fname": "cc_01_0030",
+        "type": "constraint",
+        "content": "IF 소지여부_신용=='1' THEN 소지카드수_유효_신용>0 ELSE 소지카드수_유효_신용==0",
+    },
+    {
+        "columns": ["소지카드수_이용가능_신용", "소지카드수_유효_신용"],
+        "fname": "cc_01_0031",
+        "type": "constraint",
+        "content": "소지카드수_이용가능_신용 <= 소지카드수_유효_신용",
+    },
     # 1.회원 테이블 컬럼 Formula
     {
         "columns": ["기준년월", "입회일자_신용"],
@@ -370,10 +382,22 @@ constraints = [
 
     # 2.신용 테이블 컬럼 Formula
     {
-        "columns": ["이용거절여부_카드론"],
+        "columns": ["이용거절여부_카드론", "카드론동의여부"],
         "fname": "cf_02_0030",
         "type": "formula",
         "content": "IF 이용거절여부_카드론=='1' THEN 카드론동의여부='N' ELSE 카드론동의여부='Y'",
+    },
+    {
+        "columns": ["RV신청일자", "rv최초시작일자"],
+        "fname": "cf_02_0038",
+        "type": "formula",
+        "content": "IF RV신청일자 IS NOT NULL THEN rv최초시작일자=RV신청일자 ELSE rv최초시작일자 IS NULL",
+    },
+    {
+        "columns": ["RV신청일자", "rv등록일자"],
+        "fname": "cf_02_0039",
+        "type": "formula",
+        "content": "IF RV신청일자 IS NOT NULL THEN rv등록일자=RV신청일자 ELSE rv등록일자 IS NULL",
     },
     
     # 4.청구 테이블 컬럼 Constraints
@@ -2984,6 +3008,12 @@ constraints = [
         "content": "최종카드론이용경과월 = MONTHS_BETWEEN(LAST_DAY(기준년월), 최종이용일자_카드론)",
     },
     {
+        "columns": ["최종카드론_대출일자", "최종이용일자_카드론"],
+        "fname": "cf_03_0289",
+        "type": "formula",
+        "content": "최종카드론_대출일자 == 최종이용일자_카드론",
+    },
+    {
         "columns": ["정상청구원금_B0M", "선입금원금_B0M", "정상입금원금_B0M"],
         "fname": "cf_03_0408",
         "type": "formula",
@@ -3327,6 +3357,27 @@ def cc_01_0029(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
 
 
 @constraint_udf
+def cc_01_0030(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        IF 소지여부_신용=='1' THEN 소지카드수_유효_신용>0 ELSE 소지카드수_유효_신용==0
+    """
+    dd = df[["소지여부_신용", "소지카드수_유효_신용"]]
+    ret = dd.apply(lambda x: x[1]>0 if x[0] == "1" else x[1]==0, axis=1)
+    return ret
+
+
+@constraint_udf
+def cc_01_0031(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        소지카드수_이용가능_신용 <= 소지카드수_유효_신용
+    """
+    c1, c2 = df["소지카드수_이용가능_신용"], df["소지카드수_유효_신용"]
+    return c1 <= c2
+
+
+@constraint_udf
 def cf_01_0018(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     """
     formula:
@@ -3627,6 +3678,32 @@ def cf_02_0030(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     res = dd.apply(lambda x: "N" if x[0]=='1' else "Y", axis=1)
 
     c = df["카드론동의여부"]
+    return c == res
+
+
+@constraint_udf
+def cf_02_0038(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF RV신청일자 IS NOT NULL THEN rv최초시작일자=RV신청일자 ELSE rv최초시작일자 IS NULL
+    """
+    dd = df[["RV신청일자"]]
+    res = dd.apply(lambda x: x[0] if not pd.isna(x[0]) else 'nan', axis=1)
+
+    c = df["rv최초시작일자"]
+    return c == res
+
+
+@constraint_udf
+def cf_02_0039(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF RV신청일자 IS NOT NULL THEN rv등록일자=RV신청일자 ELSE rv등록일자 IS NULL
+    """
+    dd = df[["RV신청일자"]]
+    res = dd.apply(lambda x: x[0] if not pd.isna(x[0]) else 'nan', axis=1)
+
+    c = df["rv등록일자"]
     return c == res
 
 
@@ -8346,6 +8423,17 @@ def cf_03_0281(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
 
     c = df["최종카드론이용경과월"]
     return c == res
+
+
+@constraint_udf
+def cf_03_0289(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        최종카드론_대출일자 == 최종이용일자_카드론
+    """
+    dd = df[["최종카드론_대출일자", "최종이용일자_카드론"]]
+    res = dd.apply(lambda x: x[0]==x[1], axis=1)
+    return res
 
 
 # @constraint_udf
