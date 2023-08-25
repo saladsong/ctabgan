@@ -724,8 +724,13 @@ class CTABGANSynthesizer:
                 y_fake, info_fake = self.discriminator(fake_cat)
 
                 # loss_g_gen (cross_entropy)
+                # 왜 activation 전 값을 넣지???
                 loss_g_gen = cond_loss(
-                    faket, data_transformer.output_info, condvec, mask
+                    fakeact,
+                    data_transformer.output_info,
+                    condvec,
+                    mask
+                    # faket, data_transformer.output_info, condvec, mask
                 )
 
                 _, info_real = self.discriminator(real_cat_d)
@@ -734,15 +739,18 @@ class CTABGANSynthesizer:
                 loss_g_default = -torch.mean(y_fake)
 
                 # loss_g_info
+                # lsw: 논문은 L2놈인데 왜 L1놈 사용중임?
                 loss_mean = torch.norm(
                     torch.mean(info_fake.view(self.batch_size, -1), dim=0)
                     - torch.mean(info_real.view(self.batch_size, -1), dim=0),
-                    1,
+                    # 1,
+                    2,
                 )
                 loss_std = torch.norm(
                     torch.std(info_fake.view(self.batch_size, -1), dim=0)
                     - torch.std(info_real.view(self.batch_size, -1), dim=0),
-                    1,
+                    # 1,
+                    2,
                 )
                 loss_g_info = self.info_loss_wgt * (loss_mean + loss_std)
 
