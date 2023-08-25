@@ -533,33 +533,22 @@ class CTABGANSynthesizer:
 
     def fit(
         self,
-        train_data: pd.DataFrame,
+        *,
+        encoded_data: np.ndarray,
         data_transformer: DataTransformer,
-        ptype: dict = None,
-        use_parallel_transfrom: bool = False,
+        target_index: int = None,
     ):
-        # auxiliary classifier 타겟 컬럼 셋팅
-        # lsw: 추후 코드 최적화 필요
-        problem_type = None
-        target_index = None
-        if ptype is not None:  # ex) {"Classification": "income"}
-            problem_type = list(ptype.keys())[0]
-            target_index = train_data.columns.get_loc(
-                ptype[problem_type]
-            )  # data_prep 에서 target_col 맨 마지막으로 밀었음
-
-        # lsw: 실제 데이터 전처리(인코딩)하는 부분
-        self.logger.info("[CTAB-SYN]: data transformation start")
-        train_data = data_transformer.transform(
-            train_data.values, use_parallel_transfrom=use_parallel_transfrom
-        )
-        self.logger.info("[CTAB-SYN]: data transformation end")
-
+        """GAN 모델 학습
+        Args:
+            encoded_data: 학습할 인코딩 데이터
+            data_transformer: 입력 데이터 인코딩에 사용한 DataTransformer
+            target_index: auxiliary classifier 타겟 컬럼 인덱스
+        """
         # 데이터 샘플링 객체
-        data_sampler = Sampler(train_data, data_transformer.output_info)
+        data_sampler = Sampler(encoded_data, data_transformer.output_info)
         data_dim = data_transformer.output_dim  # 전처리 완료된 데이터 차원 수
         # 컨디션 벡터 생성기
-        self.cond_generator = Cond(train_data, data_transformer.output_info)
+        self.cond_generator = Cond(encoded_data, data_transformer.output_info)
 
         # 컬럼 수 많아지는 경우 여기 늘려야함
         # n_opt: 가용 conditioning 컬럼 개수
@@ -620,7 +609,7 @@ class CTABGANSynthesizer:
         self.Gtransformer = ImageTransformer(self.gside)
         self.Dtransformer = ImageTransformer(self.dside)
 
-        steps_per_epoch = max(1, len(train_data) // self.batch_size)
+        steps_per_epoch = max(1, len(encoded_data) // self.batch_size)
         # set learning rate scheduler (cosine annealing)
         schedulerG = optim.lr_scheduler.CosineAnnealingLR(
             optimizerG, T_max=steps_per_epoch * self.epochs, eta_min=self.lr * 0.01
@@ -768,8 +757,8 @@ class CTABGANSynthesizer:
                 }
 
                 # loss_g_dstream
-                if problem_type:
-                    # lsw: 그냥 위의 fake 그대로 쓰면 안됨? 왜 다시 게산하지?
+                if target_index is not None:
+                    # lsw: 그냥 위의 fake 그대로 쓰면 안됨? 왜 다시 계산하지?
                     fake = self.generator(noisez)
                     faket = self.Gtransformer.inverse_transform(fake)
                     fakeact = apply_activate(faket, data_transformer.output_info)

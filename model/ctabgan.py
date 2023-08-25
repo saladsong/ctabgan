@@ -3,6 +3,7 @@ Generative model training algorithm based on the CTABGANSynthesiser
 
 """
 import pandas as pd
+import numpy as np
 import time
 from model.pipeline.data_preparation import DataPrep
 from model.synthesizer.ctabgan_synthesizer import CTABGANSynthesizer, Cond
@@ -100,8 +101,15 @@ class CTABGAN:
         else:
             self.logger.info("[CTABGAN]: use already fitted transformer")
 
-    def fit(self, use_parallel_transfrom: bool = False, **kwargs):
+    def fit(
+        self,
+        *,
+        encoded_data: np.ndarray = None,
+        use_parallel_transfrom: bool = False,
+        **kwargs,
+    ):
         """CTABGAN 모델 학습"""
+        self.logger.info("[CTABGAN]: fit synthesizer start")
         start_time = time.time()
         self.synthesizer = CTABGANSynthesizer(**kwargs)
         self.params_ctabgan = kwargs
@@ -117,14 +125,28 @@ class CTABGAN:
             },
         )
 
-        self.logger.info("[CTABGAN]: fit synthesizer start")
-        # print(self.data_prep.df)
-        # print(self.data_prep.column_types)
+        # auxiliary classifier 타겟 컬럼 인덱스 찾기
+        target_index = None
+        if self.problem_type is not None:  # ex) {"Classification": "income"}
+            pkind = list(self.problem_type.keys())[0]  # 일단은 맨 처음것만 사용중
+            target_index = self.data_prep.df.columns.get_loc(
+                self.problem_type[pkind]
+            )  # data_prep 에서 target_col 맨 마지막으로 밀었음. lsw: 굳이 밀어야 하나?
+
+        # 데이터 전처리(인코딩)하는 부분 (pps -> encoded)
+        if encoded_data is None:
+            self.logger.info("[CTAB-SYN]: data transformation(encode) start")
+            encoded_data = self.transformer.transform(
+                self.data_prep.df.values, use_parallel_transfrom=use_parallel_transfrom
+            )
+            self.logger.info("[CTAB-SYN]: data transformation(encode) end")
+        else:
+            self.logger.info("[CTAB-SYN]: use input encoded data")
+
         self.synthesizer.fit(
-            train_data=self.data_prep.df,
+            encoded_data=encoded_data,
             data_transformer=self.transformer,
-            ptype=self.problem_type,
-            use_parallel_transfrom=use_parallel_transfrom,
+            target_index=target_index,
         )
         self.logger.info("[CTABGAN]: fit synthesizer end")
         end_time = time.time()
@@ -184,7 +206,9 @@ class CTABGAN:
         # 컨디션 벡터 생성기 빌드
         data_transformer = self.transformer
         assert data_transformer.is_fit_, "transformer should already be fitted!"
-        train_data = data_transformer.transform(
+        encoded_data = data_transformer.transform(
             self.data_prep.df.values, use_parallel_transfrom=use_parallel_transfrom
         )
-        self.synthesizer.cond_generator = Cond(train_data, data_transformer.output_info)
+        self.synthesizer.cond_generator = Cond(
+            encoded_data, data_transformer.output_info
+        )
