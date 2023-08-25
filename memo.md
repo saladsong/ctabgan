@@ -37,8 +37,11 @@ pyreverse -o png model
 - 배치 사이즈 늘리기 위해 discriminator, generator 각각 다른 gpu에 올릴 수 있도록 [...]
 - inv_transform 에서 invalid resample 로직 밖으로 빼내기 [x]
 - eval 코드도 병렬 최적화 필요
-- 99999999 -> 100000000 로 변경되는거 체크
+- 99999999 -> 100000000 or 99999998 로 변경되는거 체크
+  - mixed 경우 gm1 에서 모드로 선정된 것은 추후 meta참고해 가장 가까운 모드값으로 변경 해야함
 - min-max 벗어나는 부분이 모드에 있을경우 inv prep 안돰 이건 해결해야 함
+  - 이거 위의 모드 문제랑도 겹치는듯
+- encoded vec 도 저장/로드 가능케하자
 
 - 현재 1000 -> 6400 정도 뻥튀기
   - OOM 남

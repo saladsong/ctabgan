@@ -66,7 +66,7 @@ class Classifier(Module):
         if (end - st) == 1:
             label = input[:, st:end]
         else:
-            label = torch.argmax(input[:, st:end], axis=-1)
+            label = torch.argmax(input[:, st:end], axis=-1)  # 뒤의것을 1로 간주
 
         # Concatenate the input by excluding the range of str_end
         new_imp = torch.cat((input[:, :st], input[:, end:]), 1)
@@ -497,6 +497,10 @@ class CTABGANSynthesizer:
         device: str = None,
         generator_device: str = None,
         discriminator_device: str = None,
+        # for info loss
+        info_loss_wgt: float = 1,
+        info_loss_inc_st_epoch: int = None,
+        info_loss_inc_rate: float = 2,
     ):
         if class_dim is None:
             class_dim = (256, 256, 256, 256)
@@ -520,6 +524,10 @@ class CTABGANSynthesizer:
         self.device = device
         self.generator_device = generator_device
         self.discriminator_device = discriminator_device
+        # for info loss
+        self.info_loss_wgt = info_loss_wgt
+        self.info_loss_inc_st_epoch = info_loss_inc_st_epoch
+        self.info_loss_inc_rate = info_loss_inc_rate
 
         self.is_fit_ = False
 
@@ -740,7 +748,13 @@ class CTABGANSynthesizer:
                     - torch.std(info_real.view(self.batch_size, -1), dim=0),
                     1,
                 )
-                loss_g_info = loss_mean + loss_std
+                # lsw: info loss 기중치 에폭 중반부터 증가 실험용
+                if (
+                    self.info_loss_inc_st_epoch is not None
+                    and epoch >= self.info_loss_inc_st_epoch
+                ):
+                    self.info_loss_wgt *= self.info_loss_inc_rate
+                loss_g_info = self.info_loss_wgt * (loss_mean + loss_std)
 
                 loss_g = loss_g_default + loss_g_info + loss_g_gen
                 loss_g.backward()
@@ -749,6 +763,7 @@ class CTABGANSynthesizer:
                     "loss_g_default": loss_g_default,
                     "loss_g_info": loss_g_info,
                     "loss_g_gen": loss_g_gen,
+                    "info_loss_wgt": self.info_loss_wgt,
                 }
 
                 # loss_g_dstream
