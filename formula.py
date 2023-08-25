@@ -96,6 +96,18 @@ constraints = [
         "type": "formula",
         "content": "IF 이용거절여부_카드론=='1' THEN 카드론동의여부='N' ELSE 카드론동의여부='Y'",
     },
+    {
+        "columns": ["RV신청일자", "rv최초시작일자"],
+        "fname": "cf_02_0038",
+        "type": "formula",
+        "content": "IF RV신청일자 IS NOT NULL THEN rv최초시작일자=RV신청일자 ELSE rv최초시작일자 IS NULL",
+    },
+    {
+        "columns": ["RV신청일자", "rv등록일자"],
+        "fname": "cf_02_0039",
+        "type": "formula",
+        "content": "IF RV신청일자 IS NOT NULL THEN rv등록일자=RV신청일자 ELSE rv등록일자 IS NULL",
+    },
     # 4.청구 테이블 컬럼 Formula
     {
         "columns": ["대표청구서수령지구분코드"],
@@ -869,7 +881,7 @@ constraints = [
         "columns": [
             "RP후경과월_통신",
             "RP후경과월_아파트",
-            "RP후경과월_제휴사직접판매",
+            "RP후경과월_제휴사서비스직접판매",
             "RP후경과월_렌탈",
             "RP후경과월_가스",
             "RP후경과월_전기",
@@ -888,6 +900,12 @@ constraints = [
         "fname": "cf_03_0281",
         "type": "formula",
         "content": "최종카드론이용경과월 = MONTHS_BETWEEN(LAST_DAY(기준년월), 최종이용일자_카드론)",
+    },
+    {
+        "columns": ["최종카드론_대출일자", "최종이용일자_카드론"],
+        "fname": "cf_03_0289",
+        "type": "formula",
+        "content": "최종카드론_대출일자 == 최종이용일자_카드론",
     },
     {
         "columns": ["정상청구원금_B0M", "선입금원금_B0M", "정상입금원금_B0M"],
@@ -1022,6 +1040,28 @@ def cf_02_0030(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
     """
     dd = df[["이용거절여부_카드론"]]
     res = dd.apply(lambda x: "N" if x[0]=='1' else "Y", axis=1)
+    return res
+
+
+@constraint_udf
+def cf_02_0038(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF RV신청일자 IS NOT NULL THEN rv최초시작일자=RV신청일자 ELSE rv최초시작일자 IS NULL
+    """
+    dd = df[["RV신청일자"]]
+    res = dd.apply(lambda x: x[0] if not pd.isna(x[0]) else 'nan', axis=1)
+    return res
+
+
+@constraint_udf
+def cf_02_0039(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF RV신청일자 IS NOT NULL THEN rv등록일자=RV신청일자 ELSE rv등록일자 IS NULL
+    """
+    dd = df[["RV신청일자"]]
+    res = dd.apply(lambda x: x[0] if not pd.isna(x[0]) else 'nan', axis=1)
     return res
 
 
@@ -2489,6 +2529,16 @@ def cf_03_0281(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
         axis=1,
     )
     res = tmp_res.apply(lambda x: 999 if x == 999 else x.years * 12 + x.months)
+    return res
+
+
+@constraint_udf
+def cf_03_0289(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        최종카드론_대출일자 == 최종이용일자_카드론
+    """
+    res = df["최종이용일자_카드론"]
     return res
 
 

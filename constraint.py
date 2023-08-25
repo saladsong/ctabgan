@@ -215,6 +215,18 @@ constraints = [
         "type": "constraint",
         "content": "소지카드수_이용가능_신용 <= 이용가능카드수_신용",
     },
+    {
+        "columns": ["소지여부_신용", "소지카드수_유효_신용"],
+        "fname": "cc_01_0030",
+        "type": "constraint",
+        "content": "IF 소지여부_신용=='1' THEN 소지카드수_유효_신용>0 ELSE 소지카드수_유효_신용==0",
+    },
+    {
+        "columns": ["소지카드수_이용가능_신용", "소지카드수_유효_신용"],
+        "fname": "cc_01_0031",
+        "type": "constraint",
+        "content": "소지카드수_이용가능_신용 <= 소지카드수_유효_신용",
+    },
     # 1.회원 테이블 컬럼 Formula
     {
         "columns": ["기준년월", "입회일자_신용"],
@@ -251,12 +263,6 @@ constraints = [
         "fname": "cf_01_0054",
         "type": "formula",
         "content": "이용금액_R3M_신용체크 = 이용금액_R3M_신용 + 이용금액_R3M_체크",
-    },
-    {
-        "columns": ["이용금액_해외"],
-        "fname": "cf_01_0077",
-        "type": "formula",
-        "content": "이용가능여부_해외겸용_본인 = IF 이용금액_해외>0 THEN '1' ELSE '0'",
     },
     {
         "columns": ["할인금액_기본연회비_B0M", "청구금액_기본연회비_B0M"],
@@ -376,10 +382,22 @@ constraints = [
 
     # 2.신용 테이블 컬럼 Formula
     {
-        "columns": ["이용거절여부_카드론"],
+        "columns": ["이용거절여부_카드론", "카드론동의여부"],
         "fname": "cf_02_0030",
         "type": "formula",
         "content": "IF 이용거절여부_카드론=='1' THEN 카드론동의여부='N' ELSE 카드론동의여부='Y'",
+    },
+    {
+        "columns": ["RV신청일자", "rv최초시작일자"],
+        "fname": "cf_02_0038",
+        "type": "formula",
+        "content": "IF RV신청일자 IS NOT NULL THEN rv최초시작일자=RV신청일자 ELSE rv최초시작일자 IS NULL",
+    },
+    {
+        "columns": ["RV신청일자", "rv등록일자"],
+        "fname": "cf_02_0039",
+        "type": "formula",
+        "content": "IF RV신청일자 IS NOT NULL THEN rv등록일자=RV신청일자 ELSE rv등록일자 IS NULL",
     },
     
     # 4.청구 테이블 컬럼 Constraints
@@ -486,10 +504,10 @@ constraints = [
         "content": "할인금액_청구서_B0M <= 할인금액_청구서_R3M",
     },
     {
-        "columns": ["혜택수혜금액_B0M", "혜택수혜금액_R3M"],
+        "columns": ["혜택수혜금액", "혜택수혜금액_R3M"],
         "fname": "cc_04_0018",
         "type": "constraint",
-        "content": "혜택수혜금액_B0M <= 혜택수혜금액_R3M",
+        "content": "혜택수혜금액 <= 혜택수혜금액_R3M",
     },
     # 4.청구 테이블 컬럼 Formula
     {
@@ -2990,6 +3008,12 @@ constraints = [
         "content": "최종카드론이용경과월 = MONTHS_BETWEEN(LAST_DAY(기준년월), 최종이용일자_카드론)",
     },
     {
+        "columns": ["최종카드론_대출일자", "최종이용일자_카드론"],
+        "fname": "cf_03_0289",
+        "type": "formula",
+        "content": "최종카드론_대출일자 == 최종이용일자_카드론",
+    },
+    {
         "columns": ["정상청구원금_B0M", "선입금원금_B0M", "정상입금원금_B0M"],
         "fname": "cf_03_0408",
         "type": "formula",
@@ -3333,6 +3357,27 @@ def cc_01_0029(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
 
 
 @constraint_udf
+def cc_01_0030(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        IF 소지여부_신용=='1' THEN 소지카드수_유효_신용>0 ELSE 소지카드수_유효_신용==0
+    """
+    dd = df[["소지여부_신용", "소지카드수_유효_신용"]]
+    ret = dd.apply(lambda x: x[1]>0 if x[0] == "1" else x[1]==0, axis=1)
+    return ret
+
+
+@constraint_udf
+def cc_01_0031(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        소지카드수_이용가능_신용 <= 소지카드수_유효_신용
+    """
+    c1, c2 = df["소지카드수_이용가능_신용"], df["소지카드수_유효_신용"]
+    return c1 <= c2
+
+
+@constraint_udf
 def cf_01_0018(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     """
     formula:
@@ -3637,6 +3682,32 @@ def cf_02_0030(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
 
 
 @constraint_udf
+def cf_02_0038(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF RV신청일자 IS NOT NULL THEN rv최초시작일자=RV신청일자 ELSE rv최초시작일자 IS NULL
+    """
+    dd = df[["RV신청일자"]]
+    res = dd.apply(lambda x: x[0] if not pd.isna(x[0]) else 'nan', axis=1)
+
+    c = df["rv최초시작일자"]
+    return c == res
+
+
+@constraint_udf
+def cf_02_0039(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF RV신청일자 IS NOT NULL THEN rv등록일자=RV신청일자 ELSE rv등록일자 IS NULL
+    """
+    dd = df[["RV신청일자"]]
+    res = dd.apply(lambda x: x[0] if not pd.isna(x[0]) else 'nan', axis=1)
+
+    c = df["rv등록일자"]
+    return c == res
+
+
+@constraint_udf
 def cc_04_0001(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     """
     formula:
@@ -3814,9 +3885,9 @@ def cc_04_0017(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
 def cc_04_0018(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     """
     Constraint:
-        혜택수혜금액_B0M <= 혜택수혜금액_R3M
+        혜택수혜금액 <= 혜택수혜금액_R3M
     """
-    c1, c2 = df["혜택수혜금액_B0M"], df["혜택수혜금액_R3M"]
+    c1, c2 = df["혜택수혜금액"], df["혜택수혜금액_R3M"]
     return c1 <= c2
 
 
@@ -8314,7 +8385,7 @@ def cf_03_0268(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
         [
             "RP후경과월_통신",
             "RP후경과월_아파트",
-            "RP후경과월_제휴사직접판매",
+            "RP후경과월_제휴사서비스직접판매",
             "RP후경과월_렌탈",
             "RP후경과월_가스",
             "RP후경과월_전기",
@@ -8352,6 +8423,17 @@ def cf_03_0281(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
 
     c = df["최종카드론이용경과월"]
     return c == res
+
+
+@constraint_udf
+def cf_03_0289(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        최종카드론_대출일자 == 최종이용일자_카드론
+    """
+    dd = df[["최종카드론_대출일자", "최종이용일자_카드론"]]
+    res = dd.apply(lambda x: x[0]==x[1], axis=1)
+    return res
 
 
 # @constraint_udf
