@@ -13560,7 +13560,7 @@
         }
     },
     "증감율_이용건수_신용_전월": {
-        "type": NaN,
+        "type": null,
         "properties": {
             "is_categorical": 0,
             "category": null,
@@ -13577,7 +13577,7 @@
         }
     },
     "증감율_이용건수_신판_전월": {
-        "type": NaN,
+        "type": null,
         "properties": {
             "is_categorical": 0,
             "category": null,
@@ -13594,7 +13594,7 @@
         }
     },
     "증감율_이용건수_일시불_전월": {
-        "type": NaN,
+        "type": null,
         "properties": {
             "is_categorical": 0,
             "category": null,
@@ -13611,7 +13611,7 @@
         }
     },
     "증감율_이용건수_할부_전월": {
-        "type": NaN,
+        "type": null,
         "properties": {
             "is_categorical": 0,
             "category": null,
@@ -13628,7 +13628,7 @@
         }
     },
     "증감율_이용건수_CA_전월": {
-        "type": NaN,
+        "type": null,
         "properties": {
             "is_categorical": 0,
             "category": null,
@@ -13645,7 +13645,7 @@
         }
     },
     "증감율_이용건수_체크_전월": {
-        "type": NaN,
+        "type": null,
         "properties": {
             "is_categorical": 0,
             "category": null,
@@ -13662,7 +13662,7 @@
         }
     },
     "증감율_이용건수_카드론_전월": {
-        "type": NaN,
+        "type": null,
         "properties": {
             "is_categorical": 0,
             "category": null,
@@ -13679,7 +13679,7 @@
         }
     },
     "증감율_이용금액_신용_전월": {
-        "type": NaN,
+        "type": null,
         "properties": {
             "is_categorical": 0,
             "category": null,
@@ -13696,7 +13696,7 @@
         }
     },
     "증감율_이용금액_신판_전월": {
-        "type": NaN,
+        "type": null,
         "properties": {
             "is_categorical": 0,
             "category": null,
@@ -13713,7 +13713,7 @@
         }
     },
     "증감율_이용금액_일시불_전월": {
-        "type": NaN,
+        "type": null,
         "properties": {
             "is_categorical": 0,
             "category": null,
@@ -13730,7 +13730,7 @@
         }
     },
     "증감율_이용금액_할부_전월": {
-        "type": NaN,
+        "type": null,
         "properties": {
             "is_categorical": 0,
             "category": null,
@@ -13747,7 +13747,7 @@
         }
     },
     "증감율_이용금액_CA_전월": {
-        "type": NaN,
+        "type": null,
         "properties": {
             "is_categorical": 0,
             "category": null,
@@ -13764,7 +13764,7 @@
         }
     },
     "증감율_이용금액_체크_전월": {
-        "type": NaN,
+        "type": null,
         "properties": {
             "is_categorical": 0,
             "category": null,
@@ -13781,7 +13781,7 @@
         }
     },
     "증감율_이용금액_카드론_전월": {
-        "type": NaN,
+        "type": null,
         "properties": {
             "is_categorical": 0,
             "category": null,
@@ -13798,7 +13798,7 @@
         }
     },
     "증감율_이용건수_신용_분기": {
-        "type": NaN,
+        "type": null,
         "properties": {
             "is_categorical": 0,
             "category": null,
@@ -13815,7 +13815,7 @@
         }
     },
     "증감율_이용건수_신판_분기": {
-        "type": NaN,
+        "type": null,
         "properties": {
             "is_categorical": 0,
             "category": null,
@@ -13832,7 +13832,7 @@
         }
     },
     "증감율_이용건수_일시불_분기": {
-        "type": NaN,
+        "type": null,
         "properties": {
             "is_categorical": 0,
             "category": null,
@@ -13849,7 +13849,7 @@
         }
     },
     "증감율_이용건수_할부_분기": {
-        "type": NaN,
+        "type": null,
         "properties": {
             "is_categorical": 0,
             "category": null,
@@ -13866,7 +13866,7 @@
         }
     },
     "증감율_이용건수_CA_분기": {
-        "type": NaN,
+        "type": null,
         "properties": {
             "is_categorical": 0,
             "category": null,
@@ -13883,7 +13883,7 @@
         }
     },
     "증감율_이용건수_체크_분기": {
-        "type": NaN,
+        "type": null,
         "properties": {
             "is_categorical": 0,
             "category": null,
@@ -13900,7 +13900,7 @@
         }
     },
     "증감율_이용건수_카드론_분기": {
-        "type": NaN,
+        "type": null,
         "properties": {
             "is_categorical": 0,
             "category": null,
@@ -13917,7 +13917,7 @@
         }
     },
     "증감율_이용금액_신용_분기": {
-        "type": NaN,
+        "type": null,
         "properties": {
             "is_categorical": 0,
             "category": null,
@@ -13934,7 +13934,7 @@
         }
     },
     "증감율_이용금액_신판_분기": {
-        "type": NaN,
+        "type": null,
         "properties": {
             "is_categorical": 0,
             "category": null,
@@ -13951,7 +13951,7 @@
         }
     },
     "증감율_이용금액_일시불_분기": {
-        "type": NaN,
+        "type": null,
         "properties": {
             "is_categorical": 0,
             "category": null,
@@ -13968,7 +13968,7 @@
         }
     },
     "증감율_이용금액_할부_분기": {
-        "type": NaN,
+        "type": null,
         "properties": {
             "is_categorical": 0,
             "category": null,
@@ -13985,7 +13985,7 @@
         }
     },
     "증감율_이용금액_CA_분기": {
-        "type": NaN,
+        "type": null,
         "properties": {
             "is_categorical": 0,
             "category": null,
@@ -14002,7 +14002,7 @@
         }
     },
     "증감율_이용금액_체크_분기": {
-        "type": NaN,
+        "type": null,
         "properties": {
             "is_categorical": 0,
             "category": null,
@@ -14019,7 +14019,7 @@
         }
     },
     "증감율_이용금액_카드론_분기": {
-        "type": NaN,
+        "type": null,
         "properties": {
             "is_categorical": 0,
             "category": null,
@@ -14036,7 +14036,7 @@
         }
     },
     "변동률_일시불평잔": {
-        "type": NaN,
+        "type": null,
         "properties": {
             "is_categorical": 0,
             "category": null,
@@ -14053,7 +14053,7 @@
         }
     },
     "변동률_RV일시불평잔": {
-        "type": NaN,
+        "type": null,
         "properties": {
             "is_categorical": 0,
             "category": null,
@@ -14070,7 +14070,7 @@
         }
     },
     "변동률_할부평잔": {
-        "type": NaN,
+        "type": null,
         "properties": {
             "is_categorical": 0,
             "category": null,
@@ -14087,7 +14087,7 @@
         }
     },
     "변동률_CA평잔": {
-        "type": NaN,
+        "type": null,
         "properties": {
             "is_categorical": 0,
             "category": null,
@@ -14104,7 +14104,7 @@
         }
     },
     "변동률_RVCA평잔": {
-        "type": NaN,
+        "type": null,
         "properties": {
             "is_categorical": 0,
             "category": null,
@@ -14121,7 +14121,7 @@
         }
     },
     "변동률_카드론평잔": {
-        "type": NaN,
+        "type": null,
         "properties": {
             "is_categorical": 0,
             "category": null,
@@ -14138,7 +14138,7 @@
         }
     },
     "변동률_잔액_B1M": {
-        "type": NaN,
+        "type": null,
         "properties": {
             "is_categorical": 0,
             "category": null,
@@ -14155,7 +14155,7 @@
         }
     },
     "변동률_잔액_일시불_B1M": {
-        "type": NaN,
+        "type": null,
         "properties": {
             "is_categorical": 0,
             "category": null,
@@ -14172,7 +14172,7 @@
         }
     },
     "변동률_잔액_CA_B1M": {
-        "type": NaN,
+        "type": null,
         "properties": {
             "is_categorical": 0,
             "category": null,
