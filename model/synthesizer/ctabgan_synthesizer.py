@@ -632,6 +632,13 @@ class CTABGANSynthesizer:
             optimizerC, T_max=steps_per_epoch * self.epochs, eta_min=self.lr * 0.01
         )
         for epoch in tqdm(range(self.epochs)):
+            # lsw: info loss 기중치 에폭 중반부터 증가 실험용
+            if (
+                self.info_loss_inc_st_epoch is not None
+                and epoch >= self.info_loss_inc_st_epoch
+            ):
+                self.info_loss_wgt *= self.info_loss_inc_rate
+
             for id_ in tqdm(range(steps_per_epoch)):
                 # G(generator), D(critic), C(auxiliary classifier) 학습
                 # G: loss_g = loss_g_default + loss_g_info + loss_g_dstream + loss_g_gen
@@ -748,12 +755,6 @@ class CTABGANSynthesizer:
                     - torch.std(info_real.view(self.batch_size, -1), dim=0),
                     1,
                 )
-                # lsw: info loss 기중치 에폭 중반부터 증가 실험용
-                if (
-                    self.info_loss_inc_st_epoch is not None
-                    and epoch >= self.info_loss_inc_st_epoch
-                ):
-                    self.info_loss_wgt *= self.info_loss_inc_rate
                 loss_g_info = self.info_loss_wgt * (loss_mean + loss_std)
 
                 loss_g = loss_g_default + loss_g_info + loss_g_gen
