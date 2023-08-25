@@ -109,19 +109,19 @@ def get_tcol_idx_st_ed_tuple(
     """
     # Retrieve start and end indices for a target column
     st = 0
-    c = 0  # 확인한 original 컬럼 수
+    col_cnt = 0  # 확인한 original 컬럼 수
     tc = 0  # 확인한 transformed 컬럼 수 (alpha_i, beta_i, gamma_i, etc.)
 
     for item in output_info:
-        if c == target_col_index:
+        if col_cnt == target_col_index:
             break
         if item[1] == "tanh":
             st += item[0]
             if item[3] == "gt":
-                c += 1
+                col_cnt += 1
         elif item[1] == "softmax":
             st += item[0]
-            c += 1
+            col_cnt += 1
         tc += 1
 
     end = st + output_info[tc][0]
@@ -195,11 +195,19 @@ class Cond(object):
 
         self.interval = np.asarray(self.interval)
 
-    def sample_train(self, batch):
+    def sample_train(
+        self, batch: int
+    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+        """모델 학습 위한 컨디션 벡터 및 마스크 등 샘플링
+        Args:
+            batch: 배치 사이즈
+        Returns:
+            cond_vec(#batch, #opt), mask(#batch, #cols), col_idx(#batch,), opt_indicater(#batch,)
+        """
         if self.n_col == 0:
             return None
         # 원본 피처 에서 하나씩 랜덤 선택
-        idx = np.random.choice(np.arange(self.n_col), batch)  # (#batch)
+        idx = np.random.choice(np.arange(self.n_col), batch)  # (#batch,)
         # self.n_opt = encode 이후 컨디션 벡터 길이 (beta + gamma)
         vec = np.zeros((batch, self.n_opt), dtype="float32")  # (#batch, #opt)
         # self.n_col = encode 이전 원본 피처 수
@@ -212,7 +220,13 @@ class Cond(object):
 
         return vec, mask, idx, opt1prime
 
-    def sample(self, batch):
+    def sample(self, batch: int) -> torch.Tensor:
+        """데이터 생성 위한 컨디션 벡터 샘플링
+        Args:
+            batch: 배치 사이즈
+        Returns:
+            cond_vec(#batch, #opt)
+        """
         if self.n_col == 0:
             return None
         idx = np.random.choice(np.arange(self.n_col), batch)
@@ -225,27 +239,39 @@ class Cond(object):
         return vec
 
 
-def cond_loss(data, output_info, c, m):
+def cond_loss(data, output_info, condvec, mask) -> torch.Tensor:
+    """generator loss 계산
+    Args:
+        data: generated encoded vector + zero pad  (B, gside^2)
+        output_info: DataTransformer 내의 alpha, beta, gamma 정보 담긴 리스트
+        condvec: given cond vector. 1개만 1이고 나머지는 0  (B, n_opt)
+        mask: mask (B, n_feature)
+    Returns:
+        torch.Tensor: loss
+    """
     loss = []
-    st = 0
-    st_c = 0
-    for item in output_info:
-        if item[1] == "tanh":
+    st = 0  # for data
+    st_c = 0  # for cond vec
+    for item in output_info:  # encode vec 에서 컨디션 벡터가 가리키는 위치 찾기
+        # data 는 (alpha, beta, gamma) 모두 담고 있고 cond_vec는 (beta, gamma) 맨 담음
+        if item[1] == "tanh":  # for alpha
             st += item[0]
             continue
 
-        elif item[1] == "softmax":
+        elif item[1] == "softmax":  # for beta, gamma
             end = st + item[0]
             ed_c = st_c + item[0]
             tmp = F.cross_entropy(
-                data[:, st:end], torch.argmax(c[:, st_c:ed_c], dim=1), reduction="none"
+                data[:, st:end],
+                torch.argmax(condvec[:, st_c:ed_c], dim=1),
+                reduction="none",
             )
             loss.append(tmp)
             st = end
             st_c = ed_c
 
     loss = torch.stack(loss, dim=1)
-    return (loss * m).sum() / data.size()[0]
+    return (loss * mask).sum() / data.size()[0]
 
 
 class Sampler(object):
@@ -606,16 +632,16 @@ class CTABGANSynthesizer:
 
                 ### D(critic) 학습 - ci: 반복 횟수
                 for _ in range(self.ci):
-                    # 노이즈(z) 및 컨디션 벡터(c) 샘플링
+                    # 노이즈(z) 및 컨디션 벡터(condvec) 샘플링
                     noisez = torch.randn(
                         self.batch_size, self.random_dim, device=self.device
                     )
-                    condvec = self.cond_generator.sample_train(self.batch_size)
-
-                    c, m, col, opt = condvec
-                    c = torch.from_numpy(c).to(self.device)
-                    m = torch.from_numpy(m).to(self.device)
-                    noisez = torch.cat([noisez, c], dim=1)
+                    condvec, mask, col, opt = self.cond_generator.sample_train(
+                        self.batch_size
+                    )
+                    condvec = torch.from_numpy(condvec).to(self.device)
+                    mask = torch.from_numpy(mask).to(self.device)
+                    noisez = torch.cat([noisez, condvec], dim=1)
                     noisez = noisez.view(
                         self.batch_size,
                         self.random_dim + self.cond_generator.n_opt,
@@ -627,7 +653,7 @@ class CTABGANSynthesizer:
                     perm = np.arange(self.batch_size)
                     np.random.shuffle(perm)  # lsw: 굳이 셔플이 필요한가???
                     real = data_sampler.sample(self.batch_size, col[perm], opt[perm])
-                    c_perm = c[perm]
+                    c_perm = condvec[perm]
 
                     real = torch.from_numpy(real.astype("float32")).to(self.device)
 
@@ -635,7 +661,7 @@ class CTABGANSynthesizer:
                     faket = self.Gtransformer.inverse_transform(fake)
                     fakeact = apply_activate(faket, data_transformer.output_info)
 
-                    fake_cat = torch.cat([fakeact, c], dim=1)
+                    fake_cat = torch.cat([fakeact, condvec], dim=1)
                     real_cat = torch.cat([real, c_perm], dim=1)
 
                     real_cat_d = self.Dtransformer.transform(real_cat)
@@ -667,16 +693,17 @@ class CTABGANSynthesizer:
 
                 ### G(generator) 학습
 
-                # 노이즈(z) 및 컨디션 벡터(c) 샘플링
+                # 노이즈(z) 및 컨디션 벡터(condvec) 샘플링
                 noisez = torch.randn(
                     self.batch_size, self.random_dim, device=self.device
                 )
 
-                condvec = self.cond_generator.sample_train(self.batch_size)
-                c, m, col, opt = condvec
-                c = torch.from_numpy(c).to(self.device)
-                m = torch.from_numpy(m).to(self.device)
-                noisez = torch.cat([noisez, c], dim=1)
+                condvec, mask, col, opt = self.cond_generator.sample_train(
+                    self.batch_size
+                )
+                condvec = torch.from_numpy(condvec).to(self.device)
+                mask = torch.from_numpy(mask).to(self.device)
+                noisez = torch.cat([noisez, condvec], dim=1)
                 noisez = noisez.view(
                     self.batch_size, self.random_dim + self.cond_generator.n_opt, 1, 1
                 )
@@ -687,13 +714,15 @@ class CTABGANSynthesizer:
                 faket = self.Gtransformer.inverse_transform(fake)
                 fakeact = apply_activate(faket, data_transformer.output_info)
 
-                fake_cat = torch.cat([fakeact, c], dim=1)
+                fake_cat = torch.cat([fakeact, condvec], dim=1)
                 fake_cat = self.Dtransformer.transform(fake_cat)
 
                 y_fake, info_fake = self.discriminator(fake_cat)
 
-                # loss_g_gen
-                cross_entropy = cond_loss(faket, data_transformer.output_info, c, m)
+                # loss_g_gen (cross_entropy)
+                loss_g_gen = cond_loss(
+                    faket, data_transformer.output_info, condvec, mask
+                )
 
                 _, info_real = self.discriminator(real_cat_d)
 
@@ -713,13 +742,13 @@ class CTABGANSynthesizer:
                 )
                 loss_g_info = loss_mean + loss_std
 
-                loss_g = loss_g_default + loss_g_info + cross_entropy
+                loss_g = loss_g_default + loss_g_info + loss_g_gen
                 loss_g.backward()
                 optimizerG.step()
                 wandblog = {
                     "loss_g_default": loss_g_default,
                     "loss_g_info": loss_g_info,
-                    "loss_g_gen": cross_entropy,
+                    "loss_g_gen": loss_g_gen,
                 }
 
                 # loss_g_dstream
@@ -807,9 +836,8 @@ class CTABGANSynthesizer:
         for i in tqdm(range(steps)):
             noisez = torch.randn(self.batch_size, self.random_dim, device=self.device)
             condvec = self.cond_generator.sample(self.batch_size)
-            c = condvec
-            c = torch.from_numpy(c).to(self.device)
-            noisez = torch.cat([noisez, c], dim=1)
+            condvec = torch.from_numpy(condvec).to(self.device)
+            noisez = torch.cat([noisez, condvec], dim=1)
             noisez = noisez.view(
                 self.batch_size, self.random_dim + self.cond_generator.n_opt, 1, 1
             )
@@ -850,9 +878,8 @@ class CTABGANSynthesizer:
                         self.batch_size, self.random_dim, device=self.device
                     )
                     condvec = self.cond_generator.sample(self.batch_size)
-                    c = condvec
-                    c = torch.from_numpy(c).to(self.device)
-                    noisez = torch.cat([noisez, c], dim=1)
+                    condvec = torch.from_numpy(condvec).to(self.device)
+                    noisez = torch.cat([noisez, condvec], dim=1)
                     noisez = noisez.view(
                         self.batch_size,
                         self.random_dim + self.cond_generator.n_opt,
