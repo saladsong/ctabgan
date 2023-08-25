@@ -5,6 +5,7 @@ Generative model training algorithm based on the CTABGANSynthesiser
 import pandas as pd
 import numpy as np
 import time
+from typing import Union
 from model.pipeline.data_preparation import DataPrep
 from model.synthesizer.ctabgan_synthesizer import CTABGANSynthesizer, Cond
 from model.synthesizer.transformer import DataTransformer, ImageTransformer
@@ -105,7 +106,7 @@ class CTABGAN:
         self,
         *,
         encoded_data: np.ndarray = None,
-        use_parallel_transfrom: bool = False,
+        n_jobs: Union[float, int] = None,
         **kwargs,
     ):
         """CTABGAN 모델 학습"""
@@ -137,7 +138,7 @@ class CTABGAN:
         if encoded_data is None:
             self.logger.info("[CTAB-SYN]: data transformation(encode) start")
             encoded_data = self.transformer.transform(
-                self.data_prep.df.values, use_parallel_transfrom=use_parallel_transfrom
+                self.data_prep.df.values, n_jobs=n_jobs
             )
             self.logger.info("[CTAB-SYN]: data transformation(encode) end")
         else:
@@ -160,7 +161,7 @@ class CTABGAN:
         n: int = None,
         transformer: DataTransformer = None,
         *,
-        use_parallel_inverse_transfrom: bool = False,
+        n_jobs: Union[float, int] = None,
         resample_invalid: bool = True,
         times_resample: int = 10,
     ):
@@ -177,7 +178,7 @@ class CTABGAN:
         sample = self.synthesizer.sample(
             n,
             data_transformer=_transformer,
-            use_parallel_inverse_transfrom=use_parallel_inverse_transfrom,
+            n_jobs=n_jobs,
             resample_invalid=resample_invalid,
             times_resample=times_resample,
         )
@@ -191,7 +192,8 @@ class CTABGAN:
         gpath: str,
         gside: int,
         params_ctabgan: dict,
-        use_parallel_transfrom: bool = True,
+        encoded_data: np.ndarray = None,
+        n_jobs: Union[float, int] = None,
     ):
         # generator 로드
         self.synthesizer = CTABGANSynthesizer(**params_ctabgan)
@@ -206,9 +208,10 @@ class CTABGAN:
         # 컨디션 벡터 생성기 빌드
         data_transformer = self.transformer
         assert data_transformer.is_fit_, "transformer should already be fitted!"
-        encoded_data = data_transformer.transform(
-            self.data_prep.df.values, use_parallel_transfrom=use_parallel_transfrom
-        )
+        if encoded_data is None:
+            encoded_data = data_transformer.transform(
+                self.data_prep.df.values, n_jobs=n_jobs
+            )
         self.synthesizer.cond_generator = Cond(
             encoded_data, data_transformer.output_info
         )

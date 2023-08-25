@@ -28,7 +28,7 @@ from tqdm.auto import tqdm
 import logging
 import wandb
 import os
-from typing import List, Tuple
+from typing import List, Tuple, Union
 
 
 class Classifier(Module):
@@ -825,7 +825,7 @@ class CTABGANSynthesizer:
         n: int,
         data_transformer: DataTransformer,
         *,
-        use_parallel_inverse_transfrom: bool = False,
+        n_jobs: Union[float, int] = None,
         resample_invalid: bool = True,
         times_resample: int = 10,  # 리샘플링 무한정 하지 않으려고
     ):
@@ -837,7 +837,7 @@ class CTABGANSynthesizer:
 
         data = []
 
-        self.logger.info("[CTAB-SYN]: generate raw encode vectors start")
+        self.logger.info("[CTAB-SYN]: generate raw encoding vectors start")
         for i in tqdm(range(steps)):
             noisez = torch.randn(self.batch_size, self.random_dim, device=self.device)
             condvec = self.cond_generator.sample(self.batch_size)
@@ -851,14 +851,10 @@ class CTABGANSynthesizer:
             faket = self.Gtransformer.inverse_transform(fake)
             fakeact = apply_activate(faket, output_info)
             data.append(fakeact.detach().cpu().numpy())
-        self.logger.info("[CTAB-SYN]: generate raw encode vectors end")
+        self.logger.info("[CTAB-SYN]: generate raw encoding vectors end")
 
         data = np.concatenate(data, axis=0)
-        self.logger.info("[CTAB-SYN]: data inverse transformation start")
-        result, invalid_ids = data_transformer.inverse_transform(
-            data, use_parallel_inverse_transfrom=use_parallel_inverse_transfrom
-        )
-        self.logger.info("[CTAB-SYN]: data inverse transformation end")
+        result, invalid_ids = data_transformer.inverse_transform(data, n_jobs=n_jobs)
         if resample_invalid:
             num_for_resample = len(invalid_ids)
             all_ids = np.arange(0, len(result))
@@ -900,12 +896,10 @@ class CTABGANSynthesizer:
 
                 data_resample = np.concatenate(data_resample, axis=0)
 
-                self.logger.info("[CTAB-SYN]: data inverse transformation start")
                 new_result, invalid_ids = data_transformer.inverse_transform(
                     data_resample,
-                    use_parallel_inverse_transfrom=use_parallel_inverse_transfrom,
+                    n_jobs=n_jobs,
                 )
-                self.logger.info("[CTAB-SYN]: data inverse transformation end")
 
                 num_for_resample = len(invalid_ids)
                 all_ids = np.arange(0, len(new_result))
@@ -922,7 +916,7 @@ class CTABGANSynthesizer:
         """확장자는 *.pth 로"""
 
         assert self.is_fit_, "only fitted model could be saved, fit first please..."
-        os.makedirs(mpath, exist_ok=True)
+        os.makedirs(os.path.dirname(mpath), exist_ok=True)
         # mpath = os.path.join(mpath, "generator.pth")
         torch.save(self.generator, mpath)
         self.logger.info(f"[CTAB-SYN]: Generator saved at {mpath}")
@@ -935,9 +929,9 @@ class CTABGANSynthesizer:
             )
 
         self.logger.info(f"[CTAB-SYN]: Generator is loaded at {mpath}")
-        generator = torch.load(mpath)
+        generator = torch.load(mpath, map_location=torch.device(self.device))
         generator.eval()
-        generator.to(self.device)
+        # generator.to(self.device)
         self.generator = generator
         self.is_fit_ = True
 

@@ -552,16 +552,28 @@ class DataTransformer:
         *,
         ispositive=False,
         positive_list=None,
-        use_parallel_transfrom: bool = False,
+        n_jobs: Union[float, int] = None,
     ) -> np.array:
         """encode data row"""
+        self.logger.info("[DataTransformer]: data transformation(encoding) start")
+
         self.ordering = {}  # 높은 확률 모드 순으로 리오더링 하기 위해 활용, 매 transform 마다 초기화
-        if use_parallel_transfrom:
+        if n_jobs is not None:
             self.logger.info("[DataTransformer]: transform parallely")
-            return self._parallel_transform(data, ispositive, positive_list)
+            if n_jobs <= 0:
+                n_jobs = 0.9
+            if isinstance(n_jobs, float):
+                n_jobs = int(cpu_count() * min(n_jobs, 1))
+            elif isinstance(n_jobs, int):
+                n_jobs = min(cpu_count(), n_jobs)
+            else:
+                raise Exception("n_jobs must be 0~1 float or int > 0")
+            ret = self._parallel_transform(data, n_jobs, ispositive, positive_list)
         else:
             self.logger.info("[DataTransformer]: transform sequencely")
-            return self._transform(data, ispositive, positive_list)
+            ret = self._transform(data, ispositive, positive_list)
+        self.logger.info("[DataTransformer]: data transformation(encoding) end")
+        return ret
 
     def _transform(
         self, data: np.ndarray, ispositive=False, positive_list=None
@@ -580,9 +592,8 @@ class DataTransformer:
         return np.concatenate(values, axis=1)
 
     def _parallel_transform(
-        self, data: np.ndarray, ispositive=False, positive_list=None
+        self, data: np.ndarray, n_jobs: int, ispositive=False, positive_list=None
     ) -> np.ndarray:
-        num_workers = int(cpu_count() * 0.9)
         # queue = Queue()
 
         def callback(result):
@@ -592,7 +603,7 @@ class DataTransformer:
         values = []
         with Manager() as manager:
             # queue = manager.Queue()
-            with Pool(num_workers) as pool:
+            with Pool(n_jobs) as pool:
                 with tqdm(total=len(self.meta)) as pbar:
                     results = []
                     # run multi processes
@@ -618,15 +629,26 @@ class DataTransformer:
         return np.concatenate(values, axis=1)
 
     def inverse_transform(
-        self, data: np.ndarray, *, use_parallel_inverse_transfrom: bool = False
+        self, data: np.ndarray, *, n_jobs: Union[float, int] = None
     ) -> Tuple[np.ndarray, np.ndarray]:
         """decode data row"""
-        if use_parallel_inverse_transfrom:
+        self.logger.info("[DataTransformer]: data inverse transformation(decoding) end")
+        if n_jobs is not None:
             self.logger.info("[DataTransformer]: inverse transform parallely")
-            return self._parallel_inverse_transform(data)
+            if n_jobs <= 0:
+                n_jobs = 0.9
+            if isinstance(n_jobs, float):
+                n_jobs = int(cpu_count() * min(n_jobs, 1))
+            elif isinstance(n_jobs, int):
+                n_jobs = min(cpu_count(), n_jobs)
+            else:
+                raise Exception("n_jobs must be 0~1 float or int > 0")
+            ret = self._parallel_inverse_transform(data, n_jobs)
         else:
             self.logger.info("[DataTransformer]: inverse transform sequencely")
-            return self._inverse_transform(data)
+            ret = self._inverse_transform(data)
+        self.logger.info("[DataTransformer]: data inverse transformation(decoding) end")
+        return ret
 
     def _inverse_transform(self, data: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
         """generated data 를 원본 데이터 형태로 decode"""
@@ -649,10 +671,9 @@ class DataTransformer:
         # return values[valid_ids], len(invalid_ids_merged)
 
     def _parallel_inverse_transform(
-        self, data: np.ndarray
+        self, data: np.ndarray, n_jobs: int
     ) -> Tuple[np.ndarray, np.ndarray]:
         """generated data 를 원본 데이터 형태로 parallel decode"""
-        num_workers = int(cpu_count() * 0.9)
         # queue = Queue()
 
         def callback(result):
@@ -664,7 +685,7 @@ class DataTransformer:
         st = 0
         with Manager() as manager:
             # queue = manager.Queue()
-            with Pool(num_workers) as pool:
+            with Pool(n_jobs) as pool:
                 with tqdm(total=len(self.meta)) as pbar:
                     results = []
                     # run multi processes
@@ -696,8 +717,7 @@ class DataTransformer:
     def save(self, mpath: str):
         """확장자는 *.pickle 로"""
         assert self.is_fit_, "only fitted model could be saved, fit first please..."
-        os.makedirs(mpath, exist_ok=True)
-        # mpath = os.path.join(mpath, "transformer.pickle")
+        os.makedirs(os.path.dirname(mpath), exist_ok=True)
 
         with open(mpath, "wb") as f:
             pickle.dump(self, f)

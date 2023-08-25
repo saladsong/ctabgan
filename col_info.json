@@ -13558,5 +13558,634 @@
             "min_val": 0,
             "max_val": 1979
         }
+    },
+    "증감율_이용건수_신용_전월": {
+        "type": NaN,
+        "properties": {
+            "is_categorical": 0,
+            "category": null,
+            "nunique": 4362,
+            "is_integer": 0,
+            "is_mixed": 0,
+            "mode": null,
+            "is_log": 0,
+            "is_general": 1,
+            "is_positive": 0,
+            "is_null": 0,
+            "min_val": -33.42857143,
+            "max_val": 10.0
+        }
+    },
+    "증감율_이용건수_신판_전월": {
+        "type": NaN,
+        "properties": {
+            "is_categorical": 0,
+            "category": null,
+            "nunique": 4324,
+            "is_integer": 0,
+            "is_mixed": 0,
+            "mode": null,
+            "is_log": 0,
+            "is_general": 1,
+            "is_positive": 0,
+            "is_null": 0,
+            "min_val": -33.42857143,
+            "max_val": 10.0
+        }
+    },
+    "증감율_이용건수_일시불_전월": {
+        "type": NaN,
+        "properties": {
+            "is_categorical": 0,
+            "category": null,
+            "nunique": 4283,
+            "is_integer": 0,
+            "is_mixed": 0,
+            "mode": null,
+            "is_log": 0,
+            "is_general": 1,
+            "is_positive": 0,
+            "is_null": 0,
+            "min_val": -33.42857143,
+            "max_val": 10.0
+        }
+    },
+    "증감율_이용건수_할부_전월": {
+        "type": NaN,
+        "properties": {
+            "is_categorical": 0,
+            "category": null,
+            "nunique": 142,
+            "is_integer": 0,
+            "is_mixed": 0,
+            "mode": null,
+            "is_log": 0,
+            "is_general": 1,
+            "is_positive": 0,
+            "is_null": 0,
+            "min_val": -10.0,
+            "max_val": 10.0
+        }
+    },
+    "증감율_이용건수_CA_전월": {
+        "type": NaN,
+        "properties": {
+            "is_categorical": 0,
+            "category": null,
+            "nunique": 49,
+            "is_integer": 0,
+            "is_mixed": 0,
+            "mode": null,
+            "is_log": 0,
+            "is_general": 1,
+            "is_positive": 0,
+            "is_null": 0,
+            "min_val": -2.0,
+            "max_val": 2.0
+        }
+    },
+    "증감율_이용건수_체크_전월": {
+        "type": NaN,
+        "properties": {
+            "is_categorical": 0,
+            "category": null,
+            "nunique": 1698,
+            "is_integer": 0,
+            "is_mixed": 0,
+            "mode": null,
+            "is_log": 0,
+            "is_general": 1,
+            "is_positive": 0,
+            "is_null": 0,
+            "min_val": -10.0,
+            "max_val": 3.6
+        }
+    },
+    "증감율_이용건수_카드론_전월": {
+        "type": NaN,
+        "properties": {
+            "is_categorical": 0,
+            "category": null,
+            "nunique": 6,
+            "is_integer": 0,
+            "is_mixed": 0,
+            "mode": null,
+            "is_log": 0,
+            "is_general": 1,
+            "is_positive": 0,
+            "is_null": 0,
+            "min_val": -2.0,
+            "max_val": 2.0
+        }
+    },
+    "증감율_이용금액_신용_전월": {
+        "type": NaN,
+        "properties": {
+            "is_categorical": 0,
+            "category": null,
+            "nunique": 44475,
+            "is_integer": 0,
+            "is_mixed": 0,
+            "mode": null,
+            "is_log": 0,
+            "is_general": 1,
+            "is_positive": 0,
+            "is_null": 0,
+            "min_val": -8634.333333,
+            "max_val": 569.16726619
+        }
+    },
+    "증감율_이용금액_신판_전월": {
+        "type": NaN,
+        "properties": {
+            "is_categorical": 0,
+            "category": null,
+            "nunique": 44151,
+            "is_integer": 0,
+            "is_mixed": 0,
+            "mode": null,
+            "is_log": 0,
+            "is_general": 1,
+            "is_positive": 0,
+            "is_null": 0,
+            "min_val": -8634.333333,
+            "max_val": 110.76595745
+        }
+    },
+    "증감율_이용금액_일시불_전월": {
+        "type": NaN,
+        "properties": {
+            "is_categorical": 0,
+            "category": null,
+            "nunique": 43548,
+            "is_integer": 0,
+            "is_mixed": 0,
+            "mode": null,
+            "is_log": 0,
+            "is_general": 1,
+            "is_positive": 0,
+            "is_null": 0,
+            "min_val": -168.6665381,
+            "max_val": 110.76595745
+        }
+    },
+    "증감율_이용금액_할부_전월": {
+        "type": NaN,
+        "properties": {
+            "is_categorical": 0,
+            "category": null,
+            "nunique": 5843,
+            "is_integer": 0,
+            "is_mixed": 0,
+            "mode": null,
+            "is_log": 0,
+            "is_general": 1,
+            "is_positive": 0,
+            "is_null": 0,
+            "min_val": -226.0,
+            "max_val": 25.84
+        }
+    },
+    "증감율_이용금액_CA_전월": {
+        "type": NaN,
+        "properties": {
+            "is_categorical": 0,
+            "category": null,
+            "nunique": 675,
+            "is_integer": 0,
+            "is_mixed": 0,
+            "mode": null,
+            "is_log": 0,
+            "is_general": 1,
+            "is_positive": 0,
+            "is_null": 0,
+            "min_val": -2.0,
+            "max_val": 2.0
+        }
+    },
+    "증감율_이용금액_체크_전월": {
+        "type": NaN,
+        "properties": {
+            "is_categorical": 0,
+            "category": null,
+            "nunique": 7144,
+            "is_integer": 0,
+            "is_mixed": 0,
+            "mode": null,
+            "is_log": 0,
+            "is_general": 1,
+            "is_positive": 0,
+            "is_null": 0,
+            "min_val": -31.242451,
+            "max_val": 101.49867257
+        }
+    },
+    "증감율_이용금액_카드론_전월": {
+        "type": NaN,
+        "properties": {
+            "is_categorical": 0,
+            "category": null,
+            "nunique": 37,
+            "is_integer": 0,
+            "is_mixed": 0,
+            "mode": null,
+            "is_log": 0,
+            "is_general": 1,
+            "is_positive": 0,
+            "is_null": 0,
+            "min_val": -2.0,
+            "max_val": 2.0
+        }
+    },
+    "증감율_이용건수_신용_분기": {
+        "type": NaN,
+        "properties": {
+            "is_categorical": 0,
+            "category": null,
+            "nunique": 12337,
+            "is_integer": 0,
+            "is_mixed": 0,
+            "mode": null,
+            "is_log": 0,
+            "is_general": 1,
+            "is_positive": 0,
+            "is_null": 0,
+            "min_val": -22.0,
+            "max_val": 6.0
+        }
+    },
+    "증감율_이용건수_신판_분기": {
+        "type": NaN,
+        "properties": {
+            "is_categorical": 0,
+            "category": null,
+            "nunique": 12275,
+            "is_integer": 0,
+            "is_mixed": 0,
+            "mode": null,
+            "is_log": 0,
+            "is_general": 1,
+            "is_positive": 0,
+            "is_null": 0,
+            "min_val": -22.0,
+            "max_val": 6.0
+        }
+    },
+    "증감율_이용건수_일시불_분기": {
+        "type": NaN,
+        "properties": {
+            "is_categorical": 0,
+            "category": null,
+            "nunique": 12142,
+            "is_integer": 0,
+            "is_mixed": 0,
+            "mode": null,
+            "is_log": 0,
+            "is_general": 1,
+            "is_positive": 0,
+            "is_null": 0,
+            "min_val": -22.0,
+            "max_val": 4.4
+        }
+    },
+    "증감율_이용건수_할부_분기": {
+        "type": NaN,
+        "properties": {
+            "is_categorical": 0,
+            "category": null,
+            "nunique": 403,
+            "is_integer": 0,
+            "is_mixed": 0,
+            "mode": null,
+            "is_log": 0,
+            "is_general": 1,
+            "is_positive": 0,
+            "is_null": 0,
+            "min_val": -6.0,
+            "max_val": 6.0
+        }
+    },
+    "증감율_이용건수_CA_분기": {
+        "type": NaN,
+        "properties": {
+            "is_categorical": 0,
+            "category": null,
+            "nunique": 159,
+            "is_integer": 0,
+            "is_mixed": 0,
+            "mode": null,
+            "is_log": 0,
+            "is_general": 1,
+            "is_positive": 0,
+            "is_null": 0,
+            "min_val": -2.0,
+            "max_val": 2.0
+        }
+    },
+    "증감율_이용건수_체크_분기": {
+        "type": NaN,
+        "properties": {
+            "is_categorical": 0,
+            "category": null,
+            "nunique": 3754,
+            "is_integer": 0,
+            "is_mixed": 0,
+            "mode": null,
+            "is_log": 0,
+            "is_general": 1,
+            "is_positive": 0,
+            "is_null": 0,
+            "min_val": -8.666666667,
+            "max_val": 2.0
+        }
+    },
+    "증감율_이용건수_카드론_분기": {
+        "type": NaN,
+        "properties": {
+            "is_categorical": 0,
+            "category": null,
+            "nunique": 14,
+            "is_integer": 0,
+            "is_mixed": 0,
+            "mode": null,
+            "is_log": 0,
+            "is_general": 1,
+            "is_positive": 0,
+            "is_null": 0,
+            "min_val": -2.0,
+            "max_val": 2.0
+        }
+    },
+    "증감율_이용금액_신용_분기": {
+        "type": NaN,
+        "properties": {
+            "is_categorical": 0,
+            "category": null,
+            "nunique": 49159,
+            "is_integer": 0,
+            "is_mixed": 0,
+            "mode": null,
+            "is_log": 0,
+            "is_general": 1,
+            "is_positive": 0,
+            "is_null": 0,
+            "min_val": -718.5185185,
+            "max_val": 74.677775373
+        }
+    },
+    "증감율_이용금액_신판_분기": {
+        "type": NaN,
+        "properties": {
+            "is_categorical": 0,
+            "category": null,
+            "nunique": 48876,
+            "is_integer": 0,
+            "is_mixed": 0,
+            "mode": null,
+            "is_log": 0,
+            "is_general": 1,
+            "is_positive": 0,
+            "is_null": 0,
+            "min_val": -718.5185185,
+            "max_val": 136.65761087
+        }
+    },
+    "증감율_이용금액_일시불_분기": {
+        "type": NaN,
+        "properties": {
+            "is_categorical": 0,
+            "category": null,
+            "nunique": 48254,
+            "is_integer": 0,
+            "is_mixed": 0,
+            "mode": null,
+            "is_log": 0,
+            "is_general": 1,
+            "is_positive": 0,
+            "is_null": 0,
+            "min_val": -74.672,
+            "max_val": 236.88595319
+        }
+    },
+    "증감율_이용금액_할부_분기": {
+        "type": NaN,
+        "properties": {
+            "is_categorical": 0,
+            "category": null,
+            "nunique": 11558,
+            "is_integer": 0,
+            "is_mixed": 0,
+            "mode": null,
+            "is_log": 0,
+            "is_general": 1,
+            "is_positive": 0,
+            "is_null": 0,
+            "min_val": -265.6864245,
+            "max_val": 31.538461538
+        }
+    },
+    "증감율_이용금액_CA_분기": {
+        "type": NaN,
+        "properties": {
+            "is_categorical": 0,
+            "category": null,
+            "nunique": 1712,
+            "is_integer": 0,
+            "is_mixed": 0,
+            "mode": null,
+            "is_log": 0,
+            "is_general": 1,
+            "is_positive": 0,
+            "is_null": 0,
+            "min_val": -2.0,
+            "max_val": 2.0
+        }
+    },
+    "증감율_이용금액_체크_분기": {
+        "type": NaN,
+        "properties": {
+            "is_categorical": 0,
+            "category": null,
+            "nunique": 8893,
+            "is_integer": 0,
+            "is_mixed": 0,
+            "mode": null,
+            "is_log": 0,
+            "is_general": 1,
+            "is_positive": 0,
+            "is_null": 0,
+            "min_val": -16.69369904,
+            "max_val": 29.593873585
+        }
+    },
+    "증감율_이용금액_카드론_분기": {
+        "type": NaN,
+        "properties": {
+            "is_categorical": 0,
+            "category": null,
+            "nunique": 172,
+            "is_integer": 0,
+            "is_mixed": 0,
+            "mode": null,
+            "is_log": 0,
+            "is_general": 1,
+            "is_positive": 0,
+            "is_null": 0,
+            "min_val": -2.0,
+            "max_val": 2.0
+        }
+    },
+    "변동률_일시불평잔": {
+        "type": NaN,
+        "properties": {
+            "is_categorical": 0,
+            "category": null,
+            "nunique": 52321,
+            "is_integer": 0,
+            "is_mixed": 0,
+            "mode": null,
+            "is_log": 0,
+            "is_general": 1,
+            "is_positive": 1,
+            "is_null": 0,
+            "min_val": 0.0,
+            "max_val": 2.0625
+        }
+    },
+    "변동률_RV일시불평잔": {
+        "type": NaN,
+        "properties": {
+            "is_categorical": 0,
+            "category": null,
+            "nunique": 11498,
+            "is_integer": 0,
+            "is_mixed": 0,
+            "mode": null,
+            "is_log": 0,
+            "is_general": 1,
+            "is_positive": 1,
+            "is_null": 0,
+            "min_val": 0.0,
+            "max_val": 2.05
+        }
+    },
+    "변동률_할부평잔": {
+        "type": NaN,
+        "properties": {
+            "is_categorical": 0,
+            "category": null,
+            "nunique": 27404,
+            "is_integer": 0,
+            "is_mixed": 0,
+            "mode": null,
+            "is_log": 0,
+            "is_general": 1,
+            "is_positive": 1,
+            "is_null": 0,
+            "min_val": 0.0,
+            "max_val": 2.0128205128
+        }
+    },
+    "변동률_CA평잔": {
+        "type": NaN,
+        "properties": {
+            "is_categorical": 0,
+            "category": null,
+            "nunique": 5500,
+            "is_integer": 0,
+            "is_mixed": 0,
+            "mode": null,
+            "is_log": 0,
+            "is_general": 1,
+            "is_positive": 1,
+            "is_null": 0,
+            "min_val": 0.0,
+            "max_val": 2.0128205128
+        }
+    },
+    "변동률_RVCA평잔": {
+        "type": NaN,
+        "properties": {
+            "is_categorical": 0,
+            "category": null,
+            "nunique": 465,
+            "is_integer": 0,
+            "is_mixed": 0,
+            "mode": null,
+            "is_log": 0,
+            "is_general": 1,
+            "is_positive": 1,
+            "is_null": 0,
+            "min_val": 0.0,
+            "max_val": 2.0114416476
+        }
+    },
+    "변동률_카드론평잔": {
+        "type": NaN,
+        "properties": {
+            "is_categorical": 0,
+            "category": null,
+            "nunique": 5062,
+            "is_integer": 0,
+            "is_mixed": 0,
+            "mode": null,
+            "is_log": 0,
+            "is_general": 1,
+            "is_positive": 1,
+            "is_null": 0,
+            "min_val": 0.0,
+            "max_val": 2.011016763
+        }
+    },
+    "변동률_잔액_B1M": {
+        "type": NaN,
+        "properties": {
+            "is_categorical": 0,
+            "category": null,
+            "nunique": 45048,
+            "is_integer": 0,
+            "is_mixed": 0,
+            "mode": null,
+            "is_log": 0,
+            "is_general": 1,
+            "is_positive": 0,
+            "is_null": 0,
+            "min_val": -2.0,
+            "max_val": 2.0
+        }
+    },
+    "변동률_잔액_일시불_B1M": {
+        "type": NaN,
+        "properties": {
+            "is_categorical": 0,
+            "category": null,
+            "nunique": 41572,
+            "is_integer": 0,
+            "is_mixed": 0,
+            "mode": null,
+            "is_log": 0,
+            "is_general": 1,
+            "is_positive": 0,
+            "is_null": 0,
+            "min_val": -2.0,
+            "max_val": 2.0
+        }
+    },
+    "변동률_잔액_CA_B1M": {
+        "type": NaN,
+        "properties": {
+            "is_categorical": 0,
+            "category": null,
+            "nunique": 970,
+            "is_integer": 0,
+            "is_mixed": 0,
+            "mode": null,
+            "is_log": 0,
+            "is_general": 1,
+            "is_positive": 0,
+            "is_null": 0,
+            "min_val": -2.0,
+            "max_val": 2.0
+        }
     }
 }
