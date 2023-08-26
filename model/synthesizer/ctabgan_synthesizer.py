@@ -275,13 +275,20 @@ def cond_loss(data, output_info, condvec, mask) -> torch.Tensor:
 
 
 class Sampler(object):
-    def __init__(self, data, output_info):
+    def __init__(self, data: np.ndarray, output_info: list):
         """Training by sampling 기법을 수행키 위한 샘플러
         학습 중 원본 인코딩 데이터 샘플링을 위해 사용됨
+        Args:
+            data:
+                orig (66590, 6097)
+                reshape to (6, 11065, 6097) // (#month, #cust, #encode_col)
+                transpose to (11065, 6, 6097) // (#cust, #month, #encode_col) = (N, M, encode_col)
+            output_info: DataTransformer.output_info // len(output_info) == n_col
         """
         super(Sampler, self).__init__()
         self.data = data
-        self.model = []  #
+        # self.model: List[List[np.ndarray]] 모든 고객의 모드 인디케이팅 정보를 담고 있음. ( n_col, n_beta/n_gamma, N )
+        self.model = []
         self.data_len = len(data)
         st = 0
         for item in output_info:
@@ -301,8 +308,8 @@ class Sampler(object):
         """real data sampling
         Args:
             n: #samples
-            col: 원본 피처컬럼 정보 col_idx(#batch,)
-            opt: 컨디션 벡터 정보 opt_indicater(#batch,)
+            col: 샘플링할 원본 피처컬럼 인덱스 col_idx(#batch,)
+            opt: 샘플링할 컨디션 벡터 인덱스 opt_indicater(#batch,)
         Retrurns:
             np.daarray: sample data
         """
@@ -311,7 +318,8 @@ class Sampler(object):
             return self.data[idx]
         idx = []
         for c, o in zip(col, opt):
-            idx.append(np.random.choice(self.model[c][o]))
+            candidates_idx = self.model[c][o]  # 입력 컨디션에 해당하는 데이터 후보 인덱스들
+            idx.append(np.random.choice(candidates_idx))
         return self.data[idx]
 
 
@@ -548,6 +556,10 @@ class CTABGANSynthesizer:
         target_index: int = None,
     ):
         """GAN 모델 학습
+        orig (66590, 6097)
+        reshape to (6, 11065, 6097) // (#month, #cust, #encode_col)
+        transpose to (11065, 6, 6097) // (#cust, #month, #encode_col) = (N, M, encode_col)
+
         Args:
             encoded_data: 학습할 인코딩 데이터
             data_transformer: 입력 데이터 인코딩에 사용한 DataTransformer
@@ -665,6 +677,7 @@ class CTABGANSynthesizer:
                     # 배치 사이즈만큼 real data 샘플링
                     perm = np.arange(self.batch_size)
                     np.random.shuffle(perm)  # lsw: 굳이 셔플이 필요한가???
+                    # fake와 같은 컨디션 벡터에서 샘플링
                     real = data_sampler.sample(self.batch_size, col[perm], opt[perm])
                     c_perm = condvec[perm]
 
@@ -881,6 +894,9 @@ class CTABGANSynthesizer:
 
         data = np.concatenate(data, axis=0)
         result, invalid_ids = data_transformer.inverse_transform(data, n_jobs=n_jobs)
+        self.logger.info(
+            f"[CTAB-SYN]: sythesized data has {len(invalid_ids)}/{len(result)} invalid rows."
+        )
         if resample_invalid:
             num_for_resample = len(invalid_ids)
             all_ids = np.arange(0, len(result))
@@ -888,11 +904,8 @@ class CTABGANSynthesizer:
             result = result[valid_ids]  # valid_result
 
             # 원하는 n 개 데이터가 다 만들어지지 않은 경우 (invalid id 존재)
-            resample_cnt = 0
-            while len(result) < n and resample_cnt < times_resample:
-                self.logger.info(
-                    f"[CTAB-SYN]: sythesized data has {num_for_resample}/{n} ({round(num_for_resample/n * 100)}%) invalid row... so sample it again."
-                )
+            resample_cnt = 1
+            while len(result) < n and resample_cnt <= times_resample:
                 self.logger.info(
                     f"[CTAB-SYN]: resample count ({resample_cnt}/{times_resample})"
                 )
@@ -926,11 +939,13 @@ class CTABGANSynthesizer:
                     data_resample,
                     n_jobs=n_jobs,
                 )
-
+                self.logger.info(
+                    f"[CTAB-SYN]: sythesized data has {len(invalid_ids)}/{len(new_result)} invalid rows."
+                )
                 num_for_resample = len(invalid_ids)
                 all_ids = np.arange(0, len(new_result))
                 valid_ids = list(set(all_ids) - set(invalid_ids))
-                result = new_result[valid_ids]  # valid_result
+                new_result = new_result[valid_ids]  # valid_result
                 # merge previous result
                 result = np.concatenate([result, new_result], axis=0)
                 resample_cnt += 1
