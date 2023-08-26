@@ -287,7 +287,7 @@ class Sampler(object):
         """
         super(Sampler, self).__init__()
         self.data = data
-        # self.model: List[List[np.ndarray]] 모든 고객의 모드 인디케이팅 정보를 담고 있음. ( n_col, n_beta/n_gamma, N )
+        # self.model: List[List[np.ndarray]] 모든 고객의 모드 인디케이팅 정보를 담고 있음. ( n_col, n_beta/n_gamma, #indicated_N )
         self.model = []
         self.data_len = len(data)
         st = 0
@@ -300,7 +300,8 @@ class Sampler(object):
                 tmp = []
                 for j in range(item[0]):
                     # beta, gamma 중 1인 부분 인덱스 저장
-                    tmp.append(np.nonzero(data[:, st + j])[0])
+                    # tmp.append(np.nonzero(data[:, st + j])[0])
+                    tmp.append(np.nonzero(data[:, 0, st + j])[0])  # M의 첫월만 관여
                 self.model.append(tmp)
                 st = end
 
@@ -445,6 +446,39 @@ class Generator(Module):
         return layers_G
 
 
+class ForeseeNN(Module):
+    def __init__(
+        self, input_dim: int, output_channels: int = 6, dropout_prob: float = 0.5
+    ):
+        """첫달 컨디션 벡터를 6개월 것으로 늘리는 네트워크
+        월별 변동 관련 로스 추가 필요(ex. sd, 월별 변동률 등) -> generator loss는 6개월 모두 반영 가능
+        Args:
+            input_dim: 컨디션 벡터 길이
+            output_channels: 늘릴 개월 수
+        """
+        super(ForeseeNN, self).__init__()
+        self.input_dim = input_dim
+        self.output_channels = output_channels
+
+        # Define the model layers using Sequential
+        self.model = Sequential(
+            Linear(input_dim, input_dim),
+            ReLU(),
+            Dropout(dropout_prob),
+            Linear(input_dim, input_dim),
+            ReLU(),
+            Dropout(dropout_prob),
+            Linear(input_dim, output_channels * input_dim),
+        )
+
+    def forward(self, x):
+        x = self.model(x)
+
+        # Reshape the output to the desired shape
+        x = x.view(-1, self.output_channels, self.input_dim)
+        return x
+
+
 def slerp(alpha: torch.Tensor, low: torch.Tensor, high: torch.Tensor) -> torch.Tensor:
     """gradient_penalty 계산위한 real, fake data의 interpolation 계산
     선형보간이 아니라 다른 방법 SLERP(Spherical Linear Interpolation) 사용하네??
@@ -565,11 +599,16 @@ class CTABGANSynthesizer:
             data_transformer: 입력 데이터 인코딩에 사용한 DataTransformer
             target_index: auxiliary classifier 타겟 컬럼 인덱스
         """
+        # 데이터 차원 정보
+        n_month = encoded_data.shape[1]
+        len_encoded = encoded_data.shape[2]
+        assert data_transformer.output_dim == len_encoded
         # 데이터 샘플링 객체
         data_sampler = Sampler(encoded_data, data_transformer.output_info)
         data_dim = data_transformer.output_dim  # 전처리 완료된 데이터 차원 수
         # 컨디션 벡터 생성기
         self.cond_generator = Cond(encoded_data, data_transformer.output_info)
+        n_opt = self.cond_generator.n_opt
 
         # 컬럼 수 많아지는 경우 여기 늘려야함
         # n_opt: 가용 conditioning 컬럼 개수
@@ -597,6 +636,9 @@ class CTABGANSynthesizer:
         self.discriminator = Discriminator(self.dside, self.num_channels).to(
             self.device
         )
+
+        # build foreseeNN
+        self.fsn = ForeseeNN(input_dim=n_opt, output_channels=n_month)
 
         # set optimizer
         # 이부분 설정으로 빼기
