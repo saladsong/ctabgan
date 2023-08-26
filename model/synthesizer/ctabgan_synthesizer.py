@@ -262,8 +262,8 @@ def cond_loss(data, output_info, condvec, mask) -> torch.Tensor:
             end = st + item[0]
             ed_c = st_c + item[0]
             tmp = F.cross_entropy(
-                data[:, st:end],
-                torch.argmax(condvec[:, st_c:ed_c], dim=1),
+                data[:, st:end],  # logits
+                torch.argmax(condvec[:, st_c:ed_c], dim=1),  # labels
                 reduction="none",
             )
             loss.append(tmp)
@@ -724,9 +724,9 @@ class CTABGANSynthesizer:
                 y_fake, info_fake = self.discriminator(fake_cat)
 
                 # loss_g_gen (cross_entropy)
-                # 왜 activation 전 값을 넣지???
+                # 왜 activation 전 값을 넣지??? -> logit을 입력으로 받음, 함수 내부에서 softmax 자동 계산
                 loss_g_gen = cond_loss(
-                    fakeact,
+                    faket,
                     data_transformer.output_info,
                     condvec,
                     mask
