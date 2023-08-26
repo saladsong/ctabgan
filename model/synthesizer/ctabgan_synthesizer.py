@@ -277,12 +277,12 @@ def cond_loss(data, output_info, condvec, mask) -> torch.Tensor:
 class Sampler(object):
     def __init__(self, data, output_info):
         """Training by sampling 기법을 수행키 위한 샘플러
-        학습 중 원본 데이터 샘플링을 위해 사용됨
+        학습 중 원본 인코딩 데이터 샘플링을 위해 사용됨
         """
         super(Sampler, self).__init__()
         self.data = data
-        self.model = []
-        self.n = len(data)
+        self.model = []  #
+        self.data_len = len(data)
         st = 0
         for item in output_info:
             if item[1] == "tanh":
@@ -292,13 +292,22 @@ class Sampler(object):
                 end = st + item[0]
                 tmp = []
                 for j in range(item[0]):
+                    # beta, gamma 중 1인 부분 인덱스 저장
                     tmp.append(np.nonzero(data[:, st + j])[0])
                 self.model.append(tmp)
                 st = end
 
-    def sample(self, n, col, opt):
+    def sample(self, n: int, col: torch.Tensor, opt: torch.Tensor) -> np.ndarray:
+        """real data sampling
+        Args:
+            n: #samples
+            col: 원본 피처컬럼 정보 col_idx(#batch,)
+            opt: 컨디션 벡터 정보 opt_indicater(#batch,)
+        Retrurns:
+            np.daarray: sample data
+        """
         if col is None:
-            idx = np.random.choice(np.arange(self.n), n)
+            idx = np.random.choice(np.arange(self.data_len), n)
             return self.data[idx]
         idx = []
         for c, o in zip(col, opt):
