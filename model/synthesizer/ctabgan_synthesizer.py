@@ -634,7 +634,7 @@ class CTABGANSynthesizer:
                 # D: loss_d = loss_d_was_gp (Was+GP)
                 # C: loss_c = loss_c_dstream
 
-                ### D(critic) 학습 - ci: 반복 횟수
+                ### ------ D(critic) 학습 ------ ci: 반복 횟수
                 for _ in range(self.ci):
                     # 노이즈(z) 및 컨디션 벡터(condvec) 샘플링
                     noisez = torch.randn(
@@ -693,15 +693,16 @@ class CTABGANSynthesizer:
                     loss_d_was_gp.backward()
 
                     optimizerD.step()
-                    wandb.log({"gp": pen, "loss_d_was_gp": loss_d_was_gp})
+                    # ci 이터레이션 중 맨 마지막 값만 step에 기록위헤 아래에서 한번에 등록
+                    # wandb.log({"gp": pen, "loss_d_was_gp": loss_d_was_gp})
 
-                ### G(generator) 학습
+                ### ------ G(generator) 학습 ------
 
-                # 노이즈(z) 및 컨디션 벡터(condvec) 샘플링
+                # 노이즈(z) 샘플링
                 noisez = torch.randn(
                     self.batch_size, self.random_dim, device=self.device
                 )
-
+                # 컨디션 벡터(condvec) 샘플링
                 condvec, mask, col, opt = self.cond_generator.sample_train(
                     self.batch_size
                 )
@@ -716,8 +717,9 @@ class CTABGANSynthesizer:
 
                 fake = self.generator(noisez)
                 faket = self.Gtransformer.inverse_transform(fake)
-                fakeact = apply_activate(faket, data_transformer.output_info)
+                fakeact = apply_activate(faket, data_transformer.output_info)  # encoded
 
+                # discriminator에 입력위해 encoded + condvec  concat
                 fake_cat = torch.cat([fakeact, condvec], dim=1)
                 fake_cat = self.Dtransformer.transform(fake_cat)
 
@@ -733,13 +735,16 @@ class CTABGANSynthesizer:
                     # faket, data_transformer.output_info, condvec, mask
                 )
 
+                # lsw: real_cat_d 얘는 위의 discrminator것 재활용 하네?
                 _, info_real = self.discriminator(real_cat_d)
 
                 # loss_g_default
                 loss_g_default = -torch.mean(y_fake)
 
                 # loss_g_info
-                # lsw: 논문은 L2놈인데 왜 L1놈 사용중임?
+                # lsw: 1. 논문은 L2놈인데 왜 L1놈 사용중임?
+                # lsw: 2. real_cat_d, fake_cat 은 다른 condvec 으로부터 만들어짐. info_fake, info_real은 D의 마지막 전 레이어 값 (약 13,13)
+                #           둘을 맞추는게 맞나...? 너무 불안정하지 않을까 싶기도 하고 피처니까 굳이 상관없을듯도 하고
                 loss_mean = torch.norm(
                     torch.mean(info_fake.view(self.batch_size, -1), dim=0)
                     - torch.mean(info_real.view(self.batch_size, -1), dim=0),
@@ -758,6 +763,10 @@ class CTABGANSynthesizer:
                 loss_g.backward()
                 optimizerG.step()
                 wandblog = {
+                    # for loss_d
+                    "gp": pen,
+                    "loss_d_was_gp": loss_d_was_gp,
+                    # for loss_g
                     "loss_g_default": loss_g_default,
                     "loss_g_info": loss_g_info,
                     "loss_g_gen": loss_g_gen,

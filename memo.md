@@ -41,12 +41,11 @@ pyreverse -o png model
   - mixed 경우 gm1 에서 모드로 선정된 것은 추후 meta참고해 가장 가까운 모드값으로 변경 해야함
 - min-max 벗어나는 부분이 모드에 있을경우 inv prep 안돰 이건 해결해야 함
   - 이거 위의 모드 문제랑도 겹치는듯
-- encoded vec 도 저장/로드 가능케하자
-
-- 현재 1000 -> 6400 정도 뻥튀기
-  - OOM 남
-  - mini batch 사이즈 때문인가??
-- classifier 너무 히든 레이어 많음
+- encoded vec 도 저장/로드 가능케하자 [x]
+- transformer save시 VGM 모델만 저장토록하자
+  - build, fit 분리 필요
+- generator 저장 시에 state_dict 만 저장토록... 모델 전체는 용량이 너무 큼
+  - build 메서드 구현 필요할 듯
 
 
 ---
@@ -54,3 +53,5 @@ pyreverse -o png model
 
 mixed & log & 음수 존재
 log 와 mixed 는 사실 같이 안쓰엿다
+
+disciriminator 훈련 중 만든 fake 들은 generator 업데이트에 안쓰네?? 왜 재활용 안함? 
