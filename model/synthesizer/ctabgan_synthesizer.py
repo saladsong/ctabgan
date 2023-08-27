@@ -325,16 +325,17 @@ class Sampler(object):
 
 
 class Discriminator(Module):
-    def __init__(self, side: int, num_channels: int):
+    def __init__(self, side: int, num_channels: int, input_channel: int):
         """build discriminator
 
         Args:
             side (int): 정사각 2d로 변환한 피처의 변의 길이
             num_channels (int): CNN 채널 수
+            input_channel (int): 입력 채널 크기
         """
         super(Discriminator, self).__init__()
         self.side = side
-        layers = self._determine_layers_disc(side, num_channels)
+        layers = self._determine_layers_disc(side, num_channels, input_channel)
         info = len(layers) - 2  # 맨 마지막 conv, relu 제외
         self.seq = Sequential(*layers)
         self.seq_info = Sequential(*layers[:info])
@@ -342,17 +343,23 @@ class Discriminator(Module):
     def forward(self, input):
         return (self.seq(input)), self.seq_info(input)
 
-    def _determine_layers_disc(self, side: int, num_channels: int) -> List[Module]:
+    def _determine_layers_disc(
+        self, side: int, num_channels: int, input_channel: int
+    ) -> List[Module]:
         """GAN discriminator를 구성할 torch.nn 레이어들 생성
 
         Args:
             side (int): 맨 처음 CNN 레이어의 정사각 이미지의 한 면 크기
             num_channels (int): CNN 채널 수
+            input_channel (int): 입력 채널 크기
         Return:
             List[Module]: torch.nn 레이어 리스트
         """
 
-        layer_dims = [(1, side), (num_channels, side // 2)]  # (channel, side)
+        layer_dims = [
+            (input_channel, side),
+            (num_channels, side // 2),
+        ]  # (channel, side)
 
         while layer_dims[-1][1] > 3 and len(layer_dims) < 4:
             layer_dims.append((layer_dims[-1][0] * 2, layer_dims[-1][1] // 2))
@@ -380,24 +387,29 @@ class Discriminator(Module):
 
 
 class Generator(Module):
-    def __init__(self, side: int, random_dim: int, num_channels: int):
+    def __init__(
+        self, side: int, random_dim: int, num_channels: int, output_channel: int
+    ):
         """build generator
 
         Args:
             side (int): 정사각 2d로 변환한 피처의 변의 길이
             random_dim (int): 입력 디멘전, (랜덤 분포 차원 + contional vector) 차원
             num_channels (int): CNN 채널 수
+            output_channel (int): 마지막 출력 채널 크기
         """
         super(Generator, self).__init__()
         self.side = side
-        layers = self._determine_layers_gen(side, random_dim, num_channels)
+        layers = self._determine_layers_gen(
+            side, random_dim, num_channels, output_channel
+        )
         self.seq = Sequential(*layers)
 
     def forward(self, input_):
         return self.seq(input_)
 
     def _determine_layers_gen(
-        self, side: int, random_dim: int, num_channels: int
+        self, side: int, random_dim: int, num_channels: int, output_channel: int
     ) -> List[Module]:
         """GAN generator를 구성할 torch.nn 레이어들 생성
 
@@ -405,11 +417,15 @@ class Generator(Module):
             side (int): 맨 처음 CNN 레이어의 정사각 이미지의 한 면 크기
             random_dim (int): 입력 디멘전, (랜덤 분포 차원 + contional vector) 차원
             num_channels (int): CNN 채널 수
+            output_channel (int): 마지막 출력 채널 크기
         Return:
             List[Module]: torch.nn 레이어 리스트
         """
 
-        layer_dims = [(1, side), (num_channels, side // 2)]  # (channel, side)
+        layer_dims = [
+            (output_channel, side),
+            (num_channels, side // 2),
+        ]  # (channel, side)
 
         while layer_dims[-1][1] > 3 and len(layer_dims) < 4:
             layer_dims.append((layer_dims[-1][0] * 2, layer_dims[-1][1] // 2))
@@ -628,17 +644,17 @@ class CTABGANSynthesizer:
 
         # build generator
         col_size_d = self.random_dim + self.cond_generator.n_opt
-        self.generator = Generator(self.gside, col_size_d, self.num_channels).to(
-            self.device
-        )
+        self.generator = Generator(
+            self.gside, col_size_d, self.num_channels, n_month
+        ).to(self.device)
 
         # build discriminator
-        self.discriminator = Discriminator(self.dside, self.num_channels).to(
+        self.discriminator = Discriminator(self.dside, self.num_channels, n_month).to(
             self.device
         )
 
-        # build foreseeNN
-        self.fsn = ForeseeNN(input_dim=n_opt, output_channels=n_month)
+        # # build foreseeNN
+        # self.fsn = ForeseeNN(input_dim=n_opt, output_channels=n_month).to(self.device)
 
         # set optimizer
         # 이부분 설정으로 빼기
@@ -708,6 +724,9 @@ class CTABGANSynthesizer:
                     )
                     condvec = torch.from_numpy(condvec).to(self.device)
                     mask = torch.from_numpy(mask).to(self.device)
+                    # 컨디션 벡터 차원늘리기: (B, n_opt) -> (B, n_month, n_opt) -> (B, n_month * n_opt)
+                    # condvec = self.fsn(condvec).view(self.batch_size, -1)
+
                     noisez = torch.cat([noisez, condvec], dim=1)
                     noisez = noisez.view(
                         self.batch_size,
