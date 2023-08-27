@@ -306,7 +306,8 @@ def cond_loss(data, output_info, condvec, mask) -> torch.Tensor:
             end = st + item[0]
             ed_c = st_c + item[0]
             tmp = F.cross_entropy(
-                data[:, st:end],  # logits
+                # mmmm
+                data[:, 0, st:end],  # logits
                 torch.argmax(condvec[:, st_c:ed_c], dim=1),  # labels
                 reduction="none",
             )
@@ -539,10 +540,19 @@ class ForeseeNN(Module):
         return x
 
 
+# gradient_penalty 계산위한 real, fake data의 interpolation 계산
+# 선형보간이 아니라 다른 방법 SLERP(Spherical Linear Interpolation) 사용하네??
+# SLERP는 특히 두 벡터가 크게 다를 때 유용하다고 함
 def slerp(alpha: torch.Tensor, low: torch.Tensor, high: torch.Tensor) -> torch.Tensor:
-    """gradient_penalty 계산위한 real, fake data의 interpolation 계산
-    선형보간이 아니라 다른 방법 SLERP(Spherical Linear Interpolation) 사용하네??
-    SLERP는 특히 두 벡터가 크게 다를 때 유용하다고 함
+    """Compute the spherical linear interpolation between two tensors.
+    SLERP (Spherical Linear Interpolation) is especially useful when the angle between the two vectors is large.
+    Unlike linear interpolation, SLERP ensures that the interpolated vectors are normalized and lie on the spherical surface.
+    Args:
+        alpha (torch.Tensor): The interpolation coefficient. Should be between 0 and 1.
+        low (torch.Tensor): The starting tensor (at alpha=0).
+        high (torch.Tensor): The ending tensor (at alpha=1).
+    Returns:
+        torch.Tensor: Interpolated tensor between `low` and `high` based on `alpha`.
     """
     low_norm = low / torch.norm(low, dim=1, keepdim=True)
     high_norm = high / torch.norm(high, dim=1, keepdim=True)
@@ -556,12 +566,30 @@ def slerp(alpha: torch.Tensor, low: torch.Tensor, high: torch.Tensor) -> torch.T
 
 
 def calc_gradient_penalty_slerp(
-    netD, real_data, fake_data, transformer, device="cpu", lambda_=10
-):
-    batchsize = real_data.shape[0]
-    alpha = torch.rand(batchsize, 1, device=device)
+    netD: Discriminator,
+    real_data: torch.Tensor,
+    fake_data: torch.Tensor,
+    transformer: ImageTransformer,
+    device: str = "cpu",
+    lambda_: int = 10,
+) -> torch.Tensor:
+    """
+    Agrs:
+        real_data: (B, M, #encode+#condvec)
+        fake_data: real_data와 동일
+    Returns:
+        gradient penalty tensor
+    """
+    # slerp 계산전에 3lank 텐서를 다시 2lank 로 변환 (B*M, #encode+#condvec)
+    b, m, enc_cond = real_data.shape
+    real_data = real_data.contiguous().view(-1, enc_cond)
+    fake_data = real_data.contiguous().view(-1, enc_cond)
+    new_batchsize = real_data.shape[0]
+    alpha = torch.rand(new_batchsize, 1, device=device)
     interpolates = slerp(alpha, real_data, fake_data)
     interpolates = interpolates.to(device)
+    # slerp 계산후에 2lank 텐서를 다시 3lank 로 변환 (B, M, #encode+#condvec)
+    interpolates = interpolates.view(b, m, enc_cond)
     interpolates = transformer.transform(interpolates)
     interpolates = torch.autograd.Variable(interpolates, requires_grad=True)
     disc_interpolates, _ = netD(interpolates)
@@ -859,11 +887,7 @@ class CTABGANSynthesizer:
                 # loss_g_gen (cross_entropy)
                 # 왜 activation 전 값을 넣지??? -> logit을 입력으로 받음, 함수 내부에서 softmax 자동 계산
                 loss_g_gen = cond_loss(
-                    faket,
-                    data_transformer.output_info,
-                    condvec,
-                    mask
-                    # faket, data_transformer.output_info, condvec, mask
+                    faket, data_transformer.output_info, condvec, mask
                 )
 
                 # lsw: real_cat_d 얘는 위의 discrminator것 재활용 하네?
@@ -910,7 +934,10 @@ class CTABGANSynthesizer:
                     fake = self.generator(noisez)
                     faket = self.Gtransformer.inverse_transform(fake)
                     fakeact = apply_activate(faket, data_transformer.output_info)
-
+                    # classifier 입력전에 3lank 텐서를 2lank 로 변환 (B*M, #encode)
+                    real = real.view(-1, len_encoded)
+                    fakeact = fakeact.view(-1, len_encoded)
+                    # classifier 에 입력
                     real_pre, real_label = self.classifier(real)
                     fake_pre, fake_label = self.classifier(fakeact)
 
