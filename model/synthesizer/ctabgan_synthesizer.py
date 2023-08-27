@@ -591,10 +591,8 @@ def calc_gradient_penalty_slerp(
     # slerp 계산후에 2lank 텐서를 다시 3lank 로 변환 (B, M, #encode+#condvec)
     interpolates = interpolates.view(b, m, enc_cond)
     interpolates = transformer.transform(interpolates)
-    # print(interpolates.shape)
     interpolates = torch.autograd.Variable(interpolates, requires_grad=True)
     disc_interpolates, _ = netD(interpolates)
-    # print(disc_interpolates)
 
     gradients = torch.autograd.grad(
         outputs=disc_interpolates,
@@ -604,7 +602,6 @@ def calc_gradient_penalty_slerp(
         retain_graph=True,
         only_inputs=True,
     )[0]
-    print(gradients.shape, gradients)
 
     gradients_norm = gradients.norm(2, dim=1)
     gradient_penalty = ((gradients_norm - 1) ** 2).mean() * lambda_
