@@ -583,7 +583,7 @@ def calc_gradient_penalty_slerp(
     # slerp 계산전에 3lank 텐서를 다시 2lank 로 변환 (B*M, #encode+#condvec)
     b, m, enc_cond = real_data.shape
     real_data = real_data.contiguous().view(-1, enc_cond)
-    fake_data = real_data.contiguous().view(-1, enc_cond)
+    fake_data = fake_data.contiguous().view(-1, enc_cond)
     new_batchsize = real_data.shape[0]
     alpha = torch.rand(new_batchsize, 1, device=device)
     interpolates = slerp(alpha, real_data, fake_data)
@@ -591,8 +591,10 @@ def calc_gradient_penalty_slerp(
     # slerp 계산후에 2lank 텐서를 다시 3lank 로 변환 (B, M, #encode+#condvec)
     interpolates = interpolates.view(b, m, enc_cond)
     interpolates = transformer.transform(interpolates)
+    # print(interpolates.shape)
     interpolates = torch.autograd.Variable(interpolates, requires_grad=True)
     disc_interpolates, _ = netD(interpolates)
+    # print(disc_interpolates)
 
     gradients = torch.autograd.grad(
         outputs=disc_interpolates,
@@ -602,6 +604,7 @@ def calc_gradient_penalty_slerp(
         retain_graph=True,
         only_inputs=True,
     )[0]
+    print(gradients.shape, gradients)
 
     gradients_norm = gradients.norm(2, dim=1)
     gradient_penalty = ((gradients_norm - 1) ** 2).mean() * lambda_
@@ -847,7 +850,6 @@ class CTABGANSynthesizer:
                         self.Dtransformer,
                         self.device,
                     )
-                    # pen.backward()
                     loss_d_was_gp = d_real + d_fake + pen
                     loss_d_was_gp.backward()
 
@@ -931,19 +933,13 @@ class CTABGANSynthesizer:
                 # loss_g_dstream
                 if target_index is not None:
                     # lsw: 그냥 위의 fake 그대로 쓰면 안됨? 왜 다시 계산하지? 나중에 빼보자
-                    # print("####", noisez)
                     fake = self.generator(noisez)
-                    # print("fake@@@@", fake.shape, fake[0])
                     faket = self.Gtransformer.inverse_transform(fake)
-                    # print("faket@@@@", faket.shape, faket[0])
                     fakeact = apply_activate(faket, data_transformer.output_info)
-                    # print("fakeact@@@@", fakeact.shape, fakeact[0])
                     # classifier 입력전에 3lank 텐서를 2lank 로 변환 (B*M, #encode)
                     real = real.contiguous().view(-1, len_encoded)
                     fakeact = fakeact.contiguous().view(-1, len_encoded)
                     # classifier 에 입력
-                    # print("@@@@", real.shape, real[0])
-                    # print("@@@@", fakeact.shape, fakeact[0])
                     real_pre, real_label = self.classifier(real)
                     fake_pre, fake_label = self.classifier(fakeact)
 
@@ -962,11 +958,6 @@ class CTABGANSynthesizer:
                         c_loss = BCELoss()
                         real_label = real_label.type_as(real_pre)
                         fake_label = fake_label.type_as(fake_pre)
-
-                    # print("@@@@2", real_pre.shape, real_pre)
-                    # print("@@@@2", real_label.shape, real_label)
-                    # print("@@@@2", fake_pre.shape, fake_pre)
-                    # print("@@@@2", fake_label.shape, fake_label)
 
                     loss_c_dstream = c_loss(real_pre, real_label)
                     loss_g_dstream = c_loss(fake_pre, fake_label)
