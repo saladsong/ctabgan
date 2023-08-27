@@ -734,21 +734,27 @@ class DataTransformer:
 
 
 class ImageTransformer:
-    def __init__(self, side):
+    def __init__(self, side: int, n_month: int):
         self.height = side
+        self.n_month = n_month
 
     # zero-padding 후 sqaure matrix 형태로 변환
-    def transform(self, data):
-        """Transform to shape (#batch, C, H, W)"""
-        if self.height * self.height > len(data[0]):
-            padding = torch.zeros(
-                (len(data), self.height * self.height - len(data[0]))
-            ).to(data.device)
+    def transform(self, data: torch.Tensor):
+        """Transform to shape (#batch, C, encoded+condvec) -> (#batch, C, H, W)
+        encoded+condvec 이 정사각의 H, W 로 나뉘는 과정에서 차원이 모자르는 부분은 zero padding 추가
+            ex) 95 = 10^2 - 5 이므로 5만큼 zero padding 추가
+        """
+        batch, channel, data_dim = data.shape
+        if self.height * self.height > data_dim:
+            padding = torch.zeros((batch, self.height * self.height - data_dim)).to(
+                data.device
+            )
             data = torch.cat([data, padding], axis=1)
 
         return data.view(-1, 1, self.height, self.height)
 
     def inverse_transform(self, data):
-        data = data.view(-1, self.height * self.height)
+        """Transform to shape (#batch, C, H, W) -> (#batch, C, H*W)"""
+        data = data.view(-1, self.n_month, self.height * self.height)
 
         return data
