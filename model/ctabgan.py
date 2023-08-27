@@ -107,6 +107,7 @@ class CTABGAN:
         *,
         encoded_data: np.ndarray = None,
         n_jobs: Union[float, int] = None,
+        wandb_exp_name: str = None,
         **kwargs,
     ):
         """CTABGAN 모델 학습"""
@@ -114,6 +115,7 @@ class CTABGAN:
         start_time = time.time()
         self.synthesizer = CTABGANSynthesizer(**kwargs)
         self.params_ctabgan = kwargs
+        self.wandb_exp_name = wandb_exp_name
 
         # start a new wandb run to track this script
         wandb.init(
@@ -125,6 +127,10 @@ class CTABGAN:
                 **self.params_ctabgan,
             },
         )
+        # wandb 실행 이름 설정
+        if wandb_exp_name is not None:
+            wandb.run.name = wandb_exp_name
+            wandb.run.save()
 
         # auxiliary classifier 타겟 컬럼 인덱스 찾기
         target_index = None

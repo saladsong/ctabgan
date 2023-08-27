@@ -740,18 +740,25 @@ class ImageTransformer:
 
     # zero-padding 후 sqaure matrix 형태로 변환
     def transform(self, data: torch.Tensor):
-        """Transform to shape (#batch, C, encoded+condvec) -> (#batch, C, H, W)
+        """Transform shape (#batch, C, encoded+condvec) -> (#batch, C, H, W)
         encoded+condvec 이 정사각의 H, W 로 나뉘는 과정에서 차원이 모자르는 부분은 zero padding 추가
             ex) 95 = 10^2 - 5 이므로 5만큼 zero padding 추가
         """
         batch, channel, data_dim = data.shape
-        if self.height * self.height > data_dim:
-            padding = torch.zeros((batch, self.height * self.height - data_dim)).to(
-                data.device
-            )
-            data = torch.cat([data, padding], axis=1)
+        # if self.height * self.height > data_dim:
+        #     padding = torch.zeros((batch, self.height * self.height - data_dim)).to(
+        #         data.device
+        #     )
+        #     data = torch.cat([data, padding], axis=1)
 
-        return data.view(-1, 1, self.height, self.height)
+        # return data.view(-1, 1, self.height, self.height)
+        if self.height * self.height > data_dim:
+            padding = torch.zeros(
+                (batch, channel, self.height * self.height - data_dim)
+            ).to(data.device)
+            data = torch.cat([data, padding], axis=2)
+
+        return data.view(-1, channel, self.height, self.height)
 
     def inverse_transform(self, data):
         """Transform to shape (#batch, C, H, W) -> (#batch, C, H*W)"""

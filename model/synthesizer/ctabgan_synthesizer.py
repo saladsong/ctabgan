@@ -98,7 +98,8 @@ def apply_activate(data: torch.Tensor, output_info: list):
             # data_t.append(F.gumbel_softmax(data[:, st:end], tau=0.2))
             data_t.append(F.gumbel_softmax(data[:, :, st:end], tau=0.2))
             st = end
-    return torch.cat(data_t, dim=1)
+    # return torch.cat(data_t, dim=1)
+    return torch.cat(data_t, dim=2)
 
 
 def get_tcol_idx_st_ed_tuple(
@@ -729,8 +730,8 @@ class CTABGANSynthesizer:
         self.generator.apply(weights_init)
         self.discriminator.apply(weights_init)
 
-        self.Gtransformer = ImageTransformer(self.gside)
-        self.Dtransformer = ImageTransformer(self.dside)
+        self.Gtransformer = ImageTransformer(self.gside, n_month=n_month)
+        self.Dtransformer = ImageTransformer(self.dside, n_month=n_month)
 
         steps_per_epoch = max(1, len(encoded_data) // self.batch_size)
         # set learning rate scheduler (cosine annealing)
