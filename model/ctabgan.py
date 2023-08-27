@@ -6,6 +6,7 @@ import pandas as pd
 import numpy as np
 import time
 from typing import Union
+from tqdm.auto import tqdm
 from model.pipeline.data_preparation import DataPrep
 from model.synthesizer.ctabgan_synthesizer import CTABGANSynthesizer, Cond
 from model.synthesizer.transformer import DataTransformer, ImageTransformer
@@ -142,13 +143,11 @@ class CTABGAN:
 
         # 데이터 전처리(인코딩)하는 부분 (pps -> encoded)
         if encoded_data is None:
-            self.logger.info("[CTAB-SYN]: data transformation(encode) start")
             encoded_data = self.transformer.transform(
                 self.data_prep.df.values, n_jobs=n_jobs
             )
-            self.logger.info("[CTAB-SYN]: data transformation(encode) end")
         else:
-            self.logger.info("[CTAB-SYN]: use input encoded data")
+            self.logger.info("[CTABGAN]: use input encoded data")
 
         self.synthesizer.fit(
             encoded_data=encoded_data,
@@ -169,27 +168,73 @@ class CTABGAN:
         *,
         n_jobs: Union[float, int] = None,
         resample_invalid: bool = True,
-        times_resample: int = 10,
+        times_resample: int = 10,  # 리샘플링 무한정 하지 않으려고
     ):
         assert self.is_fit_, "must fit the model first!!"
 
         if isinstance(transformer, DataTransformer):
             assert transformer.is_fit_, "you must use fitted data_transformer!!"
-            _transformer = transformer
         else:
-            _transformer = self.transformer
+            transformer = self.transformer
+        len_encoded = transformer.output_dim
 
         if n is None:
             n = len(self.raw_df)
-        sample = self.synthesizer.sample(
-            n,
-            data_transformer=_transformer,
-            n_jobs=n_jobs,
-            resample_invalid=resample_invalid,
-            times_resample=times_resample,
+        # smaple encode data
+        sample = self.synthesizer.sample(n, transformer)  # (n, M, #encode)
+        # inverse_transform전에 월별로 정렬 후 3lank 텐서를 2lank 로 변환
+        sample = sample.transpose(1, 0, 2).reshape(-1, len_encoded)  # (n*M, #encode)
+        # inverse transform by DataTransformer
+        result, invalid_ids = transformer.inverse_transform(
+            sample, n_jobs=n_jobs
+        )  # (n*M, n_col)
+        self.logger.info(
+            f"[CTABGAN]: sythesized data has {len(invalid_ids)}/{len(result)} invalid rows."
         )
-        sample_df = self.data_prep.inverse_prep(sample)
 
+        if resample_invalid:
+            num_for_resample = len(invalid_ids)
+            all_ids = np.arange(0, len(result))
+            valid_ids = list(set(all_ids) - set(invalid_ids))
+            result = result[valid_ids]  # valid_result
+
+            # 원하는 n 개 데이터가 다 만들어지지 않은 경우 (invalid id 존재)
+            resample_cnt = 1
+            while len(result) < n and resample_cnt <= times_resample:
+                self.logger.info(
+                    f"[CTABGAN]: resample count ({resample_cnt}/{times_resample})"
+                )
+
+                self.logger.info("[CTABGAN]: generate raw encode vectors start")
+                # resample invalid data
+                data_resample = self.synthesizer.sample(
+                    num_for_resample, transformer
+                )  # (n, M, #encode)
+                # inverse_transform전에 월별로 정렬 후 3lank 텐서를 2lank 로 변환
+                data_resample = data_resample.transpose(1, 0, 2).reshape(
+                    -1, len_encoded
+                )  # (n*M, #encode)
+                new_result, invalid_ids = transformer.inverse_transform(
+                    data_resample,
+                    n_jobs=n_jobs,
+                )  # (n*M, n_col)
+                self.logger.info(
+                    f"[CTABGAN]: sythesized data has {len(invalid_ids)}/{len(new_result)} invalid rows."
+                )
+                # lsw: invalid_ids 평가가 월 종합으로 이뤄져야함 .... 쉽지않네
+                # num_for_resample 도 월 종합으로 계산 필요 ...
+                num_for_resample = len(invalid_ids)
+                all_ids = np.arange(0, len(new_result))
+                valid_ids = list(set(all_ids) - set(invalid_ids))
+                new_result = new_result[valid_ids]  # valid_result
+                # merge previous result
+                result = np.concatenate([result, new_result], axis=0)
+                resample_cnt += 1
+
+        # inverse prep by DataPrep
+        sample_df = self.data_prep.inverse_prep(result)  # (n*M, #encode)
+
+        self.logger.info("[CTABGAN]: data sampling end")
         return sample_df
 
     def load_generator(

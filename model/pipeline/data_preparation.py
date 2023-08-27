@@ -132,10 +132,10 @@ class DataPrep(object):
         df_sample = pd.DataFrame(data, columns=self.df.columns)
 
         # 카테고리 컬럼 역변환
-        for i in range(len(self.label_encoder_list)):
-            le = self.label_encoder_list[i]["label_encoder"]
-            df_sample[self.label_encoder_list[i]["column"]] = le.inverse_transform(
-                df_sample[self.label_encoder_list[i]["column"]].astype(int)
+        for le_dict in self.label_encoder_list:
+            le = le_dict["label_encoder"]
+            df_sample[le_dict["column"]] = le.inverse_transform(
+                df_sample[le_dict["column"]].astype(int)
             )
 
         # 로그분포 역변환

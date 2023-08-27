@@ -1,5 +1,4 @@
 import numpy as np
-import pandas as pd
 import torch
 import torch.utils.data
 import torch.optim as optim
@@ -78,12 +77,14 @@ class Classifier(Module):
             return self.seq(new_imp), label
 
 
-def apply_activate(data: torch.Tensor, output_info: list):
+def apply_activate(data: torch.Tensor, output_info: list) -> torch.Tensor:
     """Apply activation functions to data based on output_info
     CNN 통과시 정사각 모양 만드느라 zero-padding 넣어준 것도 여기서 잘라냄
     Args:
         data: (B, M, gside^2) shape tensor
         output_info: DataTransformer.output_info
+    Returns:
+        torch.Tensor: (B, M, #encode)
     """
     data_t = []
     st = 0
@@ -998,11 +999,14 @@ class CTABGANSynthesizer:
         self,
         n: int,
         data_transformer: DataTransformer,
-        *,
-        n_jobs: Union[float, int] = None,
-        resample_invalid: bool = True,
-        times_resample: int = 10,  # 리샘플링 무한정 하지 않으려고
-    ):
+    ) -> np.ndarray:
+        """sample encode tensor
+        Args:
+            n: sample number
+            data_transformer: DataTransformer
+        Returns:
+            np.ndarray: (n, M, #encode)
+        """
         self.logger.info("[CTAB-SYN]: data sampling start")
         self.generator.eval()
         n_opt = self.cond_generator.n_opt
@@ -1022,70 +1026,14 @@ class CTABGANSynthesizer:
 
             fake = self.generator(noisez)
             faket = self.Gtransformer.inverse_transform(fake)
-            fakeact = apply_activate(faket, output_info)
-            data.append(fakeact.detach().cpu().numpy())
+            fakeact = apply_activate(faket, output_info)  # (B, M, #encode)
+            data.append(
+                fakeact.detach().cpu().numpy()
+            )  # List[torch.Tensor] (#steps, B, #encode)
         self.logger.info("[CTAB-SYN]: generate raw encoding vectors end")
 
         data = np.concatenate(data, axis=0)
-        result, invalid_ids = data_transformer.inverse_transform(data, n_jobs=n_jobs)
-        self.logger.info(
-            f"[CTAB-SYN]: sythesized data has {len(invalid_ids)}/{len(result)} invalid rows."
-        )
-        if resample_invalid:
-            num_for_resample = len(invalid_ids)
-            all_ids = np.arange(0, len(result))
-            valid_ids = list(set(all_ids) - set(invalid_ids))
-            result = result[valid_ids]  # valid_result
-
-            # 원하는 n 개 데이터가 다 만들어지지 않은 경우 (invalid id 존재)
-            resample_cnt = 1
-            while len(result) < n and resample_cnt <= times_resample:
-                self.logger.info(
-                    f"[CTAB-SYN]: resample count ({resample_cnt}/{times_resample})"
-                )
-                data_resample = []
-                steps_left = num_for_resample // self.batch_size + 1
-
-                self.logger.info("[CTAB-SYN]: generate raw encode vectors start")
-                for i in tqdm(range(steps_left)):
-                    noisez = torch.randn(
-                        self.batch_size, self.random_dim, device=self.device
-                    )
-                    condvec = self.cond_generator.sample(self.batch_size)
-                    condvec = torch.from_numpy(condvec).to(self.device)
-                    noisez = torch.cat([noisez, condvec], dim=1)
-                    noisez = noisez.view(
-                        self.batch_size,
-                        self.random_dim + n_opt,
-                        1,
-                        1,
-                    )
-
-                    fake = self.generator(noisez)
-                    faket = self.Gtransformer.inverse_transform(fake)
-                    fakeact = apply_activate(faket, output_info)
-                    data_resample.append(fakeact.detach().cpu().numpy())
-                self.logger.info("[CTAB-SYN]: generate raw encode vectors end")
-
-                data_resample = np.concatenate(data_resample, axis=0)
-
-                new_result, invalid_ids = data_transformer.inverse_transform(
-                    data_resample,
-                    n_jobs=n_jobs,
-                )
-                self.logger.info(
-                    f"[CTAB-SYN]: sythesized data has {len(invalid_ids)}/{len(new_result)} invalid rows."
-                )
-                num_for_resample = len(invalid_ids)
-                all_ids = np.arange(0, len(new_result))
-                valid_ids = list(set(all_ids) - set(invalid_ids))
-                new_result = new_result[valid_ids]  # valid_result
-                # merge previous result
-                result = np.concatenate([result, new_result], axis=0)
-                resample_cnt += 1
-
-        self.logger.info("[CTAB-SYN]: data sampling end")
-        return result[0:n]
+        return data[:n]
 
     def save_generator(self, mpath: str) -> None:
         """확장자는 *.pth 로"""
