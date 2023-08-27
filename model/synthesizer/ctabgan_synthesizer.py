@@ -78,20 +78,25 @@ class Classifier(Module):
             return self.seq(new_imp), label
 
 
-def apply_activate(data, output_info):
+def apply_activate(data: torch.Tensor, output_info: list):
     """Apply activation functions to data based on output_info
     CNN 통과시 정사각 모양 만드느라 zero-padding 넣어준 것도 여기서 잘라냄
+    Args:
+        data: (B, M, gside^2) shape tensor
+        output_info: DataTransformer.output_info
     """
     data_t = []
     st = 0
     for item in output_info:
         if item[1] == "tanh":
             end = st + item[0]
-            data_t.append(torch.tanh(data[:, st:end]))
+            # data_t.append(torch.tanh(data[:, st:end]))
+            data_t.append(torch.tanh(data[:, :, st:end]))
             st = end
         elif item[1] == "softmax":
             end = st + item[0]
-            data_t.append(F.gumbel_softmax(data[:, st:end], tau=0.2))
+            # data_t.append(F.gumbel_softmax(data[:, st:end], tau=0.2))
+            data_t.append(F.gumbel_softmax(data[:, :, st:end], tau=0.2))
             st = end
     return torch.cat(data_t, dim=1)
 
@@ -129,20 +134,37 @@ def get_tcol_idx_st_ed_tuple(
     return (st, end)
 
 
-def random_choice_prob_index_sampling(probs, col_idx):
-    # Sample indices based on given probabilities
+def random_choice_prob_index_sampling(
+    probs: List[np.ndarray], col_idx: np.ndarray
+) -> np.ndarray:
+    """Sample beta||gamma mode indices based on given probabilities
+    학습 후 샘플링 용도로 사용
+    Args:
+        probs: ( n_col, n_beta||n_gamma ). 학습 후 샘플링 용도로 쓰기 위해 컬럼별 모드 확률 log 취하지 않고 원본 저장한것
+        col_idx: (n_batch). 배치 크기의 col 인덱스 배열
+    Returns:
+        (n_batch,) 의 선택된 모드 인덱스
+    """
     option_list = []
     for i in col_idx:
         pp = probs[i]
         option_list.append(np.random.choice(np.arange(len(probs[i])), p=pp))
 
-    return np.array(option_list).reshape(col_idx.shape)
+    return np.array(option_list)  # .reshape(col_idx.shape)
 
 
-def random_choice_prob_index(a, axis=1):
-    # Choose an index from array `a` based on a random probability
-    r = np.expand_dims(np.random.rand(a.shape[1 - axis]), axis=axis)
-    return (a.cumsum(axis=axis) > r).argmax(axis=axis)
+def random_choice_prob_index(probs: np.ndarray, axis=1) -> np.ndarray:
+    """Sample beta||gamma mode indices based on given probabilities
+    학습 중 샘플링 용도로 사용
+    Args:
+        probs: (n_col, maximum_interval(n_beta||n_gamma)), 학습 중 샘플링 용도로 쓰기 위해 컬럼별 모드 확률 log 취해 저장한것
+    Returns:
+        (n_cols,) 의 선택된 모드 인덱스
+    """
+    # 모드 선택 위한 주사위 굴리기
+    r = np.expand_dims(np.random.rand(probs.shape[1 - axis]), axis=axis)
+    # 각 모드별 확률 누적 합 계산해서 위의 'r'값이 경계에 있는 모드 선택
+    return (probs.cumsum(axis=axis) > r).argmax(axis=axis)
 
 
 def maximum_interval(output_info):
@@ -154,26 +176,43 @@ def maximum_interval(output_info):
 
 
 class Cond(object):
-    def __init__(self, data, output_info):
-        """conditional vector 생성기"""
-        self.model = []
-        st = 0
-        counter = 0
-        for item in output_info:
-            if item[1] == "tanh":
-                st += item[0]
-                continue
-            elif item[1] == "softmax":
-                end = st + item[0]
-                counter += 1
-                self.model.append(np.argmax(data[:, st:end], axis=-1))
-                st = end
+    def __init__(self, data: np.ndarray, output_info: list):
+        """conditional vector 생성기, Training by sampling 기법을 수행
+        Args:
+            data:
+                orig (66590, 6097)
+                reshape to (6, 11065, 6097) // (#month, #cust, #encode_col)
+                transpose to (11065, 6, 6097) // (#cust, #month, #encode_col) = (N, M, encode_col)
+            output_info: DataTransformer.output_info // len(output_info) == n_col
+        """
+        # self.model = []
+        # st = 0
+        # counter = 0
+        # for item in output_info:
+        #     if item[1] == "tanh":
+        #         st += item[0]
+        #         continue
+        #     elif item[1] == "softmax":
+        #         # beta, gamma 중 1인 부분 인덱스 저장,
+        #         # lsw: Sampler와 같으 로직인데 sampler는 np.nonzero 사용
+        #         # 어차피 beta, gamma 가 하나의 col 내에 1 하나만 있어야 하므로 동일하긴 한데
+        #         end = st + item[0]
+        #         counter += 1
+        #         # self.model.append(np.argmax(data[:, st:end], axis=-1))
+        #         self.model.append(np.argmax(data[:, 0, st:end], axis=-1))
+        #         st = end
 
+        counter = list(
+            filter(lambda x: x[1] == "softmax", output_info)
+        ).__len__()  # == n_col
+        # interval: List[Tuple[int, int]], (n_cols, 2). 각 컬럼별 n_beta||n_gamma (st, end) 인덱스 저장
         self.interval = []
         self.n_col = 0
         self.n_opt = 0
         st = 0
+        # p: np.array, (n_col, maximum_interval(n_beta||n_gamma)), 학습 중 샘플링 용도로 쓰기 위해 컬럼별 모드 확률 log 취해 저장한것
         self.p = np.zeros((counter, maximum_interval(output_info)))
+        # p_sampling: List[np.ndarray], ( n_col, n_beta||n_gamma ). 학습 후 샘플링 용도로 쓰기 위해 컬럼별 모드 확률 log 취하지 않고 원본 저장한것
         self.p_sampling = []
         for item in output_info:
             if item[1] == "tanh":
@@ -181,8 +220,12 @@ class Cond(object):
                 continue
             elif item[1] == "softmax":
                 end = st + item[0]
-                tmp = np.sum(data[:, st:end], axis=0)
-                tmp_sampling = np.sum(data[:, st:end], axis=0)
+                # mmmm
+                # tmp = np.sum(data[:, st:end], axis=0)
+                # tmp_sampling = np.sum(data[:, st:end], axis=0)
+                tmp = np.sum(data[:, 0, st:end], axis=0)
+                tmp_sampling = np.sum(data[:, 0, st:end], axis=0)
+
                 tmp = np.log(tmp + 1)
                 tmp = tmp / np.sum(tmp)
                 tmp_sampling = tmp_sampling / np.sum(tmp_sampling)
@@ -192,7 +235,7 @@ class Cond(object):
                 self.n_opt += item[0]
                 self.n_col += 1
                 st = end
-
+        assert self.n_col == counter
         self.interval = np.asarray(self.interval)
 
     def sample_train(
@@ -276,7 +319,7 @@ def cond_loss(data, output_info, condvec, mask) -> torch.Tensor:
 
 class Sampler(object):
     def __init__(self, data: np.ndarray, output_info: list):
-        """Training by sampling 기법을 수행키 위한 샘플러
+        """실제 데이터 샘플러
         학습 중 원본 인코딩 데이터 샘플링을 위해 사용됨
         Args:
             data:
@@ -287,7 +330,7 @@ class Sampler(object):
         """
         super(Sampler, self).__init__()
         self.data = data
-        # self.model: List[List[np.ndarray]] 모든 고객의 모드 인디케이팅 정보를 담고 있음. ( n_col, n_beta/n_gamma, #indicated_N )
+        # self.model: List[List[np.ndarray]] 모든 고객의 모드 인디케이팅 정보를 담고 있음. ( n_col, n_beta||n_gamma, #indicated_N )
         self.model = []
         self.data_len = len(data)
         st = 0
@@ -300,7 +343,7 @@ class Sampler(object):
                 tmp = []
                 for j in range(item[0]):
                     # beta, gamma 중 1인 부분 인덱스 저장
-                    # tmp.append(np.nonzero(data[:, st + j])[0])
+                    # tmp.append(np.nonzero(data[:, st + j])[0])  # mmmm
                     tmp.append(np.nonzero(data[:, 0, st + j])[0])  # M의 첫월만 관여
                 self.model.append(tmp)
                 st = end
@@ -628,7 +671,8 @@ class CTABGANSynthesizer:
 
         # 컬럼 수 많아지는 경우 여기 늘려야함
         # n_opt: 가용 conditioning 컬럼 개수
-        col_size_d = data_dim + self.cond_generator.n_opt
+        # col_size_d = data_dim + n_opt
+        col_size_d = data_dim  # mmmm 첫달만 넣는 용으로 일단 컨디션벡터 제거
         col_size_g = data_dim
         # 1d -> 2d sqaure matrix 변환 위한 side: H(W) 계산. side는 반드시 2의 배수여야 함
         self.dside = int(np.ceil(col_size_d**0.5))
@@ -643,7 +687,7 @@ class CTABGANSynthesizer:
         self.logger.info(f"[gside]: {self.gside}, [dside]: {self.dside}")
 
         # build generator
-        col_size_d = self.random_dim + self.cond_generator.n_opt
+        col_size_d = self.random_dim + n_opt
         self.generator = Generator(
             self.gside, col_size_d, self.num_channels, n_month
         ).to(self.device)
@@ -730,7 +774,7 @@ class CTABGANSynthesizer:
                     noisez = torch.cat([noisez, condvec], dim=1)
                     noisez = noisez.view(
                         self.batch_size,
-                        self.random_dim + self.cond_generator.n_opt,
+                        self.random_dim + n_opt,
                         1,
                         1,
                     )
@@ -748,8 +792,11 @@ class CTABGANSynthesizer:
                     faket = self.Gtransformer.inverse_transform(fake)
                     fakeact = apply_activate(faket, data_transformer.output_info)
 
-                    fake_cat = torch.cat([fakeact, condvec], dim=1)
-                    real_cat = torch.cat([real, c_perm], dim=1)
+                    # mmmm
+                    # fake_cat = torch.cat([fakeact, condvec], dim=1)
+                    # real_cat = torch.cat([real, c_perm], dim=1)
+                    fake_cat = fakeact
+                    real_cat = real
 
                     real_cat_d = self.Dtransformer.transform(real_cat)
                     fake_cat_d = self.Dtransformer.transform(fake_cat)
@@ -792,9 +839,7 @@ class CTABGANSynthesizer:
                 condvec = torch.from_numpy(condvec).to(self.device)
                 mask = torch.from_numpy(mask).to(self.device)
                 noisez = torch.cat([noisez, condvec], dim=1)
-                noisez = noisez.view(
-                    self.batch_size, self.random_dim + self.cond_generator.n_opt, 1, 1
-                )
+                noisez = noisez.view(self.batch_size, self.random_dim + n_opt, 1, 1)
 
                 optimizerG.zero_grad()
 
@@ -803,7 +848,9 @@ class CTABGANSynthesizer:
                 fakeact = apply_activate(faket, data_transformer.output_info)  # encoded
 
                 # discriminator에 입력위해 encoded + condvec  concat
-                fake_cat = torch.cat([fakeact, condvec], dim=1)
+                # mmmm
+                # fake_cat = torch.cat([fakeact, condvec], dim=1)
+                fake_cat = fakeact
                 fake_cat = self.Dtransformer.transform(fake_cat)
 
                 y_fake, info_fake = self.discriminator(fake_cat)
@@ -858,7 +905,7 @@ class CTABGANSynthesizer:
 
                 # loss_g_dstream
                 if target_index is not None:
-                    # lsw: 그냥 위의 fake 그대로 쓰면 안됨? 왜 다시 계산하지?
+                    # lsw: 그냥 위의 fake 그대로 쓰면 안됨? 왜 다시 계산하지? 나중에 빼보자
                     fake = self.generator(noisez)
                     faket = self.Gtransformer.inverse_transform(fake)
                     fakeact = apply_activate(faket, data_transformer.output_info)
@@ -931,6 +978,7 @@ class CTABGANSynthesizer:
     ):
         self.logger.info("[CTAB-SYN]: data sampling start")
         self.generator.eval()
+        n_opt = self.cond_generator.n_opt
 
         output_info = data_transformer.output_info
         steps = n // self.batch_size + 1
@@ -943,9 +991,7 @@ class CTABGANSynthesizer:
             condvec = self.cond_generator.sample(self.batch_size)
             condvec = torch.from_numpy(condvec).to(self.device)
             noisez = torch.cat([noisez, condvec], dim=1)
-            noisez = noisez.view(
-                self.batch_size, self.random_dim + self.cond_generator.n_opt, 1, 1
-            )
+            noisez = noisez.view(self.batch_size, self.random_dim + n_opt, 1, 1)
 
             fake = self.generator(noisez)
             faket = self.Gtransformer.inverse_transform(fake)
@@ -983,7 +1029,7 @@ class CTABGANSynthesizer:
                     noisez = torch.cat([noisez, condvec], dim=1)
                     noisez = noisez.view(
                         self.batch_size,
-                        self.random_dim + self.cond_generator.n_opt,
+                        self.random_dim + n_opt,
                         1,
                         1,
                     )
