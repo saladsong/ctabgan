@@ -931,13 +931,19 @@ class CTABGANSynthesizer:
                 # loss_g_dstream
                 if target_index is not None:
                     # lsw: 그냥 위의 fake 그대로 쓰면 안됨? 왜 다시 계산하지? 나중에 빼보자
+                    # print("####", noisez)
                     fake = self.generator(noisez)
+                    # print("fake@@@@", fake.shape, fake[0])
                     faket = self.Gtransformer.inverse_transform(fake)
+                    # print("faket@@@@", faket.shape, faket[0])
                     fakeact = apply_activate(faket, data_transformer.output_info)
+                    # print("fakeact@@@@", fakeact.shape, fakeact[0])
                     # classifier 입력전에 3lank 텐서를 2lank 로 변환 (B*M, #encode)
-                    real = real.view(-1, len_encoded)
-                    fakeact = fakeact.view(-1, len_encoded)
+                    real = real.contiguous().view(-1, len_encoded)
+                    fakeact = fakeact.contiguous().view(-1, len_encoded)
                     # classifier 에 입력
+                    # print("@@@@", real.shape, real[0])
+                    # print("@@@@", fakeact.shape, fakeact[0])
                     real_pre, real_label = self.classifier(real)
                     fake_pre, fake_label = self.classifier(fakeact)
 
@@ -956,6 +962,11 @@ class CTABGANSynthesizer:
                         c_loss = BCELoss()
                         real_label = real_label.type_as(real_pre)
                         fake_label = fake_label.type_as(fake_pre)
+
+                    # print("@@@@2", real_pre.shape, real_pre)
+                    # print("@@@@2", real_label.shape, real_label)
+                    # print("@@@@2", fake_pre.shape, fake_pre)
+                    # print("@@@@2", fake_label.shape, fake_label)
 
                     loss_c_dstream = c_loss(real_pre, real_label)
                     loss_g_dstream = c_loss(fake_pre, fake_label)
