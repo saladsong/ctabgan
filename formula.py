@@ -1039,7 +1039,7 @@ def cf_02_0030(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
         IF 이용거절여부_카드론=='1' THEN 카드론동의여부='N' ELSE 카드론동의여부='Y'
     """
     dd = df[["이용거절여부_카드론"]]
-    res = dd.apply(lambda x: "N" if x[0]=='1' else "Y", axis=1)
+    res = dd.apply(lambda x: "N" if x[0] == "1" else "Y", axis=1)
     return res
 
 
@@ -1050,7 +1050,7 @@ def cf_02_0038(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
         IF RV신청일자 IS NOT NULL THEN rv최초시작일자=RV신청일자 ELSE rv최초시작일자 IS NULL
     """
     dd = df[["RV신청일자"]]
-    res = dd.apply(lambda x: x[0] if not pd.isna(x[0]) else 'nan', axis=1)
+    res = dd.apply(lambda x: x[0] if not pd.isna(x[0]) else "nan", axis=1)
     return res
 
 
@@ -1061,7 +1061,7 @@ def cf_02_0039(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
         IF RV신청일자 IS NOT NULL THEN rv등록일자=RV신청일자 ELSE rv등록일자 IS NULL
     """
     dd = df[["RV신청일자"]]
-    res = dd.apply(lambda x: x[0] if not pd.isna(x[0]) else 'nan', axis=1)
+    res = dd.apply(lambda x: x[0] if not pd.isna(x[0]) else "nan", axis=1)
     return res
 
 

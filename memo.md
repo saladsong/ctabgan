@@ -46,7 +46,8 @@ pyreverse -o png model
   - build, fit 분리 필요
 - generator 저장 시에 state_dict 만 저장토록... 모델 전체는 용량이 너무 큼
   - build 메서드 구현 필요할 듯
-
+- G, D 케파늘리기
+- lr 스케줄러  lambda 로 바꿔보기
 
 ---
 
