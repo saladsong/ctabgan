@@ -254,7 +254,9 @@ class CTABGAN:
 
         # 이미지 트랜스포머 빌드
         self.synthesizer.gside = gside
-        self.synthesizer.Gtransformer = ImageTransformer(self.synthesizer.gside)
+        self.synthesizer.Gtransformer = ImageTransformer(
+            self.synthesizer.gside, encoded_data.shape[1]
+        )
 
         # 컨디션 벡터 생성기 빌드
         data_transformer = self.transformer
