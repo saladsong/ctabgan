@@ -376,7 +376,7 @@ class Discriminator(Module):
 
         Args:
             side (int): 정사각 2d로 변환한 피처의 변의 길이
-            num_channels (int): CNN 채널 수
+            num_channels (int): CNN 입력 직후 채널 수
             input_channel (int): 입력 채널 크기
         """
         super(Discriminator, self).__init__()
@@ -396,7 +396,7 @@ class Discriminator(Module):
 
         Args:
             side (int): 맨 처음 CNN 레이어의 정사각 이미지의 한 면 크기
-            num_channels (int): CNN 채널 수
+            num_channels (int): CNN 입력 직후 채널 수
             input_channel (int): 입력 채널 크기
         Return:
             List[Module]: torch.nn 레이어 리스트
@@ -434,20 +434,26 @@ class Discriminator(Module):
 
 class Generator(Module):
     def __init__(
-        self, side: int, random_dim: int, num_channels: int, output_channel: int
+        self,
+        side: int,
+        random_dim: int,
+        num_channels: int,
+        output_channel: int,
+        n_conv_layers: int = 4,
     ):
         """build generator
 
         Args:
             side (int): 정사각 2d로 변환한 피처의 변의 길이
             random_dim (int): 입력 디멘전, (랜덤 분포 차원 + contional vector) 차원
-            num_channels (int): CNN 채널 수
+            num_channels (int): CNN 출력 직전 채널 수
             output_channel (int): 마지막 출력 채널 크기
+            n_conv_layers (int): conv layer 개수
         """
         super(Generator, self).__init__()
         self.side = side
         layers = self._determine_layers_gen(
-            side, random_dim, num_channels, output_channel
+            side, random_dim, num_channels, output_channel, n_conv_layers
         )
         self.seq = Sequential(*layers)
 
@@ -455,15 +461,21 @@ class Generator(Module):
         return self.seq(input_)
 
     def _determine_layers_gen(
-        self, side: int, random_dim: int, num_channels: int, output_channel: int
+        self,
+        side: int,
+        random_dim: int,
+        num_channels: int,
+        output_channel: int,
+        n_conv_layers: int = 4,
     ) -> List[Module]:
         """GAN generator를 구성할 torch.nn 레이어들 생성
 
         Args:
             side (int): 맨 처음 CNN 레이어의 정사각 이미지의 한 면 크기
             random_dim (int): 입력 디멘전, (랜덤 분포 차원 + contional vector) 차원
-            num_channels (int): CNN 채널 수
+            num_channels (int): CNN 출력 직전 채널 수
             output_channel (int): 마지막 출력 채널 크기
+            n_conv_layers (int): conv layer 개수
         Return:
             List[Module]: torch.nn 레이어 리스트
         """
@@ -473,7 +485,9 @@ class Generator(Module):
             (num_channels, side // 2),
         ]  # (channel, side)
 
-        while layer_dims[-1][1] > 3 and len(layer_dims) < 4:
+        while (
+            layer_dims[-1][1] > (n_conv_layers - 1) and len(layer_dims) < n_conv_layers
+        ):
             layer_dims.append((layer_dims[-1][0] * 2, layer_dims[-1][1] // 2))
 
         layerNorms = []
@@ -627,7 +641,6 @@ class CTABGANSynthesizer:
         *,
         class_dim: Tuple[int] = None,
         random_dim: int = 100,  # generartor 에 입력될 랜덤 분포 샘플 차원
-        num_channels: int = 64,
         batch_size: int = 500,
         epochs: int = 50,
         ci: int = 1,  # D(critic) 학습 - ci: 반복 횟수
@@ -641,6 +654,9 @@ class CTABGANSynthesizer:
         info_loss_wgt: float = 1,
         info_loss_inc_st_epoch: int = None,
         info_loss_inc_rate: float = 2,
+        # for generator
+        num_channels: int = 64,  # CNN 출력 직전 채널 수
+        n_conv_layers: int = 4,  # conv layer 개수
     ):
         if class_dim is None:
             class_dim = (256, 256, 256, 256)
@@ -668,6 +684,8 @@ class CTABGANSynthesizer:
         self.info_loss_wgt = info_loss_wgt
         self.info_loss_inc_st_epoch = info_loss_inc_st_epoch
         self.info_loss_inc_rate = info_loss_inc_rate
+        # for generator
+        self.n_conv_layers = n_conv_layers
 
         self.is_fit_ = False
 
@@ -709,17 +727,18 @@ class CTABGANSynthesizer:
         if self.dside % 2 == 1:
             self.dside = self.dside + 1
         self.gside = int(np.ceil(col_size_g**0.5))
-        if self.gside % 8 != 0:
+        gside_factor = 2 ** (self.n_conv_layers - 1)
+        if self.gside % gside_factor != 0:
             # self.gside = self.gside + 1
-            # 현재 generator 레이어가 2배로 늘리는게 3번 들어감, 때문에 gside = 2^3 의 배수가 되어야 shape 가 맞음
+            # n_conv_layers가 4이면 generator 레이어가 2배로 늘리는게 3번 들어감, 때문에 gside = 2^3 의 배수가 되어야 shape 가 맞음
             # 추후 generator 구조 변경되면 함께 수정 필요
-            self.gside = ((self.gside // 8) + 1) * 8
+            self.gside = ((self.gside // gside_factor) + 1) * gside_factor
         self.logger.info(f"[gside]: {self.gside}, [dside]: {self.dside}")
 
         # build generator
         col_size_d = self.random_dim + n_opt
         self.generator = Generator(
-            self.gside, col_size_d, self.num_channels, n_month
+            self.gside, col_size_d, self.num_channels, n_month, self.n_conv_layers
         ).to(self.device)
 
         # build discriminator
