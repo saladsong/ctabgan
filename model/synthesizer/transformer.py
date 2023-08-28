@@ -233,8 +233,11 @@ def decode_column(
 ) -> Tuple[np.ndarray, list]:
     """decode single column"""
     np.random.seed(RANDOM_SEED)  # 병렬처리시 반드시 여기에 정의되어야 함.... 약간 모호하나 보수적으로
+    # torch.tensor 기본이 단정밀도라 너무 낮음 99999999 -> 100000000 으로 자동 변환됨. 배정밀도로 수정
+    arr = arr.astype(np.float64)
     len_data = len(arr)
     id_ = info["idx"]
+    from_non_categorical_columns = id_ in transformer.non_categorical_columns
     order = transformer.ordering[id_]
     invalid_ids = []  # fake 를 decode 해보니 컬럼 조건(min, max) 에 위배되는 경우
     ret = None
@@ -261,12 +264,17 @@ def decode_column(
             mean_t = means[p_argmax]
             tmp = u * 4 * std_t + mean_t
 
+            if from_non_categorical_columns:
+                tmp = np.round(tmp)
+
             for idx, val in enumerate(tmp):
                 if (val < info["min"]) | (val > info["max"]):
                     invalid_ids.append(idx)
 
-            if id_ in transformer.non_categorical_columns:
-                tmp = np.round(tmp)
+            if (
+                from_non_categorical_columns
+            ):  # non-cate 값들은 뒤의 label decoding 에러 막기위해 일단 min,max 클리핑 적용
+                tmp = np.clip(tmp, info["min"], info["max"])
 
             ret = tmp
 
@@ -276,8 +284,11 @@ def decode_column(
             u = (u + 1) / 2
             u = np.clip(u, 0, 1)
             u = u * (info["max"] - info["min"]) + info["min"]
-            if id_ in transformer.non_categorical_columns:
-                ret = np.round(u)
+            if from_non_categorical_columns:
+                tmp = np.round(u)
+                tmp = np.clip(
+                    tmp, info["min"], info["max"]
+                )  # non-cate 값들은 뒤의 label decoding 에러 막기위해 일단 min,max 클리핑 적용
             else:
                 ret = u
 
@@ -292,8 +303,8 @@ def decode_column(
 
         full_v = full_v_re_ordered
 
-        mixed_v = full_v[:, : len(info["modal"])]
-        v = full_v[:, -np.sum(transformer.valid_mode_flags[id_]) :]
+        mixed_v = full_v[:, : len(info["modal"])]  # modal 부분 beta
+        v = full_v[:, -np.sum(transformer.valid_mode_flags[id_]) :]  # modal 제외 부분 beta
 
         u = np.clip(u, -1, 1)
         v_t = np.ones((len_data, transformer.n_clusters)) * -100
