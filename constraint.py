@@ -405,20 +405,20 @@ constraints = [
         "type": "formula",
         "content": "IF 이용거절여부_카드론=='1' THEN 카드론동의여부='N' ELSE 카드론동의여부='Y'",
     },
-    {
-        "columns": ["RV신청일자"],
-        "output": "rv최초시작일자",
-        "fname": "cf_02_0038",
-        "type": "formula",
-        "content": "IF RV신청일자 IS NOT NULL THEN rv최초시작일자=RV신청일자 ELSE rv최초시작일자 IS NULL",
-    },
-    {
-        "columns": ["RV신청일자"],
-        "output": "rv등록일자",
-        "fname": "cf_02_0039",
-        "type": "formula",
-        "content": "IF RV신청일자 IS NOT NULL THEN rv등록일자=RV신청일자 ELSE rv등록일자 IS NULL",
-    },
+    # {
+    #     "columns": ["RV신청일자"],
+    #     "output": "rv최초시작일자",
+    #     "fname": "cf_02_0038",
+    #     "type": "formula",
+    #     "content": "IF RV신청일자 IS NOT NULL THEN rv최초시작일자=RV신청일자 ELSE rv최초시작일자 IS NULL",
+    # },
+    # {
+    #     "columns": ["RV신청일자"],
+    #     "output": "rv등록일자",
+    #     "fname": "cf_02_0039",
+    #     "type": "formula",
+    #     "content": "IF RV신청일자 IS NOT NULL THEN rv등록일자=RV신청일자 ELSE rv등록일자 IS NULL",
+    # },
 
     # 4.청구 테이블 컬럼 Constraints
     {
@@ -1960,7 +1960,7 @@ constraints = [
         ],
         "fname": "cc_03_0155",
         "type": "constraint",
-        "content": "쇼핑_전체_이용금액 >= SUM(쇼핑_도소매_이용금액, 백화점, 마트, 슈퍼마켓, 편의점, 아울렛, 온라인, 기타)",
+        "content": "이용금액_쇼핑 >= SUM(쇼핑_도소매_이용금액, 백화점, 마트, 슈퍼마켓, 편의점, 아울렛, 온라인, 기타)",
     },
     {
         "columns": ["_3순위업종_이용금액", "_1순위업종_이용금액"],
@@ -2742,34 +2742,6 @@ constraints = [
         "content": "이용금액_할부_R3M = SUM(이용금액_할부_유이자_R3M, 이용금액_할부_무이자_R3M, 이용금액_부분무이자_R3M)",
     },
     {
-        "columns": ["이용금액_쇼핑"],
-        "output": "쇼핑_전체_이용금액",
-        "fname": "cf_03_0158",
-        "type": "formula",
-        "content": "쇼핑_전체_이용금액 = 이용금액_쇼핑",
-    },
-    {
-        "columns": ["이용금액_교통"],
-        "output": "교통_전체이용금액",
-        "fname": "cf_03_0160",
-        "type": "formula",
-        "content": "교통_전체이용금액 = 이용금액_교통",
-    },
-    {
-        "columns": ["이용금액_납부"],
-        "output": "납부_전체이용금액",
-        "fname": "cf_03_0162",
-        "type": "formula",
-        "content": "납부_전체이용금액 = 이용금액_납부",
-    },
-    {
-        "columns": ["이용금액_여유생활"],
-        "output": "여유_전체이용금액",
-        "fname": "cf_03_0164",
-        "type": "formula",
-        "content": "여유_전체이용금액 = 이용금액_여유생활",
-    },
-    {
         "columns": [
             "교통_주유이용금액",
             "교통_정비이용금액",
@@ -2779,32 +2751,9 @@ constraints = [
             "교통_철도버스이용금액",
         ],
         "output": "이용금액_교통",
-        "fname": "cf_03_0183",
+        "fname": "cf_03_0160",
         "type": "formula",
         "content": "이용금액_교통 = SUM(교통_주유이용금액, 정비, 통행료, 버스지하철, 택시, 철도버스)",
-    },
-    {
-        "columns": [
-            "여유_운동이용금액",
-            "여유_Pet이용금액",
-            "여유_공연이용금액",
-            "여유_공원이용금액",
-            "여유_숙박이용금액",
-            "여유_여행이용금액",
-            "여유_항공이용금액",
-            "여유_기타이용금액",
-        ],
-        "output": "이용금액_여유생활",
-        "fname": "cf_03_0192",
-        "type": "formula",
-        "content": "이용금액_여유생활 = SUM(여유_운동이용금액, Pet, 공연, 공원, 숙박, 여행, 항공, 기타)",
-    },
-    {
-        "columns": ["기준년월"],
-        "output": "납부_렌탈료이용금액",
-        "fname": "cf_03_0195",
-        "type": "formula",
-        "content": "납부_렌탈료이용금액 = 0",
     },
     {
         "columns": [
@@ -2818,9 +2767,60 @@ constraints = [
             "납부_기타이용금액",
         ],
         "output": "이용금액_납부",
-        "fname": "cf_03_0201",
+        "fname": "cf_03_0162",
         "type": "formula",
         "content": "이용금액_납부 = SUM(납부_통신비이용금액, 관리비, 렌탈료, 가스전기료, 보험료, 유선방송, 건강연금, 기타)",
+    },
+    {
+        "columns": [
+            "여유_운동이용금액",
+            "여유_Pet이용금액",
+            "여유_공연이용금액",
+            "여유_공원이용금액",
+            "여유_숙박이용금액",
+            "여유_여행이용금액",
+            "여유_항공이용금액",
+            "여유_기타이용금액",
+        ],
+        "output": "이용금액_여유생활",
+        "fname": "cf_03_0164",
+        "type": "formula",
+        "content": "이용금액_여유생활 = SUM(여유_운동이용금액, Pet, 공연, 공원, 숙박, 여행, 항공, 기타)",
+    },
+    {
+        "columns": ["이용금액_쇼핑"],
+        "output": "쇼핑_전체_이용금액",
+        "fname": "cf_03_0176",
+        "type": "formula",
+        "content": "쇼핑_전체_이용금액 = 이용금액_쇼핑",
+    },
+    {
+        "columns": ["이용금액_교통"],
+        "output": "교통_전체이용금액",
+        "fname": "cf_03_0183",
+        "type": "formula",
+        "content": "교통_전체이용금액 = 이용금액_교통",
+    },
+    {
+        "columns": ["이용금액_여유생활"],
+        "output": "여유_전체이용금액",
+        "fname": "cf_03_0192",
+        "type": "formula",
+        "content": "여유_전체이용금액 = 이용금액_여유생활",
+    },
+    {
+        "columns": ["기준년월"],
+        "output": "납부_렌탈료이용금액",
+        "fname": "cf_03_0195",
+        "type": "formula",
+        "content": "납부_렌탈료이용금액 = 0",
+    },
+    {
+        "columns": ["이용금액_납부"],
+        "output": "납부_전체이용금액",
+        "fname": "cf_03_0201",
+        "type": "formula",
+        "content": "납부_전체이용금액 = 이용금액_납부",
     },
     {
         "columns": [
@@ -4039,30 +4039,30 @@ def cf_02_0030(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     return c == res
 
 
-@constraint_udf
-def cf_02_0038(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
-    """
-    formula:
-        IF RV신청일자 IS NOT NULL THEN rv최초시작일자=RV신청일자 ELSE rv최초시작일자 IS NULL
-    """
-    dd = df[["RV신청일자"]]
-    res = dd.apply(lambda x: x[0] if not pd.isna(x[0]) else 'nan', axis=1)
+# @constraint_udf
+# def cf_02_0038(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+#     """
+#     formula:
+#         IF RV신청일자 IS NOT NULL THEN rv최초시작일자=RV신청일자 ELSE rv최초시작일자 IS NULL
+#     """
+#     dd = df[["RV신청일자"]]
+#     res = dd.apply(lambda x: x[0] if not pd.isna(x[0]) else 'nan', axis=1)
 
-    c = df["rv최초시작일자"]
-    return c == res
+#     c = df["rv최초시작일자"]
+#     return c == res
 
 
-@constraint_udf
-def cf_02_0039(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
-    """
-    formula:
-        IF RV신청일자 IS NOT NULL THEN rv등록일자=RV신청일자 ELSE rv등록일자 IS NULL
-    """
-    dd = df[["RV신청일자"]]
-    res = dd.apply(lambda x: x[0] if not pd.isna(x[0]) else 'nan', axis=1)
+# @constraint_udf
+# def cf_02_0039(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+#     """
+#     formula:
+#         IF RV신청일자 IS NOT NULL THEN rv등록일자=RV신청일자 ELSE rv등록일자 IS NULL
+#     """
+#     dd = df[["RV신청일자"]]
+#     res = dd.apply(lambda x: x[0] if not pd.isna(x[0]) else 'nan', axis=1)
 
-    c = df["rv등록일자"]
-    return c == res
+#     c = df["rv등록일자"]
+#     return c == res
 
 
 @constraint_udf
@@ -8091,51 +8091,7 @@ def cf_03_0126(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
 
 
 @constraint_udf
-def cf_03_0158(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
-    """
-    formula:
-        이용금액_쇼핑 = 쇼핑_전체_이용금액
-    """
-    res = df["쇼핑_전체_이용금액"]
-    c = df["이용금액_쇼핑"]
-    return c == res
-
-
-@constraint_udf
 def cf_03_0160(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
-    """
-    formula:
-        교통_전체이용금액 = 이용금액_교통
-    """
-    res = df["이용금액_교통"]
-    c = df["교통_전체이용금액"]
-    return c == res
-
-
-@constraint_udf
-def cf_03_0162(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
-    """
-    formula:
-        납부_전체이용금액 = 이용금액_납부
-    """
-    res = df["이용금액_납부"]
-    c = df["납부_전체이용금액"]
-    return c == res
-
-
-@constraint_udf
-def cf_03_0164(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
-    """
-    formula:
-        여유_전체이용금액 = 이용금액_여유생활
-    """
-    res = df["이용금액_여유생활"]
-    c = df["여유_전체이용금액"]
-    return c == res
-
-
-@constraint_udf
-def cf_03_0183(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     """
     formula:
         이용금액_교통 = SUM(교통_주유이용금액, 정비, 통행료, 버스지하철, 택시, 철도버스)
@@ -8157,7 +8113,31 @@ def cf_03_0183(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
 
 
 @constraint_udf
-def cf_03_0192(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+def cf_03_0162(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        이용금액_납부 = SUM(납부_통신비이용금액, 관리비, 렌탈료, 가스전기료, 보험료, 유선방송, 건강연금, 기타)
+    """
+    dd = df[
+        [
+            "납부_통신비이용금액",
+            "납부_관리비이용금액",
+            "납부_렌탈료이용금액",
+            "납부_가스전기료이용금액",
+            "납부_보험료이용금액",
+            "납부_유선방송이용금액",
+            "납부_건강연금이용금액",
+            "납부_기타이용금액",
+        ]
+    ]
+    res = dd.sum(axis=1).astype(int)
+
+    c = df["이용금액_납부"]
+    return c == res
+
+
+@constraint_udf
+def cf_03_0164(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     """
     formula:
         이용금액_여유생활 = SUM(여유_운동이용금액, Pet, 공연, 공원, 숙박, 여행, 항공, 기타)
@@ -8181,6 +8161,39 @@ def cf_03_0192(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
 
 
 @constraint_udf
+def cf_03_0176(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        이용금액_쇼핑 = 쇼핑_전체_이용금액
+    """
+    res = df["쇼핑_전체_이용금액"]
+    c = df["이용금액_쇼핑"]
+    return c == res
+
+
+@constraint_udf
+def cf_03_0183(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        교통_전체이용금액 = 이용금액_교통
+    """
+    res = df["이용금액_교통"]
+    c = df["교통_전체이용금액"]
+    return c == res
+
+
+@constraint_udf
+def cf_03_0192(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        여유_전체이용금액 = 이용금액_여유생활
+    """
+    res = df["이용금액_여유생활"]
+    c = df["여유_전체이용금액"]
+    return c == res
+
+
+@constraint_udf
 def cf_03_0195(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     """
     formula:
@@ -8197,23 +8210,10 @@ def cf_03_0195(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
 def cf_03_0201(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     """
     formula:
-        이용금액_납부 = SUM(납부_통신비이용금액, 관리비, 렌탈료, 가스전기료, 보험료, 유선방송, 건강연금, 기타)
+        납부_전체이용금액 = 이용금액_납부
     """
-    dd = df[
-        [
-            "납부_통신비이용금액",
-            "납부_관리비이용금액",
-            "납부_렌탈료이용금액",
-            "납부_가스전기료이용금액",
-            "납부_보험료이용금액",
-            "납부_유선방송이용금액",
-            "납부_건강연금이용금액",
-            "납부_기타이용금액",
-        ]
-    ]
-    res = dd.sum(axis=1).astype(int)
-
-    c = df["이용금액_납부"]
+    res = df["이용금액_납부"]
+    c = df["납부_전체이용금액"]
     return c == res
 
 

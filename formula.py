@@ -112,20 +112,20 @@ constraints = [
         "type": "formula",
         "content": "IF 이용거절여부_카드론=='1' THEN 카드론동의여부='N' ELSE 카드론동의여부='Y'",
     },
-    {
-        "columns": ["RV신청일자"],
-        "output": "rv최초시작일자",
-        "fname": "cf_02_0038",
-        "type": "formula",
-        "content": "IF RV신청일자 IS NOT NULL THEN rv최초시작일자=RV신청일자 ELSE rv최초시작일자 IS NULL",
-    },
-    {
-        "columns": ["RV신청일자"],
-        "output": "rv등록일자",
-        "fname": "cf_02_0039",
-        "type": "formula",
-        "content": "IF RV신청일자 IS NOT NULL THEN rv등록일자=RV신청일자 ELSE rv등록일자 IS NULL",
-    },
+    # {
+    #     "columns": ["RV신청일자"],
+    #     "output": "rv최초시작일자",
+    #     "fname": "cf_02_0038",
+    #     "type": "formula",
+    #     "content": "IF RV신청일자 IS NOT NULL THEN rv최초시작일자=RV신청일자 ELSE rv최초시작일자 IS NULL",
+    # },
+    # {
+    #     "columns": ["RV신청일자"],
+    #     "output": "rv등록일자",
+    #     "fname": "cf_02_0039",
+    #     "type": "formula",
+    #     "content": "IF RV신청일자 IS NOT NULL THEN rv등록일자=RV신청일자 ELSE rv등록일자 IS NULL",
+    # },
     # 4.청구 테이블 컬럼 Formula
     {
         "columns": ["기준년월"],
@@ -1400,26 +1400,26 @@ def cf_02_0030(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
     return res
 
 
-@constraint_udf
-def cf_02_0038(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
-    """
-    formula:
-        IF RV신청일자 IS NOT NULL THEN rv최초시작일자=RV신청일자 ELSE rv최초시작일자 IS NULL
-    """
-    dd = df[["RV신청일자"]]
-    res = dd.apply(lambda x: x[0] if not pd.isna(x[0]) else "nan", axis=1)
-    return res
+# @constraint_udf
+# def cf_02_0038(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+#     """
+#     formula:
+#         IF RV신청일자 IS NOT NULL THEN rv최초시작일자=RV신청일자 ELSE rv최초시작일자 IS NULL
+#     """
+#     dd = df[["RV신청일자"]]
+#     res = dd.apply(lambda x: x[0] if not pd.isna(x[0]) else "nan", axis=1)
+#     return res
 
 
-@constraint_udf
-def cf_02_0039(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
-    """
-    formula:
-        IF RV신청일자 IS NOT NULL THEN rv등록일자=RV신청일자 ELSE rv등록일자 IS NULL
-    """
-    dd = df[["RV신청일자"]]
-    res = dd.apply(lambda x: x[0] if not pd.isna(x[0]) else "nan", axis=1)
-    return res
+# @constraint_udf
+# def cf_02_0039(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+#     """
+#     formula:
+#         IF RV신청일자 IS NOT NULL THEN rv등록일자=RV신청일자 ELSE rv등록일자 IS NULL
+#     """
+#     dd = df[["RV신청일자"]]
+#     res = dd.apply(lambda x: x[0] if not pd.isna(x[0]) else "nan", axis=1)
+#     return res
 
 
 @constraint_udf
