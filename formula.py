@@ -1153,7 +1153,7 @@ constraints = [
         "content": "최종카드론이용경과월 = MONTHS_BETWEEN(LAST_DAY(기준년월), 최종이용일자_카드론)",
     },
     {
-        "columns": ["최종카드론_대출일자", "최종이용일자_카드론"],
+        "columns": ["최종이용일자_카드론"],
         "output": "최종카드론_대출일자",
         "fname": "cf_03_0289",
         "type": "formula",
@@ -1401,7 +1401,7 @@ def cf_02_0030(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
 
 
 # @constraint_udf
-# def cf_02_0038(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+# def cf_02_0038(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
 #     """
 #     formula:
 #         IF RV신청일자 IS NOT NULL THEN rv최초시작일자=RV신청일자 ELSE rv최초시작일자 IS NULL
@@ -1412,7 +1412,7 @@ def cf_02_0030(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
 
 
 # @constraint_udf
-# def cf_02_0039(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+# def cf_02_0039(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
 #     """
 #     formula:
 #         IF RV신청일자 IS NOT NULL THEN rv등록일자=RV신청일자 ELSE rv등록일자 IS NULL
@@ -2229,47 +2229,7 @@ def cf_03_0126(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
 
 
 @constraint_udf
-def cf_03_0158(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
-    """
-    formula:
-        쇼핑_전체_이용금액 = 이용금액_쇼핑
-    """
-    res = df["이용금액_쇼핑"]
-    return res
-
-
-@constraint_udf
 def cf_03_0160(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
-    """
-    formula:
-        교통_전체이용금액 = 이용금액_교통
-    """
-    res = df["이용금액_교통"]
-    return res
-
-
-@constraint_udf
-def cf_03_0162(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
-    """
-    formula:
-        납부_전체이용금액 = 이용금액_납부
-    """
-    res = df["이용금액_납부"]
-    return res
-
-
-@constraint_udf
-def cf_03_0164(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
-    """
-    formula:
-        여유_전체이용금액 = 이용금액_여유생활
-    """
-    res = df["이용금액_여유생활"]
-    return res
-
-
-@constraint_udf
-def cf_03_0183(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
     formula:
         이용금액_교통 = SUM(교통_주유이용금액, 정비, 통행료, 버스지하철, 택시, 철도버스)
@@ -2289,7 +2249,29 @@ def cf_03_0183(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
 
 
 @constraint_udf
-def cf_03_0192(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+def cf_03_0162(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+    """
+    formula:
+        이용금액_납부 = SUM(납부_통신비이용금액, 관리비, 렌탈료, 가스전기료, 보험료, 유선방송, 건강연금, 기타)
+    """
+    dd = df[
+        [
+            "납부_통신비이용금액",
+            "납부_관리비이용금액",
+            "납부_렌탈료이용금액",
+            "납부_가스전기료이용금액",
+            "납부_보험료이용금액",
+            "납부_유선방송이용금액",
+            "납부_건강연금이용금액",
+            "납부_기타이용금액",
+        ]
+    ]
+    res = dd.sum(axis=1).astype(int)
+    return res
+
+
+@constraint_udf
+def cf_03_0164(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
     formula:
         이용금액_여유생활 = SUM(여유_운동이용금액, Pet, 공연, 공원, 숙박, 여행, 항공, 기타)
@@ -2311,6 +2293,36 @@ def cf_03_0192(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
 
 
 @constraint_udf
+def cf_03_0176(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+    """
+    formula:
+        이용금액_쇼핑 = 쇼핑_전체_이용금액
+    """
+    res = df["쇼핑_전체_이용금액"]
+    return res
+
+
+@constraint_udf
+def cf_03_0183(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+    """
+    formula:
+        교통_전체이용금액 = 이용금액_교통
+    """
+    res = df["이용금액_교통"]
+    return res
+
+
+@constraint_udf
+def cf_03_0192(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+    """
+    formula:
+        여유_전체이용금액 = 이용금액_여유생활
+    """
+    res = df["이용금액_여유생활"]
+    return res
+
+
+@constraint_udf
 def cf_03_0195(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
     formula:
@@ -2325,21 +2337,9 @@ def cf_03_0195(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
 def cf_03_0201(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
     formula:
-        이용금액_납부 = SUM(납부_통신비이용금액, 관리비, 렌탈료, 가스전기료, 보험료, 유선방송, 건강연금, 기타)
+        납부_전체이용금액 = 이용금액_납부
     """
-    dd = df[
-        [
-            "납부_통신비이용금액",
-            "납부_관리비이용금액",
-            "납부_렌탈료이용금액",
-            "납부_가스전기료이용금액",
-            "납부_보험료이용금액",
-            "납부_유선방송이용금액",
-            "납부_건강연금이용금액",
-            "납부_기타이용금액",
-        ]
-    ]
-    res = dd.sum(axis=1).astype(int)
+    res = df["이용금액_납부"]
     return res
 
 
@@ -3121,7 +3121,7 @@ def cf_03_0281(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
 
 
 @constraint_udf
-def cf_03_0289(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+def cf_03_0289(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
     formula:
         최종카드론_대출일자 == 최종이용일자_카드론

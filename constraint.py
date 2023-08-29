@@ -3258,7 +3258,7 @@ constraints = [
         "content": "최종카드론이용경과월 = MONTHS_BETWEEN(LAST_DAY(기준년월), 최종이용일자_카드론)",
     },
     {
-        "columns": ["최종카드론_대출일자", "최종이용일자_카드론"],
+        "columns": ["최종이용일자_카드론"],
         "output": "최종카드론_대출일자",
         "fname": "cf_03_0289",
         "type": "formula",
