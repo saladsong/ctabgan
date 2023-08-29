@@ -13,6 +13,7 @@ from torch.nn import (
     Sequential,
     Conv2d,
     ConvTranspose2d,
+    AdaptiveAvgPool2d,
     Sigmoid,
     init,
     BCELoss,
@@ -427,7 +428,11 @@ class Discriminator(Module):
                 LeakyReLU(0.2, inplace=True),
             ]
 
-        layers_D += [Conv2d(layer_dims[-1][0], 1, layer_dims[-1][1], 1, 0), ReLU(True)]
+        layers_D += [
+            Conv2d(layer_dims[-1][0], 1, layer_dims[-1][1], 1, 0),
+            # AdaptiveAvgPool2d(1),
+        ]
+        # layers_D += [Conv2d(layer_dims[-1][0], 1, layer_dims[-1][1], 1, 0), ReLU(True)]
 
         return layers_D
 

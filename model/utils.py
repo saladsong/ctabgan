@@ -4,6 +4,7 @@ import pandas as pd
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
+
 def get_col_lists(col_info, min_nuniq_for_num=11, max_nuniq_for_cate=10):
     """컬럼 정보 정합성 체크 후 유형별 컬럼 목록 반환
     Args:
@@ -141,45 +142,97 @@ def get_col_lists(col_info, min_nuniq_for_num=11, max_nuniq_for_cate=10):
         "integer_columns": integer_list,
     }
 
-def date_to_recency(df, col, is_past=True, special_val=None, replace_val=np.nan, base_dt_col='기준일자_dt'):
-    """날짜 컬럼을 Recency로 변환
-    """
+
+def date_to_recency(
+    df, col, is_past=True, special_val=None, replace_val=np.nan, base_dt_col="기준일자_dt"
+):
+    """날짜 컬럼을 Recency로 변환"""
     if is_past:
         new_col = np.where(
-            df[col]==special_val, replace_val, np.where(
-                pd.isnull(df[col]), np.nan,
-                (df[base_dt_col] - df[(~pd.isnull(df[col]))&(df[col]!=special_val)][col].astype(int).apply(lambda x: datetime.strptime(str(x),'%Y%m%d'))).dt.days,
-            )
+            df[col] == special_val,
+            replace_val,
+            np.where(
+                pd.isnull(df[col]),
+                np.nan,
+                (
+                    df[base_dt_col]
+                    - df[(~pd.isnull(df[col])) & (df[col] != special_val)][col]
+                    .astype(int)
+                    .apply(lambda x: datetime.strptime(str(x), "%Y%m%d"))
+                ).dt.days,
+            ),
         )
     else:
         new_col = np.where(
-            df[col]==special_val, replace_val, np.where(
-                pd.isnull(df[col]), np.nan,
-                (df[(~pd.isnull(df[col]))&(df[col]!=special_val)][col].astype(int).apply(lambda x: datetime.strptime(str(x),'%Y%m')+relativedelta(months=1)-relativedelta(days=1)) - df[base_dt_col]).dt.days,
-            )
+            df[col] == special_val,
+            replace_val,
+            np.where(
+                pd.isnull(df[col]),
+                np.nan,
+                (
+                    df[(~pd.isnull(df[col])) & (df[col] != special_val)][col]
+                    .astype(int)
+                    .apply(
+                        lambda x: datetime.strptime(str(x), "%Y%m")
+                        + relativedelta(months=1)
+                        - relativedelta(days=1)
+                    )
+                    - df[base_dt_col]
+                ).dt.days,
+            ),
         )
     return new_col
 
-def recency_to_date(df, new_col, is_past=True, special_val=None, replace_val=np.nan, base_dt_col='기준일자_dt'):
-    """Recency 컬럼을 날짜 값으로 변환
-    """
+
+def recency_to_date(
+    df,
+    new_col,
+    is_past=True,
+    special_val=None,
+    replace_val=np.nan,
+    base_dt_col="기준일자_dt",
+):
+    """Recency 컬럼을 날짜 값으로 변환"""
     if is_past:
         col = np.where(
-            df[new_col]==replace_val, special_val, np.where(
-                pd.isnull(df[new_col]), np.nan,
-                df.apply(lambda x: datetime.strftime(x[base_dt_col] - relativedelta(days=x[new_col]), '%Y%m%d') if (~pd.isnull(x[new_col]))&(x[new_col]!=replace_val) else 'tmp', axis=1)
-            )
+            df[new_col] == replace_val,
+            special_val,
+            np.where(
+                pd.isnull(df[new_col]),
+                np.nan,
+                df.apply(
+                    lambda x: datetime.strftime(
+                        x[base_dt_col] - relativedelta(days=x[new_col]), "%Y%m%d"
+                    )
+                    if (~pd.isnull(x[new_col])) & (x[new_col] != replace_val)
+                    else "tmp",
+                    axis=1,
+                ),
+            ),
         )
     else:
         col = np.where(
-            df[new_col]==replace_val, special_val, np.where(
-                pd.isnull(df[new_col]), np.nan,
-                df.apply(lambda x: datetime.strftime(x[base_dt_col] + relativedelta(days=x[new_col]), '%Y%m') if (~pd.isnull(x[new_col]))&(x[new_col]!=replace_val) else 'tmp', axis=1)
-            )
+            df[new_col] == replace_val,
+            special_val,
+            np.where(
+                pd.isnull(df[new_col]),
+                np.nan,
+                df.apply(
+                    lambda x: datetime.strftime(
+                        x[base_dt_col] + relativedelta(days=x[new_col]), "%Y%m"
+                    )
+                    if (~pd.isnull(x[new_col])) & (x[new_col] != replace_val)
+                    else "tmp",
+                    axis=1,
+                ),
+            ),
         )
     return col
 
-def transform_date_cols(df_to_transform, date_replace_dict, base_ym_col='기준년월', inverse=False):
+
+def transform_date_cols(
+    df_to_transform, date_replace_dict, base_ym_col="기준년월", inverse=False
+):
     """날짜 컬럼을 지정된 규칙에 따라 Recency 컬럼으로 변환, 또는 그 역변환
     Recency 컬럼은 과거인 경우 `경과일수_`, 미래인 경우 `잔여일수_`를 날짜 컬럼명에 prefix로 붙임
     변환된 컬럼은 데이터 맨 뒤에 추가되며, 기존 컬럼은 제거됨
@@ -192,34 +245,96 @@ def transform_date_cols(df_to_transform, date_replace_dict, base_ym_col='기준�
         pd.DataFrame: 변환 적용된 데이터
     """
     df = copy.deepcopy(df_to_transform)
-    
+
     # 산출 기준일자 (기준년월의 말일)
-    base_dt_col = '기준일자_dt'
+    base_dt_col = "기준일자_dt"
     df[base_dt_col] = df[base_ym_col].apply(
-        lambda x: datetime.strptime(str(x), '%Y%m') + relativedelta(months=1) - relativedelta(days=1)
+        lambda x: datetime.strptime(str(x), "%Y%m")
+        + relativedelta(months=1)
+        - relativedelta(days=1)
     )
-    if inverse==False:
+    if inverse == False:
         for col in date_replace_dict:
-            new_col = f'경과일수_{col}' if date_replace_dict[col]['is_past']==True else f'잔여일수_{col}'.replace('__', '_')
-            df[new_col] = date_to_recency(
-                df, col,
-                is_past=date_replace_dict[col]['is_past'],
-                special_val=date_replace_dict[col]['special_val'],
-                replace_val=date_replace_dict[col]['replace_val'],
-                base_dt_col=base_dt_col
+            new_col = (
+                f"경과일수_{col}"
+                if date_replace_dict[col]["is_past"] == True
+                else f"잔여일수_{col}".replace("__", "_")
             )
-        df = df.drop(columns=[base_dt_col]+list(date_replace_dict.keys()))
+            df[new_col] = date_to_recency(
+                df,
+                col,
+                is_past=date_replace_dict[col]["is_past"],
+                special_val=date_replace_dict[col]["special_val"],
+                replace_val=date_replace_dict[col]["replace_val"],
+                base_dt_col=base_dt_col,
+            )
+        df = df.drop(columns=[base_dt_col] + list(date_replace_dict.keys()))
     else:
         new_cols = []
         for col in date_replace_dict:
-            new_col = f'경과일수_{col}' if date_replace_dict[col]['is_past']==True else f'잔여일수_{col}'.replace('__', '_')
+            new_col = (
+                f"경과일수_{col}"
+                if date_replace_dict[col]["is_past"] == True
+                else f"잔여일수_{col}".replace("__", "_")
+            )
             new_cols.append(new_col)
             df[col] = recency_to_date(
-                df, new_col,
-                is_past=date_replace_dict[col]['is_past'],
-                special_val=date_replace_dict[col]['special_val'],
-                replace_val=date_replace_dict[col]['replace_val'],
-                base_dt_col=base_dt_col
+                df,
+                new_col,
+                is_past=date_replace_dict[col]["is_past"],
+                special_val=date_replace_dict[col]["special_val"],
+                replace_val=date_replace_dict[col]["replace_val"],
+                base_dt_col=base_dt_col,
             )
-        df = df.drop(columns=[base_dt_col]+new_cols)
+        df = df.drop(columns=[base_dt_col] + new_cols)
     return df
+
+
+### 임시
+def make_fn_dept(data):
+    all_input = []
+    tmp_dict = {}
+    for con in data:
+        all_input.append(con["columns"])
+
+    for con in data:
+        target_value = con["output"]
+        fn = con["fname"]
+        try:
+            positions = [
+                (row_idx, col_idx)
+                for row_idx, row in enumerate(all_input)
+                for col_idx, value in enumerate(row)
+                if value == target_value
+            ]
+            if len(positions) >= 1:
+                for i in positions:
+                    #                 print(f"선행 : '{constraints[i[0]]['fname']}', 후행 : '{fn}'")
+                    tmp = {fn: data[i[0]]["fname"]}
+                    tmp_dict.update(tmp)
+        except StopIteration:
+            pass
+
+        lv1 = []
+        lv2 = []
+        lv3 = []
+        ff = []
+        for k, v in tmp_dict.items():
+            lv1.append(k)  # 후행만 있는 애들
+            if k in tmp_dict.values():
+                lv2.append(k)  # 후행 함수도 있고 선행 함수도 있는 애들
+            if v not in tmp_dict.keys():
+                lv3.append(v)  # 선행만 있는 애들
+
+        for i in lv2:
+            ff.append(tmp_dict[i])
+        lv1 = list(set(lv1) - set(lv2))
+        lv3 = list(set(lv3))
+
+    lv0 = []
+    for con in data:
+        lv0.append(con["fname"])
+
+    lv0 = list(set(lv0) - set(lv1) - set(lv2) - set(lv3))
+    tot = [lv0] + [lv1] + [lv2] + [lv3]
+    return tot
