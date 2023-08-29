@@ -2232,9 +2232,9 @@ def cf_03_0126(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
 def cf_03_0158(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
     formula:
-        이용금액_쇼핑 = 쇼핑_전체_이용금액
+        쇼핑_전체_이용금액 = 이용금액_쇼핑
     """
-    res = df["쇼핑_전체_이용금액"]
+    res = df["이용금액_쇼핑"]
     return res
 
 
@@ -2242,9 +2242,9 @@ def cf_03_0158(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
 def cf_03_0160(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
     formula:
-        이용금액_교통 = 교통_전체이용금액
+        교통_전체이용금액 = 이용금액_교통
     """
-    res = df["교통_전체이용금액"]
+    res = df["이용금액_교통"]
     return res
 
 
@@ -2252,9 +2252,9 @@ def cf_03_0160(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
 def cf_03_0162(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
     formula:
-        이용금액_납부 = 납부_전체이용금액
+        납부_전체이용금액 = 이용금액_납부
     """
-    res = df["납부_전체이용금액"]
+    res = df["이용금액_납부"]
     return res
 
 
@@ -2262,9 +2262,9 @@ def cf_03_0162(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
 def cf_03_0164(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
     formula:
-        이용금액_여유생활 = 여유_전체이용금액
+        여유_전체이용금액 = 이용금액_여유생활
     """
-    res = df["여유_전체이용금액"]
+    res = df["이용금액_여유생활"]
     return res
 
 
@@ -2272,7 +2272,7 @@ def cf_03_0164(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
 def cf_03_0183(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
     formula:
-        교통_전체이용금액 = SUM(교통_주유이용금액, 정비, 통행료, 버스지하철, 택시, 철도버스)
+        이용금액_교통 = SUM(교통_주유이용금액, 정비, 통행료, 버스지하철, 택시, 철도버스)
     """
     dd = df[
         [
@@ -2292,7 +2292,7 @@ def cf_03_0183(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
 def cf_03_0192(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
     formula:
-        여유_전체이용금액 = SUM(여유_운동이용금액, Pet, 공연, 공원, 숙박, 여행, 항공, 기타)
+        이용금액_여유생활 = SUM(여유_운동이용금액, Pet, 공연, 공원, 숙박, 여행, 항공, 기타)
     """
     dd = df[
         [
@@ -2325,7 +2325,7 @@ def cf_03_0195(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
 def cf_03_0201(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
     formula:
-        납부_전체이용금액 = SUM(납부_통신비이용금액, 관리비, 렌탈료, 가스전기료, 보험료, 유선방송, 건강연금, 기타)
+        이용금액_납부 = SUM(납부_통신비이용금액, 관리비, 렌탈료, 가스전기료, 보험료, 유선방송, 건강연금, 기타)
     """
     dd = df[
         [
