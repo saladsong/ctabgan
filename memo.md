@@ -48,8 +48,21 @@ pyreverse -o png model
   - build 메서드 구현 필요할 듯
 - G, D 케파늘리기
 - lr 스케줄러  lambda 로 바꿔보기
+- gradient accumulation 적용해보기 [x]
+- 모드 체크 , 가장 가까운 곳으로 넣기 [x]
+    - 99999999->100000000 변환 되는것 float32 정밀도 문제임
+    - 마지막 샘플링만 float64로 되도록 변경??
+- 모드 역변환 레이블 디코딩 안되는 문제 [x]
+    -   non-cate 애들이 con으로 디코딩 된후 min-max 범위 벗어나서 발생하는 문제
+- 제너레이터 state-dict 저장/로드로 바꾸기
+- transformer VGM 모델만 저장/로드로 바꾸기
+- formula 체크
+
 
 ---
+8월말까지
+- 월별로 4만건
+- 
 
 
 mixed & log & 음수 존재

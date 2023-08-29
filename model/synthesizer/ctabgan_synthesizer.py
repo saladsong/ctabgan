@@ -650,6 +650,7 @@ class CTABGANSynthesizer:
         device: str = None,
         generator_device: str = None,
         discriminator_device: str = None,
+        accumulation_steps: int = 1,  # Gradient accumulation 설정
         # for info loss
         info_loss_wgt: float = 1,
         info_loss_inc_st_epoch: int = None,
@@ -680,6 +681,8 @@ class CTABGANSynthesizer:
         self.device = device
         self.generator_device = generator_device
         self.discriminator_device = discriminator_device
+        assert isinstance(accumulation_steps, int) and accumulation_steps > 1
+        self.accumulation_steps = accumulation_steps
         # for info loss
         self.info_loss_wgt = info_loss_wgt
         self.info_loss_inc_st_epoch = info_loss_inc_st_epoch
@@ -800,14 +803,14 @@ class CTABGANSynthesizer:
             ):
                 self.info_loss_wgt *= self.info_loss_inc_rate
 
-            for id_ in tqdm(range(steps_per_epoch)):
+            for i_g in tqdm(range(steps_per_epoch)):
                 # G(generator), D(critic), C(auxiliary classifier) 학습
                 # G: loss_g = loss_g_default + loss_g_info + loss_g_dstream + loss_g_gen
                 # D: loss_d = loss_d_was_gp (Was+GP)
                 # C: loss_c = loss_c_dstream
 
                 ### ------ D(critic) 학습 ------ ci: 반복 횟수
-                for _ in range(self.ci):
+                for i_ci in range(self.ci * self.accumulation_steps):
                     # 노이즈(z) 및 컨디션 벡터(condvec) 샘플링
                     noisez = torch.randn(
                         self.batch_size, self.random_dim, device=self.device
@@ -870,7 +873,10 @@ class CTABGANSynthesizer:
                     loss_d_was_gp = d_real + d_fake + pen
                     loss_d_was_gp.backward()
 
-                    optimizerD.step()
+                    # accumulation_steps 마다 update
+                    if (i_ci + 1) % self.accumulation_steps == 0:
+                        optimizerD.step()  # 파라미터 업데이트
+
                     # ci 이터레이션 중 맨 마지막 값만 step에 기록위헤 아래에서 한번에 등록
                     # wandb.log({"gp": pen, "loss_d_was_gp": loss_d_was_gp})
 
@@ -935,7 +941,7 @@ class CTABGANSynthesizer:
 
                 loss_g = loss_g_default + loss_g_info + loss_g_gen
                 loss_g.backward()
-                optimizerG.step()
+
                 wandblog = {
                     # for loss_d
                     "gp": pen,
@@ -946,6 +952,8 @@ class CTABGANSynthesizer:
                     "loss_g_gen": loss_g_gen,
                     "info_loss_wgt": self.info_loss_wgt,
                 }
+                if (i_g + 1) % self.accumulation_steps == 0:
+                    optimizerG.step()
 
                 # loss_g_dstream
                 if target_index is not None:
@@ -982,12 +990,11 @@ class CTABGANSynthesizer:
                     # loss_g_dstream for Generator
                     optimizerG.zero_grad()
                     loss_g_dstream.backward()
-                    optimizerG.step()
 
                     # loss_g_dstream for Classifier
                     optimizerC.zero_grad()
                     loss_c_dstream.backward()
-                    optimizerC.step()
+
                     wandblog.update(
                         {
                             "loss_g_dstream": loss_g_dstream,
@@ -997,6 +1004,11 @@ class CTABGANSynthesizer:
                             "lr": optimizerG.param_groups[0]["lr"],
                         }
                     )
+
+                    if (i_g + 1) % self.accumulation_steps == 0:
+                        optimizerG.step()
+                        optimizerC.step()
+
                 else:
                     wandblog.update(
                         {
