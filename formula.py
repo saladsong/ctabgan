@@ -57,49 +57,49 @@ constraints = [
     },
     {
         "columns": ["유효카드수_신용", "유효카드수_체크"],
-        "output":  "유효카드수_신용체크",
+        "output": "유효카드수_신용체크",
         "fname": "cf_01_0039",
         "type": "formula",
         "content": "유효카드수_신용체크 = 유효카드수_신용 + 유효카드수_체크",
     },
     {
         "columns": ["이용가능카드수_신용", "이용가능카드수_체크"],
-        "output":  "이용가능카드수_신용체크",
+        "output": "이용가능카드수_신용체크",
         "fname": "cf_01_0044",
         "type": "formula",
         "content": "이용가능카드수_신용체크 = 이용가능카드수_신용 + 이용가능카드수_체크",
     },
     {
         "columns": ["이용카드수_신용", "이용카드수_체크"],
-        "output":  "이용카드수_신용체크",
+        "output": "이용카드수_신용체크",
         "fname": "cf_01_0049",
         "type": "formula",
         "content": "이용카드수_신용체크 = 이용카드수_신용 + 이용카드수_체크",
     },
     {
         "columns": ["이용금액_R3M_신용", "이용금액_R3M_체크"],
-        "output":  "이용금액_R3M_신용체크",
+        "output": "이용금액_R3M_신용체크",
         "fname": "cf_01_0054",
         "type": "formula",
         "content": "이용금액_R3M_신용체크 = 이용금액_R3M_신용 + 이용금액_R3M_체크",
     },
     {
         "columns": ["할인금액_기본연회비_B0M", "청구금액_기본연회비_B0M"],
-        "output":  "기본연회비_B0M",
+        "output": "기본연회비_B0M",
         "fname": "cf_01_0083",
         "type": "formula",
         "content": "기본연회비_B0M = 할인금액_기본연회비_B0M+청구금액_기본연회비_B0M",
     },
     {
         "columns": ["할인금액_제휴연회비_B0M", "청구금액_제휴연회비_B0M"],
-        "output":  "제휴연회비_B0M",
+        "output": "제휴연회비_B0M",
         "fname": "cf_01_0084",
         "type": "formula",
         "content": "제휴연회비_B0M = 할인금액_제휴연회비_B0M+청구금액_제휴연회비_B0M",
     },
     {
         "columns": ["기준년월"],
-        "output":  "기타면제카드수_B0M",
+        "output": "기타면제카드수_B0M",
         "fname": "cf_01_0092",
         "type": "formula",
         "content": "기타면제카드수_B0M = 0",
@@ -107,21 +107,21 @@ constraints = [
     # 2.신용 테이블 컬럼 Formula
     {
         "columns": ["이용거절여부_카드론"],
-        "output":  "카드론동의여부",
+        "output": "카드론동의여부",
         "fname": "cf_02_0030",
         "type": "formula",
         "content": "IF 이용거절여부_카드론=='1' THEN 카드론동의여부='N' ELSE 카드론동의여부='Y'",
     },
     {
         "columns": ["RV신청일자"],
-        "output":  "rv최초시작일자",
+        "output": "rv최초시작일자",
         "fname": "cf_02_0038",
         "type": "formula",
         "content": "IF RV신청일자 IS NOT NULL THEN rv최초시작일자=RV신청일자 ELSE rv최초시작일자 IS NULL",
     },
     {
         "columns": ["RV신청일자"],
-        "output":  "rv등록일자",
+        "output": "rv등록일자",
         "fname": "cf_02_0039",
         "type": "formula",
         "content": "IF RV신청일자 IS NOT NULL THEN rv등록일자=RV신청일자 ELSE rv등록일자 IS NULL",
@@ -129,14 +129,14 @@ constraints = [
     # 4.청구 테이블 컬럼 Formula
     {
         "columns": ["기준년월"],
-        "output":  "대표결제방법코드",
+        "output": "대표결제방법코드",
         "fname": "cf_04_0008",
         "type": "formula",
         "content": "대표결제방법코드 = 2",
     },
     {
         "columns": ["대표청구서수령지구분코드"],
-        "output":  "청구서수령방법",
+        "output": "청구서수령방법",
         "fname": "cf_04_0011",
         "type": "formula",
         "content": """IF 구분코드 IN ('1','3') THEN 청구서수령방법 = 01.우편, ELIF 구분코드 IN ('2') THEN 02.이메일,
@@ -147,14 +147,14 @@ constraints = [
     },
     {
         "columns": ["포인트_포인트_건별_R3M", "포인트_포인트_월적립_R3M"],
-        "output":  "포인트_적립포인트_R3M",
+        "output": "포인트_적립포인트_R3M",
         "fname": "cf_04_0027",
         "type": "formula",
         "content": "포인트_적립포인트_R3M = 포인트_포인트_건별_R3M + 포인트_포인트_월적립_R3M",
     },
     {
         "columns": ["포인트_마일리지_건별_R3M", "포인트_마일리지_월적립_R3M"],
-        "output":  "마일_적립포인트_R3M",
+        "output": "마일_적립포인트_R3M",
         "fname": "cf_04_0032",
         "type": "formula",
         "content": "마일_적립포인트_R3M = 포인트_마일리지_건별_R3M + 포인트_마일리지_월적립_R3M",
@@ -169,7 +169,7 @@ constraints = [
             "잔액_리볼빙CA이월_B0M",
             "잔액_카드론_B0M",
         ],
-        "output":  "잔액_B0M",
+        "output": "잔액_B0M",
         "fname": "cf_05_0006",
         "type": "formula",
         "content": "잔액_B0M = SUM(잔액_일시불_B0M, 할부, 현금서비스, 리볼빙일시불이월, 리볼빙CA이월, 카드론)",
@@ -182,7 +182,7 @@ constraints = [
             "연체잔액_카드론_B0M",
             "연체잔액_대환론_B0M",
         ],
-        "output":  "연체잔액_B0M",
+        "output": "연체잔액_B0M",
         "fname": "cf_05_0018",
         "type": "formula",
         "content": "연체잔액_B0M = SUM(연체잔액_일시불_B0M, 할부, 현금서비스, 카드론, 대환론)",
@@ -190,35 +190,35 @@ constraints = [
     # 6.채널활동 테이블 컬럼 Formula
     {
         "columns": ["IB상담건수_VOC민원_B0M", "IB상담건수_VOC불만_B0M"],
-        "output":  "IB상담건수_VOC_B0M",
+        "output": "IB상담건수_VOC_B0M",
         "fname": "cf_06_0066",
         "type": "formula",
         "content": "IB상담건수_VOC_B0M = SUM(IB상담건수_VOC민원_B0M, IB상담건수_VOC불만_B0M)",
     },
     {
         "columns": ["IB상담건수_VOC민원_R6M", "IB상담건수_VOC불만_R6M"],
-        "output":  "IB상담건수_VOC_R6M",
+        "output": "IB상담건수_VOC_R6M",
         "fname": "cf_06_0089",
         "type": "formula",
         "content": "IB상담건수_VOC_R6M = SUM(IB상담건수_VOC민원_R6M, IB상담건수_VOC불만_R6M)",
     },
     {
         "columns": ["기준년월"],
-        "output":  "당사PAY_방문횟수_B0M",
+        "output": "당사PAY_방문횟수_B0M",
         "fname": "cf_06_0096",
         "type": "formula",
         "content": "당사PAY_방문횟수_B0M = 0",
     },
     {
         "columns": ["기준년월"],
-        "output":  "당사PAY_방문횟수_R6M",
+        "output": "당사PAY_방문횟수_R6M",
         "fname": "cf_06_0097",
         "type": "formula",
         "content": "당사PAY_방문횟수_R6M = 0",
     },
     {
         "columns": ["기준년월"],
-        "output":  "당사PAY_방문월수_R6M",
+        "output": "당사PAY_방문월수_R6M",
         "fname": "cf_06_0098",
         "type": "formula",
         "content": "당사PAY_방문월수_R6M = 0",
@@ -226,98 +226,98 @@ constraints = [
     # 7.마케팅 테이블 컬럼 Formula
     {
         "columns": ["기준년월"],
-        "output":  "컨택건수_CA_EM_B0M",
+        "output": "컨택건수_CA_EM_B0M",
         "fname": "cf_07_0019",
         "type": "formula",
         "content": "컨택건수_CA_EM_B0M = 0",
     },
     {
         "columns": ["기준년월"],
-        "output":  "컨택건수_리볼빙_EM_B0M",
+        "output": "컨택건수_리볼빙_EM_B0M",
         "fname": "cf_07_0020",
         "type": "formula",
         "content": "컨택건수_리볼빙_EM_B0M = 0",
     },
     {
         "columns": ["기준년월"],
-        "output":  "컨택건수_리볼빙_청구서_B0M",
+        "output": "컨택건수_리볼빙_청구서_B0M",
         "fname": "cf_07_0024",
         "type": "formula",
         "content": "컨택건수_리볼빙_청구서_B0M = 0",
     },
     {
         "columns": ["기준년월"],
-        "output":  "컨택건수_카드론_인터넷_B0M",
+        "output": "컨택건수_카드론_인터넷_B0M",
         "fname": "cf_07_0026",
         "type": "formula",
         "content": "컨택건수_카드론_인터넷_B0M = 0",
     },
     {
         "columns": ["기준년월"],
-        "output":  "컨택건수_CA_인터넷_B0M",
+        "output": "컨택건수_CA_인터넷_B0M",
         "fname": "cf_07_0027",
         "type": "formula",
         "content": "컨택건수_CA_인터넷_B0M = 0",
     },
     {
         "columns": ["기준년월"],
-        "output":  "컨택건수_리볼빙_인터넷_B0M",
+        "output": "컨택건수_리볼빙_인터넷_B0M",
         "fname": "cf_07_0028",
         "type": "formula",
         "content": "컨택건수_리볼빙_인터넷_B0M = 0",
     },
     {
         "columns": ["기준년월"],
-        "output":  "컨택건수_리볼빙_당사앱_B0M",
+        "output": "컨택건수_리볼빙_당사앱_B0M",
         "fname": "cf_07_0032",
         "type": "formula",
         "content": "컨택건수_리볼빙_당사앱_B0M = 0",
     },
     {
         "columns": ["기준년월"],
-        "output":  "컨택건수_CA_EM_R6M",
+        "output": "컨택건수_CA_EM_R6M",
         "fname": "cf_07_0047",
         "type": "formula",
         "content": "컨택건수_CA_EM_R6M = 0",
     },
     {
         "columns": ["기준년월"],
-        "output":  "컨택건수_리볼빙_EM_R6M",
+        "output": "컨택건수_리볼빙_EM_R6M",
         "fname": "cf_07_0048",
         "type": "formula",
         "content": "컨택건수_리볼빙_EM_R6M = 0",
     },
     {
         "columns": ["기준년월"],
-        "output":  "컨택건수_리볼빙_청구서_R6M",
+        "output": "컨택건수_리볼빙_청구서_R6M",
         "fname": "cf_07_0052",
         "type": "formula",
         "content": "컨택건수_리볼빙_청구서_R6M = 0",
     },
     {
         "columns": ["기준년월"],
-        "output":  "컨택건수_카드론_인터넷_R6M",
+        "output": "컨택건수_카드론_인터넷_R6M",
         "fname": "cf_07_0054",
         "type": "formula",
         "content": "컨택건수_카드론_인터넷_R6M = 0",
     },
     {
         "columns": ["기준년월"],
-        "output":  "컨택건수_CA_인터넷_R6M",
+        "output": "컨택건수_CA_인터넷_R6M",
         "fname": "cf_07_0055",
         "type": "formula",
         "content": "컨택건수_CA_인터넷_R6M = 0",
     },
     {
         "columns": ["기준년월"],
-        "output":  "컨택건수_리볼빙_인터넷_R6M",
+        "output": "컨택건수_리볼빙_인터넷_R6M",
         "fname": "cf_07_0056",
         "type": "formula",
         "content": "컨택건수_리볼빙_인터넷_R6M = 0",
     },
     {
         "columns": ["기준년월"],
-        "output":  "컨택건수_리볼빙_당사앱_R6M",
+        "output": "컨택건수_리볼빙_당사앱_R6M",
         "fname": "cf_07_0060",
         "type": "formula",
         "content": "컨택건수_리볼빙_당사앱_R6M = 0",
@@ -325,63 +325,63 @@ constraints = [
     # 3.승인.매출 테이블 컬럼 Formula
     {
         "columns": ["최종이용일자_신판", "최종이용일자_CA", "최종이용일자_카드론"],
-        "output":  "최종이용일자_기본",
+        "output": "최종이용일자_기본",
         "fname": "cf_03_0006",
         "type": "formula",
         "content": "최종이용일자_기본 = MAX(최종이용일자_신판, 최종이용일자_CA, 최종이용일자_카드론)",
     },
     {
         "columns": ["최종이용일자_일시불", "최종이용일자_할부"],
-        "output":  "최종이용일자_신판",
+        "output": "최종이용일자_신판",
         "fname": "cf_03_0007",
         "type": "formula",
         "content": "최종이용일자_신판 = MAX(최종이용일자_일시불, 최종이용일자_할부)",
     },
     {
         "columns": ["이용건수_신판_B0M", "이용건수_CA_B0M"],
-        "output":  "이용건수_신용_B0M",
+        "output": "이용건수_신용_B0M",
         "fname": "cf_03_0013",
         "type": "formula",
         "content": "이용건수_신용_B0M = 이용건수_신판_B0M + 이용건수_CA_B0M",
     },
     {
         "columns": ["이용건수_일시불_B0M", "이용건수_할부_B0M"],
-        "output":  "이용건수_신판_B0M",
+        "output": "이용건수_신판_B0M",
         "fname": "cf_03_0014",
         "type": "formula",
         "content": "이용건수_신판_B0M = 이용건수_일시불_B0M + 이용건수_할부_B0M",
     },
     {
         "columns": ["이용건수_할부_유이자_B0M", "이용건수_할부_무이자_B0M", "이용건수_부분무이자_B0M"],
-        "output":  "이용건수_할부_B0M",
+        "output": "이용건수_할부_B0M",
         "fname": "cf_03_0016",
         "type": "formula",
         "content": "이용건수_할부_B0M = 이용건수_할부_유이자_B0M + 이용건수_할부_무이자_B0M + 이용건수_부분무이자_B0M",
     },
     {
         "columns": ["이용금액_신판_B0M", "이용금액_CA_B0M"],
-        "output":  "이용금액_신용_B0M",
+        "output": "이용금액_신용_B0M",
         "fname": "cf_03_0023",
         "type": "formula",
         "content": "이용금액_신용_B0M = 이용금액_신판_B0M + 이용금액_CA_B0M",
     },
     {
         "columns": ["이용금액_일시불_B0M", "이용금액_할부_B0M"],
-        "output":  "이용금액_신판_B0M",
+        "output": "이용금액_신판_B0M",
         "fname": "cf_03_0024",
         "type": "formula",
         "content": "이용금액_신판_B0M = 이용금액_일시불_B0M + 이용금액_할부_B0M",
     },
     {
         "columns": ["이용금액_할부_유이자_B0M", "이용금액_할부_무이자_B0M", "이용금액_부분무이자_B0M"],
-        "output":  "이용금액_할부_B0M",
+        "output": "이용금액_할부_B0M",
         "fname": "cf_03_0026",
         "type": "formula",
         "content": "이용금액_할부_B0M = 이용금액_할부_유이자_B0M + 이용금액_할부_무이자_B0M + 이용금액_부분무이자_B0M",
     },
     # {
     #     "columns": ["이용후경과월_신판", "이용후경과월_CA"],
-    #     "output":  "이용후경과월_신용",
+    #     "output": "이용후경과월_신용",
     #     "fname": "cf_03_0033",
     #     "type": "formula",
     #     "content": "이용후경과월_신용 = MIN(이용후경과월_신판, 이용후경과월_CA)",
@@ -391,63 +391,63 @@ constraints = [
             "이용후경과월_일시불",
             "이용후경과월_할부",
         ],
-        "output":  "이용후경과월_신판",
+        "output": "이용후경과월_신판",
         "fname": "cf_03_0034",
         "type": "formula",
         "content": "이용후경과월_신판 = MIN(이용후경과월_일시불, 이용후경과월_할부)",
     },
     {
         "columns": ["기준년월", "최종이용일자_일시불"],
-        "output":  "이용후경과월_일시불",
+        "output": "이용후경과월_일시불",
         "fname": "cf_03_0035",
         "type": "formula",
         "content": "이용후경과월_일시불 = MONTHS_BETWEEN(LAST_DAY(기준년월), 최종이용일자_일시불)",
     },
     {
         "columns": ["이용후경과월_할부_유이자", "이용후경과월_할부_무이자", "이용후경과월_부분무이자"],
-        "output":  "이용후경과월_할부",
+        "output": "이용후경과월_할부",
         "fname": "cf_03_0036",
         "type": "formula",
         "content": "이용후경과월_할부 = MIN(이용후경과월_할부_유이자, 이용후경과월_할부_무이자, 이용후경과월_부분무이자)",
     },
     {
         "columns": ["기준년월", "최종이용일자_CA"],
-        "output":  "이용후경과월_CA",
+        "output": "이용후경과월_CA",
         "fname": "cf_03_0040",
         "type": "formula",
         "content": "이용후경과월_CA = MONTHS_BETWEEN(LAST_DAY(기준년월), 최종이용일자_CA)",
     },
     {
         "columns": ["기준년월", "최종이용일자_체크"],
-        "output":  "이용후경과월_체크",
+        "output": "이용후경과월_체크",
         "fname": "cf_03_0041",
         "type": "formula",
         "content": "이용후경과월_체크 = MONTHS_BETWEEN(LAST_DAY(기준년월), 최종이용일자_체크)",
     },
     {
         "columns": ["기준년월", "최종이용일자_카드론"],
-        "output":  "이용후경과월_카드론",
+        "output": "이용후경과월_카드론",
         "fname": "cf_03_0042",
         "type": "formula",
         "content": "이용후경과월_카드론 = MONTHS_BETWEEN(LAST_DAY(기준년월), 최종이용일자_카드론)",
     },
     {
         "columns": ["이용건수_신판_R12M", "이용건수_CA_R12M"],
-        "output":  "이용건수_신용_R12M",
+        "output": "이용건수_신용_R12M",
         "fname": "cf_03_0043",
         "type": "formula",
         "content": "이용건수_신용_R12M = SUM(이용건수_신판_R12M, 이용건수_CA_R12M)",
     },
     {
         "columns": ["이용건수_일시불_R12M", "이용건수_할부_R12M"],
-        "output":  "이용건수_신판_R12M",
+        "output": "이용건수_신판_R12M",
         "fname": "cf_03_0044",
         "type": "formula",
         "content": "이용건수_신판_R12M = SUM(이용건수_일시불_R12M, 이용건수_할부_R12M)",
     },
     {
         "columns": ["이용건수_할부_유이자_R12M", "이용건수_할부_무이자_R12M", "이용건수_부분무이자_R12M"],
-        "output":  "이용건수_할부_R12M",
+        "output": "이용건수_할부_R12M",
         "fname": "cf_03_0046",
         "type": "formula",
         "content": "이용건수_할부_R12M = SUM(이용건수_할부_유이자_R12M, 이용건수_할부_무이자_R12M, 이용건수_부분무이자_R12M)",
@@ -459,7 +459,7 @@ constraints = [
             "할부건수_유이자_12M_R12M",
             "할부건수_유이자_14M_R12M",
         ],
-        "output":  "이용건수_할부_유이자_R12M",
+        "output": "이용건수_할부_유이자_R12M",
         "fname": "cf_03_0047",
         "type": "formula",
         "content": "이용건수_할부_유이자_R12M = SUM(할부건수_유이자_3M_R12M, 할부건수_유이자_6M_R12M, 할부건수_유이자_12M_R12M, 할부건수_유이자_14M_R12M)",
@@ -471,7 +471,7 @@ constraints = [
             "할부건수_무이자_12M_R12M",
             "할부건수_무이자_14M_R12M",
         ],
-        "output":  "이용건수_할부_무이자_R12M",
+        "output": "이용건수_할부_무이자_R12M",
         "fname": "cf_03_0048",
         "type": "formula",
         "content": "이용건수_할부_무이자_R12M = SUM(할부건수_무이자_3M_R12M, 할부건수_무이자_6M_R12M, 할부건수_무이자_12M_R12M, 할부건수_무이자_14M_R12M)",
@@ -483,28 +483,28 @@ constraints = [
             "할부건수_부분_12M_R12M",
             "할부건수_부분_14M_R12M",
         ],
-        "output":  "이용건수_부분무이자_R12M",
+        "output": "이용건수_부분무이자_R12M",
         "fname": "cf_03_0049",
         "type": "formula",
         "content": "이용건수_부분무이자_R12M = SUM(할부건수_부분_3M_R12M, 할부건수_부분_6M_R12M, 할부건수_부분_12M_R12M, 할부건수_부분_14M_R12M)",
     },
     {
         "columns": ["이용금액_신판_R12M", "이용금액_CA_R12M"],
-        "output":  "이용금액_신용_R12M",
+        "output": "이용금액_신용_R12M",
         "fname": "cf_03_0053",
         "type": "formula",
         "content": "이용금액_신용_R12M = SUM(이용금액_신판_R12M, 이용금액_CA_R12M)",
     },
     {
         "columns": ["이용금액_일시불_R12M", "이용금액_할부_R12M"],
-        "output":  "이용금액_신판_R12M",
+        "output": "이용금액_신판_R12M",
         "fname": "cf_03_0054",
         "type": "formula",
         "content": "이용금액_신판_R12M = SUM(이용금액_일시불_R12M, 이용금액_할부_R12M)",
     },
     {
         "columns": ["이용금액_할부_유이자_R12M", "이용금액_할부_무이자_R12M", "이용금액_부분무이자_R12M"],
-        "output":  "이용금액_할부_R12M",
+        "output": "이용금액_할부_R12M",
         "fname": "cf_03_0056",
         "type": "formula",
         "content": "이용금액_할부_R12M = SUM(이용금액_할부_유이자_R12M, 이용금액_할부_무이자_R12M, 이용금액_부분무이자_R12M)",
@@ -516,7 +516,7 @@ constraints = [
             "할부금액_유이자_12M_R12M",
             "할부금액_유이자_14M_R12M",
         ],
-        "output":  "이용금액_할부_유이자_R12M",
+        "output": "이용금액_할부_유이자_R12M",
         "fname": "cf_03_0057",
         "type": "formula",
         "content": "이용금액_할부_유이자_R12M = SUM(할부금액_유이자_3M_R12M, 할부금액_유이자_6M_R12M, 할부금액_유이자_12M_R12M, 할부금액_유이자_14M_R12M)",
@@ -528,7 +528,7 @@ constraints = [
             "할부금액_무이자_12M_R12M",
             "할부금액_무이자_14M_R12M",
         ],
-        "output":  "이용금액_할부_무이자_R12M",
+        "output": "이용금액_할부_무이자_R12M",
         "fname": "cf_03_0058",
         "type": "formula",
         "content": "이용금액_할부_무이자_R12M = SUM(할부금액_무이자_3M_R12M, 할부금액_무이자_6M_R12M, 할부금액_무이자_12M_R12M, 할부금액_무이자_14M_R12M)",
@@ -540,126 +540,126 @@ constraints = [
             "할부금액_부분_12M_R12M",
             "할부금액_부분_14M_R12M",
         ],
-        "output":  "이용금액_부분무이자_R12M",
+        "output": "이용금액_부분무이자_R12M",
         "fname": "cf_03_0059",
         "type": "formula",
         "content": "이용금액_부분무이자_R12M = SUM(할부금액_부분_3M_R12M, 할부금액_부분_6M_R12M, 할부금액_부분_12M_R12M, 할부금액_부분_14M_R12M)",
     },
     {
         "columns": ["최대이용금액_할부_유이자_R12M", "최대이용금액_할부_무이자_R12M", "최대이용금액_부분무이자_R12M"],
-        "output":  "최대이용금액_할부_R12M",
+        "output": "최대이용금액_할부_R12M",
         "fname": "cf_03_0066",
         "type": "formula",
         "content": "최대이용금액_할부_R12M = MAX(최대이용금액_할부_유이자_R12M, 할부_무이자, 부분무이자)",
     },
     {
         "columns": ["이용건수_신판_R6M", "이용건수_CA_R6M"],
-        "output":  "이용건수_신용_R6M",
+        "output": "이용건수_신용_R6M",
         "fname": "cf_03_0083",
         "type": "formula",
         "content": "이용건수_신용_R6M = SUM(이용건수_신판_R6M, 이용건수_CA_R6M)",
     },
     {
         "columns": ["이용건수_일시불_R6M", "이용건수_할부_R6M"],
-        "output":  "이용건수_신판_R6M",
+        "output": "이용건수_신판_R6M",
         "fname": "cf_03_0084",
         "type": "formula",
         "content": "이용건수_신판_R6M = SUM(이용건수_일시불_R6M, 이용건수_할부_R6M)",
     },
     {
         "columns": ["이용건수_할부_유이자_R6M", "이용건수_할부_무이자_R6M", "이용건수_부분무이자_R6M"],
-        "output":  "이용건수_할부_R6M",
+        "output": "이용건수_할부_R6M",
         "fname": "cf_03_0086",
         "type": "formula",
         "content": "이용건수_할부_R6M = SUM(이용건수_할부_유이자_R6M, 이용건수_할부_무이자_R6M, 이용건수_부분무이자_R6M)",
     },
     {
         "columns": ["이용금액_신판_R6M", "이용금액_CA_R6M"],
-        "output":  "이용금액_신용_R6M",
+        "output": "이용금액_신용_R6M",
         "fname": "cf_03_0093",
         "type": "formula",
         "content": "이용금액_신용_R6M = SUM(이용금액_신판_R6M, 이용금액_CA_R6M)",
     },
     {
         "columns": ["이용금액_일시불_R6M", "이용금액_할부_R6M"],
-        "output":  "이용금액_신판_R6M",
+        "output": "이용금액_신판_R6M",
         "fname": "cf_03_0094",
         "type": "formula",
         "content": "이용금액_신판_R6M = SUM(이용금액_일시불_R6M, 이용금액_할부_R6M)",
     },
     {
         "columns": ["이용금액_할부_유이자_R6M", "이용금액_할부_무이자_R6M", "이용금액_부분무이자_R6M"],
-        "output":  "이용금액_할부_R6M",
+        "output": "이용금액_할부_R6M",
         "fname": "cf_03_0096",
         "type": "formula",
         "content": "이용금액_할부_R6M = SUM(이용금액_할부_유이자_R6M, 이용금액_할부_무이자_R6M, 이용금액_부분무이자_R6M)",
     },
     {
         "columns": ["이용건수_신판_R3M", "이용건수_CA_R3M"],
-        "output":  "이용건수_신용_R3M",
+        "output": "이용건수_신용_R3M",
         "fname": "cf_03_0113",
         "type": "formula",
         "content": "이용건수_신용_R3M = SUM(이용건수_신판_R3M, 이용건수_CA_R3M)",
     },
     {
         "columns": ["이용건수_일시불_R3M", "이용건수_할부_R3M"],
-        "output":  "이용건수_신판_R3M",
+        "output": "이용건수_신판_R3M",
         "fname": "cf_03_0114",
         "type": "formula",
         "content": "이용건수_신판_R3M = SUM(이용건수_일시불_R3M, 이용건수_할부_R3M)",
     },
     {
         "columns": ["이용건수_할부_유이자_R3M", "이용건수_할부_무이자_R3M", "이용건수_부분무이자_R3M"],
-        "output":  "이용건수_할부_R3M",
+        "output": "이용건수_할부_R3M",
         "fname": "cf_03_0116",
         "type": "formula",
         "content": "이용건수_할부_R3M = SUM(이용건수_할부_유이자_R3M, 이용건수_할부_무이자_R3M, 이용건수_부분무이자_R3M)",
     },
     {
         "columns": ["이용금액_신판_R3M", "이용금액_CA_R3M"],
-        "output":  "이용금액_신용_R3M",
+        "output": "이용금액_신용_R3M",
         "fname": "cf_03_0123",
         "type": "formula",
         "content": "이용금액_신용_R3M = SUM(이용금액_신판_R3M, 이용금액_CA_R3M)",
     },
     {
         "columns": ["이용금액_일시불_R3M", "이용금액_할부_R3M"],
-        "output":  "이용금액_신판_R3M",
+        "output": "이용금액_신판_R3M",
         "fname": "cf_03_0124",
         "type": "formula",
         "content": "이용금액_신판_R3M = SUM(이용금액_일시불_R3M, 이용금액_할부_R3M)",
     },
     {
         "columns": ["이용금액_할부_유이자_R3M", "이용금액_할부_무이자_R3M", "이용금액_부분무이자_R3M"],
-        "output":  "이용금액_할부_R3M",
+        "output": "이용금액_할부_R3M",
         "fname": "cf_03_0126",
         "type": "formula",
         "content": "이용금액_할부_R3M = SUM(이용금액_할부_유이자_R3M, 이용금액_할부_무이자_R3M, 이용금액_부분무이자_R3M)",
     },
     {
         "columns": ["이용금액_쇼핑"],
-        "output":  "쇼핑_전체_이용금액",
+        "output": "쇼핑_전체_이용금액",
         "fname": "cf_03_0158",
         "type": "formula",
         "content": "쇼핑_전체_이용금액 = 이용금액_쇼핑",
     },
     {
         "columns": ["이용금액_교통"],
-        "output":  "교통_전체이용금액",
+        "output": "교통_전체이용금액",
         "fname": "cf_03_0160",
         "type": "formula",
         "content": "교통_전체이용금액 = 이용금액_교통",
     },
     {
         "columns": ["이용금액_납부"],
-        "output":  "납부_전체이용금액",
+        "output": "납부_전체이용금액",
         "fname": "cf_03_0162",
         "type": "formula",
         "content": "납부_전체이용금액 = 이용금액_납부",
     },
     {
         "columns": ["이용금액_여유생활"],
-        "output":  "여유_전체이용금액",
+        "output": "여유_전체이용금액",
         "fname": "cf_03_0164",
         "type": "formula",
         "content": "여유_전체이용금액 = 이용금액_여유생활",
@@ -673,7 +673,7 @@ constraints = [
             "교통_택시이용금액",
             "교통_철도버스이용금액",
         ],
-        "output":  "이용금액_교통",
+        "output": "이용금액_교통",
         "fname": "cf_03_0183",
         "type": "formula",
         "content": "이용금액_교통 = SUM(교통_주유이용금액, 정비, 통행료, 버스지하철, 택시, 철도버스)",
@@ -689,14 +689,14 @@ constraints = [
             "여유_항공이용금액",
             "여유_기타이용금액",
         ],
-        "output":  "이용금액_여유생활",
+        "output": "이용금액_여유생활",
         "fname": "cf_03_0192",
         "type": "formula",
         "content": "이용금액_여유생활 = SUM(여유_운동이용금액, Pet, 공연, 공원, 숙박, 여행, 항공, 기타)",
     },
     {
         "columns": ["기준년월"],
-        "output":  "납부_렌탈료이용금액",
+        "output": "납부_렌탈료이용금액",
         "fname": "cf_03_0195",
         "type": "formula",
         "content": "납부_렌탈료이용금액 = 0",
@@ -712,7 +712,7 @@ constraints = [
             "납부_건강연금이용금액",
             "납부_기타이용금액",
         ],
-        "output":  "이용금액_납부",
+        "output": "이용금액_납부",
         "fname": "cf_03_0201",
         "type": "formula",
         "content": "이용금액_납부 = SUM(납부_통신비이용금액, 관리비, 렌탈료, 가스전기료, 보험료, 유선방송, 건강연금, 기타)",
@@ -730,7 +730,7 @@ constraints = [
             "이용금액_일상생활",
             "이용금액_해외",
         ],
-        "output":  "_1순위업종",
+        "output": "_1순위업종",
         "fname": "cf_03_0202",
         "type": "formula",
         "content": "_1순위업종 = ARGMAX(이용금액_쇼핑, 요식, 교통, 의료, 납부, 교육, 여유생활, 사교활동, 일상생활, 해외)",
@@ -748,7 +748,7 @@ constraints = [
             "이용금액_일상생활",
             "이용금액_해외",
         ],
-        "output":  "_1순위업종_이용금액",
+        "output": "_1순위업종_이용금액",
         "fname": "cf_03_0203",
         "type": "formula",
         "content": "_1순위업종_이용금액 = MAX(이용금액_쇼핑, 요식, 교통, 의료, 납부, 교육, 여유생활, 사교활동, 일상생활, 해외)",
@@ -766,7 +766,7 @@ constraints = [
             "이용금액_일상생활",
             "이용금액_해외",
         ],
-        "output":  "_3순위업종",
+        "output": "_3순위업종",
         "fname": "cf_03_0204",
         "type": "formula",
         "content": "_3순위업종 = ARG3rd(이용금액_쇼핑, 요식, 교통, 의료, 납부, 교육, 여유생활, 사교활동, 일상생활, 해외)",
@@ -784,7 +784,7 @@ constraints = [
             "이용금액_일상생활",
             "이용금액_해외",
         ],
-        "output":  "_3순위업종_이용금액",
+        "output": "_3순위업종_이용금액",
         "fname": "cf_03_0205",
         "type": "formula",
         "content": "_3순위업종_이용금액 = 3rd(이용금액_쇼핑, 요식, 교통, 의료, 납부, 교육, 여유생활, 사교활동, 일상생활, 해외)",
@@ -800,7 +800,7 @@ constraints = [
             "쇼핑_온라인_이용금액",
             "쇼핑_기타_이용금액",
         ],
-        "output":  "_1순위쇼핑업종",
+        "output": "_1순위쇼핑업종",
         "fname": "cf_03_0206",
         "type": "formula",
         "content": "_1순위쇼핑업종 = ARGMAX(쇼핑_도소매_이용금액, 백화점, 마트, 슈퍼마켓, 편의점, 아울렛, 온라인, 기타)",
@@ -816,7 +816,7 @@ constraints = [
             "쇼핑_온라인_이용금액",
             "쇼핑_기타_이용금액",
         ],
-        "output":  "_1순위쇼핑업종_이용금액",
+        "output": "_1순위쇼핑업종_이용금액",
         "fname": "cf_03_0207",
         "type": "formula",
         "content": "_1순위쇼핑업종_이용금액 = MAX(쇼핑_도소매_이용금액, 백화점, 마트, 슈퍼마켓, 편의점, 아울렛, 온라인, 기타)",
@@ -832,7 +832,7 @@ constraints = [
             "쇼핑_온라인_이용금액",
             "쇼핑_기타_이용금액",
         ],
-        "output":  "_3순위쇼핑업종",
+        "output": "_3순위쇼핑업종",
         "fname": "cf_03_0208",
         "type": "formula",
         "content": "_3순위쇼핑업종 = ARG3rd(쇼핑_도소매_이용금액, 백화점, 마트, 슈퍼마켓, 편의점, 아울렛, 온라인, 기타)",
@@ -848,7 +848,7 @@ constraints = [
             "쇼핑_온라인_이용금액",
             "쇼핑_기타_이용금액",
         ],
-        "output":  "_3순위쇼핑업종_이용금액",
+        "output": "_3순위쇼핑업종_이용금액",
         "fname": "cf_03_0209",
         "type": "formula",
         "content": "_3순위쇼핑업종_이용금액 = 3rd(쇼핑_도소매_이용금액, 백화점, 마트, 슈퍼마켓, 편의점, 아울렛, 온라인, 기타)",
@@ -862,7 +862,7 @@ constraints = [
             "교통_택시이용금액",
             "교통_철도버스이용금액",
         ],
-        "output":  "_1순위교통업종",
+        "output": "_1순위교통업종",
         "fname": "cf_03_0210",
         "type": "formula",
         "content": "_1순위교통업종 = ARGMAX(교통_주유이용금액, 정비, 통행료, 버스지하철, 택시, 철도버스)",
@@ -876,7 +876,7 @@ constraints = [
             "교통_택시이용금액",
             "교통_철도버스이용금액",
         ],
-        "output":  "_1순위교통업종_이용금액",
+        "output": "_1순위교통업종_이용금액",
         "fname": "cf_03_0211",
         "type": "formula",
         "content": "_1순위교통업종_이용금액 = MAX(교통_주유이용금액, 정비, 통행료, 버스지하철, 택시, 철도버스)",
@@ -890,7 +890,7 @@ constraints = [
             "교통_택시이용금액",
             "교통_철도버스이용금액",
         ],
-        "output":  "_3순위교통업종",
+        "output": "_3순위교통업종",
         "fname": "cf_03_0212",
         "type": "formula",
         "content": "_3순위교통업종 = ARG3rd(교통_주유이용금액, 정비, 통행료, 버스지하철, 택시, 철도버스)",
@@ -904,7 +904,7 @@ constraints = [
             "교통_택시이용금액",
             "교통_철도버스이용금액",
         ],
-        "output":  "_3순위교통업종_이용금액",
+        "output": "_3순위교통업종_이용금액",
         "fname": "cf_03_0213",
         "type": "formula",
         "content": "_3순위교통업종_이용금액 = 3rd(교통_주유이용금액, 정비, 통행료, 버스지하철, 택시, 철도버스)",
@@ -920,7 +920,7 @@ constraints = [
             "여유_항공이용금액",
             "여유_기타이용금액",
         ],
-        "output":  "_1순위여유업종",
+        "output": "_1순위여유업종",
         "fname": "cf_03_0214",
         "type": "formula",
         "content": "_1순위여유업종 = ARGMAX(여유_운동이용금액, Pet, 공연, 공원, 숙박, 여행, 항공, 기타)",
@@ -936,7 +936,7 @@ constraints = [
             "여유_항공이용금액",
             "여유_기타이용금액",
         ],
-        "output":  "_1순위여유업종_이용금액",
+        "output": "_1순위여유업종_이용금액",
         "fname": "cf_03_0215",
         "type": "formula",
         "content": "_1순위여유업종_이용금액 = MAX(여유_운동이용금액, Pet, 공연, 공원, 숙박, 여행, 항공, 기타)",
@@ -952,7 +952,7 @@ constraints = [
             "여유_항공이용금액",
             "여유_기타이용금액",
         ],
-        "output":  "_3순위여유업종",
+        "output": "_3순위여유업종",
         "fname": "cf_03_0216",
         "type": "formula",
         "content": "_3순위여유업종 = ARG3rd(여유_운동이용금액, Pet, 공연, 공원, 숙박, 여행, 항공, 기타)",
@@ -968,7 +968,7 @@ constraints = [
             "여유_항공이용금액",
             "여유_기타이용금액",
         ],
-        "output":  "_3순위여유업종_이용금액",
+        "output": "_3순위여유업종_이용금액",
         "fname": "cf_03_0217",
         "type": "formula",
         "content": "_3순위여유업종_이용금액 = 3rd(여유_운동이용금액, Pet, 공연, 공원, 숙박, 여행, 항공, 기타)",
@@ -984,7 +984,7 @@ constraints = [
             "납부_건강연금이용금액",
             "납부_기타이용금액",
         ],
-        "output":  "_1순위납부업종",
+        "output": "_1순위납부업종",
         "fname": "cf_03_0218",
         "type": "formula",
         "content": "_1순위납부업종 = ARGMAX(납부_통신비이용금액, 관리비, 렌탈료, 가스전기료, 보험료, 유선방송, 건강연금, 기타)",
@@ -1000,7 +1000,7 @@ constraints = [
             "납부_건강연금이용금액",
             "납부_기타이용금액",
         ],
-        "output":  "_1순위납부업종_이용금액",
+        "output": "_1순위납부업종_이용금액",
         "fname": "cf_03_0219",
         "type": "formula",
         "content": "_1순위납부업종_이용금액 = MAX(납부_통신비이용금액, 관리비, 렌탈료, 가스전기료, 보험료, 유선방송, 건강연금, 기타)",
@@ -1016,7 +1016,7 @@ constraints = [
             "납부_건강연금이용금액",
             "납부_기타이용금액",
         ],
-        "output":  "_3순위납부업종",
+        "output": "_3순위납부업종",
         "fname": "cf_03_0220",
         "type": "formula",
         "content": "_3순위납부업종 = ARG3rd(납부_통신비이용금액, 관리비, 렌탈료, 가스전기료, 보험료, 유선방송, 건강연금, 기타)",
@@ -1032,77 +1032,77 @@ constraints = [
             "납부_건강연금이용금액",
             "납부_기타이용금액",
         ],
-        "output":  "_3순위납부업종_이용금액",
+        "output": "_3순위납부업종_이용금액",
         "fname": "cf_03_0221",
         "type": "formula",
         "content": "_3순위납부업종_이용금액 = 3rd(납부_통신비이용금액, 관리비, 렌탈료, 가스전기료, 보험료, 유선방송, 건강연금, 기타)",
     },
     {
         "columns": ["할부건수_유이자_3M_R12M", "할부건수_무이자_3M_R12M", "할부건수_부분_3M_R12M"],
-        "output":  "할부건수_3M_R12M",
+        "output": "할부건수_3M_R12M",
         "fname": "cf_03_0222",
         "type": "formula",
         "content": "할부건수_3M_R12M = SUM(할부건수_유이자_3M_R12M, 할부건수_무이자_3M_R12M, 할부건수_부분_3M_R12M)",
     },
     {
         "columns": ["할부건수_유이자_6M_R12M", "할부건수_무이자_6M_R12M", "할부건수_부분_6M_R12M"],
-        "output":  "할부건수_6M_R12M",
+        "output": "할부건수_6M_R12M",
         "fname": "cf_03_0223",
         "type": "formula",
         "content": "할부건수_6M_R12M = SUM(할부건수_유이자_6M_R12M, 할부건수_무이자_6M_R12M, 할부건수_부분_6M_R12M)",
     },
     {
         "columns": ["할부건수_유이자_12M_R12M", "할부건수_무이자_12M_R12M", "할부건수_부분_12M_R12M"],
-        "output":  "할부건수_12M_R12M",
+        "output": "할부건수_12M_R12M",
         "fname": "cf_03_0224",
         "type": "formula",
         "content": "할부건수_12M_R12M = SUM(할부건수_유이자_12M_R12M, 할부건수_무이자_12M_R12M, 할부건수_부분_12M_R12M)",
     },
     {
         "columns": ["할부건수_유이자_14M_R12M", "할부건수_무이자_14M_R12M", "할부건수_부분_14M_R12M"],
-        "output":  "할부건수_14M_R12M",
+        "output": "할부건수_14M_R12M",
         "fname": "cf_03_0225",
         "type": "formula",
         "content": "할부건수_14M_R12M = SUM(할부건수_유이자_14M_R12M, 할부건수_무이자_14M_R12M, 할부건수_부분_14M_R12M)",
     },
     {
         "columns": ["할부금액_유이자_3M_R12M", "할부금액_무이자_3M_R12M", "할부금액_부분_3M_R12M"],
-        "output":  "할부금액_3M_R12M",
+        "output": "할부금액_3M_R12M",
         "fname": "cf_03_0226",
         "type": "formula",
         "content": "할부금액_3M_R12M = SUM(할부금액_유이자_3M_R12M, 할부금액_무이자_3M_R12M, 할부금액_부분_3M_R12M)",
     },
     {
         "columns": ["할부금액_유이자_6M_R12M", "할부금액_무이자_6M_R12M", "할부금액_부분_6M_R12M"],
-        "output":  "할부금액_6M_R12M",
+        "output": "할부금액_6M_R12M",
         "fname": "cf_03_0227",
         "type": "formula",
         "content": "할부금액_6M_R12M = SUM(할부금액_유이자_6M_R12M, 할부금액_무이자_6M_R12M, 할부금액_부분_6M_R12M)",
     },
     {
         "columns": ["할부금액_유이자_12M_R12M", "할부금액_무이자_12M_R12M", "할부금액_부분_12M_R12M"],
-        "output":  "할부금액_12M_R12M",
+        "output": "할부금액_12M_R12M",
         "fname": "cf_03_0228",
         "type": "formula",
         "content": "할부금액_12M_R12M = SUM(할부금액_유이자_12M_R12M, 할부금액_무이자_12M_R12M, 할부금액_부분_12M_R12M)",
     },
     {
         "columns": ["할부금액_유이자_14M_R12M", "할부금액_무이자_14M_R12M", "할부금액_부분_14M_R12M"],
-        "output":  "할부금액_14M_R12M",
+        "output": "할부금액_14M_R12M",
         "fname": "cf_03_0229",
         "type": "formula",
         "content": "할부금액_14M_R12M = SUM(할부금액_유이자_14M_R12M, 할부금액_무이자_14M_R12M, 할부금액_부분_14M_R12M)",
     },
     {
         "columns": ["기준년월"],
-        "output":  "할부건수_부분_3M_R12M",
+        "output": "할부건수_부분_3M_R12M",
         "fname": "cf_03_0246",
         "type": "formula",
         "content": "할부건수_부분_3M_R12M = 0",
     },
     {
         "columns": ["기준년월"],
-        "output":  "할부금액_부분_3M_R12M",
+        "output": "할부금액_부분_3M_R12M",
         "fname": "cf_03_0250",
         "type": "formula",
         "content": "할부금액_부분_3M_R12M = 0",
@@ -1121,7 +1121,7 @@ constraints = [
             "RP건수_건강_B0M",
             "RP건수_교통_B0M",
         ],
-        "output":  "RP건수_B0M",
+        "output": "RP건수_B0M",
         "fname": "cf_03_0254",
         "type": "formula",
         "content": "RP건수_B0M = SUM(RP건수_통신_B0M, 아파트, 제휴사서비스직접판매, 렌탈, 가스, 전기, 보험, 학습비, 유선방송, 건강, 교통)",
@@ -1140,133 +1140,133 @@ constraints = [
             "RP후경과월_건강",
             "RP후경과월_교통",
         ],
-        "output":  "RP후경과월",
+        "output": "RP후경과월",
         "fname": "cf_03_0268",
         "type": "formula",
         "content": "RP후경과월 = MIN(RP후경과월_통신, 아파트, 제휴사서비스직접판매, 렌탈, 가스, 전기, 보험, 학습비, 유선방송, 건강, 교통)",
     },
     {
         "columns": ["기준년월", "최종이용일자_카드론"],
-        "output":  "최종카드론이용경과월",
+        "output": "최종카드론이용경과월",
         "fname": "cf_03_0281",
         "type": "formula",
         "content": "최종카드론이용경과월 = MONTHS_BETWEEN(LAST_DAY(기준년월), 최종이용일자_카드론)",
     },
     {
         "columns": ["최종카드론_대출일자", "최종이용일자_카드론"],
-        "output":  "최종카드론_대출일자",
+        "output": "최종카드론_대출일자",
         "fname": "cf_03_0289",
         "type": "formula",
         "content": "최종카드론_대출일자 == 최종이용일자_카드론",
     },
-{
+    {
         "columns": ["기준년월"],
-        "output":  "이용개월수_당사페이_R6M",
+        "output": "이용개월수_당사페이_R6M",
         "fname": "cf_03_0338",
         "type": "formula",
         "content": "이용개월수_당사페이_R6M = 0",
     },
     {
         "columns": ["기준년월"],
-        "output":  "이용금액_당사페이_R6M",
+        "output": "이용금액_당사페이_R6M",
         "fname": "cf_03_0345",
         "type": "formula",
         "content": "이용금액_당사페이_R6M = 0",
     },
     {
         "columns": ["기준년월"],
-        "output":  "이용금액_당사기타_R6M",
+        "output": "이용금액_당사기타_R6M",
         "fname": "cf_03_0346",
         "type": "formula",
         "content": "이용금액_당사기타_R6M = 0",
     },
     {
         "columns": ["기준년월"],
-        "output":  "이용건수_당사페이_R6M",
+        "output": "이용건수_당사페이_R6M",
         "fname": "cf_03_0352",
         "type": "formula",
         "content": "이용건수_당사페이_R6M = 0",
     },
     {
         "columns": ["기준년월"],
-        "output":  "이용건수_당사기타_R6M",
+        "output": "이용건수_당사기타_R6M",
         "fname": "cf_03_0353",
         "type": "formula",
         "content": "이용건수_당사기타_R6M = 0",
     },
     {
         "columns": ["기준년월"],
-        "output":  "이용금액_당사페이_R3M",
+        "output": "이용금액_당사페이_R3M",
         "fname": "cf_03_0359",
         "type": "formula",
         "content": "이용금액_당사페이_R3M = 0",
     },
     {
         "columns": ["기준년월"],
-        "output":  "이용금액_당사기타_R3M",
+        "output": "이용금액_당사기타_R3M",
         "fname": "cf_03_0360",
         "type": "formula",
         "content": "이용금액_당사기타_R3M = 0",
     },
     {
         "columns": ["기준년월"],
-        "output":  "이용건수_당사페이_R3M",
+        "output": "이용건수_당사페이_R3M",
         "fname": "cf_03_0366",
         "type": "formula",
         "content": "이용건수_당사페이_R3M = 0",
     },
     {
         "columns": ["기준년월"],
-        "output":  "이용건수_당사기타_R3M",
+        "output": "이용건수_당사기타_R3M",
         "fname": "cf_03_0367",
         "type": "formula",
         "content": "이용건수_당사기타_R3M = 0",
     },
     {
         "columns": ["기준년월"],
-        "output":  "이용금액_당사페이_B0M",
+        "output": "이용금액_당사페이_B0M",
         "fname": "cf_03_0373",
         "type": "formula",
         "content": "이용금액_당사페이_B0M = 0",
     },
     {
         "columns": ["기준년월"],
-        "output":  "이용금액_당사기타_B0M",
+        "output": "이용금액_당사기타_B0M",
         "fname": "cf_03_0374",
         "type": "formula",
         "content": "이용금액_당사기타_B0M = 0",
     },
     {
         "columns": ["기준년월"],
-        "output":  "이용건수_당사페이_B0M",
+        "output": "이용건수_당사페이_B0M",
         "fname": "cf_03_0380",
         "type": "formula",
         "content": "이용건수_당사페이_B0M = 0",
     },
     {
         "columns": ["기준년월"],
-        "output":  "이용건수_당사기타_B0M",
+        "output": "이용건수_당사기타_B0M",
         "fname": "cf_03_0381",
         "type": "formula",
         "content": "이용건수_당사기타_B0M = 0",
     },
     {
         "columns": ["정상청구원금_B0M", "선입금원금_B0M", "정상입금원금_B0M"],
-        "output":  "연체입금원금_B0M",
+        "output": "연체입금원금_B0M",
         "fname": "cf_03_0408",
         "type": "formula",
         "content": "연체입금원금_B0M = 정상청구원금_B0M - (선입금원금_B0M + 정상입금원금_B0M)",
     },
     {
         "columns": ["정상청구원금_B2M", "선입금원금_B2M", "정상입금원금_B2M"],
-        "output":  "연체입금원금_B2M",
+        "output": "연체입금원금_B2M",
         "fname": "cf_03_0409",
         "type": "formula",
         "content": "연체입금원금_B2M = 정상청구원금_B2M - (선입금원금_B2M + 정상입금원금_B2M)",
     },
     {
         "columns": ["정상청구원금_B5M", "선입금원금_B5M", "정상입금원금_B5M"],
-        "output":  "연체입금원금_B5M",
+        "output": "연체입금원금_B5M",
         "fname": "cf_03_0410",
         "type": "formula",
         "content": "연체입금원금_B5M = 정상청구원금_B5M - (선입금원금_B5M + 정상입금원금_B5M)",
@@ -1385,7 +1385,7 @@ def cf_01_0092(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
         기타면제카드수_B0M = 0
     """
     c1 = df["기준년월"]
-    res = pd.Series([0]*len(c1))
+    res = pd.Series([0] * len(c1))
     return res
 
 
@@ -1429,7 +1429,7 @@ def cf_04_0008(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
         대표결제방법코드 = 2
     """
     c1 = df["기준년월"]
-    res = pd.Series(['2']*len(c1))
+    res = pd.Series(['2'] * len(c1))
     return res
 
 
@@ -1534,7 +1534,7 @@ def cf_06_0096(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
         당사PAY_방문횟수_B0M = 0
     """
     c1 = df["기준년월"]
-    res = pd.Series([0]*len(c1))
+    res = pd.Series([0] * len(c1))
     return res
 
 
@@ -1545,7 +1545,7 @@ def cf_06_0097(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
         당사PAY_방문횟수_R6M = 0
     """
     c1 = df["기준년월"]
-    res = pd.Series([0]*len(c1))
+    res = pd.Series([0] * len(c1))
     return res
 
 
@@ -1556,7 +1556,7 @@ def cf_06_0098(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
         당사PAY_방문월수_R6M = 0
     """
     c1 = df["기준년월"]
-    res = pd.Series([0]*len(c1))
+    res = pd.Series([0] * len(c1))
     return res
 
 
@@ -1567,7 +1567,7 @@ def cf_07_0019(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
         컨택건수_CA_EM_B0M = 0
     """
     c1 = df["기준년월"]
-    res = pd.Series([0]*len(c1))
+    res = pd.Series([0] * len(c1))
     return res
 
 
@@ -1578,7 +1578,7 @@ def cf_07_0020(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
         컨택건수_리볼빙_EM_B0M = 0
     """
     c1 = df["기준년월"]
-    res = pd.Series([0]*len(c1))
+    res = pd.Series([0] * len(c1))
     return res
 
 
@@ -1589,7 +1589,7 @@ def cf_07_0024(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
         컨택건수_리볼빙_청구서_B0M = 0
     """
     c1 = df["기준년월"]
-    res = pd.Series([0]*len(c1))
+    res = pd.Series([0] * len(c1))
     return res
 
 
@@ -1600,7 +1600,7 @@ def cf_07_0026(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
         컨택건수_카드론_인터넷_B0M = 0
     """
     c1 = df["기준년월"]
-    res = pd.Series([0]*len(c1))
+    res = pd.Series([0] * len(c1))
     return res
 
 
@@ -1611,7 +1611,7 @@ def cf_07_0027(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
         컨택건수_CA_인터넷_B0M = 0
     """
     c1 = df["기준년월"]
-    res = pd.Series([0]*len(c1))
+    res = pd.Series([0] * len(c1))
     return res
 
 
@@ -1622,7 +1622,7 @@ def cf_07_0028(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
         컨택건수_리볼빙_인터넷_B0M = 0
     """
     c1 = df["기준년월"]
-    res = pd.Series([0]*len(c1))
+    res = pd.Series([0] * len(c1))
     return res
 
 
@@ -1633,7 +1633,7 @@ def cf_07_0032(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
         컨택건수_리볼빙_당사앱_B0M = 0
     """
     c1 = df["기준년월"]
-    res = pd.Series([0]*len(c1))
+    res = pd.Series([0] * len(c1))
     return res
 
 
@@ -1644,7 +1644,7 @@ def cf_07_0047(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
         컨택건수_CA_EM_R6M = 0
     """
     c1 = df["기준년월"]
-    res = pd.Series([0]*len(c1))
+    res = pd.Series([0] * len(c1))
     return res
 
 
@@ -1655,7 +1655,7 @@ def cf_07_0048(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
         컨택건수_리볼빙_EM_R6M = 0
     """
     c1 = df["기준년월"]
-    res = pd.Series([0]*len(c1))
+    res = pd.Series([0] * len(c1))
     return res
 
 
@@ -1666,7 +1666,7 @@ def cf_07_0052(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
         컨택건수_리볼빙_청구서_R6M = 0
     """
     c1 = df["기준년월"]
-    res = pd.Series([0]*len(c1))
+    res = pd.Series([0] * len(c1))
     return res
 
 
@@ -1677,7 +1677,7 @@ def cf_07_0054(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
         컨택건수_카드론_인터넷_R6M = 0
     """
     c1 = df["기준년월"]
-    res = pd.Series([0]*len(c1))
+    res = pd.Series([0] * len(c1))
     return res
 
 
@@ -1688,7 +1688,7 @@ def cf_07_0055(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
         컨택건수_CA_인터넷_R6M = 0
     """
     c1 = df["기준년월"]
-    res = pd.Series([0]*len(c1))
+    res = pd.Series([0] * len(c1))
     return res
 
 
@@ -1699,7 +1699,7 @@ def cf_07_0056(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
         컨택건수_리볼빙_인터넷_R6M = 0
     """
     c1 = df["기준년월"]
-    res = pd.Series([0]*len(c1))
+    res = pd.Series([0] * len(c1))
     return res
 
 
@@ -1710,7 +1710,7 @@ def cf_07_0060(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
         컨택건수_리볼빙_당사앱_R6M = 0
     """
     c1 = df["기준년월"]
-    res = pd.Series([0]*len(c1))
+    res = pd.Series([0] * len(c1))
     return res
 
 
@@ -2317,7 +2317,7 @@ def cf_03_0195(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
         납부_렌탈료이용금액 = 0
     """
     c1 = df["기준년월"]
-    res = pd.Series([0]*len(c1))
+    res = pd.Series([0] * len(c1))
     return res
 
 
@@ -3034,7 +3034,7 @@ def cf_03_0246(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
         할부건수_부분_3M_R12M = 0
     """
     c1 = df["기준년월"]
-    res = pd.Series([0]*len(c1))
+    res = pd.Series([0] * len(c1))
     return res
 
 
@@ -3045,7 +3045,7 @@ def cf_03_0250(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
         할부금액_부분_3M_R12M = 0
     """
     c1 = df["기준년월"]
-    res = pd.Series([0]*len(c1))
+    res = pd.Series([0] * len(c1))
     return res
 
 
@@ -3137,7 +3137,7 @@ def cf_03_0338(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
         이용개월수_당사페이_R6M = 0
     """
     c1 = df["기준년월"]
-    res = pd.Series([0]*len(c1))
+    res = pd.Series([0] * len(c1))
     return res
 
 
@@ -3148,7 +3148,7 @@ def cf_03_0345(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
         이용금액_당사페이_R6M = 0
     """
     c1 = df["기준년월"]
-    res = pd.Series([0]*len(c1))
+    res = pd.Series([0] * len(c1))
     return res
 
 
@@ -3159,7 +3159,7 @@ def cf_03_0346(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
         이용금액_당사기타_R6M = 0
     """
     c1 = df["기준년월"]
-    res = pd.Series([0]*len(c1))
+    res = pd.Series([0] * len(c1))
     return res
 
 
@@ -3170,7 +3170,7 @@ def cf_03_0352(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
         이용건수_당사페이_R6M = 0
     """
     c1 = df["기준년월"]
-    res = pd.Series([0]*len(c1))
+    res = pd.Series([0] * len(c1))
     return res
 
 
@@ -3181,7 +3181,7 @@ def cf_03_0353(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
         이용건수_당사기타_R6M = 0
     """
     c1 = df["기준년월"]
-    res = pd.Series([0]*len(c1))
+    res = pd.Series([0] * len(c1))
     return res
 
 
@@ -3192,7 +3192,7 @@ def cf_03_0359(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
         이용금액_당사페이_R3M = 0
     """
     c1 = df["기준년월"]
-    res = pd.Series([0]*len(c1))
+    res = pd.Series([0] * len(c1))
     return res
 
 
@@ -3203,7 +3203,7 @@ def cf_03_0360(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
         이용금액_당사기타_R3M = 0
     """
     c1 = df["기준년월"]
-    res = pd.Series([0]*len(c1))
+    res = pd.Series([0] * len(c1))
     return res
 
 
@@ -3214,7 +3214,7 @@ def cf_03_0366(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
         이용건수_당사페이_R3M = 0
     """
     c1 = df["기준년월"]
-    res = pd.Series([0]*len(c1))
+    res = pd.Series([0] * len(c1))
     return res
 
 
@@ -3225,7 +3225,7 @@ def cf_03_0367(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
         이용건수_당사기타_R3M = 0
     """
     c1 = df["기준년월"]
-    res = pd.Series([0]*len(c1))
+    res = pd.Series([0] * len(c1))
     return res
 
 
@@ -3236,7 +3236,7 @@ def cf_03_0373(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
         이용금액_당사페이_B0M = 0
     """
     c1 = df["기준년월"]
-    res = pd.Series([0]*len(c1))
+    res = pd.Series([0] * len(c1))
     return res
 
 
@@ -3247,7 +3247,7 @@ def cf_03_0374(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
         이용금액_당사기타_B0M = 0
     """
     c1 = df["기준년월"]
-    res = pd.Series([0]*len(c1))
+    res = pd.Series([0] * len(c1))
     return res
 
 
@@ -3258,7 +3258,7 @@ def cf_03_0380(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
         이용건수_당사페이_B0M = 0
     """
     c1 = df["기준년월"]
-    res = pd.Series([0]*len(c1))
+    res = pd.Series([0] * len(c1))
     return res
 
 
@@ -3269,7 +3269,7 @@ def cf_03_0381(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
         이용건수_당사기타_B0M = 0
     """
     c1 = df["기준년월"]
-    res = pd.Series([0]*len(c1))
+    res = pd.Series([0] * len(c1))
     return res
 
 
