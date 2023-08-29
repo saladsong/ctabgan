@@ -686,7 +686,7 @@ class CTABGANSynthesizer:
         self.device = device
         self.generator_device = generator_device
         self.discriminator_device = discriminator_device
-        assert isinstance(accumulation_steps, int) and accumulation_steps > 1
+        assert isinstance(accumulation_steps, int) and accumulation_steps >= 1
         self.accumulation_steps = accumulation_steps
         # for info loss
         self.info_loss_wgt = info_loss_wgt
