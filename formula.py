@@ -126,6 +126,21 @@ constraints = [
     #     "type": "formula",
     #     "content": "IF RV신청일자 IS NOT NULL THEN rv등록일자=RV신청일자 ELSE rv등록일자 IS NULL",
     # },
+    {
+        "columns": ["한도요청거절건수", "한도요청승인건수"],
+        "output": "한도심사요청건수",
+        "fname": "cf_02_0040",
+        "type": "formula",
+        "content": "한도심사요청건수 = 한도요청거절건수 + 한도요청승인건수",
+    },
+    {
+        "columns": ["기준년월", "rv최초시작일자"],
+        "output": "rv최초시작후경과일",
+        "fname": "cf_02_0060",
+        "type": "formula",
+        "content": "rv최초시작후경과일 = DATEDIFF(LAST_DAY(기준년월), rv최초시작일자)",
+    },
+
     # 4.청구 테이블 컬럼 Formula
     {
         "columns": ["기준년월"],
@@ -1271,6 +1286,180 @@ constraints = [
         "type": "formula",
         "content": "연체입금원금_B5M = 정상청구원금_B5M - (선입금원금_B5M + 정상입금원금_B5M)",
     },
+    {
+        "columns": [
+            "이용금액_쇼핑",
+            "이용금액_요식",
+            "이용금액_교통",
+            "이용금액_의료",
+            "이용금액_납부",
+            "이용금액_교육",
+            "이용금액_여유생활",
+            "이용금액_사교활동",
+            "이용금액_일상생활",
+            "이용금액_해외",
+        ],
+        "output": "_2순위업종",
+        "fname": "cf_03_0425",
+        "type": "formula",
+        "content": "_2순위업종 = ARG2nd(이용금액_쇼핑, 요식, 교통, 의료, 납부, 교육, 여유생활, 사교활동, 일상생활, 해외)",
+    },
+    {
+        "columns": [
+            "이용금액_쇼핑",
+            "이용금액_요식",
+            "이용금액_교통",
+            "이용금액_의료",
+            "이용금액_납부",
+            "이용금액_교육",
+            "이용금액_여유생활",
+            "이용금액_사교활동",
+            "이용금액_일상생활",
+            "이용금액_해외",
+        ],
+        "output": "_2순위업종_이용금액",
+        "fname": "cf_03_0426",
+        "type": "formula",
+        "content": "_2순위업종_이용금액 = 2nd(이용금액_쇼핑, 요식, 교통, 의료, 납부, 교육, 여유생활, 사교활동, 일상생활, 해외)",
+    },
+    {
+        "columns": [
+            "쇼핑_도소매_이용금액",
+            "쇼핑_백화점_이용금액",
+            "쇼핑_마트_이용금액",
+            "쇼핑_슈퍼마켓_이용금액",
+            "쇼핑_편의점_이용금액",
+            "쇼핑_아울렛_이용금액",
+            "쇼핑_온라인_이용금액",
+            "쇼핑_기타_이용금액",
+        ],
+        "output": "_2순위쇼핑업종",
+        "fname": "cf_03_0427",
+        "type": "formula",
+        "content": "_2순위쇼핑업종 = ARG2nd(쇼핑_도소매_이용금액, 백화점, 마트, 슈퍼마켓, 편의점, 아울렛, 온라인, 기타)",
+    },
+    {
+        "columns": [
+            "쇼핑_도소매_이용금액",
+            "쇼핑_백화점_이용금액",
+            "쇼핑_마트_이용금액",
+            "쇼핑_슈퍼마켓_이용금액",
+            "쇼핑_편의점_이용금액",
+            "쇼핑_아울렛_이용금액",
+            "쇼핑_온라인_이용금액",
+            "쇼핑_기타_이용금액",
+        ],
+        "output": "_2순위쇼핑업종_이용금액",
+        "fname": "cf_03_0428",
+        "type": "formula",
+        "content": "_2순위쇼핑업종_이용금액 = 2nd(쇼핑_도소매_이용금액, 백화점, 마트, 슈퍼마켓, 편의점, 아울렛, 온라인, 기타)",
+    },
+    {
+        "columns": [
+            "교통_주유이용금액",
+            "교통_정비이용금액",
+            "교통_통행료이용금액",
+            "교통_버스지하철이용금액",
+            "교통_택시이용금액",
+            "교통_철도버스이용금액",
+        ],
+        "output": "_2순위교통업종",
+        "fname": "cf_03_0429",
+        "type": "formula",
+        "content": "_2순위교통업종 = ARG2nd(교통_주유이용금액, 정비, 통행료, 버스지하철, 택시, 철도버스)",
+    },
+    {
+        "columns": [
+            "교통_주유이용금액",
+            "교통_정비이용금액",
+            "교통_통행료이용금액",
+            "교통_버스지하철이용금액",
+            "교통_택시이용금액",
+            "교통_철도버스이용금액",
+        ],
+        "output": "_2순위교통업종_이용금액",
+        "fname": "cf_03_0430",
+        "type": "formula",
+        "content": "_2순위교통업종_이용금액 = 2nd(교통_주유이용금액, 정비, 통행료, 버스지하철, 택시, 철도버스)",
+    },
+    {
+        "columns": [
+            "여유_운동이용금액",
+            "여유_Pet이용금액",
+            "여유_공연이용금액",
+            "여유_공원이용금액",
+            "여유_숙박이용금액",
+            "여유_여행이용금액",
+            "여유_항공이용금액",
+            "여유_기타이용금액",
+        ],
+        "output": "_2순위여유업종",
+        "fname": "cf_03_0431",
+        "type": "formula",
+        "content": "_2순위여유업종 = ARG2nd(여유_운동이용금액, Pet, 공연, 공원, 숙박, 여행, 항공, 기타)",
+    },
+    {
+        "columns": [
+            "여유_운동이용금액",
+            "여유_Pet이용금액",
+            "여유_공연이용금액",
+            "여유_공원이용금액",
+            "여유_숙박이용금액",
+            "여유_여행이용금액",
+            "여유_항공이용금액",
+            "여유_기타이용금액",
+        ],
+        "output": "_2순위여유업종_이용금액",
+        "fname": "cf_03_0432",
+        "type": "formula",
+        "content": "_2순위여유업종_이용금액 = 2nd(여유_운동이용금액, Pet, 공연, 공원, 숙박, 여행, 항공, 기타)",
+    },
+    {
+        "columns": [
+            "납부_통신비이용금액",
+            "납부_관리비이용금액",
+            "납부_렌탈료이용금액",
+            "납부_가스전기료이용금액",
+            "납부_보험료이용금액",
+            "납부_유선방송이용금액",
+            "납부_건강연금이용금액",
+            "납부_기타이용금액",
+        ],
+        "output": "_2순위납부업종",
+        "fname": "cf_03_0433",
+        "type": "formula",
+        "content": "_2순위납부업종 = ARG2nd(납부_통신비이용금액, 관리비, 렌탈료, 가스전기료, 보험료, 유선방송, 건강연금, 기타)",
+    },
+    {
+        "columns": [
+            "납부_통신비이용금액",
+            "납부_관리비이용금액",
+            "납부_렌탈료이용금액",
+            "납부_가스전기료이용금액",
+            "납부_보험료이용금액",
+            "납부_유선방송이용금액",
+            "납부_건강연금이용금액",
+            "납부_기타이용금액",
+        ],
+        "output": "_2순위납부업종_이용금액",
+        "fname": "cf_03_0434",
+        "type": "formula",
+        "content": "_2순위납부업종_이용금액 = 2nd(납부_통신비이용금액, 관리비, 렌탈료, 가스전기료, 보험료, 유선방송, 건강연금, 기타)",
+    },
+    {
+        "columns": ["승인거절건수_한도초과_B0M", "승인거절건수_BL_B0M", "승인거절건수_입력오류_B0M", "승인거절건수_기타_B0M"],
+        "output": "승인거절건수_B0M",
+        "fname": "cf_03_0462",
+        "type": "formula",
+        "content": "승인거절건수_B0M = SUM(승인거절건수_한도초과_B0M, BL_B0M, 입력오류_B0M, 기타_B0M)",
+    },
+    {
+        "columns": ["승인거절건수_한도초과_R3M", "승인거절건수_BL_R3M", "승인거절건수_입력오류_R3M", "승인거절건수_기타_R3M"],
+        "output": "승인거절건수_R3M",
+        "fname": "cf_03_0467",
+        "type": "formula",
+        "content": "승인거절건수_R3M = SUM(승인거절건수_한도초과_R3M, BL_R3M, 입력오류_R3M, 기타_R3M)",
+    },
 ]
 
 # --------- constraint/formula 함수 정의 ---------
@@ -1420,6 +1609,33 @@ def cf_02_0030(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
 #     dd = df[["RV신청일자"]]
 #     res = dd.apply(lambda x: x[0] if not pd.isna(x[0]) else "nan", axis=1)
 #     return res
+
+
+@constraint_udf
+def cf_02_0040(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+    """
+    formula:
+        한도심사요청건수 = 한도요청거절건수 + 한도요청승인건수
+    """
+    c1, c2 = df["한도요청거절건수"], df["한도요청승인건수"]
+    res = c1 + c2
+    return res
+
+
+@constraint_udf
+def cf_02_0060(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+    """
+    formula:
+        rv최초시작후경과일 = DATEDIFF(LAST_DAY(기준년월), rv최초시작일자)
+    """
+    dd = df[["기준년월", "rv최초시작일자"]]
+    res = dd.apply(
+        lambda x: (datetime(year=int(x[0][:4]), month=int(x[0][4:6]), day=1) + relativedelta(months=1, days=-1) - datetime.strptime(x[1], "%Y%m%d")).days
+        if (not pd.isna(x[1])) & (x[1] != '10101')
+        else 99999999,
+        axis=1,
+    )
+    return res
 
 
 @constraint_udf
@@ -3303,4 +3519,335 @@ def cf_03_0410(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
     c1, c2, c3 = df["정상청구원금_B5M"], df["선입금원금_B5M"], df["정상입금원금_B5M"]
     res = c1 - (c2 + c3)
+    return res
+
+
+@constraint_udf
+def cf_03_0425(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
+    """
+    formula:
+        _2순위업종 = ARG2nd(이용금액_쇼핑, 요식, 교통, 의료, 납부, 교육, 여유생활, 사교활동, 일상생활, 해외)
+    """
+    dd = df[
+        [
+            "이용금액_쇼핑",
+            "이용금액_요식",
+            "이용금액_교통",
+            "이용금액_의료",
+            "이용금액_납부",
+            "이용금액_교육",
+            "이용금액_여유생활",
+            "이용금액_사교활동",
+            "이용금액_일상생활",
+            "이용금액_해외",
+        ]
+    ]
+
+    # 2순위 업종 존재여부
+    dd["is_valid"] = dd.apply(lambda x: sum(x > 0) > 1, axis=1)
+
+    code_map = {
+        0: "쇼핑",
+        1: "요식",
+        2: "교통",
+        3: "의료",
+        4: "납부",
+        5: "교육",
+        6: "여유생활",
+        7: "사교활동",
+        8: "일상생활",
+        9: "해외",
+    }
+    res = dd.apply(
+        lambda x: np.argsort(x[:-1])[-2] if x[-1] else "nan", axis=1
+    ).replace(code_map)
+    return res
+
+
+@constraint_udf
+def cf_03_0426(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+    """
+    formula:
+        _2순위업종_이용금액 = 2nd(이용금액_쇼핑, 요식, 교통, 의료, 납부, 교육, 여유생활, 사교활동, 일상생활, 해외)
+    """
+    dd = df[
+        [
+            "이용금액_쇼핑",
+            "이용금액_요식",
+            "이용금액_교통",
+            "이용금액_의료",
+            "이용금액_납부",
+            "이용금액_교육",
+            "이용금액_여유생활",
+            "이용금액_사교활동",
+            "이용금액_일상생활",
+            "이용금액_해외",
+        ]
+    ]
+
+    # 2순위 업종 존재여부
+    dd["is_valid"] = dd.apply(lambda x: sum(x > 0) > 1, axis=1)
+    res = dd.apply(lambda x: np.sort(x[:-1])[-2] if x[-1] else 0, axis=1)
+    return res
+
+
+@constraint_udf
+def cf_03_0427(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
+    """
+    formula:
+        _2순위쇼핑업종 = ARG2nd(쇼핑_도소매_이용금액, 백화점, 마트, 슈퍼마켓, 편의점, 아울렛, 온라인, 기타)
+    """
+    dd = df[
+        [
+            "쇼핑_도소매_이용금액",
+            "쇼핑_백화점_이용금액",
+            "쇼핑_마트_이용금액",
+            "쇼핑_슈퍼마켓_이용금액",
+            "쇼핑_편의점_이용금액",
+            "쇼핑_아울렛_이용금액",
+            "쇼핑_온라인_이용금액",
+            "쇼핑_기타_이용금액",
+        ]
+    ]
+
+    # 2순위 업종 존재여부
+    dd["is_valid"] = dd.apply(lambda x: sum(x > 0) > 1, axis=1)
+
+    code_map = {
+        0: "도소매",
+        1: "백화점",
+        2: "마트",
+        3: "슈퍼마켓",
+        4: "편의점",
+        5: "아울렛",
+        6: "온라인",
+        7: "쇼핑기타",
+    }
+    res = dd.apply(
+        lambda x: np.argsort(x[:-1])[-2] if x[-1] else "nan", axis=1
+    ).replace(code_map)
+    return res
+
+
+@constraint_udf
+def cf_03_0428(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+    """
+    formula:
+        _2순위쇼핑업종_이용금액 = 2nd(쇼핑_도소매_이용금액, 백화점, 마트, 슈퍼마켓, 편의점, 아울렛, 온라인, 기타)
+    """
+    dd = df[
+        [
+            "쇼핑_도소매_이용금액",
+            "쇼핑_백화점_이용금액",
+            "쇼핑_마트_이용금액",
+            "쇼핑_슈퍼마켓_이용금액",
+            "쇼핑_편의점_이용금액",
+            "쇼핑_아울렛_이용금액",
+            "쇼핑_온라인_이용금액",
+            "쇼핑_기타_이용금액",
+        ]
+    ]
+
+    # 2순위 업종 존재여부
+    dd["is_valid"] = dd.apply(lambda x: sum(x > 0) > 1, axis=1)
+    res = dd.apply(lambda x: np.sort(x[:-1])[-2] if x[-1] else 0, axis=1)
+    return res
+
+
+@constraint_udf
+def cf_03_0429(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
+    """
+    formula:
+        _2순위교통업종 = ARG2nd(교통_주유이용금액, 정비, 통행료, 버스지하철, 택시, 철도버스)
+    """
+    dd = df[
+        [
+            "교통_주유이용금액",
+            "교통_정비이용금액",
+            "교통_통행료이용금액",
+            "교통_버스지하철이용금액",
+            "교통_택시이용금액",
+            "교통_철도버스이용금액",
+        ]
+    ]
+
+    # 2순위 업종 존재여부
+    dd["is_valid"] = dd.apply(lambda x: sum(x > 0) > 1, axis=1)
+
+    code_map = {0: "주유", 1: "정비", 2: "통행료", 3: "버스지하철", 4: "택시", 5: "철도버스"}
+    res = dd.apply(
+        lambda x: np.argsort(x[:-1])[-2] if x[-1] else "nan", axis=1
+    ).replace(code_map)
+    return res
+
+
+@constraint_udf
+def cf_03_0430(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+    """
+    formula:
+        _2순위교통업종_이용금액 = 2nd(교통_주유이용금액, 정비, 통행료, 버스지하철, 택시, 철도버스)
+    """
+    dd = df[
+        [
+            "교통_주유이용금액",
+            "교통_정비이용금액",
+            "교통_통행료이용금액",
+            "교통_버스지하철이용금액",
+            "교통_택시이용금액",
+            "교통_철도버스이용금액",
+        ]
+    ]
+
+    # 2순위 업종 존재여부
+    dd["is_valid"] = dd.apply(lambda x: sum(x > 0) > 1, axis=1)
+    res = dd.apply(lambda x: np.sort(x[:-1])[-2] if x[-1] else 0, axis=1)
+    return res
+
+
+@constraint_udf
+def cf_03_0431(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
+    """
+    formula:
+        _2순위여유업종 = ARG2nd(여유_운동이용금액, Pet, 공연, 공원, 숙박, 여행, 항공, 기타)
+    """
+    dd = df[
+        [
+            "여유_운동이용금액",
+            "여유_Pet이용금액",
+            "여유_공연이용금액",
+            "여유_공원이용금액",
+            "여유_숙박이용금액",
+            "여유_여행이용금액",
+            "여유_항공이용금액",
+            "여유_기타이용금액",
+        ]
+    ]
+
+    # 2순위 업종 존재여부
+    dd["is_valid"] = dd.apply(lambda x: sum(x > 0) > 1, axis=1)
+
+    code_map = {
+        0: "운동",
+        1: "Pet",
+        2: "공연",
+        3: "공원",
+        4: "숙박",
+        5: "여행",
+        6: "항공",
+        7: "여유기타",
+    }
+    res = dd.apply(
+        lambda x: np.argsort(x[:-1])[-2] if x[-1] else "nan", axis=1
+    ).replace(code_map)
+    return res
+
+
+@constraint_udf
+def cf_03_0432(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+    """
+    formula:
+        _2순위여유업종_이용금액 = 2nd(여유_운동이용금액, Pet, 공연, 공원, 숙박, 여행, 항공, 기타)
+    """
+    dd = df[
+        [
+            "여유_운동이용금액",
+            "여유_Pet이용금액",
+            "여유_공연이용금액",
+            "여유_공원이용금액",
+            "여유_숙박이용금액",
+            "여유_여행이용금액",
+            "여유_항공이용금액",
+            "여유_기타이용금액",
+        ]
+    ]
+
+    # 2순위 업종 존재여부
+    dd["is_valid"] = dd.apply(lambda x: sum(x > 0) > 1, axis=1)
+
+    res = dd.apply(lambda x: np.sort(x[:-1])[-2] if x[-1] else 0, axis=1)
+    return res
+
+
+@constraint_udf
+def cf_03_0433(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
+    """
+    formula:
+        _2순위납부업종 = ARG2nd(납부_통신비이용금액, 관리비, 렌탈료, 가스전기료, 보험료, 유선방송, 건강연금, 기타)
+    """
+    dd = df[
+        [
+            "납부_통신비이용금액",
+            "납부_관리비이용금액",
+            "납부_렌탈료이용금액",
+            "납부_가스전기료이용금액",
+            "납부_보험료이용금액",
+            "납부_유선방송이용금액",
+            "납부_건강연금이용금액",
+            "납부_기타이용금액",
+        ]
+    ]
+
+    # 2순위 업종 존재여부
+    dd["is_valid"] = dd.apply(lambda x: sum(x > 0) > 1, axis=1)
+
+    code_map = {
+        0: "통신비",
+        1: "관리비",
+        2: "렌탈료",
+        3: "가스전기료",
+        4: "보험료",
+        5: "유선방송",
+        6: "건강연금",
+        7: "납부기타",
+    }
+    res = dd.apply(
+        lambda x: np.argsort(x[:-1])[-2] if x[-1] else "nan", axis=1
+    ).replace(code_map)
+    return res
+
+
+@constraint_udf
+def cf_03_0434(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+    """
+    formula:
+        _2순위납부업종_이용금액 = 2rd(납부_통신비이용금액, 관리비, 렌탈료, 가스전기료, 보험료, 유선방송, 건강연금, 기타)
+    """
+    dd = df[
+        [
+            "납부_통신비이용금액",
+            "납부_관리비이용금액",
+            "납부_렌탈료이용금액",
+            "납부_가스전기료이용금액",
+            "납부_보험료이용금액",
+            "납부_유선방송이용금액",
+            "납부_건강연금이용금액",
+            "납부_기타이용금액",
+        ]
+    ]
+
+    # 2순위 업종 존재여부
+    dd["is_valid"] = dd.apply(lambda x: sum(x > 0) > 1, axis=1)
+    res = dd.apply(lambda x: np.sort(x[:-1])[-2] if x[-1] else 0, axis=1)
+    return res
+
+
+@constraint_udf
+def cf_03_0462(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+    """
+    formula:
+        승인거절건수_B0M = SUM(승인거절건수_한도초과_B0M, BL_B0M, 입력오류_B0M, 기타_B0M)
+    """
+    dd = df[["승인거절건수_한도초과_B0M", "승인거절건수_BL_B0M", "승인거절건수_입력오류_B0M", "승인거절건수_기타_B0M"]]
+    res = dd.sum(axis=1).astype(int)
+    return res
+
+
+@constraint_udf
+def cf_03_0467(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+    """
+    formula:
+        승인거절건수_R3M = SUM(승인거절건수_한도초과_R3M, BL_R3M, 입력오류_R3M, 기타_R3M)
+    """
+    dd = df[["승인거절건수_한도초과_R3M", "승인거절건수_BL_R3M", "승인거절건수_입력오류_R3M", "승인거절건수_기타_R3M"]]
+    res = dd.sum(axis=1).astype(int)
     return res
