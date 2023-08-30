@@ -290,51 +290,47 @@ def transform_date_cols(
     return df
 
 
-### 임시
-def make_fn_dept(data):
-    all_input = []
-    tmp_dict = {}
-    for con in data:
-        all_input.append(con["columns"])
+def make_fn_dept(data: dict) -> (list, dict):
+    """
+    제약조건 데이터로부터 선후행 조건에 따라
+    수행 역순의 함수 이름 목록과 수행되지 못한 제약 조건을 생성합니다.
+    Args:
+        data (dict): 제약 조건을 나타내는 딕셔너리들의 리스트입니다.
+    Returns:
+        tuple: 함수 실행 순서의 역순으로 정렬된 함수 이름 목록과 남은 제약 조건이 포함된 튜플을 반환합니다.
+    """
 
-    for con in data:
-        target_value = con["output"]
-        fn = con["fname"]
-        try:
-            positions = [
-                (row_idx, col_idx)
-                for row_idx, row in enumerate(all_input)
-                for col_idx, value in enumerate(row)
-                if value == target_value
-            ]
-            if len(positions) >= 1:
-                for i in positions:
-                    #                 print(f"선행 : '{constraints[i[0]]['fname']}', 후행 : '{fn}'")
-                    tmp = {fn: data[i[0]]["fname"]}
-                    tmp_dict.update(tmp)
-        except StopIteration:
-            pass
+    def process_data(cp_data: dict) -> (list, dict):
+        """
+        제약 조건 데이터로부터 정보를 추출하고 처리합니다.
+        Args:
+            cp_data (dict): 제약 조건을 담고 있는 딕셔너리입니다.
+        Returns:
+            tuple: 함수 이름 목록과 수정된 제약 조건 데이터가 포함된 튜플을 반환합니다.
+        """
+        all_output = set()
+        all_input = set()
 
-        lv1 = []
-        lv2 = []
-        lv3 = []
-        ff = []
-        for k, v in tmp_dict.items():
-            lv1.append(k)  # 후행만 있는 애들
-            if k in tmp_dict.values():
-                lv2.append(k)  # 후행 함수도 있고 선행 함수도 있는 애들
-            if v not in tmp_dict.keys():
-                lv3.append(v)  # 선행만 있는 애들
+        # 제약 조건에서 columns set 추출
+        for con in cp_data:
+            all_output.add(con["output"])
+            all_input.update(con["columns"])
 
-        for i in lv2:
-            ff.append(tmp_dict[i])
-        lv1 = list(set(lv1) - set(lv2))
-        lv3 = list(set(lv3))
+        # 선행이 필요없는 칼럼명 추출
+        lv0 = list(all_output - all_input)
+        fun_names = []
+        new_data = []
+        for l in lv0:
+            desired_dict = next(item for item in cp_data if item["output"] == l)
+            # 추출된 칼럼으로 부터 fname을 추출하고 제약조건에서 삭제
+            fun_names.append(desired_dict["fname"])
+            cp_data.remove(desired_dict)
+        return fun_names, cp_data
 
-    lv0 = []
-    for con in data:
-        lv0.append(con["fname"])
-
-    lv0 = list(set(lv0) - set(lv1) - set(lv2) - set(lv3))
-    tot = [lv0] + [lv1] + [lv2] + [lv3]
-    return tot
+    if len(data) <= 1:
+        return [], data
+    # 현재 제약 조건 데이터를 처리하고 다음 레벨의 결과를 재귀 수행
+    fun_names, new_data = process_data(data.copy())
+    next_fun_names, next_data = make_fn_dept(new_data)
+    # 현재 레벨의 함수 이름 목록과 다음 레벨 결과를 결합하여 반환
+    return [fun_names] + next_fun_names, next_data

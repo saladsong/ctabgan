@@ -383,8 +383,10 @@ class Discriminator(Module):
         super(Discriminator, self).__init__()
         self.side = side
         layers = self._determine_layers_disc(side, num_channels, input_channel)
-        info = len(layers) - 2  # 맨 마지막 conv, relu 제외
+        info = len(layers) - 1  # 맨 마지막 conv, relu 제외
+        # info = len(layers) - 2  # 맨 마지막 conv, relu 제외
         self.seq = Sequential(*layers)
+        # 이부분 수정 필요
         self.seq_info = Sequential(*layers[:info])
 
     def forward(self, input):
