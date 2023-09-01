@@ -9,3 +9,7 @@ termcolor
 wandb
 # for ai02
 urllib3<2.0
+
+# for eval web
+Flask
+lightgbm

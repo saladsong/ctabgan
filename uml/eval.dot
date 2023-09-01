@@ -1,0 +1,29 @@
+// dot -Tpng comp.dot -o comp.png
+
+digraph g {
+    // graph [pad="0.5", nodesep="0.2", ranksep="0"];
+    // splines = ortho
+    // splines = curved
+    node[shape = box]
+    edge[arrowhead = vee]
+    compound=true
+
+
+    data [label="orig, syn.parquet"]
+
+    subgraph cluster_tta {
+        label="TTA"
+
+        division [label="제출용 개별 데이터셋 *.csv (6*8*2=48*2)"]
+        eval [label="평가지표 (pMSE, JSD, Corr.diff)"]
+        // pmse: lr, dt
+    }
+
+    view [label="평가 웹 화면"]
+
+
+
+    data -> division [label="월별, 주제별 분리 (w/ topic.json)"]
+    division -> eval [label="48 iter (w/ dtype.json)"]
+    eval -> view
+}

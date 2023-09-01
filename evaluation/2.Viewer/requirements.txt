@@ -1,0 +1,7 @@
+pandas<2
+dython
+tqdm
+scipy
+jupyter
+ipywidgets
+ipykernel
