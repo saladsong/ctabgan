@@ -7,3 +7,7 @@ Fake_datasets/*
 wandb
 save
 model/**/__init__.py
+model-testing-web
+tta
+evaluation
+*/**/.DS_Store

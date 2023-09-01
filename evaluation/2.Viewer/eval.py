@@ -191,6 +191,7 @@ from itertools import product
 if __name__ == "__main__":
     # parse args
     parser = argparse.ArgumentParser()
+    parser.add_argument("--dpath", "-d", type=str, help="합성데이터 파케이파일 패스", required=True)
     parser.add_argument(
         "--parallel",
         "-p",
@@ -207,6 +208,7 @@ if __name__ == "__main__":
     # parse parmas
     parallel = True if config.parallel == "y" else False
     n_jobs = config.n_jobs
+    dpath = config.dpath
 
     conditions = list(product(topic_list, baseym_list))
     res_all = []
@@ -243,9 +245,7 @@ if __name__ == "__main__":
                         res_dict = r.get()
                         res_all.append(res_dict)
     else:
-        syn = pd.read_parquet(
-            "./master_sample_10000_ppc_fake_M-128-ci2-conv5-120epoch-acc3.parquet"
-        )
+        syn = pd.read_parquet(dpath)
         for topic, baseym in tqdm(conditions):
             res_dict = calc_eval(
                 topic, baseym, syn, BASE_YM_COL, KEY_COL, PARTITION_COL
