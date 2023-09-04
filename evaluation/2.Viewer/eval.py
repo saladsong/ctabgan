@@ -136,12 +136,15 @@ def calc_eval(
     df_merge = pd.concat(
         [
             pd.concat(
-                [df_orig_pps, pd.Series([0] * len(df_orig_pps), name=PARTITION_COL)],
+                [
+                    df_orig_pps.reset_index(drop=True),
+                    pd.Series([0] * len(df_orig_pps), name=PARTITION_COL),
+                ],
                 axis=1,
             ),
             pd.concat(
                 [
-                    df_syn_pps,
+                    df_syn_pps.reset_index(drop=True),
                     pd.Series([1] * len(df_syn_pps), name=PARTITION_COL),
                 ],
                 axis=1,
