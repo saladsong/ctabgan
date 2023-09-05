@@ -16,7 +16,7 @@ from drift_utils import (
 warnings.filterwarnings("ignore")
 
 
-def calc_max_jsd_f2r(df, key_col="발급회원번호", partition_col="기준년월", n_bins=20):
+def calc_max_jsd_f2r(df, key_col="발급회원번호", partition_col="is_syn", n_bins=20):
     """첫번째 파티션을 원본으로 보고, 나머지 파티션 별 데이터의 분포와 비교 (First to Rest)"""
     partitions = sorted(df[partition_col].unique())
     assert (
@@ -64,13 +64,13 @@ def calc_max_jsd_f2r(df, key_col="발급회원번호", partition_col="기준년�
     return df_jsd.max(axis=1).to_dict()
 
 
-def plot_cont_dist_by_month(
+def get_jsd_by_col(
     df_to_plot,
     key_col="발급회원번호",
-    partition_col="기준년월",
+    partition_col="is_syn",
     n_bins=20,
 ):
-    """Continuous 분포 시각화 (월별)
+    """컬럼별 JSD 계산
     Args:
         df_to_plot (pd.DataFrame): 시각화 대상 컬럼 데이터
     """
@@ -79,36 +79,11 @@ def plot_cont_dist_by_month(
             df_to_plot, key_col=key_col, partition_col=partition_col, n_bins=n_bins
         )
         for col in [x for x in df_to_plot.columns if x not in [key_col, partition_col]]:
-            if col not in jsd_by_col:
+            if col not in jsd_by_col:  # 산출되지 않은 컬럼의 jsd는 -1로 설정
                 jsd_by_col[col] = -1
     except Exception as e:
         print(f"{type(e).__name__}: {e}")
-        jsd_by_col = {
-            x: -1 for x in df_to_plot.columns if x not in [key_col, partition_col]
-        }
-
-    return jsd_by_col
-
-
-def plot_discrete_dist_by_month(
-    df_to_plot,
-    key_col="발급회원번호",
-    partition_col="기준년월",
-):
-    """Discrete 분포 시각화 (월별)
-    Args:
-        df_to_plot (pd.DataFrame): 시각화 대상 컬럼 데이터
-    """
-    try:
-        jsd_by_col = calc_max_jsd_f2r(
-            df_to_plot, key_col=key_col, partition_col=partition_col
-        )
-        for col in [x for x in df_to_plot.columns if x not in [key_col, partition_col]]:
-            if col not in jsd_by_col:
-                jsd_by_col[col] = -1
-    except Exception as e:
-        print(f"{type(e).__name__}: {e}")
-        jsd_by_col = {
+        jsd_by_col = {  # 오류 발생 시 모든 컬럼의 jsd를 -1로 설정
             x: -1 for x in df_to_plot.columns if x not in [key_col, partition_col]
         }
 
@@ -126,7 +101,7 @@ def get_jsd(
     Returns:
         float: JSD값
     """
-    jsd_by_col = plot_discrete_dist_by_month(
+    jsd_by_col = get_jsd_by_col(
         df_merge, key_col=key_col, partition_col=partition_col
     )
 
@@ -229,14 +204,14 @@ def get_corrdiff(
     real_corr = associations(
         real,
         nominal_columns=categorical_columns,
-        plot=False,
         nom_nom_assoc="theil",
+        compute_only=True
     )
     fake_corr = associations(
         fake,
         nominal_columns=categorical_columns,
-        plot=False,
         nom_nom_assoc="theil",
+        compute_only=True
     )
 
     corr_dist = real_corr["corr"] - fake_corr["corr"]
