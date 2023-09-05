@@ -18,7 +18,7 @@ topic_list = [
     "08.성과정보",
 ]
 baseym_list = ["201807", "201808", "201809", "201810", "201811", "201812"]
-high_cardinality_cols = [
+exclude_cols = [
     # 코드 필드
     "_1순위카드상품종류코드",
     "최종카드상품종류코드",
@@ -29,8 +29,10 @@ high_cardinality_cols = [
     "OS버전값",
     "대표결제은행코드",
     "최종카드론_금융상품코드",
-    "대표BL코드_ACCOUNT",
-    # 날짜 필드 추가
+    "대표BL코드_ACCOUNT"
+]
+high_cardinality_cols = [
+    # 날짜 필드
     "입회일자_신용",
     "최종카드발급일자",
     "RV신청일자",
@@ -43,6 +45,10 @@ high_cardinality_cols = [
     "최종이용일자_할부",
     "최종카드론_대출일자",
     "연체일자_B0M",
+    "_1순위카드유효년월",
+    "_2순위카드유효년월",
+    "최종유효년월_신용_이용가능",
+    "최종유효년월_신용_이용"
 ]
 
 KEY_COL = "발급회원번호"
@@ -52,6 +58,7 @@ PARTITION_COL = "is_syn"
 
 # 컬럼별 타입 데이터 로드
 df_types = pd.read_csv("../1.Dataset/Other/메타데이터/col_types_orig.csv")
+df_types = df_types[~df_types['데이터필드명'].isin(exclude_cols)].reset_index(drop=True)
 
 meta = {}
 for k, v in df_types.values:
