@@ -378,7 +378,7 @@ def calc_target_freq_by_feat(
 
             # 알수없는 범주의 집계된 빈도로 업데이트
             df_full = df_full[df_full["bin_index"] != UNKNOWN_CATE_FLAG]
-            df_full = df_full.append(df_unknown, sort=False).reset_index(drop=True)
+            df_full = pd.concat([df_full, df_unknown], ignore_index=True)
 
             # base_frequencies = df_full['base_freq'].values
             # target_frequencies = df_full['target_freq'].values
