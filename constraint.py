@@ -403,10 +403,10 @@ constraints = [
         "content": "IF 한도심사요청건수=0: 한도심사요청후경과월 = 3",
     },
     {
-        "columns": ["한도심사거절건수", "한도심사거절후경과월"],
+        "columns": ["한도요청거절건수", "한도심사거절후경과월"],
         "fname": "cc_02_0019",
         "type": "constraint",
-        "content": "IF 한도심사거절건수=0: 한도심사거절후경과월 = 3",
+        "content": "IF 한도요청거절건수=0: 한도심사거절후경과월 = 3",
     },
     {
         "columns": ["시장단기연체여부_R3M", "시장단기연체여부_R6M"],
@@ -617,10 +617,10 @@ constraints = [
         "content": "잔액_일시불_B0M + 잔액_할부_B0M + 잔액_리볼빙일시불이월_B0M <= 카드이용한도금액",
     },
     {
-        "columns": ["잔액_현금서비스_B0M", "잔액_리볼빙CA이월", "CA한도금액"],
+        "columns": ["잔액_현금서비스_B0M", "잔액_리볼빙CA이월_B0M", "CA한도금액"],
         "fname": "cc_05_0003",
         "type": "constraint",
-        "content": "잔액_현금서비스_B0M + 잔액_리볼빙CA이월 <= CA한도금액",
+        "content": "잔액_현금서비스_B0M + 잔액_리볼빙CA이월_B0M <= CA한도금액",
     },
     {
         "columns": ["잔액_카드론_B0M", "월상환론한도금액"],
@@ -1106,7 +1106,7 @@ constraints = [
     {
         "columns": ["상담건수_B0M", "IB상담건수_VOC_B0M", "IB상담건수_금감원_B0M"],
         "fname": "cc_06_0063",
-        "type": "formula",
+        "type": "constraint",
         "content": "상담건수_B0M >= SUM(IB상담건수_VOC_B0M, IB상담건수_금감원_B0M)",
     },
 
@@ -1433,7 +1433,7 @@ constraints = [
     {
         "columns": ["기준년월", "최종이용일자_할부", "이용후경과월_할부"],
         "fname": "cc_03_0147",
-        "type": "formula",
+        "type": "constraint",
         "content": "MONTHS_BETWEEN(최종이용일자_할부, 기준년월) == 이용후경과월_할부",
     },
     {
@@ -1653,15 +1653,13 @@ constraints = [
         "content": "이용금액_카드론_B0M <= 이용금액_카드론_R3M <= 이용금액_카드론_R6M <= 이용금액_카드론_R12M",
     },
     {
-        "columns": ["최대이용금액_신판_R12M", "최대이용금액_CA_R12M"],
-        "output": "최대이용금액_신용_R12M",
+        "columns": ["최대이용금액_신용_R12M", "최대이용금액_신판_R12M", "최대이용금액_CA_R12M"],
         "fname": "cc_03_0156",
         "type": "constraint",
         "content": "최대이용금액_신용_R12M >= MAX(최대이용금액_신판_R12M, 최대이용금액_CA_R12M)",
     },
     {
-        "columns": ["최대이용금액_일시불_R12M", "최대이용금액_할부_R12M"],
-        "output": "최대이용금액_신판_R12M",
+        "columns": ["최대이용금액_신판_R12M", "최대이용금액_일시불_R12M", "최대이용금액_할부_R12M"],
         "fname": "cc_03_0157",
         "type": "constraint",
         "content": "최대이용금액_신판_R12M >= MAX(최대이용금액_일시불_R12M, 최대이용금액_할부_R12M)",
@@ -1816,7 +1814,7 @@ constraints = [
         "content": "IF 이용금액_일시불_R3M>0: 이용건수_일시불_R3M >0",
     },
     {
-        "columns": ["이용금액_할부_R3M", "이용건수_할부_R3"],
+        "columns": ["이용금액_할부_R3M", "이용건수_할부_R3M"],
         "fname": "cc_03_0055",
         "type": "constraint",
         "content": "IF 이용금액_할부_R3M>0: 이용건수_할부_R3M >0",
@@ -2002,6 +2000,7 @@ constraints = [
     },
     {
         "columns": [
+            "이용금액_쇼핑",
             "쇼핑_도소매_이용금액",
             "쇼핑_백화점_이용금액",
             "쇼핑_마트_이용금액",
@@ -2265,6 +2264,7 @@ constraints = [
     },
     {
         "columns": [
+            "이용금액_간편결제_R6M",
             "이용금액_당사페이_R6M",
             "이용금액_당사기타_R6M",
             "이용금액_A페이_R6M",
@@ -2320,6 +2320,7 @@ constraints = [
     },
     {
         "columns": [
+            "이용건수_간편결제_R6M",
             "이용건수_당사페이_R6M",
             "이용건수_당사기타_R6M",
             "이용건수_A페이_R6M",
@@ -2369,6 +2370,7 @@ constraints = [
     },
     {
         "columns": [
+            "이용금액_간편결제_R3M",
             "이용금액_당사페이_R3M",
             "이용금액_당사기타_R3M",
             "이용금액_A페이_R3M",
@@ -2382,6 +2384,7 @@ constraints = [
     },
     {
         "columns": [
+            "이용건수_간편결제_R3M",
             "이용건수_당사페이_R3M",
             "이용건수_당사기타_R3M",
             "이용건수_A페이_R3M",
@@ -2395,6 +2398,7 @@ constraints = [
     },
     {
         "columns": [
+            "이용금액_간편결제_B0M",
             "이용금액_당사페이_B0M",
             "이용금액_당사기타_B0M",
             "이용금액_A페이_B0M",
@@ -2408,6 +2412,7 @@ constraints = [
     },
     {
         "columns": [
+            "이용건수_간편결제_B0M",
             "이용건수_당사페이_B0M",
             "이용건수_당사기타_B0M",
             "이용건수_A페이_B0M",
@@ -2468,13 +2473,13 @@ constraints = [
         "content": "이용개월수_결제일_R3M <= 이용개월수_결제일_R6M",
     },
     {
-        "columns": ["이용횟수_연체_B0M", "이용횟수_연체_B0M", "이용횟수_연체_R6M"],
+        "columns": ["이용횟수_연체_B0M", "이용횟수_연체_R3M", "이용횟수_연체_R6M"],
         "fname": "cc_03_0145",
         "type": "constraint",
         "content": "이용횟수_연체_B0M <= 이용횟수_연체_R3M <= 이용횟수_연체_R6M",
     },
     {
-        "columns": ["이용금액_연체_B0M", "이용금액_연체_B0M", "이용금액_연체_R6M"],
+        "columns": ["이용금액_연체_B0M", "이용금액_연체_R3M", "이용금액_연체_R6M"],
         "fname": "cc_03_0146",
         "type": "constraint",
         "content": "이용금액_연체_B0M <= 이용금액_연체_R3M <= 이용금액_연체_R6M",
@@ -4292,9 +4297,9 @@ def cc_02_0018(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
 def cc_02_0019(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     """
     formula:
-        IF 한도심사거절건수=0: 한도심사거절후경과월 = 3
+        IF 한도요청거절건수=0: 한도심사거절후경과월 = 3
     """
-    dd = df[["한도심사거절건수", "한도심사거절후경과월"]]
+    dd = df[["한도요청거절건수", "한도심사거절후경과월"]]
     ret = dd.apply(lambda x: x[1] == 3 if x[0] == 0 else True, axis=1)
     return ret
 
@@ -6958,7 +6963,7 @@ def cc_03_0080(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
 def cc_03_0155(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     """
     Constraint:
-        쇼핑_전체_이용금액 >= SUM(쇼핑_도소매_이용금액, 백화점, 마트, 슈퍼마켓, 편의점, 아울렛, 온라인, 기타)
+        이용금액_쇼핑 >= SUM(쇼핑_도소매_이용금액, 백화점, 마트, 슈퍼마켓, 편의점, 아울렛, 온라인, 기타)
     """
     dd = df[
         [
@@ -6974,7 +6979,7 @@ def cc_03_0155(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     ]
     res = dd.sum(axis=1).astype(int)
 
-    c = df["쇼핑_전체_이용금액"]
+    c = df["이용금액_쇼핑"]
     return c >= res
 
 
@@ -7196,7 +7201,7 @@ def cc_03_0101(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     Constraint:
        이용금액_카드론_R12M <= 카드론이용금액_누적
     """
-    c1, c2 = df["이용개월수_카드론_R12M"], df["카드론이용금액_누적"]
+    c1, c2 = df["이용금액_카드론_R12M"], df["카드론이용금액_누적"]
     return c1 <= c2
 
 
