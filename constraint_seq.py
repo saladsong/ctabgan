@@ -102,8 +102,8 @@ constraints = [
         "output": "M08_최종탈회후경과월",
         "fname": "cfs_01_0116",
         "type": "formula",
-        "content": """IF M07_탈회횟수_누적 == M08_탈회횟수_누적:
-                      M08_최종탈회후경과월 = M07_최종탈회후경과월 + 1
+        "content": """IF (M08_탈회횟수_누적 > 0) & (M07_탈회횟수_누적 == M08_탈회횟수_누적)
+                      THEN M08_최종탈회후경과월 = M07_최종탈회후경과월 + 1
                       ELSE M08_최종탈회후경과월 = 0""",
     },
     # M09
@@ -168,8 +168,8 @@ constraints = [
         "output": "M09_최종탈회후경과월",
         "fname": "cfs_01_0205",
         "type": "formula",
-        "content": """IF M08_탈회횟수_누적 == M09_탈회횟수_누적:
-                      M09_최종탈회후경과월 = M08_최종탈회후경과월 + 1
+        "content": """IF (M09_탈회횟수_누적 > 0) & (M08_탈회횟수_누적 == M09_탈회횟수_누적)
+                      THEN M09_최종탈회후경과월 = M08_최종탈회후경과월 + 1
                       ELSE M09_최종탈회후경과월 = 0""",
     },
     # M10
@@ -234,8 +234,8 @@ constraints = [
         "output": "M10_최종탈회후경과월",
         "fname": "cfs_01_0294",
         "type": "formula",
-        "content": """IF M09_탈회횟수_누적 == M10_탈회횟수_누적:
-                      M10_최종탈회후경과월 = M09_최종탈회후경과월 + 1
+        "content": """IF (M10_탈회횟수_누적 > 0) & (M09_탈회횟수_누적 == M10_탈회횟수_누적)
+                      THEN M10_최종탈회후경과월 = M09_최종탈회후경과월 + 1
                       ELSE M10_최종탈회후경과월 = 0""",
     },
     # M11
@@ -300,8 +300,8 @@ constraints = [
         "output": "M11_최종탈회후경과월",
         "fname": "cfs_01_0383",
         "type": "formula",
-        "content": """IF M10_탈회횟수_누적 == M11_탈회횟수_누적:
-                      M11_최종탈회후경과월 = M10_최종탈회후경과월 + 1
+        "content": """IF (M11_탈회횟수_누적 > 0) & (M10_탈회횟수_누적 == M11_탈회횟수_누적)
+                      THEN M11_최종탈회후경과월 = M10_최종탈회후경과월 + 1
                       ELSE M11_최종탈회후경과월 = 0""",
     },
     # M12
@@ -366,8 +366,8 @@ constraints = [
         "output": "M12_최종탈회후경과월",
         "fname": "cfs_01_0472",
         "type": "formula",
-        "content": """IF M11_탈회횟수_누적 == M12_탈회횟수_누적:
-                      M12_최종탈회후경과월 = M11_최종탈회후경과월 + 1
+        "content": """IF (M12_탈회횟수_누적 > 0) & (M11_탈회횟수_누적 == M12_탈회횟수_누적)
+                      THEN M12_최종탈회후경과월 = M11_최종탈회후경과월 + 1
                       ELSE M12_최종탈회후경과월 = 0""",
     },
 
@@ -2313,7 +2313,9 @@ constraints = [
         "output": "M08_최종카드론이용경과월",
         "fname": "cfs_03_0736",
         "type": "formula",
-        "content": """IF M08_최종카드론_대출일자 = M07_최종카드론_대출일자
+        "content": """IF M08_최종카드론_대출일자 IS NULL
+                      THEN M08_최종카드론이용경과월 = 999
+                      ELIF M08_최종카드론_대출일자 = M07_최종카드론_대출일자
                       THEN M08_최종카드론이용경과월 = M07_최종카드론이용경과월 + 1
                       ELSE M08_최종카드론이용경과월 = 0""",
     },
@@ -2554,7 +2556,9 @@ constraints = [
         "output": "M09_최종카드론이용경과월",
         "fname": "cfs_03_1197",
         "type": "formula",
-        "content": """IF M09_최종카드론_대출일자 = M08_최종카드론_대출일자
+        "content": """IF M09_최종카드론_대출일자 IS NULL
+                      THEN M09_최종카드론이용경과월 = 999
+                      ELIF M09_최종카드론_대출일자 = M08_최종카드론_대출일자
                       THEN M09_최종카드론이용경과월 = M08_최종카드론이용경과월 + 1
                       ELSE M09_최종카드론이용경과월 = 0""",
     },
@@ -3166,7 +3170,9 @@ constraints = [
         "output": "M10_최종카드론이용경과월",
         "fname": "cfs_03_1658",
         "type": "formula",
-        "content": """IF M10_최종카드론_대출일자 = M09_최종카드론_대출일자
+        "content": """IF M10_최종카드론_대출일자 IS NULL
+                      THEN M10_최종카드론이용경과월 = 999
+                      ELIF M10_최종카드론_대출일자 = M09_최종카드론_대출일자
                       THEN M10_최종카드론이용경과월 = M09_최종카드론이용경과월 + 1
                       ELSE M10_최종카드론이용경과월 = 0""",
     },
@@ -3967,7 +3973,9 @@ constraints = [
         "output": "M11_최종카드론이용경과월",
         "fname": "cfs_03_2119",
         "type": "formula",
-        "content": """IF M11_최종카드론_대출일자 = M10_최종카드론_대출일자
+        "content": """IF M11_최종카드론_대출일자 IS NULL
+                      THEN M11_최종카드론이용경과월 = 999
+                      ELIF M11_최종카드론_대출일자 = M10_최종카드론_대출일자
                       THEN M11_최종카드론이용경과월 = M10_최종카드론이용경과월 + 1
                       ELSE M11_최종카드론이용경과월 = 0""",
     },
@@ -4838,7 +4846,9 @@ constraints = [
         "output": "M12_최종카드론이용경과월",
         "fname": "cfs_03_2580",
         "type": "formula",
-        "content": """IF M12_최종카드론_대출일자 = M11_최종카드론_대출일자
+        "content": """IF M12_최종카드론_대출일자 IS NULL
+                      THEN M12_최종카드론이용경과월 = 999
+                      ELIF M12_최종카드론_대출일자 = M11_최종카드론_대출일자
                       THEN M12_최종카드론이용경과월 = M11_최종카드론이용경과월 + 1
                       ELSE M12_최종카드론이용경과월 = 0""",
     },
@@ -5679,12 +5689,12 @@ def cfs_01_0103(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
 def cfs_01_0116(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     """
     formula:
-        IF M07_탈회횟수_누적 == M08_탈회횟수_누적:
-        M08_최종탈회후경과월 = M07_최종탈회후경과월 + 1
+        IF (M08_탈회횟수_누적 > 0) & (M07_탈회횟수_누적 == M08_탈회횟수_누적)
+        THEN M08_최종탈회후경과월 = M07_최종탈회후경과월 + 1
         ELSE M08_최종탈회후경과월 = 0
     """
     dd = df[["M07_탈회횟수_누적", "M08_탈회횟수_누적", "M07_최종탈회후경과월"]]
-    res = dd.apply(lambda x: x[2] + 1 if x[0] == x[1] else 0, axis=1)
+    res = dd.apply(lambda x: x[2] + 1 if (x[0] > 0) & (x[0] == x[1]) else 0, axis=1)
 
     c = df["M08_최종탈회후경과월"]
     return c == res
@@ -5792,12 +5802,12 @@ def cfs_01_0192(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
 def cfs_01_0205(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     """
     formula:
-        IF M08_탈회횟수_누적 == M09_탈회횟수_누적:
-        M09_최종탈회후경과월 = M08_최종탈회후경과월 + 1
+        IF (M09_탈회횟수_누적 > 0) & (M08_탈회횟수_누적 == M09_탈회횟수_누적)
+        THEN M09_최종탈회후경과월 = M08_최종탈회후경과월 + 1
         ELSE M09_최종탈회후경과월 = 0
     """
     dd = df[["M08_탈회횟수_누적", "M09_탈회횟수_누적", "M08_최종탈회후경과월"]]
-    res = dd.apply(lambda x: x[2] + 1 if x[0] == x[1] else 0, axis=1)
+    res = dd.apply(lambda x: x[2] + 1 if (x[0] > 0) & (x[0] == x[1]) else 0, axis=1)
 
     c = df["M09_최종탈회후경과월"]
     return c == res
@@ -5905,12 +5915,12 @@ def cfs_01_0281(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
 def cfs_01_0294(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     """
     formula:
-        IF M09_탈회횟수_누적 == M10_탈회횟수_누적:
-        M10_최종탈회후경과월 = M09_최종탈회후경과월 + 1
+        IF (M10_탈회횟수_누적 > 0) & (M09_탈회횟수_누적 == M10_탈회횟수_누적)
+        THEN M10_최종탈회후경과월 = M09_최종탈회후경과월 + 1
         ELSE M10_최종탈회후경과월 = 0
     """
     dd = df[["M09_탈회횟수_누적", "M10_탈회횟수_누적", "M09_최종탈회후경과월"]]
-    res = dd.apply(lambda x: x[2] + 1 if x[0] == x[1] else 0, axis=1)
+    res = dd.apply(lambda x: x[2] + 1 if (x[0] > 0) & (x[0] == x[1]) else 0, axis=1)
 
     c = df["M10_최종탈회후경과월"]
     return c == res
@@ -6018,12 +6028,12 @@ def cfs_01_0370(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
 def cfs_01_0383(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     """
     formula:
-        IF M10_탈회횟수_누적 == M11_탈회횟수_누적:
-        M11_최종탈회후경과월 = M10_최종탈회후경과월 + 1
+        IF (M11_탈회횟수_누적 > 0) & (M10_탈회횟수_누적 == M11_탈회횟수_누적)
+        THEN M11_최종탈회후경과월 = M10_최종탈회후경과월 + 1
         ELSE M11_최종탈회후경과월 = 0
     """
     dd = df[["M10_탈회횟수_누적", "M11_탈회횟수_누적", "M10_최종탈회후경과월"]]
-    res = dd.apply(lambda x: x[2] + 1 if x[0] == x[1] else 0, axis=1)
+    res = dd.apply(lambda x: x[2] + 1 if (x[0] > 0) & (x[0] == x[1]) else 0, axis=1)
 
     c = df["M11_최종탈회후경과월"]
     return c == res
@@ -6097,7 +6107,7 @@ def cfs_01_0459(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
         M12_입회경과개월수_신용 = M07_입회경과개월수_신용 + 5
     """
     dd = df[["M07_입회경과개월수_신용"]]
-    res = dd.apply(lambda x: x[0] + 4, axis=1)
+    res = dd.apply(lambda x: x[0] + 5, axis=1)
 
     c = df["M12_입회경과개월수_신용"]
     return c == res
@@ -6131,12 +6141,12 @@ def cfs_01_0459(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
 def cfs_01_0472(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     """
     formula:
-        IF M11_탈회횟수_누적 == M12_탈회횟수_누적:
-        M12_최종탈회후경과월 = M11_최종탈회후경과월 + 1
+        IF (M12_탈회횟수_누적 > 0) & (M11_탈회횟수_누적 == M12_탈회횟수_누적)
+        THEN M12_최종탈회후경과월 = M11_최종탈회후경과월 + 1
         ELSE M12_최종탈회후경과월 = 0
     """
     dd = df[["M11_탈회횟수_누적", "M12_탈회횟수_누적", "M11_최종탈회후경과월"]]
-    res = dd.apply(lambda x: x[2] + 1 if x[0] == x[1] else 0, axis=1)
+    res = dd.apply(lambda x: x[2] + 1 if (x[0] > 0) & (x[0] == x[1]) else 0, axis=1)
 
     c = df["M12_최종탈회후경과월"]
     return c == res
@@ -9116,12 +9126,14 @@ def cfs_08_0448(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
 def cfs_03_0736(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     """
     formula:
-        IF M08_최종카드론_대출일자 = M07_최종카드론_대출일자
+        IF M08_최종카드론_대출일자 IS NULL
+        THEN M08_최종카드론이용경과월 = 999
+        ELIF M08_최종카드론_대출일자 = M07_최종카드론_대출일자
         THEN M08_최종카드론이용경과월 = M07_최종카드론이용경과월 + 1
         ELSE M08_최종카드론이용경과월 = 0
     """
     dd = df[["M08_최종카드론_대출일자", "M07_최종카드론_대출일자", "M07_최종카드론이용경과월"]]
-    res = dd.apply(lambda x: x[2] + 1 if x[0] == x[1] else 0, axis=1)
+    res = dd.apply(lambda x: 999 if pd.isna(x[0]) else (x[2] + 1 if x[0] == x[1] else 0), axis=1)
 
     c = df["M08_최종카드론이용경과월"]
     return c == res
@@ -9560,12 +9572,14 @@ def cfs_03_1051(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
 def cfs_03_1197(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     """
     formula:
-        IF M09_최종카드론_대출일자 = M08_최종카드론_대출일자
+        IF M09_최종카드론_대출일자 IS NULL
+        THEN M09_최종카드론이용경과월 = 999
+        ELIF M09_최종카드론_대출일자 = M08_최종카드론_대출일자
         THEN M09_최종카드론이용경과월 = M08_최종카드론이용경과월 + 1
         ELSE M09_최종카드론이용경과월 = 0
     """
     dd = df[["M09_최종카드론_대출일자", "M08_최종카드론_대출일자", "M08_최종카드론이용경과월"]]
-    res = dd.apply(lambda x: x[2] + 1 if x[0] == x[1] else 0, axis=1)
+    res = dd.apply(lambda x: 999 if pd.isna(x[0]) else (x[2] + 1 if x[0] == x[1] else 0), axis=1)
 
     c = df["M09_최종카드론이용경과월"]
     return c == res
@@ -10689,12 +10703,14 @@ def cfs_03_1528(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
 def cfs_03_1658(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     """
     formula:
-        IF M10_최종카드론_대출일자 = M09_최종카드론_대출일자
+        IF M10_최종카드론_대출일자 IS NULL
+        THEN M10_최종카드론이용경과월 = 999
+        ELIF M10_최종카드론_대출일자 = M09_최종카드론_대출일자
         THEN M10_최종카드론이용경과월 = M09_최종카드론이용경과월 + 1
         ELSE M10_최종카드론이용경과월 = 0
     """
     dd = df[["M10_최종카드론_대출일자", "M09_최종카드론_대출일자", "M09_최종카드론이용경과월"]]
-    res = dd.apply(lambda x: x[2] + 1 if x[0] == x[1] else 0, axis=1)
+    res = dd.apply(lambda x: 999 if pd.isna(x[0]) else (x[2] + 1 if x[0] == x[1] else 0), axis=1)
 
     c = df["M10_최종카드론이용경과월"]
     return c == res
@@ -12169,12 +12185,14 @@ def cfs_03_1989(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
 def cfs_03_2119(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     """
     formula:
-        IF M11_최종카드론_대출일자 = M10_최종카드론_대출일자
+        IF M11_최종카드론_대출일자 IS NULL
+        THEN M11_최종카드론이용경과월 = 999
+        ELIF M11_최종카드론_대출일자 = M10_최종카드론_대출일자
         THEN M11_최종카드론이용경과월 = M10_최종카드론이용경과월 + 1
         ELSE M11_최종카드론이용경과월 = 0
     """
     dd = df[["M11_최종카드론_대출일자", "M10_최종카드론_대출일자", "M10_최종카드론이용경과월"]]
-    res = dd.apply(lambda x: x[2] + 1 if x[0] == x[1] else 0, axis=1)
+    res = dd.apply(lambda x: 999 if pd.isna(x[0]) else (x[2] + 1 if x[0] == x[1] else 0), axis=1)
 
     c = df["M11_최종카드론이용경과월"]
     return c == res
@@ -13779,12 +13797,14 @@ def cfs_03_2450(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
 def cfs_03_2580(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     """
     formula:
-        IF M12_최종카드론_대출일자 = M11_최종카드론_대출일자
+        IF M12_최종카드론_대출일자 IS NULL
+        THEN M12_최종카드론이용경과월 = 999
+        ELIF M12_최종카드론_대출일자 = M11_최종카드론_대출일자
         THEN M12_최종카드론이용경과월 = M11_최종카드론이용경과월 + 1
         ELSE M12_최종카드론이용경과월 = 0
     """
     dd = df[["M12_최종카드론_대출일자", "M11_최종카드론_대출일자", "M11_최종카드론이용경과월"]]
-    res = dd.apply(lambda x: x[2] + 1 if x[0] == x[1] else 0, axis=1)
+    res = dd.apply(lambda x: 999 if pd.isna(x[0]) else (x[2] + 1 if x[0] == x[1] else 0), axis=1)
 
     c = df["M12_최종카드론이용경과월"]
     return c == res

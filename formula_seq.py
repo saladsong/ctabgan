@@ -102,8 +102,8 @@ constraints = [
         "output": "M08_최종탈회후경과월",
         "fname": "cfs_01_0116",
         "type": "formula",
-        "content": """IF M07_탈회횟수_누적 == M08_탈회횟수_누적:
-                      M08_최종탈회후경과월 = M07_최종탈회후경과월 + 1
+        "content": """IF (M08_탈회횟수_누적 > 0) & (M07_탈회횟수_누적 == M08_탈회횟수_누적)
+                      THEN M08_최종탈회후경과월 = M07_최종탈회후경과월 + 1
                       ELSE M08_최종탈회후경과월 = 0""",
     },
     # M09
@@ -168,8 +168,8 @@ constraints = [
         "output": "M09_최종탈회후경과월",
         "fname": "cfs_01_0205",
         "type": "formula",
-        "content": """IF M08_탈회횟수_누적 == M09_탈회횟수_누적:
-                      M09_최종탈회후경과월 = M08_최종탈회후경과월 + 1
+        "content": """IF (M09_탈회횟수_누적 > 0) & (M08_탈회횟수_누적 == M09_탈회횟수_누적)
+                      THEN M09_최종탈회후경과월 = M08_최종탈회후경과월 + 1
                       ELSE M09_최종탈회후경과월 = 0""",
     },
     # M10
@@ -234,8 +234,8 @@ constraints = [
         "output": "M10_최종탈회후경과월",
         "fname": "cfs_01_0294",
         "type": "formula",
-        "content": """IF M09_탈회횟수_누적 == M10_탈회횟수_누적:
-                      M10_최종탈회후경과월 = M09_최종탈회후경과월 + 1
+        "content": """IF (M10_탈회횟수_누적 > 0) & (M09_탈회횟수_누적 == M10_탈회횟수_누적)
+                      THEN M10_최종탈회후경과월 = M09_최종탈회후경과월 + 1
                       ELSE M10_최종탈회후경과월 = 0""",
     },
     # M11
@@ -300,9 +300,9 @@ constraints = [
         "output": "M11_최종탈회후경과월",
         "fname": "cfs_01_0383",
         "type": "formula",
-        "content": """IF M10_탈회횟수_누적 == M11_탈회횟수_누적:
-                      M11_최종탈회후경과월 = M10_최종탈회후경과월 + 1
-                      ELSE M11_최종탈회후경과월 = 0""",
+        "content": """IF (M12_탈회횟수_누적 > 0) & (M11_탈회횟수_누적 == M12_탈회횟수_누적)
+                      THEN M12_최종탈회후경과월 = M11_최종탈회후경과월 + 1
+                      ELSE M12_최종탈회후경과월 = 0""",
     },
     # M12
     {
@@ -542,11 +542,11 @@ constraints = [
         "content": "M09_할인금액_청구서_R3M = M09_할인금액_청구서_B0M + M08_할인금액_청구서_B0M + M07_할인금액_청구서_B0M",
     },
     {
-        "columns": ["M09_혜택수혜금액_B0M", "M08_혜택수혜금액_B0M", "M07_혜택수혜금액_B0M"],
+        "columns": ["M09_혜택수혜금액", "M08_혜택수혜금액", "M07_혜택수혜금액"],
         "output": "M09_혜택수혜금액_R3M",
         "fname": "cfs_04_0141",
         "type": "formula",
-        "content": "M09_혜택수혜금액_R3M = M09_혜택수혜금액_B0M + M08_혜택수혜금액_B0M + M07_혜택수혜금액_B0M",
+        "content": "M09_혜택수혜금액_R3M = M09_혜택수혜금액 + M08_혜택수혜금액 + M07_혜택수혜금액",
     },
     # M10
     {
@@ -655,11 +655,11 @@ constraints = [
         "content": "M10_할인금액_청구서_R3M = M10_할인금액_청구서_B0M + M09_할인금액_청구서_B0M + M08_할인금액_청구서_B0M",
     },
     {
-        "columns": ["M10_혜택수혜금액_B0M", "M09_혜택수혜금액_B0M", "M08_혜택수혜금액_B0M"],
+        "columns": ["M10_혜택수혜금액", "M09_혜택수혜금액", "M08_혜택수혜금액"],
         "output": "M10_혜택수혜금액_R3M",
         "fname": "cfs_04_0192",
         "type": "formula",
-        "content": "M10_혜택수혜금액_R3M = M10_혜택수혜금액_B0M + M09_혜택수혜금액_B0M + M08_혜택수혜금액_B0M",
+        "content": "M10_혜택수혜금액_R3M = M10_혜택수혜금액 + M09_혜택수혜금액 + M08_혜택수혜금액",
     },
     # M11
     {
@@ -768,11 +768,11 @@ constraints = [
         "content": "M11_할인금액_청구서_R3M = M11_할인금액_청구서_B0M + M10_할인금액_청구서_B0M + M09_할인금액_청구서_B0M",
     },
     {
-        "columns": ["M11_혜택수혜금액_B0M", "M10_혜택수혜금액_B0M", "M09_혜택수혜금액_B0M"],
+        "columns": ["M11_혜택수혜금액", "M10_혜택수혜금액", "M09_혜택수혜금액"],
         "output": "M11_혜택수혜금액_R3M",
         "fname": "cfs_04_0243",
         "type": "formula",
-        "content": "M11_혜택수혜금액_R3M = M11_혜택수혜금액_B0M + M10_혜택수혜금액_B0M + M09_혜택수혜금액_B0M",
+        "content": "M11_혜택수혜금액_R3M = M11_혜택수혜금액 + M10_혜택수혜금액 + M09_혜택수혜금액",
     },
     # M12
     {
@@ -881,11 +881,11 @@ constraints = [
         "content": "M12_할인금액_청구서_R3M = M12_할인금액_청구서_B0M + M11_할인금액_청구서_B0M + M10_할인금액_청구서_B0M",
     },
     {
-        "columns": ["M12_혜택수혜금액_B0M", "M11_혜택수혜금액_B0M", "M10_혜택수혜금액_B0M"],
+        "columns": ["M12_혜택수혜금액", "M11_혜택수혜금액", "M10_혜택수혜금액"],
         "output": "M12_혜택수혜금액_R3M",
         "fname": "cfs_04_0294",
         "type": "formula",
-        "content": "M12_혜택수혜금액_R3M = M12_혜택수혜금액_B0M + M11_혜택수혜금액_B0M + M10_혜택수혜금액_B0M",
+        "content": "M12_혜택수혜금액_R3M = M12_혜택수혜금액 + M11_혜택수혜금액 + M10_혜택수혜금액",
     },
 
     # 5.잔액 테이블 컬럼 Formula
@@ -2313,7 +2313,9 @@ constraints = [
         "output": "M08_최종카드론이용경과월",
         "fname": "cfs_03_0736",
         "type": "formula",
-        "content": """IF M08_최종카드론_대출일자 = M07_최종카드론_대출일자
+        "content": """IF M08_최종카드론_대출일자 IS NULL
+                      THEN M08_최종카드론이용경과월 = 999
+                      ELIF M08_최종카드론_대출일자 = M07_최종카드론_대출일자
                       THEN M08_최종카드론이용경과월 = M07_최종카드론이용경과월 + 1
                       ELSE M08_최종카드론이용경과월 = 0""",
     },
@@ -2554,7 +2556,9 @@ constraints = [
         "output": "M09_최종카드론이용경과월",
         "fname": "cfs_03_1197",
         "type": "formula",
-        "content": """IF M09_최종카드론_대출일자 = M08_최종카드론_대출일자
+        "content": """IF M09_최종카드론_대출일자 IS NULL
+                      THEN M09_최종카드론이용경과월 = 999
+                      ELIF M09_최종카드론_대출일자 = M08_최종카드론_대출일자
                       THEN M09_최종카드론이용경과월 = M08_최종카드론이용경과월 + 1
                       ELSE M09_최종카드론이용경과월 = 0""",
     },
@@ -3166,7 +3170,9 @@ constraints = [
         "output": "M10_최종카드론이용경과월",
         "fname": "cfs_03_1658",
         "type": "formula",
-        "content": """IF M10_최종카드론_대출일자 = M09_최종카드론_대출일자
+        "content": """IF M10_최종카드론_대출일자 IS NULL
+                      THEN M10_최종카드론이용경과월 = 999
+                      ELIF M10_최종카드론_대출일자 = M09_최종카드론_대출일자
                       THEN M10_최종카드론이용경과월 = M09_최종카드론이용경과월 + 1
                       ELSE M10_최종카드론이용경과월 = 0""",
     },
@@ -3967,7 +3973,9 @@ constraints = [
         "output": "M11_최종카드론이용경과월",
         "fname": "cfs_03_2119",
         "type": "formula",
-        "content": """IF M11_최종카드론_대출일자 = M10_최종카드론_대출일자
+        "content": """IF M11_최종카드론_대출일자 IS NULL
+                      THEN M11_최종카드론이용경과월 = 999
+                      ELIF M11_최종카드론_대출일자 = M10_최종카드론_대출일자
                       THEN M11_최종카드론이용경과월 = M10_최종카드론이용경과월 + 1
                       ELSE M11_최종카드론이용경과월 = 0""",
     },
@@ -4838,7 +4846,9 @@ constraints = [
         "output": "M12_최종카드론이용경과월",
         "fname": "cfs_03_2580",
         "type": "formula",
-        "content": """IF M12_최종카드론_대출일자 = M11_최종카드론_대출일자
+        "content": """IF M12_최종카드론_대출일자 IS NULL
+                      THEN M12_최종카드론이용경과월 = 999
+                      ELIF M12_최종카드론_대출일자 = M11_최종카드론_대출일자
                       THEN M12_최종카드론이용경과월 = M11_최종카드론이용경과월 + 1
                       ELSE M12_최종카드론이용경과월 = 0""",
     },
@@ -5629,7 +5639,7 @@ def cfs_01_0102(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
 
 
 @constraint_udf
-def cfs_01_0103(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
+def cfs_01_0103(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
     formula:
         M08_입회경과개월수_신용 = M07_입회경과개월수_신용 + 1
@@ -5660,15 +5670,15 @@ def cfs_01_0103(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
 
 
 @constraint_udf
-def cfs_01_0116(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
+def cfs_01_0116(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
     formula:
-        IF M07_탈회횟수_누적 == M08_탈회횟수_누적:
-        M08_최종탈회후경과월 = M07_최종탈회후경과월 + 1
+        IF (M08_탈회횟수_누적 > 0) & (M07_탈회횟수_누적 == M08_탈회횟수_누적)
+        THEN M08_최종탈회후경과월 = M07_최종탈회후경과월 + 1
         ELSE M08_최종탈회후경과월 = 0
     """
     dd = df[["M07_탈회횟수_누적", "M08_탈회횟수_누적", "M07_최종탈회후경과월"]]
-    res = dd.apply(lambda x: x[2] + 1 if x[0] == x[1] else 0, axis=1)
+    res = dd.apply(lambda x: x[2] + 1 if (x[0] > 0) & (x[0] == x[1]) else 0, axis=1)
     return res
 
 
@@ -5724,7 +5734,7 @@ def cfs_01_0191(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
 
 
 @constraint_udf
-def cfs_01_0192(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
+def cfs_01_0192(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
     formula:
         M09_입회경과개월수_신용 = M07_입회경과개월수_신용 + 2
@@ -5755,15 +5765,15 @@ def cfs_01_0192(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
 
 
 @constraint_udf
-def cfs_01_0205(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
+def cfs_01_0205(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
     formula:
-        IF M08_탈회횟수_누적 == M09_탈회횟수_누적:
-        M09_최종탈회후경과월 = M08_최종탈회후경과월 + 1
+        IF (M09_탈회횟수_누적 > 0) & (M08_탈회횟수_누적 == M09_탈회횟수_누적)
+        THEN M09_최종탈회후경과월 = M08_최종탈회후경과월 + 1
         ELSE M09_최종탈회후경과월 = 0
     """
     dd = df[["M08_탈회횟수_누적", "M09_탈회횟수_누적", "M08_최종탈회후경과월"]]
-    res = dd.apply(lambda x: x[2] + 1 if x[0] == x[1] else 0, axis=1)
+    res = dd.apply(lambda x: x[2] + 1 if (x[0] > 0) & (x[0] == x[1]) else 0, axis=1)
     return res
 
 
@@ -5819,7 +5829,7 @@ def cfs_01_0280(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
 
 
 @constraint_udf
-def cfs_01_0281(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
+def cfs_01_0281(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
     formula:
         M10_입회경과개월수_신용 = M07_입회경과개월수_신용 + 3
@@ -5850,15 +5860,15 @@ def cfs_01_0281(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
 
 
 @constraint_udf
-def cfs_01_0294(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
+def cfs_01_0294(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
     formula:
-        IF M09_탈회횟수_누적 == M10_탈회횟수_누적:
-        M10_최종탈회후경과월 = M09_최종탈회후경과월 + 1
+        IF (M10_탈회횟수_누적 > 0) & (M09_탈회횟수_누적 == M10_탈회횟수_누적)
+        THEN M10_최종탈회후경과월 = M09_최종탈회후경과월 + 1
         ELSE M10_최종탈회후경과월 = 0
     """
     dd = df[["M09_탈회횟수_누적", "M10_탈회횟수_누적", "M09_최종탈회후경과월"]]
-    res = dd.apply(lambda x: x[2] + 1 if x[0] == x[1] else 0, axis=1)
+    res = dd.apply(lambda x: x[2] + 1 if (x[0] > 0) & (x[0] == x[1]) else 0, axis=1)
     return res
 
 
@@ -5914,7 +5924,7 @@ def cfs_01_0369(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
 
 
 @constraint_udf
-def cfs_01_0370(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
+def cfs_01_0370(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
     formula:
         M11_입회경과개월수_신용 = M07_입회경과개월수_신용 + 4
@@ -5945,15 +5955,15 @@ def cfs_01_0370(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
 
 
 @constraint_udf
-def cfs_01_0383(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
+def cfs_01_0383(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
     formula:
-        IF M10_탈회횟수_누적 == M11_탈회횟수_누적:
-        M11_최종탈회후경과월 = M10_최종탈회후경과월 + 1
+        IF (M11_탈회횟수_누적 > 0) & (M10_탈회횟수_누적 == M11_탈회횟수_누적)
+        THEN M11_최종탈회후경과월 = M10_최종탈회후경과월 + 1
         ELSE M11_최종탈회후경과월 = 0
     """
     dd = df[["M10_탈회횟수_누적", "M11_탈회횟수_누적", "M10_최종탈회후경과월"]]
-    res = dd.apply(lambda x: x[2] + 1 if x[0] == x[1] else 0, axis=1)
+    res = dd.apply(lambda x: x[2] + 1 if (x[0] > 0) & (x[0] == x[1]) else 0, axis=1)
     return res
 
 
@@ -6009,7 +6019,7 @@ def cfs_01_0458(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
 
 
 @constraint_udf
-def cfs_01_0459(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
+def cfs_01_0459(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
     formula:
         M12_입회경과개월수_신용 = M07_입회경과개월수_신용 + 5
@@ -6040,15 +6050,15 @@ def cfs_01_0459(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
 
 
 @constraint_udf
-def cfs_01_0472(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
+def cfs_01_0472(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
     formula:
-        IF M11_탈회횟수_누적 == M12_탈회횟수_누적:
-        M12_최종탈회후경과월 = M11_최종탈회후경과월 + 1
+        IF (M12_탈회횟수_누적 > 0) & (M11_탈회횟수_누적 == M12_탈회횟수_누적)
+        THEN M12_최종탈회후경과월 = M11_최종탈회후경과월 + 1
         ELSE M12_최종탈회후경과월 = 0
     """
     dd = df[["M11_탈회횟수_누적", "M12_탈회횟수_누적", "M11_최종탈회후경과월"]]
-    res = dd.apply(lambda x: x[2] + 1 if x[0] == x[1] else 0, axis=1)
+    res = dd.apply(lambda x: x[2] + 1 if (x[0] > 0) & (x[0] == x[1]) else 0, axis=1)
     return res
 
 
@@ -6159,7 +6169,7 @@ def cfs_02_0301(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
 
 # 04_M09
 @constraint_udf
-def cfs_04_0112(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+def cfs_04_0112(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
     """
     formula:
         IF M07 & M08 & M09_청구서발송여부_B0 == '0' THEN M09_청구서발송여부_R3M = '0' ELSE '1'
@@ -6308,16 +6318,16 @@ def cfs_04_0139(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
 def cfs_04_0141(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
     formula:
-       M09_혜택수혜금액_R3M = M09_혜택수혜금액_B0M + M08_혜택수혜금액_B0M + M07_혜택수혜금액_B0M
+       M09_혜택수혜금액_R3M = M09_혜택수혜금액 + M08_혜택수혜금액 + M07_혜택수혜금액
     """
-    dd = df[["M09_혜택수혜금액_B0M", "M08_혜택수혜금액_B0M", "M07_혜택수혜금액_B0M"]]
+    dd = df[["M09_혜택수혜금액", "M08_혜택수혜금액", "M07_혜택수혜금액"]]
     res = dd.sum(axis=1).astype(int)
     return res
 
 
 # 04_M10
 @constraint_udf
-def cfs_04_0163(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+def cfs_04_0163(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
     """
     formula:
         IF M08 & M09 & M10_청구서발송여부_B0 == '0' THEN M10_청구서발송여부_R3M = '0' ELSE '1'
@@ -6331,7 +6341,7 @@ def cfs_04_0163(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
 
 
 @constraint_udf
-def cfs_04_0164(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+def cfs_04_0164(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
     """
     formula:
         IF M07 & M10_청구서발송여부_R3M == '0' THEN M10_청구서발송여부_R6M = '0' ELSE '1'
@@ -6491,16 +6501,16 @@ def cfs_04_0190(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
 def cfs_04_0192(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
     formula:
-       M10_혜택수혜금액_R3M = M10_혜택수혜금액_B0M + M09_혜택수혜금액_B0M + M08_혜택수혜금액_B0M
+       M10_혜택수혜금액_R3M = M10_혜택수혜금액 + M09_혜택수혜금액 + M08_혜택수혜금액
     """
-    dd = df[["M10_혜택수혜금액_B0M", "M09_혜택수혜금액_B0M", "M08_혜택수혜금액_B0M"]]
+    dd = df[["M10_혜택수혜금액", "M09_혜택수혜금액", "M08_혜택수혜금액"]]
     res = dd.sum(axis=1).astype(int)
     return res
 
 
 # 04_M11
 @constraint_udf
-def cfs_04_0214(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+def cfs_04_0214(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
     """
     formula:
         IF M09 & M10 & M11_청구서발송여부_B0 == '0' THEN M11_청구서발송여부_R3M = '0' ELSE '1'
@@ -6514,7 +6524,7 @@ def cfs_04_0214(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
 
 
 @constraint_udf
-def cfs_04_0215(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+def cfs_04_0215(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
     """
     formula:
         IF M08 & M11_청구서발송여부_R3M == '0' THEN M11_청구서발송여부_R6M = '0' ELSE '1'
@@ -6674,9 +6684,9 @@ def cfs_04_0241(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
 def cfs_04_0243(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
     formula:
-       M11_혜택수혜금액_R3M = M11_혜택수혜금액_B0M + M10_혜택수혜금액_B0M + M09_혜택수혜금액_B0M
+       M11_혜택수혜금액_R3M = M11_혜택수혜금액 + M10_혜택수혜금액 + M09_혜택수혜금액
     """
-    dd = df[["M11_혜택수혜금액_B0M", "M10_혜택수혜금액_B0M", "M09_혜택수혜금액_B0M"]]
+    dd = df[["M11_혜택수혜금액", "M10_혜택수혜금액", "M09_혜택수혜금액"]]
     res = dd.sum(axis=1).astype(int)
 
     return res
@@ -6684,7 +6694,7 @@ def cfs_04_0243(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
 
 # 04_M12
 @constraint_udf
-def cfs_04_0265(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+def cfs_04_0265(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
     """
     formula:
         IF M10 & M11 & M12_청구서발송여부_B0 == '0' THEN M12_청구서발송여부_R3M = '0' ELSE '1'
@@ -6698,7 +6708,7 @@ def cfs_04_0265(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
 
 
 @constraint_udf
-def cfs_04_0266(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+def cfs_04_0266(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
     """
     formula:
         IF M09 & M12_청구서발송여부_R3M == '0' THEN M12_청구서발송여부_R6M = '0' ELSE '1'
@@ -6858,9 +6868,9 @@ def cfs_04_0292(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
 def cfs_04_0294(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
     formula:
-       M12_혜택수혜금액_R3M = M12_혜택수혜금액_B0M + M11_혜택수혜금액_B0M + M10_혜택수혜금액_B0M
+       M12_혜택수혜금액_R3M = M12_혜택수혜금액 + M11_혜택수혜금액 + M10_혜택수혜금액
     """
-    dd = df[["M12_혜택수혜금액_B0M", "M11_혜택수혜금액_B0M", "M10_혜택수혜금액_B0M"]]
+    dd = df[["M12_혜택수혜금액", "M11_혜택수혜금액", "M10_혜택수혜금액"]]
     res = dd.sum(axis=1).astype(int)
 
     return res
@@ -8619,15 +8629,17 @@ def cfs_08_0448(df: pd.DataFrame) -> Union[pd.Series, List[float]]:
 
 # 03_M08
 @constraint_udf
-def cfs_03_0736(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+def cfs_03_0736(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
     formula:
-        IF M08_최종카드론_대출일자 = M07_최종카드론_대출일자
+        IF M08_최종카드론_대출일자 IS NULL
+        THEN M08_최종카드론이용경과월 = 999
+        ELIF M08_최종카드론_대출일자 = M07_최종카드론_대출일자
         THEN M08_최종카드론이용경과월 = M07_최종카드론이용경과월 + 1
         ELSE M08_최종카드론이용경과월 = 0
     """
     dd = df[["M08_최종카드론_대출일자", "M07_최종카드론_대출일자", "M07_최종카드론이용경과월"]]
-    res = dd.apply(lambda x: x[2] + 1 if x[0] == x[1] else 0, axis=1)
+    res = dd.apply(lambda x: 999 if pd.isna(x[0]) else (x[2] + 1 if x[0] == x[1] else 0), axis=1)
     return res
 
 
@@ -8995,15 +9007,17 @@ def cfs_03_1051(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
 
 
 @constraint_udf
-def cfs_03_1197(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+def cfs_03_1197(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
     formula:
-        IF M09_최종카드론_대출일자 = M08_최종카드론_대출일자
+        IF M09_최종카드론_대출일자 IS NULL
+        THEN M09_최종카드론이용경과월 = 999
+        ELIF M09_최종카드론_대출일자 = M08_최종카드론_대출일자
         THEN M09_최종카드론이용경과월 = M08_최종카드론이용경과월 + 1
         ELSE M09_최종카드론이용경과월 = 0
     """
     dd = df[["M09_최종카드론_대출일자", "M08_최종카드론_대출일자", "M08_최종카드론이용경과월"]]
-    res = dd.apply(lambda x: x[2] + 1 if x[0] == x[1] else 0, axis=1)
+    res = dd.apply(lambda x: 999 if pd.isna(x[0]) else (x[2] + 1 if x[0] == x[1] else 0), axis=1)
     return res
 
 
@@ -9950,18 +9964,18 @@ def cfs_03_1528(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
 
 
 @constraint_udf
-def cfs_03_1658(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+def cfs_03_1658(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
     formula:
-        IF M10_최종카드론_대출일자 = M09_최종카드론_대출일자
+        IF M10_최종카드론_대출일자 IS NULL
+        THEN M10_최종카드론이용경과월 = 999
+        ELIF M10_최종카드론_대출일자 = M09_최종카드론_대출일자
         THEN M10_최종카드론이용경과월 = M09_최종카드론이용경과월 + 1
         ELSE M10_최종카드론이용경과월 = 0
     """
     dd = df[["M10_최종카드론_대출일자", "M09_최종카드론_대출일자", "M09_최종카드론이용경과월"]]
-    res = dd.apply(lambda x: x[2] + 1 if x[0] == x[1] else 0, axis=1)
-
-    c = df["M10_최종카드론이용경과월"]
-    return c == res
+    res = dd.apply(lambda x: 999 if pd.isna(x[0]) else (x[2] + 1 if x[0] == x[1] else 0), axis=1)
+    return res
 
 
 @constraint_udf
@@ -11204,15 +11218,17 @@ def cfs_03_1989(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
 
 
 @constraint_udf
-def cfs_03_2119(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+def cfs_03_2119(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
     formula:
-        IF M11_최종카드론_대출일자 = M10_최종카드론_대출일자
+        IF M11_최종카드론_대출일자 IS NULL
+        THEN M11_최종카드론이용경과월 = 999
+        ELIF M11_최종카드론_대출일자 = M10_최종카드론_대출일자
         THEN M11_최종카드론이용경과월 = M10_최종카드론이용경과월 + 1
         ELSE M11_최종카드론이용경과월 = 0
     """
     dd = df[["M11_최종카드론_대출일자", "M10_최종카드론_대출일자", "M10_최종카드론이용경과월"]]
-    res = dd.apply(lambda x: x[2] + 1 if x[0] == x[1] else 0, axis=1)
+    res = dd.apply(lambda x: 999 if pd.isna(x[0]) else (x[2] + 1 if x[0] == x[1] else 0), axis=1)
     return res
 
 
@@ -12566,15 +12582,17 @@ def cfs_03_2450(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
 
 
 @constraint_udf
-def cfs_03_2580(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
+def cfs_03_2580(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
     formula:
-        IF M12_최종카드론_대출일자 = M11_최종카드론_대출일자
+        IF M12_최종카드론_대출일자 IS NULL
+        THEN M12_최종카드론이용경과월 = 999
+        ELIF M12_최종카드론_대출일자 = M11_최종카드론_대출일자
         THEN M12_최종카드론이용경과월 = M11_최종카드론이용경과월 + 1
         ELSE M12_최종카드론이용경과월 = 0
     """
     dd = df[["M12_최종카드론_대출일자", "M11_최종카드론_대출일자", "M11_최종카드론이용경과월"]]
-    res = dd.apply(lambda x: x[2] + 1 if x[0] == x[1] else 0, axis=1)
+    res = dd.apply(lambda x: 999 if pd.isna(x[0]) else (x[2] + 1 if x[0] == x[1] else 0), axis=1)
     return res
 
 
@@ -12611,7 +12629,7 @@ def cfs_03_2597(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
 
 
 @constraint_udf
-def cfs_03_2599(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
+def cfs_03_2599(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
     formula:
         M12_이용개월수_온라인_R6M = SUM(1 IF M0X_이용건수_온라인_B0M > 0 ELSE 0)
@@ -12627,7 +12645,7 @@ def cfs_03_2599(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
 
 
 @constraint_udf
-def cfs_03_2600(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
+def cfs_03_2600(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
     formula:
         M12_이용개월수_오프라인_R6M = SUM(1 IF M0X_이용건수_오프라인_B0M > 0 ELSE 0)
@@ -12731,7 +12749,7 @@ def cfs_03_2608(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
 
 
 @constraint_udf
-def cfs_03_2613(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
+def cfs_03_2613(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
     formula:
         M12_이용개월수_페이_온라인_R6M = SUM(1 IF M0X_이용건수_페이_온라인_B0M > 0 ELSE 0)
@@ -12747,7 +12765,7 @@ def cfs_03_2613(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
 
 
 @constraint_udf
-def cfs_03_2614(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
+def cfs_03_2614(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
     formula:
         M12_이용개월수_페이_오프라인_R6M = SUM(1 IF M0X_이용건수_페이_오프라인_B0M > 0 ELSE 0)
@@ -12851,7 +12869,7 @@ def cfs_03_2622(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
 
 
 @constraint_udf
-def cfs_03_2627(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
+def cfs_03_2627(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
     formula:
         M12_이용개월수_간편결제_R6M = SUM(1 IF M0X_이용건수_간편결제_B0M > 0 ELSE 0)
@@ -12867,7 +12885,7 @@ def cfs_03_2627(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
 
 
 @constraint_udf
-def cfs_03_2628(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
+def cfs_03_2628(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
     formula:
         M12_이용개월수_당사페이_R6M = SUM(1 IF M0X_이용건수_당사페이_B0M > 0 ELSE 0)
@@ -12883,7 +12901,7 @@ def cfs_03_2628(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
 
 
 @constraint_udf
-def cfs_03_2629(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
+def cfs_03_2629(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
     formula:
         M12_이용개월수_당사기타_R6M = SUM(1 IF M0X_이용건수_당사기타_B0M > 0 ELSE 0)
@@ -12899,7 +12917,7 @@ def cfs_03_2629(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
 
 
 @constraint_udf
-def cfs_03_2630(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
+def cfs_03_2630(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
     formula:
         M12_이용개월수_A페이_R6M = SUM(1 IF M0X_이용건수_A페이_B0M > 0 ELSE 0)
@@ -12915,7 +12933,7 @@ def cfs_03_2630(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
 
 
 @constraint_udf
-def cfs_03_2631(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
+def cfs_03_2631(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
     formula:
         M12_이용개월수_B페이_R6M = SUM(1 IF M0X_이용건수_B페이_B0M > 0 ELSE 0)
@@ -12931,7 +12949,7 @@ def cfs_03_2631(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
 
 
 @constraint_udf
-def cfs_03_2632(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
+def cfs_03_2632(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
     formula:
         M12_이용개월수_C페이_R6M = SUM(1 IF M0X_이용건수_C페이_B0M > 0 ELSE 0)
@@ -12947,7 +12965,7 @@ def cfs_03_2632(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
 
 
 @constraint_udf
-def cfs_03_2633(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
+def cfs_03_2633(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
     formula:
         M12_이용개월수_D페이_R6M = SUM(1 IF M0X_이용건수_D페이_B0M > 0 ELSE 0)
@@ -13271,7 +13289,7 @@ def cfs_03_2661(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
 
 
 @constraint_udf
-def cfs_03_2676(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
+def cfs_03_2676(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
     formula:
        M12_이용개월수_선결제_R6M = SUM(1 IF M0X_이용건수_선결제_B0M > 0 ELSE 0)
@@ -13443,7 +13461,7 @@ def cfs_03_2699(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
 
 
 @constraint_udf
-def cfs_03_2700(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
+def cfs_03_2700(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
     formula:
        M12_이용개월수_전체_R6M = M12_이용개월수_전체_R3M + M09_이용개월수_전체_R3M
