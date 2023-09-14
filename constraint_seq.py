@@ -38,7 +38,138 @@ def constraint_udf(func):
     return wrapper
 
 
-constraints = [
+def isNaN(val):
+    # NaN 검증용
+    return val != val
+
+
+seq_constraints = [
+    # 1.회원 테이블 컬럼 Constraints
+    # M08
+    {
+        "columns": ["M07_탈회횟수_누적", "M08_탈회횟수_누적"],
+        "fname": "ccs_01_0115",
+        "type": "constraint",
+        "content": "M07_탈회횟수_누적 <= M08_탈회횟수_누적",
+    },
+    {
+        "columns": ["M07_탈회횟수_발급6개월이내", "M08_탈회횟수_발급6개월이내"],
+        "fname": "ccs_01_0117",
+        "type": "constraint",
+        "content": "M07_탈회횟수_발급6개월이내 <= M08_탈회횟수_발급6개월이내",
+    },
+    {
+        "columns": ["M07_탈회횟수_발급1년이내", "M08_탈회횟수_발급1년이내"],
+        "fname": "ccs_01_0118",
+        "type": "constraint",
+        "content": "M07_탈회횟수_발급1년이내 <= M08_탈회횟수_발급1년이내",
+    },
+    {
+        "columns": ["M07_최종카드발급일자", "M08_최종카드발급일자"],
+        "fname": "ccs_01_0154",
+        "type": "constraint",
+        "content": "M07_최종카드발급일자 <= M08_최종카드발급일자",
+    },
+    # M09
+    {
+        "columns": ["M08_탈회횟수_누적", "M09_탈회횟수_누적"],
+        "fname": "ccs_01_0204",
+        "type": "constraint",
+        "content": "M08_탈회횟수_누적 <= M09_탈회횟수_누적",
+    },
+    {
+        "columns": ["M08_탈회횟수_발급6개월이내", "M09_탈회횟수_발급6개월이내"],
+        "fname": "ccs_01_0206",
+        "type": "constraint",
+        "content": "M08_탈회횟수_발급6개월이내 <= M09_탈회횟수_발급6개월이내",
+    },
+    {
+        "columns": ["M08_탈회횟수_발급1년이내", "M09_탈회횟수_발급1년이내"],
+        "fname": "ccs_01_0207",
+        "type": "constraint",
+        "content": "M08_탈회횟수_발급1년이내 <= M09_탈회횟수_발급1년이내",
+    },
+    {
+        "columns": ["M08_최종카드발급일자", "M09_최종카드발급일자"],
+        "fname": "ccs_01_0243",
+        "type": "constraint",
+        "content": "M08_최종카드발급일자 <= M09_최종카드발급일자",
+    },
+    # M10
+    {
+        "columns": ["M09_탈회횟수_누적", "M10_탈회횟수_누적"],
+        "fname": "ccs_01_0293",
+        "type": "constraint",
+        "content": "M09_탈회횟수_누적 <= M10_탈회횟수_누적",
+    },
+    {
+        "columns": ["M09_탈회횟수_발급6개월이내", "M10_탈회횟수_발급6개월이내"],
+        "fname": "ccs_01_0295",
+        "type": "constraint",
+        "content": "M09_탈회횟수_발급6개월이내 <= M10_탈회횟수_발급6개월이내",
+    },
+    {
+        "columns": ["M09_탈회횟수_발급1년이내", "M10_탈회횟수_발급1년이내"],
+        "fname": "ccs_01_0296",
+        "type": "constraint",
+        "content": "M09_탈회횟수_발급1년이내 <= M10_탈회횟수_발급1년이내",
+    },
+    {
+        "columns": ["M09_최종카드발급일자", "M10_최종카드발급일자"],
+        "fname": "ccs_01_0332",
+        "type": "constraint",
+        "content": "M09_최종카드발급일자 <= M10_최종카드발급일자",
+    },
+    # M11
+    {
+        "columns": ["M10_탈회횟수_누적", "M11_탈회횟수_누적"],
+        "fname": "ccs_01_0382",
+        "type": "constraint",
+        "content": "M10_탈회횟수_누적 <= M11_탈회횟수_누적",
+    },
+    {
+        "columns": ["M10_탈회횟수_발급6개월이내", "M11_탈회횟수_발급6개월이내"],
+        "fname": "ccs_01_0384",
+        "type": "constraint",
+        "content": "M10_탈회횟수_발급6개월이내 <= M11_탈회횟수_발급6개월이내",
+    },
+    {
+        "columns": ["M10_탈회횟수_발급1년이내", "M11_탈회횟수_발급1년이내"],
+        "fname": "ccs_01_0385",
+        "type": "constraint",
+        "content": "M10_탈회횟수_발급1년이내 <= M11_탈회횟수_발급1년이내",
+    },
+    {
+        "columns": ["M10_최종카드발급일자", "M11_최종카드발급일자"],
+        "fname": "ccs_01_0421",
+        "type": "constraint",
+        "content": "M10_최종카드발급일자 <= M11_최종카드발급일자",
+    },
+    # M12
+    {
+        "columns": ["M11_탈회횟수_누적", "M12_탈회횟수_누적"],
+        "fname": "ccs_01_0471",
+        "type": "constraint",
+        "content": "M11_탈회횟수_누적 <= M12_탈회횟수_누적",
+    },
+    {
+        "columns": ["M11_탈회횟수_발급6개월이내", "M12_탈회횟수_발급6개월이내"],
+        "fname": "ccs_01_0473",
+        "type": "constraint",
+        "content": "M11_탈회횟수_발급6개월이내 <= M12_탈회횟수_발급6개월이내",
+    },
+    {
+        "columns": ["M11_탈회횟수_발급1년이내", "M12_탈회횟수_발급1년이내"],
+        "fname": "ccs_01_0474",
+        "type": "constraint",
+        "content": "M11_탈회횟수_발급1년이내 <= M12_탈회횟수_발급1년이내",
+    },
+    {
+        "columns": ["M11_최종카드발급일자", "M12_최종카드발급일자"],
+        "fname": "ccs_01_0510",
+        "type": "constraint",
+        "content": "M11_최종카드발급일자 <= M12_최종카드발급일자",
+    },
     # 1.회원 테이블 컬럼 Formula
     # M08
     {
@@ -371,6 +502,42 @@ constraints = [
                       ELSE M12_최종탈회후경과월 = 0""",
     },
 
+    # 2.신용 테이블 컬럼 Constraints
+    # M08
+    {
+        "columns": ["M07_RV신청일자", "M08_RV신청일자"],
+        "fname": "ccs_02_0066",
+        "type": "constraint",
+        "content": "M07_RV신청일자 <= M08_RV신청일자",
+    },
+    # M09
+    {
+        "columns": ["M08_RV신청일자", "M09_RV신청일자"],
+        "fname": "ccs_02_0120",
+        "type": "constraint",
+        "content": "M08_RV신청일자 <= M09_RV신청일자",
+    },
+    # M10
+    {
+        "columns": ["M09_RV신청일자", "M10_RV신청일자"],
+        "fname": "ccs_02_0174",
+        "type": "constraint",
+        "content": "M09_RV신청일자 <= M10_RV신청일자",
+    },
+    # M11
+    {
+        "columns": ["M10_RV신청일자", "M11_RV신청일자"],
+        "fname": "ccs_02_0228",
+        "type": "constraint",
+        "content": "M10_RV신청일자 <= M11_RV신청일자",
+    },
+    # M12
+    {
+        "columns": ["M11_RV신청일자", "M12_RV신청일자"],
+        "fname": "ccs_02_0282",
+        "type": "constraint",
+        "content": "M11_RV신청일자 <= M12_RV신청일자",
+    },
     # 2.신용 테이블 컬럼 Formula
     # M08
     {
@@ -379,6 +546,51 @@ constraints = [
         "fname": "cfs_02_0057",
         "type": "formula",
         "content": "M08_최초한도금액 = M07_최초한도금액",
+    },
+    {
+        "columns": ["M08_자발한도감액횟수_R12M", "M07_자발한도감액횟수_R12M", "M07_자발한도감액후경과월"],
+        "output": "M08_자발한도감액후경과월",
+        "fname": "cfs_02_0071",
+        "type": "formula",
+        "content": """IF M08_자발한도감액횟수_R12M == 0 THEN M08_자발한도감액후경과월 = 12
+                      ELIF M08_자발한도감액횟수_R12M > M07_자발한도감액횟수_R12M THEN M08_자발한도감액후경과월 = 0
+                      ELSE M08_자발한도감액후경과월 =  M07_자발한도감액후경과월 + 1""",
+    },
+    {
+        "columns": ["M08_강제한도감액횟수_R12M", "M07_강제한도감액횟수_R12M", "M07_강제한도감액후경과월"],
+        "output": "M08_강제한도감액후경과월",
+        "fname": "cfs_02_0074",
+        "type": "formula",
+        "content": """IF M08_강제한도감액횟수_R12M == 0 THEN M08_강제한도감액후경과월 = 12
+                      ELIF M08_강제한도감액횟수_R12M > M07_강제한도감액횟수_R12M THEN M08_강제한도감액후경과월 = 0
+                      ELSE M08_강제한도감액후경과월 =  M07_강제한도감액후경과월 + 1""",
+    },
+    {
+        "columns": ["M08_한도증액횟수_R12M", "M07_한도증액횟수_R12M", "M07_한도증액후경과월"],
+        "output": "M08_한도증액후경과월",
+        "fname": "cfs_02_0077",
+        "type": "formula",
+        "content": """IF M08_한도증액횟수_R12M == 0 THEN M08_한도증액후경과월 = 12
+                      ELIF M08_한도증액횟수_R12M > M07_한도증액횟수_R12M THEN M08_한도증액후경과월 = 0
+                      ELSE M08_한도증액후경과월 =  M07_한도증액후경과월 + 1""",
+    },
+    {
+        "columns": ["M08_한도심사요청건수", "M07_한도심사요청건수", "M07_한도심사요청후경과월"],
+        "output": "M08_한도심사요청후경과월",
+        "fname": "cfs_02_0091",
+        "type": "formula",
+        "content": """IF M08_한도심사요청건수 == 0 THEN M08_한도심사요청후경과월 = 3
+                      ELIF M08_한도심사요청건수 > M07_한도심사요청건수 THEN M08_한도심사요청후경과월 = 0
+                      ELSE M08_한도심사요청후경과월 =  M07_한도심사요청후경과월 + 1""",
+    },
+    {
+        "columns": ["M08_한도요청거절건수", "M07_한도요청거절건수", "M07_한도심사거절후경과월"],
+        "output": "M08_한도심사거절후경과월",
+        "fname": "cfs_02_0092",
+        "type": "formula",
+        "content": """IF M08_한도요청거절건수 == 0 THEN M08_한도심사거절후경과월 = 3
+                      ELIF M08_한도요청거절건수 > M07_한도요청거절건수 THEN M08_한도심사거절후경과월 = 0
+                      ELSE M08_한도심사거절후경과월 =  M07_한도심사거절후경과월 + 1""",
     },
     {
         "columns": ["M07_카드이용한도금액_B1M"],
@@ -396,6 +608,51 @@ constraints = [
         "content": "M09_최초한도금액 = M07_최초한도금액",
     },
     {
+        "columns": ["M09_자발한도감액횟수_R12M", "M08_자발한도감액횟수_R12M", "M08_자발한도감액후경과월"],
+        "output": "M09_자발한도감액후경과월",
+        "fname": "cfs_02_0125",
+        "type": "formula",
+        "content": """IF M09_자발한도감액횟수_R12M == 0 THEN M09_자발한도감액후경과월 = 12
+                      ELIF M09_자발한도감액횟수_R12M > M08_자발한도감액횟수_R12M THEN M09_자발한도감액후경과월 = 0
+                      ELSE M09_자발한도감액후경과월 =  M08_자발한도감액후경과월 + 1""",
+    },
+    {
+        "columns": ["M09_강제한도감액횟수_R12M", "M08_강제한도감액횟수_R12M", "M08_강제한도감액후경과월"],
+        "output": "M09_강제한도감액후경과월",
+        "fname": "cfs_02_0128",
+        "type": "formula",
+        "content": """IF M09_강제한도감액횟수_R12M == 0 THEN M09_강제한도감액후경과월 = 12
+                      ELIF M09_강제한도감액횟수_R12M > M08_강제한도감액횟수_R12M THEN M09_강제한도감액후경과월 = 0
+                      ELSE M09_강제한도감액후경과월 =  M08_강제한도감액후경과월 + 1""",
+    },
+    {
+        "columns": ["M09_한도증액횟수_R12M", "M08_한도증액횟수_R12M", "M08_한도증액후경과월"],
+        "output": "M09_한도증액후경과월",
+        "fname": "cfs_02_0131",
+        "type": "formula",
+        "content": """IF M09_한도증액횟수_R12M == 0 THEN M09_한도증액후경과월 = 12
+                      ELIF M09_한도증액횟수_R12M > M08_한도증액횟수_R12M THEN M09_한도증액후경과월 = 0
+                      ELSE M09_한도증액후경과월 =  M08_한도증액후경과월 + 1""",
+    },
+    {
+        "columns": ["M09_한도심사요청건수", "M08_한도심사요청건수", "M08_한도심사요청후경과월"],
+        "output": "M09_한도심사요청후경과월",
+        "fname": "cfs_02_0145",
+        "type": "formula",
+        "content": """IF M09_한도심사요청건수 == 0 THEN M09_한도심사요청후경과월 = 3
+                      ELIF M09_한도심사요청건수 > M08_한도심사요청건수 THEN M09_한도심사요청후경과월 = 0
+                      ELSE M09_한도심사요청후경과월 =  M08_한도심사요청후경과월 + 1""",
+    },
+    {
+        "columns": ["M09_한도요청거절건수", "M08_한도요청거절건수", "M08_한도심사거절후경과월"],
+        "output": "M09_한도심사거절후경과월",
+        "fname": "cfs_02_0146",
+        "type": "formula",
+        "content": """IF M09_한도요청거절건수 == 0 THEN M09_한도심사거절후경과월 = 3
+                      ELIF M09_한도요청거절건수 > M08_한도요청거절건수 THEN M09_한도심사거절후경과월 = 0
+                      ELSE M09_한도심사거절후경과월 =  M08_한도심사거절후경과월 + 1""",
+    },
+    {
         "columns": ["M08_카드이용한도금액_B1M"],
         "output": "M09_카드이용한도금액_B2M",
         "fname": "cfs_02_0139",
@@ -409,6 +666,51 @@ constraints = [
         "fname": "cfs_02_0165",
         "type": "formula",
         "content": "M10_최초한도금액 = M07_최초한도금액",
+    },
+    {
+        "columns": ["M10_자발한도감액횟수_R12M", "M09_자발한도감액횟수_R12M", "M09_자발한도감액후경과월"],
+        "output": "M10_자발한도감액후경과월",
+        "fname": "cfs_02_0179",
+        "type": "formula",
+        "content": """IF M10_자발한도감액횟수_R12M == 0 THEN M10_자발한도감액후경과월 = 12
+                      ELIF M10_자발한도감액횟수_R12M > M09_자발한도감액횟수_R12M THEN M10_자발한도감액후경과월 = 0
+                      ELSE M10_자발한도감액후경과월 =  M09_자발한도감액후경과월 + 1""",
+    },
+    {
+        "columns": ["M10_강제한도감액횟수_R12M", "M09_강제한도감액횟수_R12M", "M09_강제한도감액후경과월"],
+        "output": "M10_강제한도감액후경과월",
+        "fname": "cfs_02_0182",
+        "type": "formula",
+        "content": """IF M10_강제한도감액횟수_R12M == 0 THEN M10_강제한도감액후경과월 = 12
+                      ELIF M10_강제한도감액횟수_R12M > M09_강제한도감액횟수_R12M THEN M10_강제한도감액후경과월 = 0
+                      ELSE M10_강제한도감액후경과월 =  M09_강제한도감액후경과월 + 1""",
+    },
+    {
+        "columns": ["M10_한도증액횟수_R12M", "M09_한도증액횟수_R12M", "M09_한도증액후경과월"],
+        "output": "M10_한도증액후경과월",
+        "fname": "cfs_02_0185",
+        "type": "formula",
+        "content": """IF M10_한도증액횟수_R12M == 0 THEN M10_한도증액후경과월 = 12
+                      ELIF M10_한도증액횟수_R12M > M09_한도증액횟수_R12M THEN M10_한도증액후경과월 = 0
+                      ELSE M10_한도증액후경과월 =  M09_한도증액후경과월 + 1""",
+    },
+    {
+        "columns": ["M10_한도심사요청건수", "M09_한도심사요청건수", "M09_한도심사요청후경과월"],
+        "output": "M10_한도심사요청후경과월",
+        "fname": "cfs_02_0199",
+        "type": "formula",
+        "content": """IF M10_한도심사요청건수 == 0 THEN M10_한도심사요청후경과월 = 3
+                      ELIF M10_한도심사요청건수 > M09_한도심사요청건수 THEN M10_한도심사요청후경과월 = 0
+                      ELSE M10_한도심사요청후경과월 =  M09_한도심사요청후경과월 + 1""",
+    },
+    {
+        "columns": ["M10_한도요청거절건수", "M09_한도요청거절건수", "M09_한도심사거절후경과월"],
+        "output": "M10_한도심사거절후경과월",
+        "fname": "cfs_02_0200",
+        "type": "formula",
+        "content": """IF M10_한도요청거절건수 == 0 THEN M10_한도심사거절후경과월 = 3
+                      ELIF M10_한도요청거절건수 > M09_한도요청거절건수 THEN M10_한도심사거절후경과월 = 0
+                      ELSE M10_한도심사거절후경과월 =  M09_한도심사거절후경과월 + 1""",
     },
     {
         "columns": ["M09_카드이용한도금액_B1M"],
@@ -426,6 +728,51 @@ constraints = [
         "content": "M11_최초한도금액 = M07_최초한도금액",
     },
     {
+        "columns": ["M11_자발한도감액횟수_R12M", "M10_자발한도감액횟수_R12M", "M10_자발한도감액후경과월"],
+        "output": "M11_자발한도감액후경과월",
+        "fname": "cfs_02_0233",
+        "type": "formula",
+        "content": """IF M11_자발한도감액횟수_R12M == 0 THEN M11_자발한도감액후경과월 = 12
+                      ELIF M11_자발한도감액횟수_R12M > M10_자발한도감액횟수_R12M THEN M11_자발한도감액후경과월 = 0
+                      ELSE M11_자발한도감액후경과월 =  M10_자발한도감액후경과월 + 1""",
+    },
+    {
+        "columns": ["M11_강제한도감액횟수_R12M", "M10_강제한도감액횟수_R12M", "M10_강제한도감액후경과월"],
+        "output": "M11_강제한도감액후경과월",
+        "fname": "cfs_02_0236",
+        "type": "formula",
+        "content": """IF M11_강제한도감액횟수_R12M == 0 THEN M11_강제한도감액후경과월 = 12
+                      ELIF M11_강제한도감액횟수_R12M > M10_강제한도감액횟수_R12M THEN M11_강제한도감액후경과월 = 0
+                      ELSE M11_강제한도감액후경과월 =  M10_강제한도감액후경과월 + 1""",
+    },
+    {
+        "columns": ["M11_한도증액횟수_R12M", "M10_한도증액횟수_R12M", "M10_한도증액후경과월"],
+        "output": "M11_한도증액후경과월",
+        "fname": "cfs_02_0239",
+        "type": "formula",
+        "content": """IF M11_한도증액횟수_R12M == 0 THEN M11_한도증액후경과월 = 12
+                      ELIF M11_한도증액횟수_R12M > M10_한도증액횟수_R12M THEN M11_한도증액후경과월 = 0
+                      ELSE M11_한도증액후경과월 =  M10_한도증액후경과월 + 1""",
+    },
+    {
+        "columns": ["M11_한도심사요청건수", "M10_한도심사요청건수", "M10_한도심사요청후경과월"],
+        "output": "M11_한도심사요청후경과월",
+        "fname": "cfs_02_0253",
+        "type": "formula",
+        "content": """IF M11_한도심사요청건수 == 0 THEN M11_한도심사요청후경과월 = 3
+                      ELIF M11_한도심사요청건수 > M10_한도심사요청건수 THEN M11_한도심사요청후경과월 = 0
+                      ELSE M11_한도심사요청후경과월 =  M10_한도심사요청후경과월 + 1""",
+    },
+    {
+        "columns": ["M11_한도요청거절건수", "M10_한도요청거절건수", "M10_한도심사거절후경과월"],
+        "output": "M11_한도심사거절후경과월",
+        "fname": "cfs_02_0254",
+        "type": "formula",
+        "content": """IF M11_한도요청거절건수 == 0 THEN M11_한도심사거절후경과월 = 3
+                      ELIF M11_한도요청거절건수 > M10_한도요청거절건수 THEN M11_한도심사거절후경과월 = 0
+                      ELSE M11_한도심사거절후경과월 =  M10_한도심사거절후경과월 + 1""",
+    },
+    {
         "columns": ["M10_카드이용한도금액_B1M"],
         "output": "M11_카드이용한도금액_B2M",
         "fname": "cfs_02_0247",
@@ -439,6 +786,51 @@ constraints = [
         "fname": "cfs_02_0273",
         "type": "formula",
         "content": "M12_최초한도금액 = M07_최초한도금액",
+    },
+    {
+        "columns": ["M12_자발한도감액횟수_R12M", "M11_자발한도감액횟수_R12M", "M11_자발한도감액후경과월"],
+        "output": "M12_자발한도감액후경과월",
+        "fname": "cfs_02_0287",
+        "type": "formula",
+        "content": """IF M12_자발한도감액횟수_R12M == 0 THEN M12_자발한도감액후경과월 = 12
+                      ELIF M12_자발한도감액횟수_R12M > M11_자발한도감액횟수_R12M THEN M12_자발한도감액후경과월 = 0
+                      ELSE M12_자발한도감액후경과월 =  M11_자발한도감액후경과월 + 1""",
+    },
+    {
+        "columns": ["M12_강제한도감액횟수_R12M", "M11_강제한도감액횟수_R12M", "M11_강제한도감액후경과월"],
+        "output": "M12_강제한도감액후경과월",
+        "fname": "cfs_02_0290",
+        "type": "formula",
+        "content": """IF M12_강제한도감액횟수_R12M == 0 THEN M12_강제한도감액후경과월 = 12
+                      ELIF M12_강제한도감액횟수_R12M > M11_강제한도감액횟수_R12M THEN M12_강제한도감액후경과월 = 0
+                      ELSE M12_강제한도감액후경과월 =  M11_강제한도감액후경과월 + 1""",
+    },
+    {
+        "columns": ["M12_한도증액횟수_R12M", "M11_한도증액횟수_R12M", "M11_한도증액후경과월"],
+        "output": "M12_한도증액후경과월",
+        "fname": "cfs_02_0293",
+        "type": "formula",
+        "content": """IF M12_한도증액횟수_R12M == 0 THEN M12_한도증액후경과월 = 12
+                      ELIF M12_한도증액횟수_R12M > M11_한도증액횟수_R12M THEN M12_한도증액후경과월 = 0
+                      ELSE M12_한도증액후경과월 =  M11_한도증액후경과월 + 1""",
+    },
+    {
+        "columns": ["M12_한도심사요청건수", "M11_한도심사요청건수", "M11_한도심사요청후경과월"],
+        "output": "M12_한도심사요청후경과월",
+        "fname": "cfs_02_0307",
+        "type": "formula",
+        "content": """IF M12_한도심사요청건수 == 0 THEN M12_한도심사요청후경과월 = 3
+                      ELIF M12_한도심사요청건수 > M11_한도심사요청건수 THEN M12_한도심사요청후경과월 = 0
+                      ELSE M12_한도심사요청후경과월 =  M11_한도심사요청후경과월 + 1""",
+    },
+    {
+        "columns": ["M12_한도요청거절건수", "M11_한도요청거절건수", "M11_한도심사거절후경과월"],
+        "output": "M12_한도심사거절후경과월",
+        "fname": "cfs_02_0308",
+        "type": "formula",
+        "content": """IF M12_한도요청거절건수 == 0 THEN M12_한도심사거절후경과월 = 3
+                      ELIF M12_한도요청거절건수 > M11_한도요청거절건수 THEN M12_한도심사거절후경과월 = 0
+                      ELSE M12_한도심사거절후경과월 =  M11_한도심사거절후경과월 + 1""",
     },
     {
         "columns": ["M11_카드이용한도금액_B1M"],
@@ -889,7 +1281,25 @@ constraints = [
     },
 
     # 5.잔액 테이블 컬럼 Formula
+    # M07
+    {
+        "columns": ["M07_잔액_카드론_B0M"],
+        "output": "M07_카드론잔액_최종경과월",
+        "fname": "cfs_05_0013",
+        "type": "formula",
+        "content": "IF M07_잔액_카드론_B0M >0 THEN M07_카드론잔액_최종경과월 = 0 ELSE pass",
+    },
     # M08
+    {
+        "columns": ["M08_잔액_카드론_B0M", "M07_잔액_카드론_B0M", "M07_카드론잔액_최종경과월"],
+        "output": "M08_카드론잔액_최종경과월",
+        "fname": "cfs_05_0114",
+        "type": "formula",
+        "content": """IF M08_잔액_카드론_B0M>0 THEN M08_카드론잔액_최종경과월 = 0
+                      ELIF (M08_잔액_카드론_B0M==0 & M07_잔액_카드론_B0M==0) THEN M08_카드론잔액_최종경과월 = 0
+                      ELIF (M08_잔액_카드론_B0M==0 & M07_잔액_카드론_B0M>0) THEN M08_카드론잔액_최종경과월 = 1
+                      ELSE M08_카드론잔액_최종경과월 = M07_카드론잔액_최종경과월 + 1""",
+    },
     {
         "columns": ["M07_잔액_현금서비스_B1M"],
         "output": "M08_잔액_현금서비스_B2M",
@@ -955,6 +1365,16 @@ constraints = [
     },
     # M09
     {
+        "columns": ["M09_잔액_카드론_B0M", "M08_잔액_카드론_B0M", "M08_카드론잔액_최종경과월"],
+        "output": "M09_카드론잔액_최종경과월",
+        "fname": "cfs_05_0215",
+        "type": "formula",
+        "content": """IF M09_잔액_카드론_B0M>0 THEN M09_카드론잔액_최종경과월 = 0
+                      ELIF (M09_잔액_카드론_B0M==0 & M08_잔액_카드론_B0M==0) THEN M09_카드론잔액_최종경과월 = 0
+                      ELIF (M09_잔액_카드론_B0M==0 & M08_잔액_카드론_B0M>0) THEN M09_카드론잔액_최종경과월 = 1
+                      ELSE M09_카드론잔액_최종경과월 = M08_카드론잔액_최종경과월 + 1""",
+    },
+    {
         "columns": ["M08_잔액_현금서비스_B1M"],
         "output": "M09_잔액_현금서비스_B2M",
         "fname": "cfs_05_0224",
@@ -1018,6 +1438,16 @@ constraints = [
         "content": "M09_연체원금_B2M = M08_연체원금_B1M",
     },
     # M10
+    {
+        "columns": ["M10_잔액_카드론_B0M", "M09_잔액_카드론_B0M", "M09_카드론잔액_최종경과월"],
+        "output": "M10_카드론잔액_최종경과월",
+        "fname": "cfs_05_0316",
+        "type": "formula",
+        "content": """IF M10_잔액_카드론_B0M>0 THEN M10_카드론잔액_최종경과월 = 0
+                      ELIF (M10_잔액_카드론_B0M==0 & M09_잔액_카드론_B0M==0) THEN M10_카드론잔액_최종경과월 = 0
+                      ELIF (M10_잔액_카드론_B0M==0 & M09_잔액_카드론_B0M>0) THEN M10_카드론잔액_최종경과월 = 1
+                      ELSE M10_카드론잔액_최종경과월 = M09_카드론잔액_최종경과월 + 1""",
+    },
     {
         "columns": ["M09_잔액_현금서비스_B1M"],
         "output": "M10_잔액_현금서비스_B2M",
@@ -1104,6 +1534,16 @@ constraints = [
     },
     # M11
     {
+        "columns": ["M11_잔액_카드론_B0M", "M10_잔액_카드론_B0M", "M10_카드론잔액_최종경과월"],
+        "output": "M11_카드론잔액_최종경과월",
+        "fname": "cfs_05_0417",
+        "type": "formula",
+        "content": """IF M11_잔액_카드론_B0M>0 THEN M11_카드론잔액_최종경과월 = 0
+                      ELIF (M11_잔액_카드론_B0M==0 & M10_잔액_카드론_B0M==0) THEN M11_카드론잔액_최종경과월 = 0
+                      ELIF (M11_잔액_카드론_B0M==0 & M10_잔액_카드론_B0M>0) THEN M11_카드론잔액_최종경과월 = 1
+                      ELSE M11_카드론잔액_최종경과월 = M10_카드론잔액_최종경과월 + 1""",
+    },
+    {
         "columns": ["M10_잔액_현금서비스_B1M"],
         "output": "M11_잔액_현금서비스_B2M",
         "fname": "cfs_05_0426",
@@ -1188,6 +1628,16 @@ constraints = [
         "content": "M11_RV잔액이월횟수_R6M = M10_RV잔액이월횟수_R3M + M08_RV잔액이월횟수_R3M",
     },
     # M12
+    {
+        "columns": ["M12_잔액_카드론_B0M", "M11_잔액_카드론_B0M", "M11_카드론잔액_최종경과월"],
+        "output": "M12_카드론잔액_최종경과월",
+        "fname": "cfs_05_0518",
+        "type": "formula",
+        "content": """IF M12_잔액_카드론_B0M>0 THEN M12_카드론잔액_최종경과월 = 0
+                      ELIF (M12_잔액_카드론_B0M==0 & M11_잔액_카드론_B0M==0) THEN M12_카드론잔액_최종경과월 = 0
+                      ELIF (M12_잔액_카드론_B0M==0 & M11_잔액_카드론_B0M>0) THEN M12_카드론잔액_최종경과월 = 1
+                      ELSE M12_카드론잔액_최종경과월 = M11_카드론잔액_최종경과월 + 1""",
+    },
     {
         "columns": ["M11_잔액_현금서비스_B1M"],
         "output": "M12_잔액_현금서비스_B2M",
@@ -1274,7 +1724,242 @@ constraints = [
     },
 
     # 6.채널활동 테이블 컬럼 Formula
+    # M07
+    {
+        "columns": ["M07_인입횟수_ARS_B0M"],
+        "output": "M07_인입후경과월_ARS",
+        "fname": "cfs_06_0007",
+        "type": "formula",
+        "content": "IF M07_인입횟수_ARS_B0M >0 THEN M07_인입후경과월_ARS = 0 ELSE pass",
+    },
+    {
+        "columns": ["M07_방문횟수_PC_B0M"],
+        "output": "M07_방문후경과월_PC_R6M",
+        "fname": "cfs_06_0014",
+        "type": "formula",
+        "content": "IF M07_방문횟수_PC_B0M >0 THEN M07_방문후경과월_PC_R6M = 0 ELSE pass",
+    },
+    {
+        "columns": ["M07_방문횟수_앱_B0M"],
+        "output": "M07_방문후경과월_앱_R6M",
+        "fname": "cfs_06_0018",
+        "type": "formula",
+        "content": "IF M07_방문횟수_앱_B0M >0 THEN M07_방문후경과월_앱_R6M = 0 ELSE pass",
+    },
+    {
+        "columns": ["M07_방문횟수_모바일웹_B0M"],
+        "output": "M07_방문후경과월_모바일웹_R6M",
+        "fname": "cfs_06_0022",
+        "type": "formula",
+        "content": "IF M07_방문횟수_모바일웹_B0M >0 THEN M07_방문후경과월_모바일웹_R6M = 0 ELSE pass",
+    },
+    {
+        "columns": ["M07_인입횟수_IB_B0M"],
+        "output": "M07_인입후경과월_IB_R6M",
+        "fname": "cfs_06_0033",
+        "type": "formula",
+        "content": "IF M07_인입횟수_IB_B0M >0 THEN M07_인입후경과월_IB_R6M = 0 ELSE pass",
+    },
+    {
+        "columns": ["M07_인입불만횟수_IB_B0M"],
+        "output": "M07_인입불만후경과월_IB_R6M",
+        "fname": "cfs_06_0040",
+        "type": "formula",
+        "content": "IF M07_인입불만횟수_IB_B0M >0 THEN M07_인입불만후경과월_IB_R6M = 0 ELSE pass",
+    },
+    {
+        "columns": ["M07_불만제기건수_B0M"],
+        "output": "M07_불만제기후경과월_R12M",
+        "fname": "cfs_06_0092",
+        "type": "formula",
+        "content": "IF M07_불만제기건수_B0M >0 THEN M07_불만제기후경과월_R12M = 0 ELSE pass",
+    },
+    # M08
+    {
+        "columns": ["M08_인입횟수_ARS_B0M", "M07_인입횟수_ARS_B0M", "M07_인입후경과월_ARS"],
+        "output": "M08_인입후경과월_ARS",
+        "fname": "cfs_06_0114",
+        "type": "formula",
+        "content": """IF (M08_인입횟수_ARS_B0M>0) THEN M08_인입후경과월_ARS = 0
+                      ELIF (M07_인입횟수_ARS_B0M==0)&(M07_인입후경과월_ARS==0) THEN M08_인입후경과월_ARS = 0
+                      ELIF (M07_인입횟수_ARS_B0M>0)&(M07_인입후경과월_ARS==0) THEN M08_인입후경과월_ARS = 1
+                      ELIF (M07_인입후경과월_ARS==5) THEN M08_인입후경과월_ARS = 0
+                      ELIF M08_인입후경과월_ARS = M07_인입후경과월_ARS + 1""",
+    },
+    {
+        "columns": ["M08_방문횟수_PC_B0M", "M07_방문후경과월_PC_R6M"],
+        "output": "M08_방문후경과월_PC_R6M",
+        "fname": "cfs_06_0121",
+        "type": "formula",
+        "content": """IF M08_방문횟수_PC_B0M > 0 THEN M08_방문후경과월_PC_R6M = 0
+                      ELIF M08_방문후경과월_PC_R6M = min(M07_방문후경과월_PC_R6M + 1, 6)""",
+    },
+    {
+        "columns": ["M08_방문횟수_앱_B0M", "M07_방문후경과월_앱_R6M"],
+        "output": "M08_방문후경과월_앱_R6M",
+        "fname": "cfs_06_0125",
+        "type": "formula",
+        "content": """IF M08_방문횟수_앱_B0M > 0 THEN M08_방문후경과월_앱_R6M = 0
+                      ELIF M08_방문후경과월_앱_R6M = min(M07_방문후경과월_앱_R6M + 1, 6)""",
+    },
+    {
+        "columns": ["M08_방문횟수_모바일웹_B0M", "M07_방문후경과월_모바일웹_R6M"],
+        "output": "M08_방문후경과월_모바일웹_R6M",
+        "fname": "cfs_06_0129",
+        "type": "formula",
+        "content": """IF M08_방문횟수_모바일웹_B0M > 0 THEN M08_방문후경과월_모바일웹_R6M = 0
+                      ELIF M08_방문후경과월_모바일웹_R6M = min(M07_방문후경과월_모바일웹_R6M + 1, 6)""",
+    },
+    {
+        "columns": ["M08_인입횟수_IB_B0M", "M07_인입후경과월_IB_R6M"],
+        "output": "M08_인입후경과월_IB_R6M",
+        "fname": "cfs_06_0140",
+        "type": "formula",
+        "content": """IF M08_인입횟수_IB_B0M > 0 THEN M08_인입후경과월_IB_R6M = 0
+                      ELIF M08_인입후경과월_IB_R6M = min(M07_인입후경과월_IB_R6M + 1, 6)""",
+    },
+    {
+        "columns": ["M08_인입불만횟수_IB_B0M", "M07_인입불만후경과월_IB_R6M"],
+        "output": "M08_인입불만후경과월_IB_R6M",
+        "fname": "cfs_06_0147",
+        "type": "formula",
+        "content": """IF M08_인입불만횟수_IB_B0M > 0 THEN M08_인입불만후경과월_IB_R6M = 0
+                      ELIF M08_인입불만후경과월_IB_R6M = min(M07_인입불만후경과월_IB_R6M + 1, 6)""",
+    },
+    {
+        "columns": ["M08_불만제기건수_B0M", "M07_불만제기건수_B0M", "M07_불만제기후경과월_R12M"],
+        "output": "M08_불만제기후경과월_R12M",
+        "fname": "cfs_06_0199",
+        "type": "formula",
+        "content": """IF M08_불만제기건수_B0M > 0 THEN M08_불만제기후경과월_R12M = 0
+                      ELIF (M07_불만제기건수_B0M==0 & M07_불만제기후경과월_R12M==0) THEN M08_불만제기후경과월_R12M = 0
+                      ELIF (M07_불만제기건수_B0M==0 & M07_불만제기후경과월_R12M==12) THEN M08_불만제기후경과월_R12M = 12
+                      ELIF M08_불만제기후경과월_R12M = min(M07_불만제기후경과월_R12M + 1, 12)""",
+    },
+    # M09
+    {
+        "columns": ["M09_인입횟수_ARS_B0M", "M08_인입횟수_ARS_B0M", "M08_인입후경과월_ARS"],
+        "output": "M09_인입후경과월_ARS",
+        "fname": "cfs_06_0221",
+        "type": "formula",
+        "content": """IF (M09_인입횟수_ARS_B0M>0) THEN M09_인입후경과월_ARS = 0
+                      ELIF (M08_인입횟수_ARS_B0M==0)&(M08_인입후경과월_ARS==0) THEN M09_인입후경과월_ARS = 0
+                      ELIF (M08_인입횟수_ARS_B0M>0)&(M08_인입후경과월_ARS==0) THEN M09_인입후경과월_ARS = 1
+                      ELIF (M08_인입후경과월_ARS==5) THEN M09_인입후경과월_ARS = 0
+                      ELIF M09_인입후경과월_ARS = M08_인입후경과월_ARS + 1""",
+    },
+    {
+        "columns": ["M09_방문횟수_PC_B0M", "M08_방문후경과월_PC_R6M"],
+        "output": "M09_방문후경과월_PC_R6M",
+        "fname": "cfs_06_0228",
+        "type": "formula",
+        "content": """IF M09_방문횟수_PC_B0M > 0 THEN M09_방문후경과월_PC_R6M = 0
+                      ELIF M09_방문후경과월_PC_R6M = min(M08_방문후경과월_PC_R6M + 1, 6)""",
+    },
+    {
+        "columns": ["M09_방문횟수_앱_B0M", "M08_방문후경과월_앱_R6M"],
+        "output": "M09_방문후경과월_앱_R6M",
+        "fname": "cfs_06_0232",
+        "type": "formula",
+        "content": """IF M09_방문횟수_앱_B0M > 0 THEN M09_방문후경과월_앱_R6M = 0
+                      ELIF M09_방문후경과월_앱_R6M = min(M08_방문후경과월_앱_R6M + 1, 6)""",
+    },
+    {
+        "columns": ["M09_방문횟수_모바일웹_B0M", "M08_방문후경과월_모바일웹_R6M"],
+        "output": "M09_방문후경과월_모바일웹_R6M",
+        "fname": "cfs_06_0236",
+        "type": "formula",
+        "content": """IF M09_방문횟수_모바일웹_B0M > 0 THEN M09_방문후경과월_모바일웹_R6M = 0
+                      ELIF M09_방문후경과월_모바일웹_R6M = min(M08_방문후경과월_모바일웹_R6M + 1, 6)""",
+    },
+    {
+        "columns": ["M09_인입횟수_IB_B0M", "M08_인입후경과월_IB_R6M"],
+        "output": "M09_인입후경과월_IB_R6M",
+        "fname": "cfs_06_0247",
+        "type": "formula",
+        "content": """IF M09_인입횟수_IB_B0M > 0 THEN M09_인입후경과월_IB_R6M = 0
+                      ELIF M09_인입후경과월_IB_R6M = min(M08_인입후경과월_IB_R6M + 1, 6)""",
+    },
+    {
+        "columns": ["M09_인입불만횟수_IB_B0M", "M08_인입불만후경과월_IB_R6M"],
+        "output": "M09_인입불만후경과월_IB_R6M",
+        "fname": "cfs_06_0254",
+        "type": "formula",
+        "content": """IF M09_인입불만횟수_IB_B0M > 0 THEN M09_인입불만후경과월_IB_R6M = 0
+                      ELIF M09_인입불만후경과월_IB_R6M = min(M08_인입불만후경과월_IB_R6M + 1, 6)""",
+    },
+    {
+        "columns": ["M09_불만제기건수_B0M", "M08_불만제기건수_B0M", "M08_불만제기후경과월_R12M"],
+        "output": "M09_불만제기후경과월_R12M",
+        "fname": "cfs_06_0306",
+        "type": "formula",
+        "content": """IF M09_불만제기건수_B0M > 0 THEN M09_불만제기후경과월_R12M = 0
+                      ELIF (M08_불만제기건수_B0M==0 & M08_불만제기후경과월_R12M==0) THEN M09_불만제기후경과월_R12M = 0
+                      ELIF (M08_불만제기건수_B0M==0 & M08_불만제기후경과월_R12M==12) THEN M09_불만제기후경과월_R12M = 12
+                      ELIF M09_불만제기후경과월_R12M = min(M08_불만제기후경과월_R12M + 1, 12)""",
+    },
     # M10
+    {
+        "columns": ["M10_인입횟수_ARS_B0M", "M09_인입횟수_ARS_B0M", "M09_인입후경과월_ARS"],
+        "output": "M10_인입후경과월_ARS",
+        "fname": "cfs_06_0328",
+        "type": "formula",
+        "content": """IF (M10_인입횟수_ARS_B0M>0) THEN M10_인입후경과월_ARS = 0
+                      ELIF (M09_인입횟수_ARS_B0M==0)&(M09_인입후경과월_ARS==0) THEN M10_인입후경과월_ARS = 0
+                      ELIF (M09_인입횟수_ARS_B0M>0)&(M09_인입후경과월_ARS==0) THEN M10_인입후경과월_ARS = 1
+                      ELIF (M09_인입후경과월_ARS==5) THEN M10_인입후경과월_ARS = 0
+                      ELIF M10_인입후경과월_ARS = M09_인입후경과월_ARS + 1""",
+    },
+    {
+        "columns": ["M10_방문횟수_PC_B0M", "M09_방문후경과월_PC_R6M"],
+        "output": "M10_방문후경과월_PC_R6M",
+        "fname": "cfs_06_0335",
+        "type": "formula",
+        "content": """IF M10_방문횟수_PC_B0M > 0 THEN M10_방문후경과월_PC_R6M = 0
+                      ELIF M10_방문후경과월_PC_R6M = min(M09_방문후경과월_PC_R6M + 1, 6)""",
+    },
+    {
+        "columns": ["M10_방문횟수_앱_B0M", "M09_방문후경과월_앱_R6M"],
+        "output": "M10_방문후경과월_앱_R6M",
+        "fname": "cfs_06_0339",
+        "type": "formula",
+        "content": """IF M10_방문횟수_앱_B0M > 0 THEN M10_방문후경과월_앱_R6M = 0
+                      ELIF M10_방문후경과월_앱_R6M = min(M09_방문후경과월_앱_R6M + 1, 6)""",
+    },
+    {
+        "columns": ["M10_방문횟수_모바일웹_B0M", "M09_방문후경과월_모바일웹_R6M"],
+        "output": "M10_방문후경과월_모바일웹_R6M",
+        "fname": "cfs_06_0343",
+        "type": "formula",
+        "content": """IF M10_방문횟수_모바일웹_B0M > 0 THEN M10_방문후경과월_모바일웹_R6M = 0
+                      ELIF M10_방문후경과월_모바일웹_R6M = min(M09_방문후경과월_모바일웹_R6M + 1, 6)""",
+    },
+    {
+        "columns": ["M10_인입횟수_IB_B0M", "M09_인입후경과월_IB_R6M"],
+        "output": "M10_인입후경과월_IB_R6M",
+        "fname": "cfs_06_0354",
+        "type": "formula",
+        "content": """IF M10_인입횟수_IB_B0M > 0 THEN M10_인입후경과월_IB_R6M = 0
+                      ELIF M10_인입후경과월_IB_R6M = min(M09_인입후경과월_IB_R6M + 1, 6)""",
+    },
+    {
+        "columns": ["M10_인입불만횟수_IB_B0M", "M09_인입불만후경과월_IB_R6M"],
+        "output": "M10_인입불만후경과월_IB_R6M",
+        "fname": "cfs_06_0361",
+        "type": "formula",
+        "content": """IF M10_인입불만횟수_IB_B0M > 0 THEN M10_인입불만후경과월_IB_R6M = 0
+                      ELIF M10_인입불만후경과월_IB_R6M = min(M09_인입불만후경과월_IB_R6M + 1, 6)""",
+    },
+    {
+        "columns": ["M10_불만제기건수_B0M", "M09_불만제기건수_B0M", "M09_불만제기후경과월_R12M"],
+        "output": "M10_불만제기후경과월_R12M",
+        "fname": "cfs_06_0413",
+        "type": "formula",
+        "content": """IF M10_불만제기건수_B0M > 0 THEN M10_불만제기후경과월_R12M = 0
+                      ELIF (M09_불만제기건수_B0M==0 & M09_불만제기후경과월_R12M==0) THEN M10_불만제기후경과월_R12M = 0
+                      ELIF (M09_불만제기건수_B0M==0 & M09_불만제기후경과월_R12M==12) THEN M10_불만제기후경과월_R12M = 12
+                      ELIF M10_불만제기후경과월_R12M = min(M09_불만제기후경과월_R12M + 1, 12)""",
+    },
     {
         "columns": ["M10_홈페이지_금융건수_R3M", "M07_홈페이지_금융건수_R3M"],
         "output": "M10_홈페이지_금융건수_R6M",
@@ -1291,6 +1976,67 @@ constraints = [
     },
     # M11
     {
+        "columns": ["M11_인입횟수_ARS_B0M", "M10_인입횟수_ARS_B0M", "M10_인입후경과월_ARS"],
+        "output": "M11_인입후경과월_ARS",
+        "fname": "cfs_06_0435",
+        "type": "formula",
+        "content": """"IF (M11_인입횟수_ARS_B0M>0) THEN M11_인입후경과월_ARS = 0
+                      ELIF (M10_인입횟수_ARS_B0M==0)&(M10_인입후경과월_ARS==0) THEN M11_인입후경과월_ARS = 0
+                      ELIF (M10_인입횟수_ARS_B0M>0)&(M10_인입후경과월_ARS==0) THEN M11_인입후경과월_ARS = 1
+                      ELIF (M10_인입후경과월_ARS==5) THEN M11_인입후경과월_ARS = 0
+                      ELIF M11_인입후경과월_ARS = M10_인입후경과월_ARS + 1""",
+    },
+    {
+        "columns": ["M11_방문횟수_PC_B0M", "M10_방문후경과월_PC_R6M"],
+        "output": "M11_방문후경과월_PC_R6M",
+        "fname": "cfs_06_0442",
+        "type": "formula",
+        "content": """IF M11_방문횟수_PC_B0M > 0 THEN M11_방문후경과월_PC_R6M = 0
+                      ELIF M11_방문후경과월_PC_R6M = min(M10_방문후경과월_PC_R6M + 1, 6)""",
+    },
+    {
+        "columns": ["M11_방문횟수_앱_B0M", "M10_방문후경과월_앱_R6M"],
+        "output": "M11_방문후경과월_앱_R6M",
+        "fname": "cfs_06_0446",
+        "type": "formula",
+        "content": """IF M11_방문횟수_앱_B0M > 0 THEN M11_방문후경과월_앱_R6M = 0
+                      ELIF M11_방문후경과월_앱_R6M = min(M10_방문후경과월_앱_R6M + 1, 6)""",
+    },
+    {
+        "columns": ["M11_방문횟수_모바일웹_B0M", "M10_방문후경과월_모바일웹_R6M"],
+        "output": "M11_방문후경과월_모바일웹_R6M",
+        "fname": "cfs_06_0450",
+        "type": "formula",
+        "content": """IF M11_방문횟수_모바일웹_B0M > 0 THEN M11_방문후경과월_모바일웹_R6M = 0
+                      ELIF M11_방문후경과월_모바일웹_R6M = min(M10_방문후경과월_모바일웹_R6M + 1, 6)""",
+    },
+    {
+        "columns": ["M11_인입횟수_IB_B0M", "M10_인입후경과월_IB_R6M"],
+        "output": "M11_인입후경과월_IB_R6M",
+        "fname": "cfs_06_0461",
+        "type": "formula",
+        "content": """IF M11_인입횟수_IB_B0M > 0 THEN M11_인입후경과월_IB_R6M = 0
+                      ELIF M11_인입후경과월_IB_R6M = min(M10_인입후경과월_IB_R6M + 1, 6)""",
+    },
+    {
+        "columns": ["M11_인입불만횟수_IB_B0M", "M10_인입불만후경과월_IB_R6M"],
+        "output": "M11_인입불만후경과월_IB_R6M",
+        "fname": "cfs_06_0468",
+        "type": "formula",
+        "content": """IF M11_인입불만횟수_IB_B0M > 0 THEN M11_인입불만후경과월_IB_R6M = 0
+                      ELIF M11_인입불만후경과월_IB_R6M = min(M10_인입불만후경과월_IB_R6M + 1, 6)""",
+    },
+    {
+        "columns": ["M11_불만제기건수_B0M", "M10_불만제기건수_B0M", "M10_불만제기후경과월_R12M"],
+        "output": "M11_불만제기후경과월_R12M",
+        "fname": "cfs_06_0520",
+        "type": "formula",
+        "content": """IF M11_불만제기건수_B0M > 0 THEN M11_불만제기후경과월_R12M = 0
+                      ELIF (M10_불만제기건수_B0M==0 & M10_불만제기후경과월_R12M==0) THEN M11_불만제기후경과월_R12M = 0
+                      ELIF (M10_불만제기건수_B0M==0 & M10_불만제기후경과월_R12M==12) THEN M11_불만제기후경과월_R12M = 12
+                      ELIF M11_불만제기후경과월_R12M = min(M10_불만제기후경과월_R12M + 1, 12)""",
+    },
+    {
         "columns": ["M11_홈페이지_금융건수_R3M", "M08_홈페이지_금융건수_R3M"],
         "output": "M11_홈페이지_금융건수_R6M",
         "fname": "cfs_06_0530",
@@ -1305,6 +2051,67 @@ constraints = [
         "content": "M11_홈페이지_선결제건수_R6M = M11_홈페이지_선결제건수_R3M + M08_홈페이지_선결제건수_R3M",
     },
     # M12
+    {
+        "columns": ["M12_인입횟수_ARS_B0M", "M11_인입횟수_ARS_B0M", "M11_인입후경과월_ARS"],
+        "output": "M12_인입후경과월_ARS",
+        "fname": "cfs_06_0542",
+        "type": "formula",
+        "content": """IF (M12_인입횟수_ARS_B0M>0) THEN M12_인입후경과월_ARS = 0
+                      ELIF (M11_인입횟수_ARS_B0M==0)&(M11_인입후경과월_ARS==0) THEN M12_인입후경과월_ARS = 0
+                      ELIF (M11_인입횟수_ARS_B0M>0)&(M11_인입후경과월_ARS==0) THEN M12_인입후경과월_ARS = 1
+                      ELIF (M11_인입후경과월_ARS==5) THEN M12_인입후경과월_ARS = 0
+                      ELIF M12_인입후경과월_ARS = M11_인입후경과월_ARS + 1""",
+    },
+    {
+        "columns": ["M12_방문횟수_PC_B0M", "M11_방문후경과월_PC_R6M"],
+        "output": "M12_방문후경과월_PC_R6M",
+        "fname": "cfs_06_0549",
+        "type": "formula",
+        "content": """IF M12_방문횟수_PC_B0M > 0 THEN M12_방문후경과월_PC_R6M = 0
+                      ELIF M12_방문후경과월_PC_R6M = min(M11_방문후경과월_PC_R6M + 1, 6)""",
+    },
+    {
+        "columns": ["M12_방문횟수_앱_B0M", "M11_방문후경과월_앱_R6M"],
+        "output": "M12_방문후경과월_앱_R6M",
+        "fname": "cfs_06_0553",
+        "type": "formula",
+        "content": """IF M12_방문횟수_앱_B0M > 0 THEN M12_방문후경과월_앱_R6M = 0
+                      ELIF M12_방문후경과월_앱_R6M = min(M11_방문후경과월_앱_R6M + 1, 6)""",
+    },
+    {
+        "columns": ["M12_방문횟수_모바일웹_B0M", "M11_방문후경과월_모바일웹_R6M"],
+        "output": "M12_방문후경과월_모바일웹_R6M",
+        "fname": "cfs_06_0557",
+        "type": "formula",
+        "content": """IF M12_방문횟수_모바일웹_B0M > 0 THEN M12_방문후경과월_모바일웹_R6M = 0
+                      ELIF M12_방문후경과월_모바일웹_R6M = min(M11_방문후경과월_모바일웹_R6M + 1, 6)""",
+    },
+    {
+        "columns": ["M12_인입횟수_IB_B0M", "M11_인입후경과월_IB_R6M"],
+        "output": "M12_인입후경과월_IB_R6M",
+        "fname": "cfs_06_0568",
+        "type": "formula",
+        "content": """IF M12_인입횟수_IB_B0M > 0 THEN M12_인입후경과월_IB_R6M = 0
+                      ELIF M12_인입후경과월_IB_R6M = min(M11_인입후경과월_IB_R6M + 1, 6)""",
+    },
+    {
+        "columns": ["M12_인입불만횟수_IB_B0M", "M11_인입불만후경과월_IB_R6M"],
+        "output": "M12_인입불만후경과월_IB_R6M",
+        "fname": "cfs_06_0575",
+        "type": "formula",
+        "content": """IF M12_인입불만횟수_IB_B0M > 0 THEN M12_인입불만후경과월_IB_R6M = 0
+                      ELIF M12_인입불만후경과월_IB_R6M = min(M11_인입불만후경과월_IB_R6M + 1, 6)""",
+    },
+    {
+        "columns": ["M12_불만제기건수_B0M", "M11_불만제기건수_B0M", "M11_불만제기후경과월_R12M"],
+        "output": "M12_불만제기후경과월_R12M",
+        "fname": "cfs_06_0627",
+        "type": "formula",
+        "content": """IF M12_불만제기건수_B0M > 0 THEN M12_불만제기후경과월_R12M = 0
+                      ELIF (M11_불만제기건수_B0M==0 & M11_불만제기후경과월_R12M==0) THEN M12_불만제기후경과월_R12M = 0
+                      ELIF (M11_불만제기건수_B0M==0 & M11_불만제기후경과월_R12M==12) THEN M12_불만제기후경과월_R12M = 12
+                      ELIF M12_불만제기후경과월_R12M = min(M11_불만제기후경과월_R12M + 1, 12)""",
+    },
     {
         "columns": [
             "M07_인입횟수_ARS_B0M",
@@ -2306,8 +3113,507 @@ constraints = [
         "content": "M12_잔액_신판ca최대한도소진율_r6m = MAX(M12_잔액_신판ca최대한도소진율_r3m, M09_잔액_신판ca최대한도소진율_r3m)",
     },
 
-    # 3.승인.매출 테이블 컬럼 Formula
+    # 3.승인.매출 테이블 컬럼 Constraint
     # M08
+    {
+        "columns": ["M07_최종이용일자_기본", "M08_최종이용일자_기본"],
+        "fname": "ccs_03_0001",
+        "type": "constraint",
+        "content": "M07_최종이용일자_기본 <= M08_최종이용일자_기본",
+    },
+    {
+        "columns": ["M07_최종이용일자_신판", "M08_최종이용일자_신판"],
+        "fname": "ccs_03_0002",
+        "type": "constraint",
+        "content": "M07_최종이용일자_신판 <= M08_최종이용일자_신판",
+    },
+    {
+        "columns": ["M07_최종이용일자_CA", "M08_최종이용일자_CA"],
+        "fname": "ccs_03_0003",
+        "type": "constraint",
+        "content": "M07_최종이용일자_CA <= M08_최종이용일자_CA",
+    },
+    {
+        "columns": ["M07_최종이용일자_카드론", "M08_최종이용일자_카드론"],
+        "fname": "ccs_03_0004",
+        "type": "constraint",
+        "content": "M07_최종이용일자_카드론 <= M08_최종이용일자_카드론",
+    },
+    {
+        "columns": ["M07_최종이용일자_체크", "M08_최종이용일자_체크"],
+        "fname": "ccs_03_0005",
+        "type": "constraint",
+        "content": "M07_최종이용일자_체크 <= M08_최종이용일자_체크",
+    },
+    {
+        "columns": ["M07_최종이용일자_일시불", "M08_최종이용일자_일시불"],
+        "fname": "ccs_03_0006",
+        "type": "constraint",
+        "content": "M07_최종이용일자_일시불 <= M08_최종이용일자_일시불",
+    },
+    {
+        "columns": ["M07_최종이용일자_할부", "M08_최종이용일자_할부"],
+        "fname": "ccs_03_0007",
+        "type": "constraint",
+        "content": "M07_최종이용일자_할부 <= M08_최종이용일자_할부",
+    },
+    {
+        "columns": ["M07_카드론이용건수_누적", "M08_카드론이용건수_누적"],
+        "fname": "ccs_03_0008",
+        "type": "constraint",
+        "content": "M07_카드론이용건수_누적 <= M08_카드론이용건수_누적",
+    },
+    {
+        "columns": ["M07_카드론이용월수_누적", "M08_카드론이용월수_누적"],
+        "fname": "ccs_03_0009",
+        "type": "constraint",
+        "content": "M07_카드론이용월수_누적 <= M08_카드론이용월수_누적",
+    },
+    {
+        "columns": ["M07_카드론이용금액_누적", "M08_카드론이용금액_누적"],
+        "fname": "ccs_03_0010",
+        "type": "constraint",
+        "content": "M07_카드론이용금액_누적 <= M08_카드론이용금액_누적",
+    },
+    # M09
+    {
+        "columns": ["M08_최종이용일자_기본", "M09_최종이용일자_기본"],
+        "fname": "ccs_03_0011",
+        "type": "constraint",
+        "content": "M08_최종이용일자_기본 <= M09_최종이용일자_기본",
+    },
+    {
+        "columns": ["M08_최종이용일자_신판", "M09_최종이용일자_신판"],
+        "fname": "ccs_03_0012",
+        "type": "constraint",
+        "content": "M08_최종이용일자_신판 <= M09_최종이용일자_신판",
+    },
+    {
+        "columns": ["M08_최종이용일자_CA", "M09_최종이용일자_CA"],
+        "fname": "ccs_03_0013",
+        "type": "constraint",
+        "content": "M08_최종이용일자_CA <= M09_최종이용일자_CA",
+    },
+    {
+        "columns": ["M08_최종이용일자_카드론", "M09_최종이용일자_카드론"],
+        "fname": "ccs_03_0014",
+        "type": "constraint",
+        "content": "M08_최종이용일자_카드론 <= M09_최종이용일자_카드론",
+    },
+    {
+        "columns": ["M08_최종이용일자_체크", "M09_최종이용일자_체크"],
+        "fname": "ccs_03_0015",
+        "type": "constraint",
+        "content": "M08_최종이용일자_체크 <= M09_최종이용일자_체크",
+    },
+    {
+        "columns": ["M08_최종이용일자_일시불", "M09_최종이용일자_일시불"],
+        "fname": "ccs_03_0016",
+        "type": "constraint",
+        "content": "M08_최종이용일자_일시불 <= M09_최종이용일자_일시불",
+    },
+    {
+        "columns": ["M08_최종이용일자_할부", "M09_최종이용일자_할부"],
+        "fname": "ccs_03_0017",
+        "type": "constraint",
+        "content": "M08_최종이용일자_할부 <= M09_최종이용일자_할부",
+    },
+    {
+        "columns": ["M08_카드론이용건수_누적", "M09_카드론이용건수_누적"],
+        "fname": "ccs_03_0018",
+        "type": "constraint",
+        "content": "M08_카드론이용건수_누적 <= M09_카드론이용건수_누적",
+    },
+    {
+        "columns": ["M08_카드론이용월수_누적", "M09_카드론이용월수_누적"],
+        "fname": "ccs_03_0019",
+        "type": "constraint",
+        "content": "M08_카드론이용월수_누적 <= M09_카드론이용월수_누적",
+    },
+    {
+        "columns": ["M08_카드론이용금액_누적", "M09_카드론이용금액_누적"],
+        "fname": "ccs_03_0020",
+        "type": "constraint",
+        "content": "M08_카드론이용금액_누적 <= M09_카드론이용금액_누적",
+    },
+    # M10
+    {
+        "columns": ["M09_최종이용일자_기본", "M10_최종이용일자_기본"],
+        "fname": "ccs_03_0021",
+        "type": "constraint",
+        "content": "M09_최종이용일자_기본 <= M10_최종이용일자_기본",
+    },
+    {
+        "columns": ["M09_최종이용일자_신판", "M10_최종이용일자_신판"],
+        "fname": "ccs_03_0022",
+        "type": "constraint",
+        "content": "M09_최종이용일자_신판 <= M10_최종이용일자_신판",
+    },
+    {
+        "columns": ["M09_최종이용일자_CA", "M10_최종이용일자_CA"],
+        "fname": "ccs_03_0023",
+        "type": "constraint",
+        "content": "M09_최종이용일자_CA <= M10_최종이용일자_CA",
+    },
+    {
+        "columns": ["M09_최종이용일자_카드론", "M10_최종이용일자_카드론"],
+        "fname": "ccs_03_0024",
+        "type": "constraint",
+        "content": "M09_최종이용일자_카드론 <= M10_최종이용일자_카드론",
+    },
+    {
+        "columns": ["M09_최종이용일자_체크", "M10_최종이용일자_체크"],
+        "fname": "ccs_03_0025",
+        "type": "constraint",
+        "content": "M09_최종이용일자_체크 <= M10_최종이용일자_체크",
+    },
+    {
+        "columns": ["M09_최종이용일자_일시불", "M10_최종이용일자_일시불"],
+        "fname": "ccs_03_0026",
+        "type": "constraint",
+        "content": "M09_최종이용일자_일시불 <= M10_최종이용일자_일시불",
+    },
+    {
+        "columns": ["M09_최종이용일자_할부", "M10_최종이용일자_할부"],
+        "fname": "ccs_03_0027",
+        "type": "constraint",
+        "content": "M09_최종이용일자_할부 <= M10_최종이용일자_할부",
+    },
+    {
+        "columns": ["M09_카드론이용건수_누적", "M10_카드론이용건수_누적"],
+        "fname": "ccs_03_0028",
+        "type": "constraint",
+        "content": "M09_카드론이용건수_누적 <= M10_카드론이용건수_누적",
+    },
+    {
+        "columns": ["M09_카드론이용월수_누적", "M10_카드론이용월수_누적"],
+        "fname": "ccs_03_0029",
+        "type": "constraint",
+        "content": "M09_카드론이용월수_누적 <= M10_카드론이용월수_누적",
+    },
+    {
+        "columns": ["M09_카드론이용금액_누적", "M10_카드론이용금액_누적"],
+        "fname": "ccs_03_0030",
+        "type": "constraint",
+        "content": "M09_카드론이용금액_누적 <= M10_카드론이용금액_누적",
+    },
+    # M11
+    {
+        "columns": ["M10_최종이용일자_기본", "M11_최종이용일자_기본"],
+        "fname": "ccs_03_0031",
+        "type": "constraint",
+        "content": "M10_최종이용일자_기본 <= M11_최종이용일자_기본",
+    },
+    {
+        "columns": ["M10_최종이용일자_신판", "M11_최종이용일자_신판"],
+        "fname": "ccs_03_0032",
+        "type": "constraint",
+        "content": "M10_최종이용일자_신판 <= M11_최종이용일자_신판",
+    },
+    {
+        "columns": ["M10_최종이용일자_CA", "M11_최종이용일자_CA"],
+        "fname": "ccs_03_0033",
+        "type": "constraint",
+        "content": "M10_최종이용일자_CA <= M11_최종이용일자_CA",
+    },
+    {
+        "columns": ["M10_최종이용일자_카드론", "M11_최종이용일자_카드론"],
+        "fname": "ccs_03_0034",
+        "type": "constraint",
+        "content": "M10_최종이용일자_카드론 <= M11_최종이용일자_카드론",
+    },
+    {
+        "columns": ["M10_최종이용일자_체크", "M11_최종이용일자_체크"],
+        "fname": "ccs_03_0035",
+        "type": "constraint",
+        "content": "M10_최종이용일자_체크 <= M11_최종이용일자_체크",
+    },
+    {
+        "columns": ["M10_최종이용일자_일시불", "M11_최종이용일자_일시불"],
+        "fname": "ccs_03_0036",
+        "type": "constraint",
+        "content": "M10_최종이용일자_일시불 <= M11_최종이용일자_일시불",
+    },
+    {
+        "columns": ["M10_최종이용일자_할부", "M11_최종이용일자_할부"],
+        "fname": "ccs_03_0037",
+        "type": "constraint",
+        "content": "M10_최종이용일자_할부 <= M11_최종이용일자_할부",
+    },
+    {
+        "columns": ["M10_카드론이용건수_누적", "M11_카드론이용건수_누적"],
+        "fname": "ccs_03_0038",
+        "type": "constraint",
+        "content": "M10_카드론이용건수_누적 <= M11_카드론이용건수_누적",
+    },
+    {
+        "columns": ["M10_카드론이용월수_누적", "M11_카드론이용월수_누적"],
+        "fname": "ccs_03_0039",
+        "type": "constraint",
+        "content": "M10_카드론이용월수_누적 <= M11_카드론이용월수_누적",
+    },
+    {
+        "columns": ["M10_카드론이용금액_누적", "M11_카드론이용금액_누적"],
+        "fname": "ccs_03_0040",
+        "type": "constraint",
+        "content": "M10_카드론이용금액_누적 <= M11_카드론이용금액_누적",
+    },
+    # M12
+    {
+        "columns": ["M11_최종이용일자_기본", "M12_최종이용일자_기본"],
+        "fname": "ccs_03_0041",
+        "type": "constraint",
+        "content": "M11_최종이용일자_기본 <= M12_최종이용일자_기본",
+    },
+    {
+        "columns": ["M11_최종이용일자_신판", "M12_최종이용일자_신판"],
+        "fname": "ccs_03_0042",
+        "type": "constraint",
+        "content": "M11_최종이용일자_신판 <= M12_최종이용일자_신판",
+    },
+    {
+        "columns": ["M11_최종이용일자_CA", "M12_최종이용일자_CA"],
+        "fname": "ccs_03_0043",
+        "type": "constraint",
+        "content": "M11_최종이용일자_CA <= M12_최종이용일자_CA",
+    },
+    {
+        "columns": ["M11_최종이용일자_카드론", "M12_최종이용일자_카드론"],
+        "fname": "ccs_03_0044",
+        "type": "constraint",
+        "content": "M11_최종이용일자_카드론 <= M12_최종이용일자_카드론",
+    },
+    {
+        "columns": ["M11_최종이용일자_체크", "M12_최종이용일자_체크"],
+        "fname": "ccs_03_0045",
+        "type": "constraint",
+        "content": "M11_최종이용일자_체크 <= M12_최종이용일자_체크",
+    },
+    {
+        "columns": ["M11_최종이용일자_일시불", "M12_최종이용일자_일시불"],
+        "fname": "ccs_03_0046",
+        "type": "constraint",
+        "content": "M11_최종이용일자_일시불 <= M12_최종이용일자_일시불",
+    },
+    {
+        "columns": ["M11_최종이용일자_할부", "M12_최종이용일자_할부"],
+        "fname": "ccs_03_0047",
+        "type": "constraint",
+        "content": "M11_최종이용일자_할부 <= M12_최종이용일자_할부",
+    },
+    {
+        "columns": ["M11_카드론이용건수_누적", "M12_카드론이용건수_누적"],
+        "fname": "ccs_03_0048",
+        "type": "constraint",
+        "content": "M11_카드론이용건수_누적 <= M12_카드론이용건수_누적",
+    },
+    {
+        "columns": ["M11_카드론이용월수_누적", "M12_카드론이용월수_누적"],
+        "fname": "ccs_03_0049",
+        "type": "constraint",
+        "content": "M11_카드론이용월수_누적 <= M12_카드론이용월수_누적",
+    },
+    {
+        "columns": ["M11_카드론이용금액_누적", "M12_카드론이용금액_누적"],
+        "fname": "ccs_03_0050",
+        "type": "constraint",
+        "content": "M11_카드론이용금액_누적 <= M12_카드론이용금액_누적",
+    },
+    # 3.승인.매출 테이블 컬럼 Formula
+    # M07
+    {
+        "columns": ["M07_RP건수_B0M", "M07_RP후경과월"],
+        "output": "M07_RP후경과월",
+        "fname": "cfs_03_0262",
+        "type": "formula",
+        "content": """IF M07_RP건수_B0M > 0 THEN M07_RP후경과월 = 0
+                      ELSE M07_RP후경과월 = M07_RP후경과월.clip(1,6)""",
+    },
+    {
+        "columns": ["M07_RP건수_통신_B0M", "M07_RP후경과월_통신"],
+        "output": "M07_RP후경과월_통신",
+        "fname": "cfs_03_0263",
+        "type": "formula",
+        "content": """IF M07_RP건수_통신_B0M > 0 THEN M07_RP후경과월_통신 = 0
+                      ELSE M07_RP후경과월_통신 = M07_RP후경과월_통신.clip(1,6)""",
+    },
+    {
+        "columns": ["M07_RP건수_아파트_B0M", "M07_RP후경과월_아파트"],
+        "output": "M07_RP후경과월_아파트",
+        "fname": "cfs_03_0264",
+        "type": "formula",
+        "content": """IF M07_RP건수_아파트_B0M > 0 THEN M07_RP후경과월_아파트 = 0
+                      ELSE M07_RP후경과월_아파트 = M07_RP후경과월_아파트.clip(1,6)""",
+    },
+    {
+        "columns": ["M07_RP건수_제휴사서비스직접판매_B0M", "M07_RP후경과월_제휴사서비스직접판매"],
+        "output": "M07_RP후경과월_제휴사서비스직접판매",
+        "fname": "cfs_03_0265",
+        "type": "formula",
+        "content": """IF M07_RP건수_제휴사서비스직접판매_B0M > 0 THEN M07_RP후경과월_제휴사서비스직접판매 = 0
+                      ELSE M07_RP후경과월_제휴사서비스직접판매 = M07_RP후경과월_제휴사서비스직접판매.clip(1,6)""",
+    },
+    {
+        "columns": ["M07_RP건수_렌탈_B0M", "M07_RP후경과월_렌탈"],
+        "output": "M07_RP후경과월_렌탈",
+        "fname": "cfs_03_0266",
+        "type": "formula",
+        "content": """IF M07_RP건수_렌탈_B0M > 0 THEN M07_RP후경과월_렌탈 = 0
+                      ELSE M07_RP후경과월_렌탈 = M07_RP후경과월_렌탈.clip(1,6)""",
+    },
+    {
+        "columns": ["M07_RP건수_가스_B0M", "M07_RP후경과월_가스"],
+        "output": "M07_RP후경과월_가스",
+        "fname": "cfs_03_0267",
+        "type": "formula",
+        "content": """IF M07_RP건수_가스_B0M > 0 THEN M07_RP후경과월_가스 = 0
+                      ELSE M07_RP후경과월_가스 = M07_RP후경과월_가스.clip(1,6)""",
+    },
+    {
+        "columns": ["M07_RP건수_전기_B0M", "M07_RP후경과월_전기"],
+        "output": "M07_RP후경과월_전기",
+        "fname": "cfs_03_0268",
+        "type": "formula",
+        "content": """IF M07_RP건수_전기_B0M > 0 THEN M07_RP후경과월_전기 = 0
+                      ELSE M07_RP후경과월_전기 = M07_RP후경과월_전기.clip(1,6)""",
+    },
+    {
+        "columns": ["M07_RP건수_보험_B0M", "M07_RP후경과월_보험"],
+        "output": "M07_RP후경과월_보험",
+        "fname": "cfs_03_0269",
+        "type": "formula",
+        "content": """IF M07_RP건수_보험_B0M > 0 THEN M07_RP후경과월_보험 = 0
+                      ELSE M07_RP후경과월_보험 = M07_RP후경과월_보험.clip(1,6)""",
+    },
+    {
+        "columns": ["M07_RP건수_학습비_B0M", "M07_RP후경과월_학습비"],
+        "output": "M07_RP후경과월_학습비",
+        "fname": "cfs_03_0270",
+        "type": "formula",
+        "content": """IF M07_RP건수_학습비_B0M > 0 THEN M07_RP후경과월_학습비 = 0
+                      ELSE M07_RP후경과월_학습비 = M07_RP후경과월_학습비.clip(1,6)""",
+    },
+    {
+        "columns": ["M07_RP건수_유선방송_B0M", "M07_RP후경과월_유선방송"],
+        "output": "M07_RP후경과월_유선방송",
+        "fname": "cfs_03_0271",
+        "type": "formula",
+        "content": """IF M07_RP건수_유선방송_B0M > 0 THEN M07_RP후경과월_유선방송 = 0
+                      ELSE M07_RP후경과월_유선방송 = M07_RP후경과월_유선방송.clip(1,6)""",
+    },
+    {
+        "columns": ["M07_RP건수_건강_B0M", "M07_RP후경과월_건강"],
+        "output": "M07_RP후경과월_건강",
+        "fname": "cfs_03_0272",
+        "type": "formula",
+        "content": """IF M07_RP건수_건강_B0M > 0 THEN M07_RP후경과월_건강 = 0
+                      ELSE M07_RP후경과월_건강 = M07_RP후경과월_건강.clip(1,6)""",
+    },
+    {
+        "columns": ["M07_RP건수_교통_B0M", "M07_RP후경과월_교통"],
+        "output": "M07_RP후경과월_교통",
+        "fname": "cfs_03_0273",
+        "type": "formula",
+        "content": """IF M07_RP건수_교통_B0M > 0 THEN M07_RP후경과월_교통 = 0
+                      ELSE M07_RP후경과월_교통 = M07_RP후경과월_교통.clip(1,6)""",
+    },
+    # M08
+    {
+        "columns": ["M08_RP건수_B0M", "M07_RP후경과월"],
+        "output": "M08_RP후경과월",
+        "fname": "cfs_03_0723",
+        "type": "formula",
+        "content": """IF M08_RP건수_B0M > 0 THEN M08_RP후경과월 = 0
+                      ELSE M08_RP후경과월 = min(M07_RP후경과월 + 1, 6)""",
+    },
+    {
+        "columns": ["M08_RP건수_통신_B0M", "M07_RP후경과월_통신"],
+        "output": "M08_RP후경과월_통신",
+        "fname": "cfs_03_0724",
+        "type": "formula",
+        "content": """IF M08_RP건수_통신_B0M > 0 THEN M08_RP후경과월_통신 = 0
+                      ELSE M08_RP후경과월_통신 = min(M07_RP후경과월_통신 + 1, 6)""",
+    },
+    {
+        "columns": ["M08_RP건수_아파트_B0M", "M07_RP후경과월_아파트"],
+        "output": "M08_RP후경과월_아파트",
+        "fname": "cfs_03_0725",
+        "type": "formula",
+        "content": """IF M08_RP건수_아파트_B0M > 0 THEN M08_RP후경과월_아파트 = 0
+                      ELSE M08_RP후경과월_아파트 = min(M07_RP후경과월_아파트 + 1, 6)""",
+    },
+    {
+        "columns": ["M08_RP건수_제휴사서비스직접판매_B0M", "M07_RP후경과월_제휴사서비스직접판매"],
+        "output": "M08_RP후경과월_제휴사서비스직접판매",
+        "fname": "cfs_03_0726",
+        "type": "formula",
+        "content": """IF M08_RP건수_제휴사서비스직접판매_B0M > 0 THEN M08_RP후경과월_제휴사서비스직접판매 = 0
+                      ELSE M08_RP후경과월_제휴사서비스직접판매 = min(M07_RP후경과월_제휴사서비스직접판매 + 1, 6)""",
+    },
+    {
+        "columns": ["M08_RP건수_렌탈_B0M", "M07_RP후경과월_렌탈"],
+        "output": "M08_RP후경과월_렌탈",
+        "fname": "cfs_03_0727",
+        "type": "formula",
+        "content": """IF M08_RP건수_렌탈_B0M > 0 THEN M08_RP후경과월_렌탈 = 0
+                      ELSE M08_RP후경과월_렌탈 = min(M07_RP후경과월_렌탈 + 1, 6)""",
+    },
+    {
+        "columns": ["M08_RP건수_가스_B0M", "M07_RP후경과월_가스"],
+        "output": "M08_RP후경과월_가스",
+        "fname": "cfs_03_0728",
+        "type": "formula",
+        "content": """IF M08_RP건수_가스_B0M > 0 THEN M08_RP후경과월_가스 = 0
+                      ELSE M08_RP후경과월_가스 = min(M07_RP후경과월_가스 + 1, 6)""",
+    },
+    {
+        "columns": ["M08_RP건수_전기_B0M", "M07_RP후경과월_전기"],
+        "output": "M08_RP후경과월_전기",
+        "fname": "cfs_03_0729",
+        "type": "formula",
+        "content": """IF M08_RP건수_전기_B0M > 0 THEN M08_RP후경과월_전기 = 0
+                      ELSE M08_RP후경과월_전기 = min(M07_RP후경과월_전기 + 1, 6)""",
+    },
+    {
+        "columns": ["M08_RP건수_보험_B0M", "M07_RP후경과월_보험"],
+        "output": "M08_RP후경과월_보험",
+        "fname": "cfs_03_0730",
+        "type": "formula",
+        "content": """IF M08_RP건수_보험_B0M > 0 THEN M08_RP후경과월_보험 = 0
+                      ELSE M08_RP후경과월_보험 = min(M07_RP후경과월_보험 + 1, 6)""",
+    },
+    {
+        "columns": ["M08_RP건수_학습비_B0M", "M07_RP후경과월_학습비"],
+        "output": "M08_RP후경과월_학습비",
+        "fname": "cfs_03_0731",
+        "type": "formula",
+        "content": """IF M08_RP건수_학습비_B0M > 0 THEN M08_RP후경과월_학습비 = 0
+                      ELSE M08_RP후경과월_학습비 = min(M07_RP후경과월_학습비 + 1, 6)""",
+    },
+    {
+        "columns": ["M08_RP건수_유선방송_B0M", "M07_RP후경과월_유선방송"],
+        "output": "M08_RP후경과월_유선방송",
+        "fname": "cfs_03_0732",
+        "type": "formula",
+        "content": """IF M08_RP건수_유선방송_B0M > 0 THEN M08_RP후경과월_유선방송 = 0
+                      ELSE M08_RP후경과월_유선방송 = min(M07_RP후경과월_유선방송 + 1, 6)""",
+    },
+    {
+        "columns": ["M08_RP건수_건강_B0M", "M07_RP후경과월_건강"],
+        "output": "M08_RP후경과월_건강",
+        "fname": "cfs_03_0733",
+        "type": "formula",
+        "content": """IF M08_RP건수_건강_B0M > 0 THEN M08_RP후경과월_건강 = 0
+                      ELSE M08_RP후경과월_건강 = min(M07_RP후경과월_건강 + 1, 6)""",
+    },
+    {
+        "columns": ["M08_RP건수_교통_B0M", "M07_RP후경과월_교통"],
+        "output": "M08_RP후경과월_교통",
+        "fname": "cfs_03_0734",
+        "type": "formula",
+        "content": """IF M08_RP건수_교통_B0M > 0 THEN M08_RP후경과월_교통 = 0
+                      ELSE M08_RP후경과월_교통 = min(M07_RP후경과월_교통 + 1, 6)""",
+    },
     {
         "columns": ["M08_최종카드론_대출일자", "M07_최종카드론_대출일자", "M07_최종카드론이용경과월"],
         "output": "M08_최종카드론이용경과월",
@@ -2411,6 +3717,137 @@ constraints = [
         "content": "M08_증감_RP건수_교통_전월 = M07_RP건수_교통_B0M - M08_RP건수_교통_B0M",
     },
     # M09
+    {
+        "columns": ["M09_RP건수_B0M", "M08_RP후경과월"],
+        "output": "M09_RP후경과월",
+        "fname": "cfs_03_1184",
+        "type": "formula",
+        "content": """IF M09_RP건수_B0M > 0 THEN M09_RP후경과월 = 0
+                      ELSE M09_RP후경과월 = min(M08_RP후경과월 + 1, 6)""",
+    },
+    {
+        "columns": ["M09_RP건수_통신_B0M", "M08_RP후경과월_통신"],
+        "output": "M09_RP후경과월_통신",
+        "fname": "cfs_03_1185",
+        "type": "formula",
+        "content": """IF M09_RP건수_통신_B0M > 0 THEN M09_RP후경과월_통신 = 0
+                      ELSE M09_RP후경과월_통신 = min(M08_RP후경과월_통신 + 1, 6)""",
+    },
+    {
+        "columns": ["M09_RP건수_아파트_B0M", "M08_RP후경과월_아파트"],
+        "output": "M09_RP후경과월_아파트",
+        "fname": "cfs_03_1186",
+        "type": "formula",
+        "content": """IF M09_RP건수_아파트_B0M > 0 THEN M09_RP후경과월_아파트 = 0
+                      ELSE M09_RP후경과월_아파트 = min(M08_RP후경과월_아파트 + 1, 6)""",
+    },
+    {
+        "columns": ["M09_RP건수_제휴사서비스직접판매_B0M", "M08_RP후경과월_제휴사서비스직접판매"],
+        "output": "M09_RP후경과월_제휴사서비스직접판매",
+        "fname": "cfs_03_1187",
+        "type": "formula",
+        "content": """IF M09_RP건수_제휴사서비스직접판매_B0M > 0 THEN M09_RP후경과월_제휴사서비스직접판매 = 0
+                      ELSE M09_RP후경과월_제휴사서비스직접판매 = min(M08_RP후경과월_제휴사서비스직접판매 + 1, 6)""",
+    },
+    {
+        "columns": ["M09_RP건수_렌탈_B0M", "M08_RP후경과월_렌탈"],
+        "output": "M09_RP후경과월_렌탈",
+        "fname": "cfs_03_1188",
+        "type": "formula",
+        "content": """IF M09_RP건수_렌탈_B0M > 0 THEN M09_RP후경과월_렌탈 = 0
+                      ELSE M09_RP후경과월_렌탈 = min(M08_RP후경과월_렌탈 + 1, 6)""",
+    },
+    {
+        "columns": ["M09_RP건수_가스_B0M", "M08_RP후경과월_가스"],
+        "output": "M09_RP후경과월_가스",
+        "fname": "cfs_03_1189",
+        "type": "formula",
+        "content": """IF M09_RP건수_가스_B0M > 0 THEN M09_RP후경과월_가스 = 0
+                      ELSE M09_RP후경과월_가스 = min(M08_RP후경과월_가스 + 1, 6)""",
+    },
+    {
+        "columns": ["M09_RP건수_전기_B0M", "M08_RP후경과월_전기"],
+        "output": "M09_RP후경과월_전기",
+        "fname": "cfs_03_1190",
+        "type": "formula",
+        "content": """IF M09_RP건수_전기_B0M > 0 THEN M09_RP후경과월_전기 = 0
+                      ELSE M09_RP후경과월_전기 = min(M08_RP후경과월_전기 + 1, 6)""",
+    },
+    {
+        "columns": ["M09_RP건수_보험_B0M", "M08_RP후경과월_보험"],
+        "output": "M09_RP후경과월_보험",
+        "fname": "cfs_03_1191",
+        "type": "formula",
+        "content": """IF M09_RP건수_보험_B0M > 0 THEN M09_RP후경과월_보험 = 0
+                      ELSE M09_RP후경과월_보험 = min(M08_RP후경과월_보험 + 1, 6)""",
+    },
+    {
+        "columns": ["M09_RP건수_학습비_B0M", "M08_RP후경과월_학습비"],
+        "output": "M09_RP후경과월_학습비",
+        "fname": "cfs_03_1192",
+        "type": "formula",
+        "content": """IF M09_RP건수_학습비_B0M > 0 THEN M09_RP후경과월_학습비 = 0
+                      ELSE M09_RP후경과월_학습비 = min(M08_RP후경과월_학습비 + 1, 6)""",
+    },
+    {
+        "columns": ["M09_RP건수_유선방송_B0M", "M08_RP후경과월_유선방송"],
+        "output": "M09_RP후경과월_유선방송",
+        "fname": "cfs_03_1193",
+        "type": "formula",
+        "content": """IF M09_RP건수_유선방송_B0M > 0 THEN M09_RP후경과월_유선방송 = 0
+                      ELSE M09_RP후경과월_유선방송 = min(M08_RP후경과월_유선방송 + 1, 6)""",
+    },
+    {
+        "columns": ["M09_RP건수_건강_B0M", "M08_RP후경과월_건강"],
+        "output": "M09_RP후경과월_건강",
+        "fname": "cfs_03_1194",
+        "type": "formula",
+        "content": """IF M09_RP건수_건강_B0M > 0 THEN M09_RP후경과월_건강 = 0
+                      ELSE M09_RP후경과월_건강 = min(M08_RP후경과월_건강 + 1, 6)""",
+    },
+    {
+        "columns": ["M09_RP건수_교통_B0M", "M08_RP후경과월_교통"],
+        "output": "M09_RP후경과월_교통",
+        "fname": "cfs_03_1195",
+        "type": "formula",
+        "content": """IF M09_RP건수_교통_B0M > 0 THEN M09_RP후경과월_교통 = 0
+                      ELSE M09_RP후경과월_교통 = min(M08_RP후경과월_교통 + 1, 6)""",
+    },
+    {
+        "columns": ["M07_승인거절건수_B0M", "M08_승인거절건수_B0M", "M09_승인거절건수_B0M"],
+        "output": "M09_승인거절건수_R3M",
+        "fname": "cfs_03_1369",
+        "type": "formula",
+        "content": "M09_승인거절건수_R3M = M07_승인거절건수_B0M + M08_승인거절건수_B0M + M09_승인거절건수_B0M",
+    },
+    {
+        "columns": ["M07_승인거절건수_한도초과_B0M", "M08_승인거절건수_한도초과_B0M", "M09_승인거절건수_한도초과_B0M"],
+        "output": "M09_승인거절건수_한도초과_R3M",
+        "fname": "cfs_03_1370",
+        "type": "formula",
+        "content": "M09_승인거절건수_한도초과_R3M = M07_승인거절건수_한도초과_B0M + M08_승인거절건수_한도초과_B0M + M09_승인거절건수_한도초과_B0M",
+    },
+    {
+        "columns": ["M07_승인거절건수_BL_B0M", "M08_승인거절건수_BL_B0M", "M09_승인거절건수_BL_B0M"],
+        "output": "M09_승인거절건수_BL_R3M",
+        "fname": "cfs_03_1371",
+        "type": "formula",
+        "content": "M09_승인거절건수_BL_R3M = M07_승인거절건수_BL_B0M + M08_승인거절건수_BL_B0M + M09_승인거절건수_BL_B0M",
+    },
+    {
+        "columns": ["M07_승인거절건수_입력오류_B0M", "M08_승인거절건수_입력오류_B0M", "M09_승인거절건수_입력오류_B0M"],
+        "output": "M09_승인거절건수_입력오류_R3M",
+        "fname": "cfs_03_1372",
+        "type": "formula",
+        "content": "M09_승인거절건수_입력오류_R3M = M07_승인거절건수_입력오류_B0M + M08_승인거절건수_입력오류_B0M + M09_승인거절건수_입력오류_B0M",
+    },
+    {
+        "columns": ["M07_승인거절건수_기타_B0M", "M08_승인거절건수_기타_B0M", "M09_승인거절건수_기타_B0M"],
+        "output": "M09_승인거절건수_기타_R3M",
+        "fname": "cfs_03_1373",
+        "type": "formula",
+        "content": "M09_승인거절건수_기타_R3M = M07_승인거절건수_기타_B0M + M08_승인거절건수_기타_B0M + M09_승인거절건수_기타_B0M",
+    },
     {
         "columns": ["M09_이용건수_신용_B0M", "M08_이용건수_신용_B0M", "M07_이용건수_신용_B0M"],
         "output": "M09_이용건수_신용_R3M",
@@ -2871,6 +4308,137 @@ constraints = [
         "content": "M09_증감_RP건수_교통_전월 = M08_RP건수_교통_B0M - M09_RP건수_교통_B0M",
     },
     # M10
+    {
+        "columns": ["M10_RP건수_B0M", "M09_RP후경과월"],
+        "output": "M10_RP후경과월",
+        "fname": "cfs_03_1645",
+        "type": "formula",
+        "content": """IF M10_RP건수_B0M > 0 THEN M10_RP후경과월 = 0
+                      ELSE M10_RP후경과월 = min(M09_RP후경과월 + 1, 6)""",
+    },
+    {
+        "columns": ["M10_RP건수_통신_B0M", "M09_RP후경과월_통신"],
+        "output": "M10_RP후경과월_통신",
+        "fname": "cfs_03_1646",
+        "type": "formula",
+        "content": """IF M10_RP건수_통신_B0M > 0 THEN M10_RP후경과월_통신 = 0
+                      ELSE M10_RP후경과월_통신 = min(M09_RP후경과월_통신 + 1, 6)""",
+    },
+    {
+        "columns": ["M10_RP건수_아파트_B0M", "M09_RP후경과월_아파트"],
+        "output": "M10_RP후경과월_아파트",
+        "fname": "cfs_03_1647",
+        "type": "formula",
+        "content": """IF M10_RP건수_아파트_B0M > 0 THEN M10_RP후경과월_아파트 = 0
+                      ELSE M10_RP후경과월_아파트 = min(M09_RP후경과월_아파트 + 1, 6)""",
+    },
+    {
+        "columns": ["M10_RP건수_제휴사서비스직접판매_B0M", "M09_RP후경과월_제휴사서비스직접판매"],
+        "output": "M10_RP후경과월_제휴사서비스직접판매",
+        "fname": "cfs_03_1648",
+        "type": "formula",
+        "content": """IF M10_RP건수_제휴사서비스직접판매_B0M > 0 THEN M10_RP후경과월_제휴사서비스직접판매 = 0
+                      ELSE M10_RP후경과월_제휴사서비스직접판매 = min(M09_RP후경과월_제휴사서비스직접판매 + 1, 6)""",
+    },
+    {
+        "columns": ["M10_RP건수_렌탈_B0M", "M09_RP후경과월_렌탈"],
+        "output": "M10_RP후경과월_렌탈",
+        "fname": "cfs_03_1649",
+        "type": "formula",
+        "content": """IF M10_RP건수_렌탈_B0M > 0 THEN M10_RP후경과월_렌탈 = 0
+                      ELSE M10_RP후경과월_렌탈 = min(M09_RP후경과월_렌탈 + 1, 6)""",
+    },
+    {
+        "columns": ["M10_RP건수_가스_B0M", "M09_RP후경과월_가스"],
+        "output": "M10_RP후경과월_가스",
+        "fname": "cfs_03_1650",
+        "type": "formula",
+        "content": """IF M10_RP건수_가스_B0M > 0 THEN M10_RP후경과월_가스 = 0
+                      ELSE M10_RP후경과월_가스 = min(M09_RP후경과월_가스 + 1, 6)""",
+    },
+    {
+        "columns": ["M10_RP건수_전기_B0M", "M09_RP후경과월_전기"],
+        "output": "M10_RP후경과월_전기",
+        "fname": "cfs_03_1651",
+        "type": "formula",
+        "content": """IF M10_RP건수_전기_B0M > 0 THEN M10_RP후경과월_전기 = 0
+                      ELSE M10_RP후경과월_전기 = min(M09_RP후경과월_전기 + 1, 6)""",
+    },
+    {
+        "columns": ["M10_RP건수_보험_B0M", "M09_RP후경과월_보험"],
+        "output": "M10_RP후경과월_보험",
+        "fname": "cfs_03_1652",
+        "type": "formula",
+        "content": """IF M10_RP건수_보험_B0M > 0 THEN M10_RP후경과월_보험 = 0
+                      ELSE M10_RP후경과월_보험 = min(M09_RP후경과월_보험 + 1, 6)""",
+    },
+    {
+        "columns": ["M10_RP건수_학습비_B0M", "M09_RP후경과월_학습비"],
+        "output": "M10_RP후경과월_학습비",
+        "fname": "cfs_03_1653",
+        "type": "formula",
+        "content": """IF M10_RP건수_학습비_B0M > 0 THEN M10_RP후경과월_학습비 = 0
+                      ELSE M10_RP후경과월_학습비 = min(M09_RP후경과월_학습비 + 1, 6)""",
+    },
+    {
+        "columns": ["M10_RP건수_유선방송_B0M", "M09_RP후경과월_유선방송"],
+        "output": "M10_RP후경과월_유선방송",
+        "fname": "cfs_03_1654",
+        "type": "formula",
+        "content": """IF M10_RP건수_유선방송_B0M > 0 THEN M10_RP후경과월_유선방송 = 0
+                      ELSE M10_RP후경과월_유선방송 = min(M09_RP후경과월_유선방송 + 1, 6)""",
+    },
+    {
+        "columns": ["M10_RP건수_건강_B0M", "M09_RP후경과월_건강"],
+        "output": "M10_RP후경과월_건강",
+        "fname": "cfs_03_1655",
+        "type": "formula",
+        "content": """IF M10_RP건수_건강_B0M > 0 THEN M10_RP후경과월_건강 = 0
+                      ELSE M10_RP후경과월_건강 = min(M09_RP후경과월_건강 + 1, 6)""",
+    },
+    {
+        "columns": ["M10_RP건수_교통_B0M", "M09_RP후경과월_교통"],
+        "output": "M10_RP후경과월_교통",
+        "fname": "cfs_03_1656",
+        "type": "formula",
+        "content": """IF M10_RP건수_교통_B0M > 0 THEN M10_RP후경과월_교통 = 0
+                      ELSE M10_RP후경과월_교통 = min(M09_RP후경과월_교통 + 1, 6)""",
+    },
+    {
+        "columns": ["M08_승인거절건수_B0M", "M09_승인거절건수_B0M", "M10_승인거절건수_B0M"],
+        "output": "M10_승인거절건수_R3M",
+        "fname": "cfs_03_1830",
+        "type": "formula",
+        "content": "M10_승인거절건수_R3M = M08_승인거절건수_B0M + M09_승인거절건수_B0M + M10_승인거절건수_B0M",
+    },
+    {
+        "columns": ["M08_승인거절건수_한도초과_B0M", "M09_승인거절건수_한도초과_B0M", "M10_승인거절건수_한도초과_B0M"],
+        "output": "M10_승인거절건수_한도초과_R3M",
+        "fname": "cfs_03_1831",
+        "type": "formula",
+        "content": "M10_승인거절건수_한도초과_R3M = M08_승인거절건수_한도초과_B0M + M09_승인거절건수_한도초과_B0M + M10_승인거절건수_한도초과_B0M",
+    },
+    {
+        "columns": ["M08_승인거절건수_BL_B0M", "M09_승인거절건수_BL_B0M", "M10_승인거절건수_BL_B0M"],
+        "output": "M10_승인거절건수_BL_R3M",
+        "fname": "cfs_03_1832",
+        "type": "formula",
+        "content": "M10_승인거절건수_BL_R3M = M08_승인거절건수_BL_B0M + M09_승인거절건수_BL_B0M + M10_승인거절건수_BL_B0M",
+    },
+    {
+        "columns": ["M08_승인거절건수_입력오류_B0M", "M09_승인거절건수_입력오류_B0M", "M10_승인거절건수_입력오류_B0M"],
+        "output": "M10_승인거절건수_입력오류_R3M",
+        "fname": "cfs_03_1833",
+        "type": "formula",
+        "content": "M10_승인거절건수_입력오류_R3M = M08_승인거절건수_입력오류_B0M + M09_승인거절건수_입력오류_B0M + M10_승인거절건수_입력오류_B0M",
+    },
+    {
+        "columns": ["M08_승인거절건수_기타_B0M", "M09_승인거절건수_기타_B0M", "M10_승인거절건수_기타_B0M"],
+        "output": "M10_승인거절건수_기타_R3M",
+        "fname": "cfs_03_1834",
+        "type": "formula",
+        "content": "M10_승인거절건수_기타_R3M = M08_승인거절건수_기타_B0M + M09_승인거절건수_기타_B0M + M10_승인거절건수_기타_B0M",
+    },
     {
         "columns": ["M10_이용건수_신용_R3M", "M07_이용건수_신용_R3M"],
         "output": "M10_이용건수_신용_R6M",
@@ -3675,6 +5243,137 @@ constraints = [
     },
     # M11
     {
+        "columns": ["M11_RP건수_B0M", "M10_RP후경과월"],
+        "output": "M11_RP후경과월",
+        "fname": "cfs_03_2106",
+        "type": "formula",
+        "content": """IF M11_RP건수_B0M > 0 THEN M11_RP후경과월 = 0
+                      ELSE M11_RP후경과월 = min(M10_RP후경과월 + 1, 6)""",
+    },
+    {
+        "columns": ["M11_RP건수_통신_B0M", "M10_RP후경과월_통신"],
+        "output": "M11_RP후경과월_통신",
+        "fname": "cfs_03_2107",
+        "type": "formula",
+        "content": """IF M11_RP건수_통신_B0M > 0 THEN M11_RP후경과월_통신 = 0
+                      ELSE M11_RP후경과월_통신 = min(M10_RP후경과월_통신 + 1, 6)""",
+    },
+    {
+        "columns": ["M11_RP건수_아파트_B0M", "M10_RP후경과월_아파트"],
+        "output": "M11_RP후경과월_아파트",
+        "fname": "cfs_03_2108",
+        "type": "formula",
+        "content": """IF M11_RP건수_아파트_B0M > 0 THEN M11_RP후경과월_아파트 = 0
+                      ELSE M11_RP후경과월_아파트 = min(M10_RP후경과월_아파트 + 1, 6)""",
+    },
+    {
+        "columns": ["M11_RP건수_제휴사서비스직접판매_B0M", "M10_RP후경과월_제휴사서비스직접판매"],
+        "output": "M11_RP후경과월_제휴사서비스직접판매",
+        "fname": "cfs_03_2109",
+        "type": "formula",
+        "content": """IF M11_RP건수_제휴사서비스직접판매_B0M > 0 THEN M11_RP후경과월_제휴사서비스직접판매 = 0
+                      ELSE M11_RP후경과월_제휴사서비스직접판매 = min(M10_RP후경과월_제휴사서비스직접판매 + 1, 6)""",
+    },
+    {
+        "columns": ["M11_RP건수_렌탈_B0M", "M10_RP후경과월_렌탈"],
+        "output": "M11_RP후경과월_렌탈",
+        "fname": "cfs_03_2110",
+        "type": "formula",
+        "content": """IF M11_RP건수_렌탈_B0M > 0 THEN M11_RP후경과월_렌탈 = 0
+                      ELSE M11_RP후경과월_렌탈 = min(M10_RP후경과월_렌탈 + 1, 6)""",
+    },
+    {
+        "columns": ["M11_RP건수_가스_B0M", "M10_RP후경과월_가스"],
+        "output": "M11_RP후경과월_가스",
+        "fname": "cfs_03_2111",
+        "type": "formula",
+        "content": """IF M11_RP건수_가스_B0M > 0 THEN M11_RP후경과월_가스 = 0
+                      ELSE M11_RP후경과월_가스 = min(M10_RP후경과월_가스 + 1, 6)""",
+    },
+    {
+        "columns": ["M11_RP건수_전기_B0M", "M10_RP후경과월_전기"],
+        "output": "M11_RP후경과월_전기",
+        "fname": "cfs_03_2112",
+        "type": "formula",
+        "content": """IF M11_RP건수_전기_B0M > 0 THEN M11_RP후경과월_전기 = 0
+                      ELSE M11_RP후경과월_전기 = min(M10_RP후경과월_전기 + 1, 6)""",
+    },
+    {
+        "columns": ["M11_RP건수_보험_B0M", "M10_RP후경과월_보험"],
+        "output": "M11_RP후경과월_보험",
+        "fname": "cfs_03_2113",
+        "type": "formula",
+        "content": """IF M11_RP건수_보험_B0M > 0 THEN M11_RP후경과월_보험 = 0
+                      ELSE M11_RP후경과월_보험 = min(M10_RP후경과월_보험 + 1, 6)""",
+    },
+    {
+        "columns": ["M11_RP건수_학습비_B0M", "M10_RP후경과월_학습비"],
+        "output": "M11_RP후경과월_학습비",
+        "fname": "cfs_03_2114",
+        "type": "formula",
+        "content": """IF M11_RP건수_학습비_B0M > 0 THEN M11_RP후경과월_학습비 = 0
+                      ELSE M11_RP후경과월_학습비 = min(M10_RP후경과월_학습비 + 1, 6)""",
+    },
+    {
+        "columns": ["M11_RP건수_유선방송_B0M", "M10_RP후경과월_유선방송"],
+        "output": "M11_RP후경과월_유선방송",
+        "fname": "cfs_03_2115",
+        "type": "formula",
+        "content": """IF M11_RP건수_유선방송_B0M > 0 THEN M11_RP후경과월_유선방송 = 0
+                      ELSE M11_RP후경과월_유선방송 = min(M10_RP후경과월_유선방송 + 1, 6)""",
+    },
+    {
+        "columns": ["M11_RP건수_건강_B0M", "M10_RP후경과월_건강"],
+        "output": "M11_RP후경과월_건강",
+        "fname": "cfs_03_2116",
+        "type": "formula",
+        "content": """IF M11_RP건수_건강_B0M > 0 THEN M11_RP후경과월_건강 = 0
+                      ELSE M11_RP후경과월_건강 = min(M10_RP후경과월_건강 + 1, 6)""",
+    },
+    {
+        "columns": ["M11_RP건수_교통_B0M", "M10_RP후경과월_교통"],
+        "output": "M11_RP후경과월_교통",
+        "fname": "cfs_03_2117",
+        "type": "formula",
+        "content": """IF M11_RP건수_교통_B0M > 0 THEN M11_RP후경과월_교통 = 0
+                      ELSE M11_RP후경과월_교통 = min(M10_RP후경과월_교통 + 1, 6)""",
+    },
+    {
+        "columns": ["M09_승인거절건수_B0M", "M10_승인거절건수_B0M", "M11_승인거절건수_B0M"],
+        "output": "M11_승인거절건수_R3M",
+        "fname": "cfs_03_2291",
+        "type": "formula",
+        "content": "M11_승인거절건수_R3M = M09_승인거절건수_B0M + M10_승인거절건수_B0M + M11_승인거절건수_B0M",
+    },
+    {
+        "columns": ["M09_승인거절건수_한도초과_B0M", "M10_승인거절건수_한도초과_B0M", "M11_승인거절건수_한도초과_B0M"],
+        "output": "M11_승인거절건수_한도초과_R3M",
+        "fname": "cfs_03_2292",
+        "type": "formula",
+        "content": "M11_승인거절건수_한도초과_R3M = M09_승인거절건수_한도초과_B0M + M10_승인거절건수_한도초과_B0M + M11_승인거절건수_한도초과_B0M",
+    },
+    {
+        "columns": ["M09_승인거절건수_BL_B0M", "M10_승인거절건수_BL_B0M", "M11_승인거절건수_BL_B0M"],
+        "output": "M11_승인거절건수_BL_R3M",
+        "fname": "cfs_03_2293",
+        "type": "formula",
+        "content": "M11_승인거절건수_BL_R3M = M09_승인거절건수_BL_B0M + M10_승인거절건수_BL_B0M + M11_승인거절건수_BL_B0M",
+    },
+    {
+        "columns": ["M09_승인거절건수_입력오류_B0M", "M10_승인거절건수_입력오류_B0M", "M11_승인거절건수_입력오류_B0M"],
+        "output": "M11_승인거절건수_입력오류_R3M",
+        "fname": "cfs_03_2294",
+        "type": "formula",
+        "content": "M11_승인거절건수_입력오류_R3M = M09_승인거절건수_입력오류_B0M + M10_승인거절건수_입력오류_B0M + M11_승인거절건수_입력오류_B0M",
+    },
+    {
+        "columns": ["M09_승인거절건수_기타_B0M", "M10_승인거절건수_기타_B0M", "M11_승인거절건수_기타_B0M"],
+        "output": "M11_승인거절건수_기타_R3M",
+        "fname": "cfs_03_2295",
+        "type": "formula",
+        "content": "M11_승인거절건수_기타_R3M = M09_승인거절건수_기타_B0M + M10_승인거절건수_기타_B0M + M11_승인거절건수_기타_B0M",
+    },
+    {
         "columns": ["M11_이용건수_신용_R3M", "M08_이용건수_신용_R3M"],
         "output": "M11_이용건수_신용_R6M",
         "fname": "cfs_03_1924",
@@ -4477,6 +6176,137 @@ constraints = [
         "content": "M11_증감_RP건수_교통_전월 = M10_RP건수_교통_B0M - M11_RP건수_교통_B0M",
     },
     # M12
+    {
+        "columns": ["M12_RP건수_B0M", "M11_RP후경과월"],
+        "output": "M12_RP후경과월",
+        "fname": "cfs_03_2567",
+        "type": "formula",
+        "content": """IF M12_RP건수_B0M > 0 THEN M12_RP후경과월 = 0
+                      ELSE M12_RP후경과월 = min(M11_RP후경과월 + 1, 6)""",
+    },
+    {
+        "columns": ["M12_RP건수_통신_B0M", "M11_RP후경과월_통신"],
+        "output": "M12_RP후경과월_통신",
+        "fname": "cfs_03_2568",
+        "type": "formula",
+        "content": """IF M12_RP건수_통신_B0M > 0 THEN M12_RP후경과월_통신 = 0
+                      ELSE M12_RP후경과월_통신 = min(M11_RP후경과월_통신 + 1, 6)""",
+    },
+    {
+        "columns": ["M12_RP건수_아파트_B0M", "M11_RP후경과월_아파트"],
+        "output": "M12_RP후경과월_아파트",
+        "fname": "cfs_03_2569",
+        "type": "formula",
+        "content": """IF M12_RP건수_아파트_B0M > 0 THEN M12_RP후경과월_아파트 = 0
+                      ELSE M12_RP후경과월_아파트 = min(M11_RP후경과월_아파트 + 1, 6)""",
+    },
+    {
+        "columns": ["M12_RP건수_제휴사서비스직접판매_B0M", "M11_RP후경과월_제휴사서비스직접판매"],
+        "output": "M12_RP후경과월_제휴사서비스직접판매",
+        "fname": "cfs_03_2570",
+        "type": "formula",
+        "content": """IF M12_RP건수_제휴사서비스직접판매_B0M > 0 THEN M12_RP후경과월_제휴사서비스직접판매 = 0
+                      ELSE M12_RP후경과월_제휴사서비스직접판매 = min(M11_RP후경과월_제휴사서비스직접판매 + 1, 6)""",
+    },
+    {
+        "columns": ["M12_RP건수_렌탈_B0M", "M11_RP후경과월_렌탈"],
+        "output": "M12_RP후경과월_렌탈",
+        "fname": "cfs_03_2571",
+        "type": "formula",
+        "content": """IF M12_RP건수_렌탈_B0M > 0 THEN M12_RP후경과월_렌탈 = 0
+                      ELSE M12_RP후경과월_렌탈 = min(M11_RP후경과월_렌탈 + 1, 6)""",
+    },
+    {
+        "columns": ["M12_RP건수_가스_B0M", "M11_RP후경과월_가스"],
+        "output": "M12_RP후경과월_가스",
+        "fname": "cfs_03_2572",
+        "type": "formula",
+        "content": """IF M12_RP건수_가스_B0M > 0 THEN M12_RP후경과월_가스 = 0
+                      ELSE M12_RP후경과월_가스 = min(M11_RP후경과월_가스 + 1, 6)""",
+    },
+    {
+        "columns": ["M12_RP건수_전기_B0M", "M11_RP후경과월_전기"],
+        "output": "M12_RP후경과월_전기",
+        "fname": "cfs_03_2573",
+        "type": "formula",
+        "content": """IF M12_RP건수_전기_B0M > 0 THEN M12_RP후경과월_전기 = 0
+                      ELSE M12_RP후경과월_전기 = min(M11_RP후경과월_전기 + 1, 6)""",
+    },
+    {
+        "columns": ["M12_RP건수_보험_B0M", "M11_RP후경과월_보험"],
+        "output": "M12_RP후경과월_보험",
+        "fname": "cfs_03_2574",
+        "type": "formula",
+        "content": """IF M12_RP건수_보험_B0M > 0 THEN M12_RP후경과월_보험 = 0
+                      ELSE M12_RP후경과월_보험 = min(M11_RP후경과월_보험 + 1, 6)""",
+    },
+    {
+        "columns": ["M12_RP건수_학습비_B0M", "M11_RP후경과월_학습비"],
+        "output": "M12_RP후경과월_학습비",
+        "fname": "cfs_03_2575",
+        "type": "formula",
+        "content": """IF M12_RP건수_학습비_B0M > 0 THEN M12_RP후경과월_학습비 = 0
+                      ELSE M12_RP후경과월_학습비 = min(M11_RP후경과월_학습비 + 1, 6)""",
+    },
+    {
+        "columns": ["M12_RP건수_유선방송_B0M", "M11_RP후경과월_유선방송"],
+        "output": "M12_RP후경과월_유선방송",
+        "fname": "cfs_03_2576",
+        "type": "formula",
+        "content": """IF M12_RP건수_유선방송_B0M > 0 THEN M12_RP후경과월_유선방송 = 0
+                      ELSE M12_RP후경과월_유선방송 = min(M11_RP후경과월_유선방송 + 1, 6)""",
+    },
+    {
+        "columns": ["M12_RP건수_건강_B0M", "M11_RP후경과월_건강"],
+        "output": "M12_RP후경과월_건강",
+        "fname": "cfs_03_2577",
+        "type": "formula",
+        "content": """IF M12_RP건수_건강_B0M > 0 THEN M12_RP후경과월_건강 = 0
+                      ELSE M12_RP후경과월_건강 = min(M11_RP후경과월_건강 + 1, 6)""",
+    },
+    {
+        "columns": ["M12_RP건수_교통_B0M", "M11_RP후경과월_교통"],
+        "output": "M12_RP후경과월_교통",
+        "fname": "cfs_03_2578",
+        "type": "formula",
+        "content": """IF M12_RP건수_교통_B0M > 0 THEN M12_RP후경과월_교통 = 0
+                      ELSE M12_RP후경과월_교통 = min(M11_RP후경과월_교통 + 1, 6)""",
+    },
+    {
+        "columns": ["M10_승인거절건수_B0M", "M11_승인거절건수_B0M", "M12_승인거절건수_B0M"],
+        "output": "M12_승인거절건수_R3M",
+        "fname": "cfs_03_2752",
+        "type": "formula",
+        "content": "M12_승인거절건수_R3M = M10_승인거절건수_B0M + M11_승인거절건수_B0M + M12_승인거절건수_B0M",
+    },
+    {
+        "columns": ["M10_승인거절건수_한도초과_B0M", "M11_승인거절건수_한도초과_B0M", "M12_승인거절건수_한도초과_B0M"],
+        "output": "M12_승인거절건수_한도초과_R3M",
+        "fname": "cfs_03_2753",
+        "type": "formula",
+        "content": "M12_승인거절건수_한도초과_R3M = M10_승인거절건수_한도초과_B0M + M11_승인거절건수_한도초과_B0M + M12_승인거절건수_한도초과_B0M",
+    },
+    {
+        "columns": ["M10_승인거절건수_BL_B0M", "M11_승인거절건수_BL_B0M", "M12_승인거절건수_BL_B0M"],
+        "output": "M12_승인거절건수_BL_R3M",
+        "fname": "cfs_03_2754",
+        "type": "formula",
+        "content": "M12_승인거절건수_BL_R3M = M10_승인거절건수_BL_B0M + M11_승인거절건수_BL_B0M + M12_승인거절건수_BL_B0M",
+    },
+    {
+        "columns": ["M10_승인거절건수_입력오류_B0M", "M11_승인거절건수_입력오류_B0M", "M12_승인거절건수_입력오류_B0M"],
+        "output": "M12_승인거절건수_입력오류_R3M",
+        "fname": "cfs_03_2755",
+        "type": "formula",
+        "content": "M12_승인거절건수_입력오류_R3M = M10_승인거절건수_입력오류_B0M + M11_승인거절건수_입력오류_B0M + M12_승인거절건수_입력오류_B0M",
+    },
+    {
+        "columns": ["M10_승인거절건수_기타_B0M", "M11_승인거절건수_기타_B0M", "M12_승인거절건수_기타_B0M"],
+        "output": "M12_승인거절건수_기타_R3M",
+        "fname": "cfs_03_2756",
+        "type": "formula",
+        "content": "M12_승인거절건수_기타_R3M = M10_승인거절건수_기타_B0M + M11_승인거절건수_기타_B0M + M12_승인거절건수_기타_B0M",
+    },
     {
         "columns": ["M12_이용건수_신용_R3M", "M09_이용건수_신용_R3M"],
         "output": "M12_이용건수_신용_R6M",
@@ -5587,6 +7417,212 @@ constraints = [
 # cf: check formula
 
 
+# 01_Constraints
+@constraint_udf
+def ccs_01_0115(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        M07_탈회횟수_누적 <= M08_탈회횟수_누적
+    """
+    c1, c2 = df["M07_탈회횟수_누적"], df["M08_탈회횟수_누적"]
+    return c1 <= c2
+
+
+@constraint_udf
+def ccs_01_0117(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        M07_탈회횟수_발급6개월이내 <= M08_탈회횟수_발급6개월이내
+    """
+    c1, c2 = df["M07_탈회횟수_발급6개월이내"], df["M08_탈회횟수_발급6개월이내"]
+    return c1 <= c2
+
+
+@constraint_udf
+def ccs_01_0118(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        M07_탈회횟수_발급1년이내 <= M08_탈회횟수_발급1년이내
+    """
+    c1, c2 = df["M07_탈회횟수_발급1년이내"], df["M08_탈회횟수_발급1년이내"]
+    return c1 <= c2
+
+
+@constraint_udf
+def ccs_01_0154(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        M07_최종카드발급일자 <= M08_최종카드발급일자
+    """
+    dd = df[["M07_최종카드발급일자", "M08_최종카드발급일자"]]
+    res = dd.apply(lambda x: x[0] <= x[1] if (not isNaN(x[0])) & (not isNaN(x[1])) else True, axis=1)
+    return res
+
+
+@constraint_udf
+def ccs_01_0204(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        M08_탈회횟수_누적 <= M09_탈회횟수_누적
+    """
+    c1, c2 = df["M08_탈회횟수_누적"], df["M09_탈회횟수_누적"]
+    return c1 <= c2
+
+
+@constraint_udf
+def ccs_01_0206(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        M08_탈회횟수_발급6개월이내 <= M09_탈회횟수_발급6개월이내
+    """
+    c1, c2 = df["M08_탈회횟수_발급6개월이내"], df["M09_탈회횟수_발급6개월이내"]
+    return c1 <= c2
+
+
+@constraint_udf
+def ccs_01_0207(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        M08_탈회횟수_발급1년이내 <= M09_탈회횟수_발급1년이내
+    """
+    c1, c2 = df["M08_탈회횟수_발급1년이내"], df["M09_탈회횟수_발급1년이내"]
+    return c1 <= c2
+
+
+@constraint_udf
+def ccs_01_0243(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        M08_최종카드발급일자 <= M09_최종카드발급일자
+    """
+    dd = df[["M08_최종카드발급일자", "M09_최종카드발급일자"]]
+    res = dd.apply(lambda x: x[0] <= x[1] if (not isNaN(x[0])) & (not isNaN(x[1])) else True, axis=1)
+    return res
+
+
+@constraint_udf
+def ccs_01_0293(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        M09_탈회횟수_누적 <= M10_탈회횟수_누적
+    """
+    c1, c2 = df["M09_탈회횟수_누적"], df["M10_탈회횟수_누적"]
+    return c1 <= c2
+
+
+@constraint_udf
+def ccs_01_0295(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        M09_탈회횟수_발급6개월이내 <= M10_탈회횟수_발급6개월이내
+    """
+    c1, c2 = df["M09_탈회횟수_발급6개월이내"], df["M10_탈회횟수_발급6개월이내"]
+    return c1 <= c2
+
+
+@constraint_udf
+def ccs_01_0296(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        M09_탈회횟수_발급1년이내 <= M10_탈회횟수_발급1년이내
+    """
+    c1, c2 = df["M09_탈회횟수_발급1년이내"], df["M10_탈회횟수_발급1년이내"]
+    return c1 <= c2
+
+
+@constraint_udf
+def ccs_01_0332(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        M09_최종카드발급일자 <= M10_최종카드발급일자
+    """
+    dd = df[["M09_최종카드발급일자", "M10_최종카드발급일자"]]
+    res = dd.apply(lambda x: x[0] <= x[1] if (not isNaN(x[0])) & (not isNaN(x[1])) else True, axis=1)
+    return res
+
+
+@constraint_udf
+def ccs_01_0382(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        M10_탈회횟수_누적 <= M11_탈회횟수_누적
+    """
+    c1, c2 = df["M10_탈회횟수_누적"], df["M11_탈회횟수_누적"]
+    return c1 <= c2
+
+
+@constraint_udf
+def ccs_01_0384(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        M10_탈회횟수_발급6개월이내 <= M11_탈회횟수_발급6개월이내
+    """
+    c1, c2 = df["M10_탈회횟수_발급6개월이내"], df["M11_탈회횟수_발급6개월이내"]
+    return c1 <= c2
+
+
+@constraint_udf
+def ccs_01_0385(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        M10_탈회횟수_발급1년이내 <= M11_탈회횟수_발급1년이내
+    """
+    c1, c2 = df["M10_탈회횟수_발급1년이내"], df["M11_탈회횟수_발급1년이내"]
+    return c1 <= c2
+
+
+@constraint_udf
+def ccs_01_0421(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        M10_최종카드발급일자 <= M11_최종카드발급일자
+    """
+    dd = df[["M10_최종카드발급일자", "M11_최종카드발급일자"]]
+    res = dd.apply(lambda x: x[0] <= x[1] if (not isNaN(x[0])) & (not isNaN(x[1])) else True, axis=1)
+    return res
+
+
+@constraint_udf
+def ccs_01_0471(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        M11_탈회횟수_누적 <= M12_탈회횟수_누적
+    """
+    c1, c2 = df["M11_탈회횟수_누적"], df["M12_탈회횟수_누적"]
+    return c1 <= c2
+
+
+@constraint_udf
+def ccs_01_0473(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        M11_탈회횟수_발급6개월이내 <= M12_탈회횟수_발급6개월이내
+    """
+    c1, c2 = df["M11_탈회횟수_발급6개월이내"], df["M12_탈회횟수_발급6개월이내"]
+    return c1 <= c2
+
+
+@constraint_udf
+def ccs_01_0474(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        M11_탈회횟수_발급1년이내 <= M12_탈회횟수_발급1년이내
+    """
+    c1, c2 = df["M11_탈회횟수_발급1년이내"], df["M12_탈회횟수_발급1년이내"]
+    return c1 <= c2
+
+
+@constraint_udf
+def ccs_01_0510(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        M11_최종카드발급일자 <= M12_최종카드발급일자
+    """
+    dd = df[["M11_최종카드발급일자", "M12_최종카드발급일자"]]
+    res = dd.apply(lambda x: x[0] <= x[1] if (not isNaN(x[0])) & (not isNaN(x[1])) else True, axis=1)
+    return res
+
+
 # 01_M08
 @constraint_udf
 def cfs_01_0092(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
@@ -6152,6 +8188,62 @@ def cfs_01_0472(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     return c == res
 
 
+# 02_Constraints
+@constraint_udf
+def ccs_02_0066(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        M07_RV신청일자 <= M08_RV신청일자
+    """
+    dd = df[["M07_RV신청일자", "M08_RV신청일자"]]
+    res = dd.apply(lambda x: x[0] <= x[1] if (not isNaN(x[0])) & (not isNaN(x[1])) else True, axis=1)
+    return res
+
+
+@constraint_udf
+def ccs_02_0120(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        M08_RV신청일자 <= M09_RV신청일자
+    """
+    dd = df[["M08_RV신청일자", "M09_RV신청일자"]]
+    res = dd.apply(lambda x: x[0] <= x[1] if (not isNaN(x[0])) & (not isNaN(x[1])) else True, axis=1)
+    return res
+
+
+@constraint_udf
+def ccs_02_0174(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        M09_RV신청일자 <= M10_RV신청일자
+    """
+    dd = df[["M09_RV신청일자", "M10_RV신청일자"]]
+    res = dd.apply(lambda x: x[0] <= x[1] if (not isNaN(x[0])) & (not isNaN(x[1])) else True, axis=1)
+    return res
+
+
+@constraint_udf
+def ccs_02_0228(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        M10_RV신청일자 <= M11_RV신청일자
+    """
+    dd = df[["M10_RV신청일자", "M11_RV신청일자"]]
+    res = dd.apply(lambda x: x[0] <= x[1] if (not isNaN(x[0])) & (not isNaN(x[1])) else True, axis=1)
+    return res
+
+
+@constraint_udf
+def ccs_02_0282(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        M11_RV신청일자 <= M12_RV신청일자
+    """
+    dd = df[["M11_RV신청일자", "M12_RV신청일자"]]
+    res = dd.apply(lambda x: x[0] <= x[1] if (not isNaN(x[0])) & (not isNaN(x[1])) else True, axis=1)
+    return res
+
+
 # 02_M08
 @constraint_udf
 def cfs_02_0057(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
@@ -6162,6 +8254,81 @@ def cfs_02_0057(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     res = df["M07_최초한도금액"]
 
     c = df["M08_최초한도금액"]
+    return c == res
+
+
+@constraint_udf
+def cfs_02_0071(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M08_자발한도감액횟수_R12M == 0 THEN M08_자발한도감액후경과월 = 12
+        ELIF M08_자발한도감액횟수_R12M > M07_자발한도감액횟수_R12M THEN M08_자발한도감액후경과월 = 0
+        ELSE M08_자발한도감액후경과월 =  M07_자발한도감액후경과월 + 1
+    """
+    dd = df[["M08_자발한도감액횟수_R12M", "M07_자발한도감액횟수_R12M", "M07_자발한도감액후경과월"]]
+    res = dd.apply(lambda x: 12 if x[0] == 0 else (0 if x[0] > x[1] else x[2] + 1), axis=1)
+
+    c = df["M08_자발한도감액후경과월"]
+    return c == res
+
+
+@constraint_udf
+def cfs_02_0074(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M08_강제한도감액횟수_R12M == 0 THEN M08_강제한도감액후경과월 = 12
+        ELIF M08_강제한도감액횟수_R12M > M07_강제한도감액횟수_R12M THEN M08_강제한도감액후경과월 = 0
+        ELSE M08_강제한도감액후경과월 =  M07_강제한도감액후경과월 + 1
+    """
+    dd = df[["M08_강제한도감액횟수_R12M", "M07_강제한도감액횟수_R12M", "M07_강제한도감액후경과월"]]
+    res = dd.apply(lambda x: 12 if x[0] == 0 else (0 if x[0] > x[1] else x[2] + 1), axis=1)
+
+    c = df["M08_강제한도감액후경과월"]
+    return c == res
+
+
+@constraint_udf
+def cfs_02_0077(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M08_한도증액횟수_R12M == 0 THEN M08_한도증액후경과월 = 12
+        ELIF M08_한도증액횟수_R12M > M07_한도증액횟수_R12M THEN M08_한도증액후경과월 = 0
+        ELSE M08_한도증액후경과월 =  M07_한도증액후경과월 + 1
+    """
+    dd = df[["M08_한도증액횟수_R12M", "M07_한도증액횟수_R12M", "M07_한도증액후경과월"]]
+    res = dd.apply(lambda x: 12 if x[0] == 0 else (0 if x[0] > x[1] else x[2] + 1), axis=1)
+
+    c = df["M08_한도증액후경과월"]
+    return c == res
+
+
+@constraint_udf
+def cfs_02_0091(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M08_한도심사요청건수 == 0 THEN M08_한도심사요청후경과월 = 3
+        ELIF M08_한도심사요청건수 > M07_한도심사요청건수 THEN M08_한도심사요청후경과월 = 0
+        ELSE M08_한도심사요청후경과월 =  M07_한도심사요청후경과월 + 1
+    """
+    dd = df[["M08_한도심사요청건수", "M07_한도심사요청건수", "M07_한도심사요청후경과월"]]
+    res = dd.apply(lambda x: 3 if x[0] == 0 else (0 if x[0] > x[1] else x[2] + 1), axis=1)
+
+    c = df["M08_한도심사요청후경과월"]
+    return c == res
+
+
+@constraint_udf
+def cfs_02_0092(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M08_한도요청거절건수 == 0 THEN M08_한도심사거절후경과월 = 3
+        ELIF M08_한도요청거절건수 > M07_한도요청거절건수 THEN M08_한도심사거절후경과월 = 0
+        ELSE M08_한도심사거절후경과월 =  M07_한도심사거절후경과월 + 1
+    """
+    dd = df[["M08_한도요청거절건수", "M07_한도요청거절건수", "M07_한도심사거절후경과월"]]
+    res = dd.apply(lambda x: 3 if x[0] == 0 else (0 if x[0] > x[1] else x[2] + 1), axis=1)
+
+    c = df["M08_한도심사거절후경과월"]
     return c == res
 
 
@@ -6191,6 +8358,81 @@ def cfs_02_0111(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
 
 
 @constraint_udf
+def cfs_02_0125(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M09_자발한도감액횟수_R12M == 0 THEN M09_자발한도감액후경과월 = 12
+        ELIF M09_자발한도감액횟수_R12M > M08_자발한도감액횟수_R12M THEN M09_자발한도감액후경과월 = 0
+        ELSE M09_자발한도감액후경과월 =  M08_자발한도감액후경과월 + 1
+    """
+    dd = df[["M09_자발한도감액횟수_R12M", "M08_자발한도감액횟수_R12M", "M08_자발한도감액후경과월"]]
+    res = dd.apply(lambda x: 12 if x[0] == 0 else (0 if x[0] > x[1] else x[2] + 1), axis=1)
+
+    c = df["M09_자발한도감액후경과월"]
+    return c == res
+
+
+@constraint_udf
+def cfs_02_0128(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M09_강제한도감액횟수_R12M == 0 THEN M09_강제한도감액후경과월 = 12
+        ELIF M09_강제한도감액횟수_R12M > M08_강제한도감액횟수_R12M THEN M09_강제한도감액후경과월 = 0
+        ELSE M09_강제한도감액후경과월 =  M08_강제한도감액후경과월 + 1
+    """
+    dd = df[["M09_강제한도감액횟수_R12M", "M08_강제한도감액횟수_R12M", "M08_강제한도감액후경과월"]]
+    res = dd.apply(lambda x: 12 if x[0] == 0 else (0 if x[0] > x[1] else x[2] + 1), axis=1)
+
+    c = df["M09_강제한도감액후경과월"]
+    return c == res
+
+
+@constraint_udf
+def cfs_02_0131(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M09_한도증액횟수_R12M == 0 THEN M09_한도증액후경과월 = 12
+        ELIF M09_한도증액횟수_R12M > M08_한도증액횟수_R12M THEN M09_한도증액후경과월 = 0
+        ELSE M09_한도증액후경과월 =  M08_한도증액후경과월 + 1
+    """
+    dd = df[["M09_한도증액횟수_R12M", "M08_한도증액횟수_R12M", "M08_한도증액후경과월"]]
+    res = dd.apply(lambda x: 12 if x[0] == 0 else (0 if x[0] > x[1] else x[2] + 1), axis=1)
+
+    c = df["M09_한도증액후경과월"]
+    return c == res
+
+
+@constraint_udf
+def cfs_02_0145(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M09_한도심사요청건수 == 0 THEN M09_한도심사요청후경과월 = 3
+        ELIF M09_한도심사요청건수 > M08_한도심사요청건수 THEN M09_한도심사요청후경과월 = 0
+        ELSE M09_한도심사요청후경과월 =  M08_한도심사요청후경과월 + 1
+    """
+    dd = df[["M09_한도심사요청건수", "M08_한도심사요청건수", "M08_한도심사요청후경과월"]]
+    res = dd.apply(lambda x: 3 if x[0] == 0 else (0 if x[0] > x[1] else x[2] + 1), axis=1)
+
+    c = df["M09_한도심사요청후경과월"]
+    return c == res
+
+
+@constraint_udf
+def cfs_02_0146(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M09_한도요청거절건수 == 0 THEN M09_한도심사거절후경과월 = 3
+        ELIF M09_한도요청거절건수 > M08_한도요청거절건수 THEN M09_한도심사거절후경과월 = 0
+        ELSE M09_한도심사거절후경과월 =  M08_한도심사거절후경과월 + 1
+    """
+    dd = df[["M09_한도요청거절건수", "M08_한도요청거절건수", "M08_한도심사거절후경과월"]]
+    res = dd.apply(lambda x: 3 if x[0] == 0 else (0 if x[0] > x[1] else x[2] + 1), axis=1)
+
+    c = df["M09_한도심사거절후경과월"]
+    return c == res
+
+
+@constraint_udf
 def cfs_02_0139(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     """
     formula:
@@ -6212,6 +8454,81 @@ def cfs_02_0165(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     res = df["M07_최초한도금액"]
 
     c = df["M10_최초한도금액"]
+    return c == res
+
+
+@constraint_udf
+def cfs_02_0179(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M10_자발한도감액횟수_R12M == 0 THEN M10_자발한도감액후경과월 = 12
+        ELIF M10_자발한도감액횟수_R12M > M09_자발한도감액횟수_R12M THEN M10_자발한도감액후경과월 = 0
+        ELSE M10_자발한도감액후경과월 =  M09_자발한도감액후경과월 + 1
+    """
+    dd = df[["M10_자발한도감액횟수_R12M", "M09_자발한도감액횟수_R12M", "M09_자발한도감액후경과월"]]
+    res = dd.apply(lambda x: 12 if x[0] == 0 else (0 if x[0] > x[1] else x[2] + 1), axis=1)
+
+    c = df["M10_자발한도감액후경과월"]
+    return c == res
+
+
+@constraint_udf
+def cfs_02_0182(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M10_강제한도감액횟수_R12M == 0 THEN M10_강제한도감액후경과월 = 12
+        ELIF M10_강제한도감액횟수_R12M > M09_강제한도감액횟수_R12M THEN M10_강제한도감액후경과월 = 0
+        ELSE M10_강제한도감액후경과월 =  M09_강제한도감액후경과월 + 1
+    """
+    dd = df[["M10_강제한도감액횟수_R12M", "M09_강제한도감액횟수_R12M", "M09_강제한도감액후경과월"]]
+    res = dd.apply(lambda x: 12 if x[0] == 0 else (0 if x[0] > x[1] else x[2] + 1), axis=1)
+
+    c = df["M10_강제한도감액후경과월"]
+    return c == res
+
+
+@constraint_udf
+def cfs_02_0185(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M10_한도증액횟수_R12M == 0 THEN M10_한도증액후경과월 = 12
+        ELIF M10_한도증액횟수_R12M > M09_한도증액횟수_R12M THEN M10_한도증액후경과월 = 0
+        ELSE M10_한도증액후경과월 =  M09_한도증액후경과월 + 1
+    """
+    dd = df[["M10_한도증액횟수_R12M", "M09_한도증액횟수_R12M", "M09_한도증액후경과월"]]
+    res = dd.apply(lambda x: 12 if x[0] == 0 else (0 if x[0] > x[1] else x[2] + 1), axis=1)
+
+    c = df["M10_한도증액후경과월"]
+    return c == res
+
+
+@constraint_udf
+def cfs_02_0199(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M10_한도심사요청건수 == 0 THEN M10_한도심사요청후경과월 = 3
+        ELIF M10_한도심사요청건수 > M09_한도심사요청건수 THEN M10_한도심사요청후경과월 = 0
+        ELSE M10_한도심사요청후경과월 =  M09_한도심사요청후경과월 + 1
+    """
+    dd = df[["M10_한도심사요청건수", "M09_한도심사요청건수", "M09_한도심사요청후경과월"]]
+    res = dd.apply(lambda x: 3 if x[0] == 0 else (0 if x[0] > x[1] else x[2] + 1), axis=1)
+
+    c = df["M10_한도심사요청후경과월"]
+    return c == res
+
+
+@constraint_udf
+def cfs_02_0200(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M10_한도요청거절건수 == 0 THEN M10_한도심사거절후경과월 = 3
+        ELIF M10_한도요청거절건수 > M09_한도요청거절건수 THEN M10_한도심사거절후경과월 = 0
+        ELSE M10_한도심사거절후경과월 =  M09_한도심사거절후경과월 + 1
+    """
+    dd = df[["M10_한도요청거절건수", "M09_한도요청거절건수", "M09_한도심사거절후경과월"]]
+    res = dd.apply(lambda x: 3 if x[0] == 0 else (0 if x[0] > x[1] else x[2] + 1), axis=1)
+
+    c = df["M10_한도심사거절후경과월"]
     return c == res
 
 
@@ -6241,6 +8558,81 @@ def cfs_02_0219(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
 
 
 @constraint_udf
+def cfs_02_0233(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M11_자발한도감액횟수_R12M == 0 THEN M11_자발한도감액후경과월 = 12
+        ELIF M11_자발한도감액횟수_R12M > M10_자발한도감액횟수_R12M THEN M11_자발한도감액후경과월 = 0
+        ELSE M11_자발한도감액후경과월 =  M10_자발한도감액후경과월 + 1
+    """
+    dd = df[["M11_자발한도감액횟수_R12M", "M10_자발한도감액횟수_R12M", "M10_자발한도감액후경과월"]]
+    res = dd.apply(lambda x: 12 if x[0] == 0 else (0 if x[0] > x[1] else x[2] + 1), axis=1)
+
+    c = df["M11_자발한도감액후경과월"]
+    return c == res
+
+
+@constraint_udf
+def cfs_02_0236(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M11_강제한도감액횟수_R12M == 0 THEN M11_강제한도감액후경과월 = 12
+        ELIF M11_강제한도감액횟수_R12M > M10_강제한도감액횟수_R12M THEN M11_강제한도감액후경과월 = 0
+        ELSE M11_강제한도감액후경과월 =  M10_강제한도감액후경과월 + 1
+    """
+    dd = df[["M11_강제한도감액횟수_R12M", "M10_강제한도감액횟수_R12M", "M10_강제한도감액후경과월"]]
+    res = dd.apply(lambda x: 12 if x[0] == 0 else (0 if x[0] > x[1] else x[2] + 1), axis=1)
+
+    c = df["M11_강제한도감액후경과월"]
+    return c == res
+
+
+@constraint_udf
+def cfs_02_0239(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M11_한도증액횟수_R12M == 0 THEN M11_한도증액후경과월 = 12
+        ELIF M11_한도증액횟수_R12M > M10_한도증액횟수_R12M THEN M11_한도증액후경과월 = 0
+        ELSE M11_한도증액후경과월 =  M10_한도증액후경과월 + 1
+    """
+    dd = df[["M11_한도증액횟수_R12M", "M10_한도증액횟수_R12M", "M10_한도증액후경과월"]]
+    res = dd.apply(lambda x: 12 if x[0] == 0 else (0 if x[0] > x[1] else x[2] + 1), axis=1)
+
+    c = df["M11_한도증액후경과월"]
+    return c == res
+
+
+@constraint_udf
+def cfs_02_0253(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M11_한도심사요청건수 == 0 THEN M11_한도심사요청후경과월 = 3
+        ELIF M11_한도심사요청건수 > M10_한도심사요청건수 THEN M11_한도심사요청후경과월 = 0
+        ELSE M11_한도심사요청후경과월 =  M10_한도심사요청후경과월 + 1
+    """
+    dd = df[["M11_한도심사요청건수", "M10_한도심사요청건수", "M10_한도심사요청후경과월"]]
+    res = dd.apply(lambda x: 3 if x[0] == 0 else (0 if x[0] > x[1] else x[2] + 1), axis=1)
+
+    c = df["M11_한도심사요청후경과월"]
+    return c == res
+
+
+@constraint_udf
+def cfs_02_0254(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M11_한도요청거절건수 == 0 THEN M11_한도심사거절후경과월 = 3
+        ELIF M11_한도요청거절건수 > M10_한도요청거절건수 THEN M11_한도심사거절후경과월 = 0
+        ELSE M11_한도심사거절후경과월 =  M10_한도심사거절후경과월 + 1
+    """
+    dd = df[["M11_한도요청거절건수", "M10_한도요청거절건수", "M10_한도심사거절후경과월"]]
+    res = dd.apply(lambda x: 3 if x[0] == 0 else (0 if x[0] > x[1] else x[2] + 1), axis=1)
+
+    c = df["M11_한도심사거절후경과월"]
+    return c == res
+
+
+@constraint_udf
 def cfs_02_0247(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     """
     formula:
@@ -6262,6 +8654,81 @@ def cfs_02_0273(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     res = df["M07_최초한도금액"]
 
     c = df["M12_최초한도금액"]
+    return c == res
+
+
+@constraint_udf
+def cfs_02_0287(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M12_자발한도감액횟수_R12M == 0 THEN M12_자발한도감액후경과월 = 12
+        ELIF M12_자발한도감액횟수_R12M > M11_자발한도감액횟수_R12M THEN M12_자발한도감액후경과월 = 0
+        ELSE M12_자발한도감액후경과월 =  M11_자발한도감액후경과월 + 1
+    """
+    dd = df[["M12_자발한도감액횟수_R12M", "M11_자발한도감액횟수_R12M", "M11_자발한도감액후경과월"]]
+    res = dd.apply(lambda x: 12 if x[0] == 0 else (0 if x[0] > x[1] else x[2] + 1), axis=1)
+
+    c = df["M12_자발한도감액후경과월"]
+    return c == res
+
+
+@constraint_udf
+def cfs_02_0290(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M12_강제한도감액횟수_R12M == 0 THEN M12_강제한도감액후경과월 = 12
+        ELIF M12_강제한도감액횟수_R12M > M11_강제한도감액횟수_R12M THEN M12_강제한도감액후경과월 = 0
+        ELSE M12_강제한도감액후경과월 =  M11_강제한도감액후경과월 + 1
+    """
+    dd = df[["M12_강제한도감액횟수_R12M", "M11_강제한도감액횟수_R12M", "M11_강제한도감액후경과월"]]
+    res = dd.apply(lambda x: 12 if x[0] == 0 else (0 if x[0] > x[1] else x[2] + 1), axis=1)
+
+    c = df["M12_강제한도감액후경과월"]
+    return c == res
+
+
+@constraint_udf
+def cfs_02_0293(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M12_한도증액횟수_R12M == 0 THEN M12_한도증액후경과월 = 12
+        ELIF M12_한도증액횟수_R12M > M11_한도증액횟수_R12M THEN M12_한도증액후경과월 = 0
+        ELSE M12_한도증액후경과월 =  M11_한도증액후경과월 + 1
+    """
+    dd = df[["M12_한도증액횟수_R12M", "M11_한도증액횟수_R12M", "M11_한도증액후경과월"]]
+    res = dd.apply(lambda x: 12 if x[0] == 0 else (0 if x[0] > x[1] else x[2] + 1), axis=1)
+
+    c = df["M12_한도증액후경과월"]
+    return c == res
+
+
+@constraint_udf
+def cfs_02_0307(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M12_한도심사요청건수 == 0 THEN M12_한도심사요청후경과월 = 3
+        ELIF M12_한도심사요청건수 > M11_한도심사요청건수 THEN M12_한도심사요청후경과월 = 0
+        ELSE M12_한도심사요청후경과월 =  M11_한도심사요청후경과월 + 1
+    """
+    dd = df[["M12_한도심사요청건수", "M11_한도심사요청건수", "M11_한도심사요청후경과월"]]
+    res = dd.apply(lambda x: 3 if x[0] == 0 else (0 if x[0] > x[1] else x[2] + 1), axis=1)
+
+    c = df["M12_한도심사요청후경과월"]
+    return c == res
+
+
+@constraint_udf
+def cfs_02_0308(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M12_한도요청거절건수 == 0 THEN M12_한도심사거절후경과월 = 12
+        ELIF M12_한도요청거절건수 > M11_한도요청거절건수 THEN M12_한도심사거절후경과월 = 0
+        ELSE M12_한도심사거절후경과월 =  M11_한도심사거절후경과월 + 1
+    """
+    dd = df[["M12_한도요청거절건수", "M11_한도요청거절건수", "M11_한도심사거절후경과월"]]
+    res = dd.apply(lambda x: 3 if x[0] == 0 else (0 if x[0] > x[1] else x[2] + 1), axis=1)
+
+    c = df["M12_한도심사거절후경과월"]
     return c == res
 
 
@@ -7108,7 +9575,38 @@ def cfs_04_0294(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     return c == res
 
 
+# 05_M07
+@constraint_udf
+def cfs_05_0013(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M07_잔액_카드론_B0M >0 THEN M07_카드론잔액_최종경과월 = 0 ELSE pass
+    """
+    dd = df[["M07_잔액_카드론_B0M", "M07_카드론잔액_최종경과월"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else x[1], axis=1)
+
+    c = df["M07_카드론잔액_최종경과월"]
+    return c == res
+
+
 # 05_M08
+@constraint_udf
+def cfs_05_0114(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M08_잔액_카드론_B0M>0 THEN M08_카드론잔액_최종경과월 = 0
+        ELIF (M08_잔액_카드론_B0M==0 & M07_잔액_카드론_B0M==0) THEN M08_카드론잔액_최종경과월 = 0
+        ELIF (M08_잔액_카드론_B0M==0 & M07_잔액_카드론_B0M>0) THEN M08_카드론잔액_최종경과월 = 1
+        ELSE M08_카드론잔액_최종경과월 = M07_카드론잔액_최종경과월 + 1
+    """
+    dd = df[["M08_잔액_카드론_B0M", "M07_잔액_카드론_B0M", "M07_카드론잔액_최종경과월"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else (0 if (x[0] == 0) & (x[1] == 0)
+                   else (1 if (x[0] == 0) & (x[1] > 0) else x[2] + 1)), axis=1)
+
+    c = df["M08_카드론잔액_최종경과월"]
+    return c == res
+
+
 @constraint_udf
 def cfs_05_0123(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     """
@@ -7219,6 +9717,23 @@ def cfs_05_0136(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
 
 # 05_M09
 @constraint_udf
+def cfs_05_0215(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M09_잔액_카드론_B0M>0 THEN M09_카드론잔액_최종경과월 = 0
+        ELIF (M09_잔액_카드론_B0M==0 & M08_잔액_카드론_B0M==0) THEN M09_카드론잔액_최종경과월 = 0
+        ELIF (M09_잔액_카드론_B0M==0 & M08_잔액_카드론_B0M>0) THEN M09_카드론잔액_최종경과월 = 1
+        ELSE M09_카드론잔액_최종경과월 = M08_카드론잔액_최종경과월 + 1
+    """
+    dd = df[["M09_잔액_카드론_B0M", "M08_잔액_카드론_B0M", "M08_카드론잔액_최종경과월"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else (0 if (x[0] == 0) & (x[1] == 0)
+                   else (1 if (x[0] == 0) & (x[1] > 0) else x[2] + 1)), axis=1)
+
+    c = df["M09_카드론잔액_최종경과월"]
+    return c == res
+
+
+@constraint_udf
 def cfs_05_0224(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     """
     formula:
@@ -7327,6 +9842,23 @@ def cfs_05_0237(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
 
 
 # 05_M10
+@constraint_udf
+def cfs_05_0316(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M10_잔액_카드론_B0M>0 THEN M10_카드론잔액_최종경과월 = 0
+        ELIF (M10_잔액_카드론_B0M==0 & M09_잔액_카드론_B0M==0) THEN M10_카드론잔액_최종경과월 = 0
+        ELIF (M10_잔액_카드론_B0M==0 & M09_잔액_카드론_B0M>0) THEN M10_카드론잔액_최종경과월 = 1
+        ELSE M10_카드론잔액_최종경과월 = M09_카드론잔액_최종경과월 + 1
+    """
+    dd = df[["M10_잔액_카드론_B0M", "M09_잔액_카드론_B0M", "M09_카드론잔액_최종경과월"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else (0 if (x[0] == 0) & (x[1] == 0)
+                   else (1 if (x[0] == 0) & (x[1] > 0) else x[2] + 1)), axis=1)
+
+    c = df["M10_카드론잔액_최종경과월"]
+    return c == res
+
+
 @constraint_udf
 def cfs_05_0325(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     """
@@ -7476,6 +10008,23 @@ def cfs_05_0357(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
 
 # 05_M11
 @constraint_udf
+def cfs_05_0417(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M11_잔액_카드론_B0M>0 THEN M11_카드론잔액_최종경과월 = 0
+        ELIF (M11_잔액_카드론_B0M==0 & M10_잔액_카드론_B0M==0) THEN M11_카드론잔액_최종경과월 = 0
+        ELIF (M11_잔액_카드론_B0M==0 & M10_잔액_카드론_B0M>0) THEN M11_카드론잔액_최종경과월 = 1
+        ELSE M11_카드론잔액_최종경과월 = M10_카드론잔액_최종경과월 + 1
+    """
+    dd = df[["M11_잔액_카드론_B0M", "M10_잔액_카드론_B0M", "M10_카드론잔액_최종경과월"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else (0 if (x[0] == 0) & (x[1] == 0)
+                   else (1 if (x[0] == 0) & (x[1] > 0) else x[2] + 1)), axis=1)
+
+    c = df["M11_카드론잔액_최종경과월"]
+    return c == res
+
+
+@constraint_udf
 def cfs_05_0426(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     """
     formula:
@@ -7624,6 +10173,23 @@ def cfs_05_0458(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
 
 # 05_M12
 @constraint_udf
+def cfs_05_0518(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M12_잔액_카드론_B0M>0 THEN M12_카드론잔액_최종경과월 = 0
+        ELIF (M12_잔액_카드론_B0M==0 & M11_잔액_카드론_B0M==0) THEN M12_카드론잔액_최종경과월 = 0
+        ELIF (M12_잔액_카드론_B0M==0 & M11_잔액_카드론_B0M>0) THEN M12_카드론잔액_최종경과월 = 1
+        ELSE M12_카드론잔액_최종경과월 = M11_카드론잔액_최종경과월 + 1
+    """
+    dd = df[["M12_잔액_카드론_B0M", "M11_잔액_카드론_B0M", "M11_카드론잔액_최종경과월"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else (0 if (x[0] == 0) & (x[1] == 0)
+                   else (1 if (x[0] == 0) & (x[1] > 0) else x[2] + 1)), axis=1)
+
+    c = df["M12_카드론잔액_최종경과월"]
+    return c == res
+
+
+@constraint_udf
 def cfs_05_0527(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     """
     formula:
@@ -7770,7 +10336,419 @@ def cfs_05_0559(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     return c == res
 
 
+# 06_M07
+@constraint_udf
+def cfs_06_0007(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M07_인입횟수_ARS_B0M >0 THEN M07_인입후경과월_ARS = 0 ELSE pass
+    """
+    dd = df[["M07_인입횟수_ARS_B0M", "M07_인입후경과월_ARS"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else x[1], axis=1)
+
+    c = df["M07_인입후경과월_ARS"]
+    return c == res
+
+
+@constraint_udf
+def cfs_06_0014(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M07_방문횟수_PC_B0M >0 THEN M07_방문후경과월_PC_R6M = 0 ELSE pass
+    """
+    dd = df[["M07_방문횟수_PC_B0M", "M07_방문후경과월_PC_R6M"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else x[1], axis=1)
+
+    c = df["M07_방문후경과월_PC_R6M"]
+    return c == res
+
+
+@constraint_udf
+def cfs_06_0018(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M07_방문횟수_앱_B0M >0 THEN M07_방문후경과월_앱_R6M = 0 ELSE pass
+    """
+    dd = df[["M07_방문횟수_앱_B0M", "M07_방문후경과월_앱_R6M"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else x[1], axis=1)
+
+    c = df["M07_방문후경과월_앱_R6M"]
+    return c == res
+
+
+@constraint_udf
+def cfs_06_0022(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M07_방문횟수_모바일웹_B0M >0 THEN M07_방문후경과월_모바일웹_R6M = 0 ELSE pas
+    """
+    dd = df[["M07_방문횟수_모바일웹_B0M", "M07_방문후경과월_모바일웹_R6M"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else x[1], axis=1)
+
+    c = df["M07_방문후경과월_모바일웹_R6M"]
+    return c == res
+
+
+@constraint_udf
+def cfs_06_0033(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M07_인입횟수_IB_B0M >0 THEN M07_인입후경과월_IB_R6M = 0 ELSE pass
+    """
+    dd = df[["M07_인입횟수_IB_B0M", "M07_인입후경과월_IB_R6M"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else x[1], axis=1)
+
+    c = df["M07_인입후경과월_IB_R6M"]
+    return c == res
+
+
+@constraint_udf
+def cfs_06_0040(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M07_인입불만횟수_IB_B0M >0 THEN M07_인입불만후경과월_IB_R6M = 0 ELSE pass
+    """
+    dd = df[["M07_인입불만횟수_IB_B0M", "M07_인입불만후경과월_IB_R6M"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else x[1], axis=1)
+
+    c = df["M07_인입불만후경과월_IB_R6M"]
+    return c == res
+
+
+@constraint_udf
+def cfs_06_0092(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M07_불만제기건수_B0M >0 THEN M07_불만제기후경과월_R12M = 0 ELSE pass
+    """
+    dd = df[["M07_불만제기건수_B0M", "M07_불만제기후경과월_R12M"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else x[1], axis=1)
+
+    c = df["M07_불만제기후경과월_R12M"]
+    return c == res
+
+
+# 06_M08
+@constraint_udf
+def cfs_06_0114(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF (M08_인입횟수_ARS_B0M>0) THEN M08_인입후경과월_ARS = 0
+        ELIF (M07_인입횟수_ARS_B0M==0)&(M07_인입후경과월_ARS==0) THEN M08_인입후경과월_ARS = 0
+        ELIF (M07_인입횟수_ARS_B0M>0)&(M07_인입후경과월_ARS==0) THEN M08_인입후경과월_ARS = 1
+        ELIF (M07_인입후경과월_ARS==5) THEN M08_인입후경과월_ARS = 0
+        ELIF M08_인입후경과월_ARS = M07_인입후경과월_ARS + 1
+    """
+    dd = df[["M08_인입횟수_ARS_B0M", "M07_인입횟수_ARS_B0M", "M07_인입후경과월_ARS"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else (0 if (x[1] == 0) & (x[2] == 0)
+                   else (1 if (x[1] > 0) & (x[2] == 0)
+                         else (0 if x[2] == 5 else x[2] + 1))), axis=1)
+
+    c = df["M08_인입후경과월_ARS"]
+    return c == res
+
+
+@constraint_udf
+def cfs_06_0121(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M08_방문횟수_PC_B0M > 0 THEN M08_방문후경과월_PC_R6M = 0
+        ELIF M08_방문후경과월_PC_R6M = min(M07_방문후경과월_PC_R6M + 1, 6)
+    """
+    dd = df[["M08_방문횟수_PC_B0M", "M07_방문후경과월_PC_R6M"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M08_방문후경과월_PC_R6M"]
+    return c == res
+
+
+@constraint_udf
+def cfs_06_0125(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M08_방문횟수_앱_B0M > 0 THEN M08_방문후경과월_앱_R6M = 0
+        ELIF M08_방문후경과월_앱_R6M = min(M07_방문후경과월_앱_R6M + 1, 6)
+    """
+    dd = df[["M08_방문횟수_앱_B0M", "M07_방문후경과월_앱_R6M"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M08_방문후경과월_앱_R6M"]
+    return c == res
+
+
+@constraint_udf
+def cfs_06_0129(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M08_방문횟수_모바일웹_B0M > 0 THEN M08_방문후경과월_모바일웹_R6M = 0
+        ELIF M08_방문후경과월_모바일웹_R6M = min(M07_방문후경과월_모바일웹_R6M + 1, 6)
+    """
+    dd = df[["M08_방문횟수_모바일웹_B0M", "M07_방문후경과월_모바일웹_R6M"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M08_방문후경과월_모바일웹_R6M"]
+    return c == res
+
+
+@constraint_udf
+def cfs_06_0140(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M08_인입횟수_IB_B0M > 0 THEN M08_인입후경과월_IB_R6M = 0
+        ELIF M08_인입후경과월_IB_R6M = min(M07_인입후경과월_IB_R6M + 1, 6)
+    """
+    dd = df[["M08_인입횟수_IB_B0M", "M07_인입후경과월_IB_R6M"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M08_인입후경과월_IB_R6M"]
+    return c == res
+
+
+@constraint_udf
+def cfs_06_0147(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M08_인입불만횟수_IB_B0M > 0 THEN M08_인입불만후경과월_IB_R6M = 0
+        ELIF M08_인입불만후경과월_IB_R6M = min(M07_인입불만후경과월_IB_R6M + 1, 6)
+    """
+    dd = df[["M08_인입불만횟수_IB_B0M", "M07_인입불만후경과월_IB_R6M"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M08_인입불만후경과월_IB_R6M"]
+    return c == res
+
+
+@constraint_udf
+def cfs_06_0199(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M08_불만제기건수_B0M > 0 THEN M08_불만제기후경과월_R12M = 0
+        ELIF (M07_불만제기건수_B0M==0 & M07_불만제기후경과월_R12M==0) THEN M08_불만제기후경과월_R12M = 0
+        ELIF (M07_불만제기건수_B0M==0 & M07_불만제기후경과월_R12M==12) THEN M08_불만제기후경과월_R12M = 12
+        ELIF M08_불만제기후경과월_R12M = min(M07_불만제기후경과월_R12M + 1, 12)
+    """
+    dd = df[["M08_불만제기건수_B0M", "M07_불만제기건수_B0M", "M07_불만제기후경과월_R12M"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else (0 if (x[1] == 0) & (x[2] == 0)
+                   else (12 if (x[1] == 0) & (x[2] == 12) else min(x[2] + 1, 12))), axis=1)
+
+    c = df["M08_불만제기후경과월_R12M"]
+    return c == res
+
+
+# 06_M09
+@constraint_udf
+def cfs_06_0221(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF (M09_인입횟수_ARS_B0M>0) THEN M09_인입후경과월_ARS = 0
+        ELIF (M08_인입횟수_ARS_B0M==0)&(M08_인입후경과월_ARS==0) THEN M09_인입후경과월_ARS = 0
+        ELIF (M08_인입횟수_ARS_B0M>0)&(M08_인입후경과월_ARS==0) THEN M09_인입후경과월_ARS = 1
+        ELIF (M08_인입후경과월_ARS==5) THEN M09_인입후경과월_ARS = 0
+        ELIF M09_인입후경과월_ARS = M08_인입후경과월_ARS + 1
+    """
+    dd = df[["M09_인입횟수_ARS_B0M", "M08_인입횟수_ARS_B0M", "M08_인입후경과월_ARS"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else (0 if (x[1] == 0) & (x[2] == 0)
+                   else (1 if (x[1] > 0) & (x[2] == 0)
+                         else (0 if x[2] == 5 else x[2] + 1))), axis=1)
+
+    c = df["M09_인입후경과월_ARS"]
+    return c == res
+
+
+@constraint_udf
+def cfs_06_0228(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M09_방문횟수_PC_B0M > 0 THEN M09_방문후경과월_PC_R6M = 0
+        ELIF M09_방문후경과월_PC_R6M = min(M08_방문후경과월_PC_R6M + 1, 6)
+    """
+    dd = df[["M09_방문횟수_PC_B0M", "M08_방문후경과월_PC_R6M"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M09_방문후경과월_PC_R6M"]
+    return c == res
+
+
+@constraint_udf
+def cfs_06_0232(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M09_방문횟수_앱_B0M > 0 THEN M09_방문후경과월_앱_R6M = 0
+        ELIF M09_방문후경과월_앱_R6M = min(M08_방문후경과월_앱_R6M + 1, 6)
+    """
+    dd = df[["M09_방문횟수_앱_B0M", "M08_방문후경과월_앱_R6M"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M09_방문후경과월_앱_R6M"]
+    return c == res
+
+
+@constraint_udf
+def cfs_06_0236(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M09_방문횟수_모바일웹_B0M > 0 THEN M09_방문후경과월_모바일웹_R6M = 0
+        ELIF M09_방문후경과월_모바일웹_R6M = min(M08_방문후경과월_모바일웹_R6M + 1, 6)
+    """
+    dd = df[["M09_방문횟수_모바일웹_B0M", "M08_방문후경과월_모바일웹_R6M"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M09_방문후경과월_모바일웹_R6M"]
+    return c == res
+
+
+@constraint_udf
+def cfs_06_0247(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M09_인입횟수_IB_B0M > 0 THEN M09_인입후경과월_IB_R6M = 0
+        ELIF M09_인입후경과월_IB_R6M = min(M08_인입후경과월_IB_R6M + 1, 6)
+    """
+    dd = df[["M09_인입횟수_IB_B0M", "M08_인입후경과월_IB_R6M"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M09_인입후경과월_IB_R6M"]
+    return c == res
+
+
+@constraint_udf
+def cfs_06_0254(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M09_인입불만횟수_IB_B0M > 0 THEN M09_인입불만후경과월_IB_R6M = 0
+        ELIF M09_인입불만후경과월_IB_R6M = min(M08_인입불만후경과월_IB_R6M + 1, 6)
+    """
+    dd = df[["M09_인입불만횟수_IB_B0M", "M08_인입불만후경과월_IB_R6M"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M09_인입불만후경과월_IB_R6M"]
+    return c == res
+
+
+@constraint_udf
+def cfs_06_0306(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M09_불만제기건수_B0M > 0 THEN M09_불만제기후경과월_R12M = 0
+        ELIF (M08_불만제기건수_B0M==0 & M08_불만제기후경과월_R12M==0) THEN M09_불만제기후경과월_R12M = 0
+        ELIF (M08_불만제기건수_B0M==0 & M08_불만제기후경과월_R12M==12) THEN M09_불만제기후경과월_R12M = 12
+        ELIF M09_불만제기후경과월_R12M = min(M08_불만제기후경과월_R12M + 1, 12)
+    """
+    dd = df[["M09_불만제기건수_B0M", "M08_불만제기건수_B0M", "M08_불만제기후경과월_R12M"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else (0 if (x[1] == 0) & (x[2] == 0)
+                   else (12 if (x[1] == 0) & (x[2] == 12) else min(x[2] + 1, 12))), axis=1)
+
+    c = df["M09_불만제기후경과월_R12M"]
+    return c == res
+
+
 # 06_M10
+@constraint_udf
+def cfs_06_0328(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF (M10_인입횟수_ARS_B0M>0) THEN M10_인입후경과월_ARS = 0
+        ELIF (M09_인입횟수_ARS_B0M==0)&(M09_인입후경과월_ARS==0) THEN M10_인입후경과월_ARS = 0
+        ELIF (M09_인입횟수_ARS_B0M>0)&(M09_인입후경과월_ARS==0) THEN M10_인입후경과월_ARS = 1
+        ELIF (M09_인입후경과월_ARS==5) THEN M10_인입후경과월_ARS = 0
+        ELIF M10_인입후경과월_ARS = M09_인입후경과월_ARS + 1
+    """
+    dd = df[["M10_인입횟수_ARS_B0M", "M09_인입횟수_ARS_B0M", "M09_인입후경과월_ARS"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else (0 if (x[1] == 0) & (x[2] == 0)
+                   else (1 if (x[1] > 0) & (x[2] == 0)
+                         else (0 if x[2] == 5 else x[2] + 1))), axis=1)
+
+    c = df["M10_인입후경과월_ARS"]
+    return c == res
+
+
+@constraint_udf
+def cfs_06_0335(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M10_방문횟수_PC_B0M > 0 THEN M10_방문후경과월_PC_R6M = 0
+        ELIF M10_방문후경과월_PC_R6M = min(M09_방문후경과월_PC_R6M + 1, 6)
+    """
+    dd = df[["M10_방문횟수_PC_B0M", "M09_방문후경과월_PC_R6M"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M10_방문후경과월_PC_R6M"]
+    return c == res
+
+
+@constraint_udf
+def cfs_06_0339(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M10_방문횟수_앱_B0M > 0 THEN M10_방문후경과월_앱_R6M = 0
+        ELIF M10_방문후경과월_앱_R6M = min(M09_방문후경과월_앱_R6M + 1, 6)
+    """
+    dd = df[["M10_방문횟수_앱_B0M", "M09_방문후경과월_앱_R6M"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M10_방문후경과월_앱_R6M"]
+    return c == res
+
+
+@constraint_udf
+def cfs_06_0343(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M10_방문횟수_모바일웹_B0M > 0 THEN M10_방문후경과월_모바일웹_R6M = 0
+        ELIF M10_방문후경과월_모바일웹_R6M = min(M09_방문후경과월_모바일웹_R6M + 1, 6)
+    """
+    dd = df[["M10_방문횟수_모바일웹_B0M", "M09_방문후경과월_모바일웹_R6M"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M10_방문후경과월_모바일웹_R6M"]
+    return c == res
+
+
+@constraint_udf
+def cfs_06_0354(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M10_인입횟수_IB_B0M > 0 THEN M10_인입후경과월_IB_R6M = 0
+        ELIF M10_인입후경과월_IB_R6M = min(M09_인입후경과월_IB_R6M + 1, 6)
+    """
+    dd = df[["M10_인입횟수_IB_B0M", "M09_인입후경과월_IB_R6M"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M10_인입후경과월_IB_R6M"]
+    return c == res
+
+
+@constraint_udf
+def cfs_06_0361(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M10_인입불만횟수_IB_B0M > 0 THEN M10_인입불만후경과월_IB_R6M = 0
+        ELIF M10_인입불만후경과월_IB_R6M = min(M09_인입불만후경과월_IB_R6M + 1, 6)
+    """
+    dd = df[["M10_인입불만횟수_IB_B0M", "M09_인입불만후경과월_IB_R6M"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M10_인입불만후경과월_IB_R6M"]
+    return c == res
+
+
+@constraint_udf
+def cfs_06_0413(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M10_불만제기건수_B0M > 0 THEN M10_불만제기후경과월_R12M = 0
+        ELIF (M09_불만제기건수_B0M==0 & M09_불만제기후경과월_R12M==0) THEN M10_불만제기후경과월_R12M = 0
+        ELIF (M09_불만제기건수_B0M==0 & M09_불만제기후경과월_R12M==12) THEN M10_불만제기후경과월_R12M = 12
+        ELIF M10_불만제기후경과월_R12M = min(M09_불만제기후경과월_R12M + 1, 12)
+    """
+    dd = df[["M10_불만제기건수_B0M", "M09_불만제기건수_B0M", "M09_불만제기후경과월_R12M"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else (0 if (x[1] == 0) & (x[2] == 0)
+                   else (12 if (x[1] == 0) & (x[2] == 12) else min(x[2] + 1, 12))), axis=1)
+
+    c = df["M10_불만제기후경과월_R12M"]
+    return c == res
+
+
 @constraint_udf
 def cfs_06_0423(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     """
@@ -7799,6 +10777,112 @@ def cfs_06_0424(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
 
 # 06_M11
 @constraint_udf
+def cfs_06_0435(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF (M11_인입횟수_ARS_B0M>0) THEN M11_인입후경과월_ARS = 0
+        ELIF (M10_인입횟수_ARS_B0M==0)&(M10_인입후경과월_ARS==0) THEN M11_인입후경과월_ARS = 0
+        ELIF (M10_인입횟수_ARS_B0M>0)&(M10_인입후경과월_ARS==0) THEN M11_인입후경과월_ARS = 1
+        ELIF (M10_인입후경과월_ARS==5) THEN M11_인입후경과월_ARS = 0
+        ELIF M11_인입후경과월_ARS = M10_인입후경과월_ARS + 1
+    """
+    dd = df[["M11_인입횟수_ARS_B0M", "M10_인입횟수_ARS_B0M", "M10_인입후경과월_ARS"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else (0 if (x[1] == 0) & (x[2] == 0)
+                   else (1 if (x[1] > 0) & (x[2] == 0)
+                         else (0 if x[2] == 5 else x[2] + 1))), axis=1)
+
+    c = df["M11_인입후경과월_ARS"]
+    return c == res
+
+
+@constraint_udf
+def cfs_06_0442(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M11_방문횟수_PC_B0M > 0 THEN M11_방문후경과월_PC_R6M = 0
+        ELIF M11_방문후경과월_PC_R6M = min(M10_방문후경과월_PC_R6M + 1, 6)
+    """
+    dd = df[["M11_방문횟수_PC_B0M", "M10_방문후경과월_PC_R6M"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M11_방문후경과월_PC_R6M"]
+    return c == res
+
+
+@constraint_udf
+def cfs_06_0446(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M11_방문횟수_앱_B0M > 0 THEN M11_방문후경과월_앱_R6M = 0
+        ELIF M11_방문후경과월_앱_R6M = min(M10_방문후경과월_앱_R6M + 1, 6)
+    """
+    dd = df[["M11_방문횟수_앱_B0M", "M10_방문후경과월_앱_R6M"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M11_방문후경과월_앱_R6M"]
+    return c == res
+
+
+@constraint_udf
+def cfs_06_0450(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M11_방문횟수_모바일웹_B0M > 0 THEN M11_방문후경과월_모바일웹_R6M = 0
+        ELIF M11_방문후경과월_모바일웹_R6M = min(M10_방문후경과월_모바일웹_R6M + 1, 6)
+    """
+    dd = df[["M11_방문횟수_모바일웹_B0M", "M10_방문후경과월_모바일웹_R6M"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M11_방문후경과월_모바일웹_R6M"]
+    return c == res
+
+
+@constraint_udf
+def cfs_06_0461(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M11_인입횟수_IB_B0M > 0 THEN M11_인입후경과월_IB_R6M = 0
+        ELIF M11_인입후경과월_IB_R6M = min(M10_인입후경과월_IB_R6M + 1, 6)
+    """
+    dd = df[["M11_인입횟수_IB_B0M", "M10_인입후경과월_IB_R6M"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M11_인입후경과월_IB_R6M"]
+    return c == res
+
+
+@constraint_udf
+def cfs_06_0468(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M11_인입불만횟수_IB_B0M > 0 THEN M11_인입불만후경과월_IB_R6M = 0
+        ELIF M11_인입불만후경과월_IB_R6M = min(M10_인입불만후경과월_IB_R6M + 1, 6)
+    """
+    dd = df[["M11_인입불만횟수_IB_B0M", "M10_인입불만후경과월_IB_R6M"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M11_인입불만후경과월_IB_R6M"]
+    return c == res
+
+
+@constraint_udf
+def cfs_06_0520(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M11_불만제기건수_B0M > 0 THEN M11_불만제기후경과월_R12M = 0
+        ELIF (M10_불만제기건수_B0M==0 & M10_불만제기후경과월_R12M==0) THEN M11_불만제기후경과월_R12M = 0
+        ELIF (M10_불만제기건수_B0M==0 & M10_불만제기후경과월_R12M==12) THEN M11_불만제기후경과월_R12M = 12
+        ELIF M11_불만제기후경과월_R12M = min(M10_불만제기후경과월_R12M + 1, 12)
+    """
+    dd = df[["M11_불만제기건수_B0M", "M10_불만제기건수_B0M", "M10_불만제기후경과월_R12M"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else (0 if (x[1] == 0) & (x[2] == 0)
+                   else (12 if (x[1] == 0) & (x[2] == 12) else min(x[2] + 1, 12))), axis=1)
+
+    c = df["M11_불만제기후경과월_R12M"]
+    return c == res
+
+
+@constraint_udf
 def cfs_06_0530(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     """
     formula:
@@ -7825,6 +10909,111 @@ def cfs_06_0531(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
 
 
 # 06_M12
+@constraint_udf
+def cfs_06_0542(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF (M12_인입횟수_ARS_B0M>0) THEN M12_인입후경과월_ARS = 0
+        ELIF (M11_인입횟수_ARS_B0M==0)&(M11_인입후경과월_ARS==0) THEN M12_인입후경과월_ARS = 0
+        ELIF (M11_인입횟수_ARS_B0M>0)&(M11_인입후경과월_ARS==0) THEN M12_인입후경과월_ARS = 1
+        ELIF (M11_인입후경과월_ARS==5) THEN M12_인입후경과월_ARS = 0
+        ELIF M12_인입후경과월_ARS = M11_인입후경과월_ARS + 1
+    """
+    dd = df[["M12_인입횟수_ARS_B0M", "M11_인입횟수_ARS_B0M", "M11_인입후경과월_ARS"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else (0 if (x[1] == 0) & (x[2] == 0)
+                   else (1 if (x[1] > 0) & (x[2] == 0)
+                         else (0 if x[2] == 5 else x[2] + 1))), axis=1)
+
+    c = df["M12_인입후경과월_ARS"]
+    return c == res
+
+
+@constraint_udf
+def cfs_06_0549(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M12_방문횟수_PC_B0M > 0 THEN M12_방문후경과월_PC_R6M = 0
+        ELIF M12_방문후경과월_PC_R6M = min(M11_방문후경과월_PC_R6M + 1, 6)
+    """
+    dd = df[["M12_방문횟수_PC_B0M", "M11_방문후경과월_PC_R6M"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M12_방문후경과월_PC_R6M"]
+    return c == res
+
+
+@constraint_udf
+def cfs_06_0553(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M12_방문횟수_앱_B0M > 0 THEN M12_방문후경과월_앱_R6M = 0
+        ELIF M12_방문후경과월_앱_R6M = min(M11_방문후경과월_앱_R6M + 1, 6)
+    """
+    dd = df[["M12_방문횟수_앱_B0M", "M11_방문후경과월_앱_R6M"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M12_방문후경과월_앱_R6M"]
+    return c == res
+
+
+@constraint_udf
+def cfs_06_0557(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M12_방문횟수_모바일웹_B0M > 0 THEN M12_방문후경과월_모바일웹_R6M = 0
+        ELIF M12_방문후경과월_모바일웹_R6M = min(M11_방문후경과월_모바일웹_R6M + 1, 6)
+    """
+    dd = df[["M12_방문횟수_모바일웹_B0M", "M11_방문후경과월_모바일웹_R6M"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M12_방문후경과월_모바일웹_R6M"]
+    return c == res
+
+
+@constraint_udf
+def cfs_06_0568(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M12_인입횟수_IB_B0M > 0 THEN M12_인입후경과월_IB_R6M = 0
+        ELIF M12_인입후경과월_IB_R6M = min(M11_인입후경과월_IB_R6M + 1, 6)
+    """
+    dd = df[["M12_인입횟수_IB_B0M", "M11_인입후경과월_IB_R6M"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M12_인입후경과월_IB_R6M"]
+    return c == res
+
+
+@constraint_udf
+def cfs_06_0575(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M12_인입불만횟수_IB_B0M > 0 THEN M12_인입불만후경과월_IB_R6M = 0
+        ELIF M12_인입불만후경과월_IB_R6M = min(M11_인입불만후경과월_IB_R6M + 1, 6)
+    """
+    dd = df[["M12_인입불만횟수_IB_B0M", "M11_인입불만후경과월_IB_R6M"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M12_인입불만후경과월_IB_R6M"]
+    return c == res
+
+
+@constraint_udf
+def cfs_06_0627(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M12_불만제기건수_B0M > 0 THEN M12_불만제기후경과월_R12M = 0
+        ELIF (M11_불만제기건수_B0M==0 & M11_불만제기후경과월_R12M==0) THEN M12_불만제기후경과월_R12M = 0
+        ELIF (M11_불만제기건수_B0M==0 & M11_불만제기후경과월_R12M==12) THEN M12_불만제기후경과월_R12M = 12
+        ELIF M12_불만제기후경과월_R12M = min(M11_불만제기후경과월_R12M + 1, 12)
+    """
+    dd = df[["M12_불만제기건수_B0M", "M11_불만제기건수_B0M", "M11_불만제기후경과월_R12M"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else (0 if (x[1] == 0) & (x[2] == 0) else (12 if (x[1] == 0) & (x[2] == 12) else min(x[2] + 1, 12))), axis=1)
+
+    c = df["M12_불만제기후경과월_R12M"]
+    return c == res
+
+
 @constraint_udf
 def cfs_06_0538(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     """
@@ -9121,7 +12310,845 @@ def cfs_08_0448(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     return c == res
 
 
+# 03_Constraints
+@constraint_udf
+def ccs_03_0001(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        M07_최종이용일자_기본 <= M08_최종이용일자_기본
+    """
+    c1, c2 = df["M07_최종이용일자_기본"], df["M08_최종이용일자_기본"]
+    return c1 <= c2
+
+
+@constraint_udf
+def ccs_03_0002(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        M07_최종이용일자_신판 <= M08_최종이용일자_신판
+    """
+    c1, c2 = df["M07_최종이용일자_신판"], df["M08_최종이용일자_신판"]
+    return c1 <= c2
+
+
+@constraint_udf
+def ccs_03_0003(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        M07_최종이용일자_CA <= M08_최종이용일자_CA
+    """
+    c1, c2 = df["M07_최종이용일자_CA"], df["M08_최종이용일자_CA"]
+    return c1 <= c2
+
+
+@constraint_udf
+def ccs_03_0004(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        M07_최종이용일자_카드론 <= M08_최종이용일자_카드론
+    """
+    c1, c2 = df["M07_최종이용일자_카드론"], df["M08_최종이용일자_카드론"]
+    return c1 <= c2
+
+
+@constraint_udf
+def ccs_03_0005(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        M07_최종이용일자_체크 <= M08_최종이용일자_체크
+    """
+    c1, c2 = df["M07_최종이용일자_체크"], df["M08_최종이용일자_체크"]
+    return c1 <= c2
+
+
+@constraint_udf
+def ccs_03_0006(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        M07_최종이용일자_일시불 <= M08_최종이용일자_일시불
+    """
+    c1, c2 = df["M07_최종이용일자_일시불"], df["M08_최종이용일자_일시불"]
+    return c1 <= c2
+
+
+@constraint_udf
+def ccs_03_0007(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        M07_최종이용일자_할부 <= M08_최종이용일자_할부
+    """
+    c1, c2 = df["M07_최종이용일자_할부"], df["M08_최종이용일자_할부"]
+    return c1 <= c2
+
+
+@constraint_udf
+def ccs_03_0008(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        M07_카드론이용건수_누적 <= M08_카드론이용건수_누적
+    """
+    c1, c2 = df["M07_카드론이용건수_누적"], df["M08_카드론이용건수_누적"]
+    return c1 <= c2
+
+
+@constraint_udf
+def ccs_03_0009(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        M07_카드론이용월수_누적 <= M08_카드론이용월수_누적
+    """
+    c1, c2 = df["M07_카드론이용월수_누적"], df["M08_카드론이용월수_누적"]
+    return c1 <= c2
+
+
+@constraint_udf
+def ccs_03_0010(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        M07_카드론이용금액_누적 <= M08_카드론이용금액_누적
+    """
+    c1, c2 = df["M07_카드론이용금액_누적"], df["M08_카드론이용금액_누적"]
+    return c1 <= c2
+
+
+@constraint_udf
+def ccs_03_0011(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        M08_최종이용일자_기본 <= M09_최종이용일자_기본
+    """
+    c1, c2 = df["M08_최종이용일자_기본"], df["M09_최종이용일자_기본"]
+    return c1 <= c2
+
+
+@constraint_udf
+def ccs_03_0012(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        M08_최종이용일자_신판 <= M09_최종이용일자_신판
+    """
+    c1, c2 = df["M08_최종이용일자_신판"], df["M09_최종이용일자_신판"]
+    return c1 <= c2
+
+
+@constraint_udf
+def ccs_03_0013(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        M08_최종이용일자_CA <= M09_최종이용일자_CA
+    """
+    c1, c2 = df["M08_최종이용일자_CA"], df["M09_최종이용일자_CA"]
+    return c1 <= c2
+
+
+@constraint_udf
+def ccs_03_0014(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        M08_최종이용일자_카드론 <= M09_최종이용일자_카드론
+    """
+    c1, c2 = df["M08_최종이용일자_카드론"], df["M09_최종이용일자_카드론"]
+    return c1 <= c2
+
+
+@constraint_udf
+def ccs_03_0015(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        M08_최종이용일자_체크 <= M09_최종이용일자_체크
+    """
+    c1, c2 = df["M08_최종이용일자_체크"], df["M09_최종이용일자_체크"]
+    return c1 <= c2
+
+
+@constraint_udf
+def ccs_03_0016(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        M08_최종이용일자_일시불 <= M09_최종이용일자_일시불
+    """
+    c1, c2 = df["M08_최종이용일자_일시불"], df["M09_최종이용일자_일시불"]
+    return c1 <= c2
+
+
+@constraint_udf
+def ccs_03_0017(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        M08_최종이용일자_할부 <= M09_최종이용일자_할부
+    """
+    c1, c2 = df["M08_최종이용일자_할부"], df["M09_최종이용일자_할부"]
+    return c1 <= c2
+
+
+@constraint_udf
+def ccs_03_0018(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        M08_카드론이용건수_누적 <= M09_카드론이용건수_누적
+    """
+    c1, c2 = df["M08_카드론이용건수_누적"], df["M09_카드론이용건수_누적"]
+    return c1 <= c2
+
+
+@constraint_udf
+def ccs_03_0019(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        M08_카드론이용월수_누적 <= M09_카드론이용월수_누적
+    """
+    c1, c2 = df["M08_카드론이용월수_누적"], df["M09_카드론이용월수_누적"]
+    return c1 <= c2
+
+
+@constraint_udf
+def ccs_03_0020(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        M08_카드론이용금액_누적 <= M09_카드론이용금액_누적
+    """
+    c1, c2 = df["M08_카드론이용금액_누적"], df["M09_카드론이용금액_누적"]
+    return c1 <= c2
+
+
+@constraint_udf
+def ccs_03_0021(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        M09_최종이용일자_기본 <= M10_최종이용일자_기본
+    """
+    c1, c2 = df["M09_최종이용일자_기본"], df["M10_최종이용일자_기본"]
+    return c1 <= c2
+
+
+@constraint_udf
+def ccs_03_0022(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        M09_최종이용일자_신판 <= M10_최종이용일자_신판
+    """
+    c1, c2 = df["M09_최종이용일자_신판"], df["M10_최종이용일자_신판"]
+    return c1 <= c2
+
+
+@constraint_udf
+def ccs_03_0023(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        M09_최종이용일자_CA <= M10_최종이용일자_CA
+    """
+    c1, c2 = df["M09_최종이용일자_CA"], df["M10_최종이용일자_CA"]
+    return c1 <= c2
+
+
+@constraint_udf
+def ccs_03_0024(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        M09_최종이용일자_카드론 <= M10_최종이용일자_카드론
+    """
+    c1, c2 = df["M09_최종이용일자_카드론"], df["M10_최종이용일자_카드론"]
+    return c1 <= c2
+
+
+@constraint_udf
+def ccs_03_0025(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        M09_최종이용일자_체크 <= M10_최종이용일자_체크
+    """
+    c1, c2 = df["M09_최종이용일자_체크"], df["M10_최종이용일자_체크"]
+    return c1 <= c2
+
+
+@constraint_udf
+def ccs_03_0026(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        M09_최종이용일자_일시불 <= M10_최종이용일자_일시불
+    """
+    c1, c2 = df["M09_최종이용일자_일시불"], df["M10_최종이용일자_일시불"]
+    return c1 <= c2
+
+
+@constraint_udf
+def ccs_03_0027(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        M09_최종이용일자_할부 <= M10_최종이용일자_할부
+    """
+    c1, c2 = df["M09_최종이용일자_할부"], df["M10_최종이용일자_할부"]
+    return c1 <= c2
+
+
+@constraint_udf
+def ccs_03_0028(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        M09_카드론이용건수_누적 <= M10_카드론이용건수_누적
+    """
+    c1, c2 = df["M09_카드론이용건수_누적"], df["M10_카드론이용건수_누적"]
+    return c1 <= c2
+
+
+@constraint_udf
+def ccs_03_0029(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        M09_카드론이용월수_누적 <= M10_카드론이용월수_누적
+    """
+    c1, c2 = df["M09_카드론이용월수_누적"], df["M10_카드론이용월수_누적"]
+    return c1 <= c2
+
+
+@constraint_udf
+def ccs_03_0030(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        M09_카드론이용금액_누적 <= M10_카드론이용금액_누적
+    """
+    c1, c2 = df["M09_카드론이용금액_누적"], df["M10_카드론이용금액_누적"]
+    return c1 <= c2
+
+
+@constraint_udf
+def ccs_03_0031(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        M10_최종이용일자_기본 <= M11_최종이용일자_기본
+    """
+    c1, c2 = df["M10_최종이용일자_기본"], df["M11_최종이용일자_기본"]
+    return c1 <= c2
+
+
+@constraint_udf
+def ccs_03_0032(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        M10_최종이용일자_신판 <= M11_최종이용일자_신판
+    """
+    c1, c2 = df["M10_최종이용일자_신판"], df["M11_최종이용일자_신판"]
+    return c1 <= c2
+
+
+@constraint_udf
+def ccs_03_0033(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        M10_최종이용일자_CA <= M11_최종이용일자_CA
+    """
+    c1, c2 = df["M10_최종이용일자_CA"], df["M11_최종이용일자_CA"]
+    return c1 <= c2
+
+
+@constraint_udf
+def ccs_03_0034(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        M10_최종이용일자_카드론 <= M11_최종이용일자_카드론
+    """
+    c1, c2 = df["M10_최종이용일자_카드론"], df["M11_최종이용일자_카드론"]
+    return c1 <= c2
+
+
+@constraint_udf
+def ccs_03_0035(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        M10_최종이용일자_체크 <= M11_최종이용일자_체크
+    """
+    c1, c2 = df["M10_최종이용일자_체크"], df["M11_최종이용일자_체크"]
+    return c1 <= c2
+
+
+@constraint_udf
+def ccs_03_0036(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        M10_최종이용일자_일시불 <= M11_최종이용일자_일시불
+    """
+    c1, c2 = df["M10_최종이용일자_일시불"], df["M11_최종이용일자_일시불"]
+    return c1 <= c2
+
+
+@constraint_udf
+def ccs_03_0037(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        M10_최종이용일자_할부 <= M11_최종이용일자_할부
+    """
+    c1, c2 = df["M10_최종이용일자_할부"], df["M11_최종이용일자_할부"]
+    return c1 <= c2
+
+
+@constraint_udf
+def ccs_03_0038(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        M10_카드론이용건수_누적 <= M11_카드론이용건수_누적
+    """
+    c1, c2 = df["M10_카드론이용건수_누적"], df["M11_카드론이용건수_누적"]
+    return c1 <= c2
+
+
+@constraint_udf
+def ccs_03_0039(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        M10_카드론이용월수_누적 <= M11_카드론이용월수_누적
+    """
+    c1, c2 = df["M10_카드론이용월수_누적"], df["M11_카드론이용월수_누적"]
+    return c1 <= c2
+
+
+@constraint_udf
+def ccs_03_0040(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        M10_카드론이용금액_누적 <= M11_카드론이용금액_누적
+    """
+    c1, c2 = df["M10_카드론이용금액_누적"], df["M11_카드론이용금액_누적"]
+    return c1 <= c2
+
+
+@constraint_udf
+def ccs_03_0041(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        M11_최종이용일자_기본 <= M12_최종이용일자_기본
+    """
+    c1, c2 = df["M11_최종이용일자_기본"], df["M12_최종이용일자_기본"]
+    return c1 <= c2
+
+
+@constraint_udf
+def ccs_03_0042(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        M11_최종이용일자_신판 <= M12_최종이용일자_신판
+    """
+    c1, c2 = df["M11_최종이용일자_신판"], df["M12_최종이용일자_신판"]
+    return c1 <= c2
+
+
+@constraint_udf
+def ccs_03_0043(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        M11_최종이용일자_CA <= M12_최종이용일자_CA
+    """
+    c1, c2 = df["M11_최종이용일자_CA"], df["M12_최종이용일자_CA"]
+    return c1 <= c2
+
+
+@constraint_udf
+def ccs_03_0044(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        M11_최종이용일자_카드론 <= M12_최종이용일자_카드론
+    """
+    c1, c2 = df["M11_최종이용일자_카드론"], df["M12_최종이용일자_카드론"]
+    return c1 <= c2
+
+
+@constraint_udf
+def ccs_03_0045(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        M11_최종이용일자_체크 <= M12_최종이용일자_체크
+    """
+    c1, c2 = df["M11_최종이용일자_체크"], df["M12_최종이용일자_체크"]
+    return c1 <= c2
+
+
+@constraint_udf
+def ccs_03_0046(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        M11_최종이용일자_일시불 <= M12_최종이용일자_일시불
+    """
+    c1, c2 = df["M11_최종이용일자_일시불"], df["M12_최종이용일자_일시불"]
+    return c1 <= c2
+
+
+@constraint_udf
+def ccs_03_0047(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        M11_최종이용일자_할부 <= M12_최종이용일자_할부
+    """
+    c1, c2 = df["M11_최종이용일자_할부"], df["M12_최종이용일자_할부"]
+    return c1 <= c2
+
+
+@constraint_udf
+def ccs_03_0048(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        M11_카드론이용건수_누적 <= M12_카드론이용건수_누적
+    """
+    c1, c2 = df["M11_카드론이용건수_누적"], df["M12_카드론이용건수_누적"]
+    return c1 <= c2
+
+
+@constraint_udf
+def ccs_03_0049(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        M11_카드론이용월수_누적 <= M12_카드론이용월수_누적
+    """
+    c1, c2 = df["M11_카드론이용월수_누적"], df["M12_카드론이용월수_누적"]
+    return c1 <= c2
+
+
+@constraint_udf
+def ccs_03_0050(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        M11_카드론이용금액_누적 <= M12_카드론이용금액_누적
+    """
+    c1, c2 = df["M11_카드론이용금액_누적"], df["M12_카드론이용금액_누적"]
+    return c1 <= c2
+
+
+# 03_M07
+@constraint_udf
+def cfs_03_0262(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M07_RP건수_B0M > 0 THEN M07_RP후경과월 = 0
+        ELSE M07_RP후경과월 = M07_RP후경과월.clip(1,6)
+    """
+    dd = df[["M07_RP건수_B0M", "M07_RP후경과월"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else (6 if x[1] > 6 else (1 if x[1] < 1 else x[1])), axis=1)
+
+    c = df["M07_RP후경과월"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_0263(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M07_RP건수_통신_B0M > 0 THEN M07_RP후경과월_통신 = 0
+        ELSE M07_RP후경과월_통신 = M07_RP후경과월_통신.clip(1,6)
+    """
+    dd = df[["M07_RP건수_통신_B0M", "M07_RP후경과월_통신"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else (6 if x[1] > 6 else (1 if x[1] < 1 else x[1])), axis=1)
+
+    c = df["M07_RP후경과월_통신"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_0264(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M07_RP건수_아파트_B0M > 0 THEN M07_RP후경과월_아파트 = 0
+        ELSE M07_RP후경과월_아파트 = M07_RP후경과월_아파트.clip(1,6)
+    """
+    dd = df[["M07_RP건수_아파트_B0M", "M07_RP후경과월_아파트"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else (6 if x[1] > 6 else (1 if x[1] < 1 else x[1])), axis=1)
+
+    c = df["M07_RP후경과월_아파트"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_0265(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M07_RP건수_제휴사서비스직접판매_B0M > 0 THEN M07_RP후경과월_제휴사서비스직접판매 = 0
+        ELSE M07_RP후경과월_제휴사서비스직접판매 = M07_RP후경과월_제휴사서비스직접판매.clip(1,6)
+    """
+    dd = df[["M07_RP건수_제휴사서비스직접판매_B0M", "M07_RP후경과월_제휴사서비스직접판매"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else (6 if x[1] > 6 else (1 if x[1] < 1 else x[1])), axis=1)
+
+    c = df["M07_RP후경과월_제휴사서비스직접판매"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_0266(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M07_RP건수_렌탈_B0M > 0 THEN M07_RP후경과월_렌탈 = 0
+        ELSE M07_RP후경과월_렌탈 = M07_RP후경과월_렌탈.clip(1,6)
+    """
+    dd = df[["M07_RP건수_렌탈_B0M", "M07_RP후경과월_렌탈"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else (6 if x[1] > 6 else (1 if x[1] < 1 else x[1])), axis=1)
+
+    c = df["M07_RP후경과월_렌탈"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_0267(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M07_RP건수_가스_B0M > 0 THEN M07_RP후경과월_가스 = 0
+        ELSE M07_RP후경과월_가스 = M07_RP후경과월_가스.clip(1,6)
+    """
+    dd = df[["M07_RP건수_가스_B0M", "M07_RP후경과월_가스"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else (6 if x[1] > 6 else (1 if x[1] < 1 else x[1])), axis=1)
+
+    c = df["M07_RP후경과월_가스"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_0268(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M07_RP건수_전기_B0M > 0 THEN M07_RP후경과월_전기 = 0
+        ELSE M07_RP후경과월_전기 = M07_RP후경과월_전기.clip(1,6)
+    """
+    dd = df[["M07_RP건수_전기_B0M", "M07_RP후경과월_전기"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else (6 if x[1] > 6 else (1 if x[1] < 1 else x[1])), axis=1)
+
+    c = df["M07_RP후경과월_전기"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_0269(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M07_RP건수_보험_B0M > 0 THEN M07_RP후경과월_보험 = 0
+        ELSE M07_RP후경과월_보험 = M07_RP후경과월_보험.clip(1,6)
+    """
+    dd = df[["M07_RP건수_보험_B0M", "M07_RP후경과월_보험"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else (6 if x[1] > 6 else (1 if x[1] < 1 else x[1])), axis=1)
+
+    c = df["M07_RP후경과월_보험"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_0270(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M07_RP건수_학습비_B0M > 0 THEN M07_RP후경과월_학습비 = 0
+        ELSE M07_RP후경과월_학습비 = M07_RP후경과월_학습비.clip(1,6)
+    """
+    dd = df[["M07_RP건수_학습비_B0M", "M07_RP후경과월_학습비"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else (6 if x[1] > 6 else (1 if x[1] < 1 else x[1])), axis=1)
+
+    c = df["M07_RP후경과월_학습비"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_0271(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M07_RP건수_유선방송_B0M > 0 THEN M07_RP후경과월_유선방송 = 0
+        ELSE M07_RP후경과월_유선방송 = M07_RP후경과월_유선방송.clip(1,6)
+    """
+    dd = df[["M07_RP건수_유선방송_B0M", "M07_RP후경과월_유선방송"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else (6 if x[1] > 6 else (1 if x[1] < 1 else x[1])), axis=1)
+
+    c = df["M07_RP후경과월_유선방송"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_0272(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M07_RP건수_건강_B0M > 0 THEN M07_RP후경과월_건강 = 0
+        ELSE M07_RP후경과월_건강 = M07_RP후경과월_건강.clip(1,6)
+    """
+    dd = df[["M07_RP건수_건강_B0M", "M07_RP후경과월_건강"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else (6 if x[1] > 6 else (1 if x[1] < 1 else x[1])), axis=1)
+
+    c = df["M07_RP후경과월_건강"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_0273(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M07_RP건수_교통_B0M > 0 THEN M07_RP후경과월_교통 = 0
+        ELSE M07_RP후경과월_교통 = M07_RP후경과월_교통.clip(1,6)
+    """
+    dd = df[["M07_RP건수_교통_B0M", "M07_RP후경과월_교통"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else (6 if x[1] > 6 else (1 if x[1] < 1 else x[1])), axis=1)
+
+    c = df["M07_RP후경과월_교통"]
+    return c == res
+
+
 # 03_M08
+@constraint_udf
+def cfs_03_0723(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M08_RP건수_B0M > 0 THEN M08_RP후경과월 = 0
+        ELSE M08_RP후경과월 = min(M07_RP후경과월 + 1, 6)
+    """
+    dd = df[["M08_RP건수_B0M", "M07_RP후경과월"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M08_RP후경과월"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_0724(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M08_RP건수_통신_B0M > 0 THEN M08_RP후경과월_통신 = 0
+        ELSE M08_RP후경과월_통신 = min(M07_RP후경과월_통신 + 1, 6)
+    """
+    dd = df[["M08_RP건수_통신_B0M", "M07_RP후경과월_통신"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M08_RP후경과월_통신"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_0725(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M08_RP건수_아파트_B0M > 0 THEN M08_RP후경과월_아파트 = 0
+        ELSE M08_RP후경과월_아파트 = min(M07_RP후경과월_아파트 + 1, 6)
+    """
+    dd = df[["M08_RP건수_아파트_B0M", "M07_RP후경과월_아파트"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M08_RP후경과월_아파트"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_0726(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M08_RP건수_제휴사서비스직접판매_B0M > 0 THEN M08_RP후경과월_제휴사서비스직접판매 = 0
+        ELSE M08_RP후경과월_제휴사서비스직접판매 = min(M07_RP후경과월_제휴사서비스직접판매 + 1, 6)
+    """
+    dd = df[["M08_RP건수_제휴사서비스직접판매_B0M", "M07_RP후경과월_제휴사서비스직접판매"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M08_RP후경과월_제휴사서비스직접판매"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_0727(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M08_RP건수_렌탈_B0M > 0 THEN M08_RP후경과월_렌탈 = 0
+        ELSE M08_RP후경과월_렌탈 = min(M07_RP후경과월_렌탈 + 1, 6)
+    """
+    dd = df[["M08_RP건수_렌탈_B0M", "M07_RP후경과월_렌탈"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M08_RP후경과월_렌탈"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_0728(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M08_RP건수_가스_B0M > 0 THEN M08_RP후경과월_가스 = 0
+        ELSE M08_RP후경과월_가스 = min(M07_RP후경과월_가스 + 1, 6)
+    """
+    dd = df[["M08_RP건수_가스_B0M", "M07_RP후경과월_가스"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M08_RP후경과월_가스"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_0729(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M08_RP건수_전기_B0M > 0 THEN M08_RP후경과월_전기 = 0
+        ELSE M08_RP후경과월_전기 = min(M07_RP후경과월_전기 + 1, 6)
+    """
+    dd = df[["M08_RP건수_전기_B0M", "M07_RP후경과월_전기"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M08_RP후경과월_전기"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_0730(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M08_RP건수_보험_B0M > 0 THEN M08_RP후경과월_보험 = 0
+        ELSE M08_RP후경과월_보험 = min(M07_RP후경과월_보험 + 1, 6)
+    """
+    dd = df[["M08_RP건수_보험_B0M", "M07_RP후경과월_보험"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M08_RP후경과월_보험"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_0731(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M08_RP건수_학습비_B0M > 0 THEN M08_RP후경과월_학습비 = 0
+        ELSE M08_RP후경과월_학습비 = min(M07_RP후경과월_학습비 + 1, 6)
+    """
+    dd = df[["M08_RP건수_학습비_B0M", "M07_RP후경과월_학습비"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M08_RP후경과월_학습비"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_0732(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M08_RP건수_유선방송_B0M > 0 THEN M08_RP후경과월_유선방송 = 0
+        ELSE M08_RP후경과월_유선방송 = min(M07_RP후경과월_유선방송 + 1, 6)
+    """
+    dd = df[["M08_RP건수_유선방송_B0M", "M07_RP후경과월_유선방송"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M08_RP후경과월_유선방송"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_0733(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M08_RP건수_건강_B0M > 0 THEN M08_RP후경과월_건강 = 0
+        ELSE M08_RP후경과월_건강 = min(M07_RP후경과월_건강 + 1, 6)
+    """
+    dd = df[["M08_RP건수_건강_B0M", "M07_RP후경과월_건강"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M08_RP후경과월_건강"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_0734(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M08_RP건수_교통_B0M > 0 THEN M08_RP후경과월_교통 = 0
+        ELSE M08_RP후경과월_교통 = min(M07_RP후경과월_교통 + 1, 6)
+    """
+    dd = df[["M08_RP건수_교통_B0M", "M07_RP후경과월_교통"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M08_RP후경과월_교통"]
+    return c == res
+
+
 @constraint_udf
 def cfs_03_0736(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     """
@@ -9565,6 +13592,239 @@ def cfs_03_1051(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     res = dd.sum(axis=1).astype(int)
 
     c = df["M09_이용금액_카드론_R3M"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_1184(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M09_RP건수_B0M > 0 THEN M09_RP후경과월 = 0
+        ELSE M09_RP후경과월 = min(M08_RP후경과월 + 1, 6)
+    """
+    dd = df[["M09_RP건수_B0M", "M08_RP후경과월"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M09_RP후경과월"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_1185(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M09_RP건수_통신_B0M > 0 THEN M09_RP후경과월_통신 = 0
+        ELSE M09_RP후경과월_통신 = min(M08_RP후경과월_통신 + 1, 6)
+    """
+    dd = df[["M09_RP건수_통신_B0M", "M08_RP후경과월_통신"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M09_RP후경과월_통신"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_1186(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M09_RP건수_아파트_B0M > 0 THEN M09_RP후경과월_아파트 = 0
+        ELSE M09_RP후경과월_아파트 = min(M08_RP후경과월_아파트 + 1, 6)
+    """
+    dd = df[["M09_RP건수_아파트_B0M", "M08_RP후경과월_아파트"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M09_RP후경과월_아파트"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_1187(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M09_RP건수_제휴사서비스직접판매_B0M > 0 THEN M09_RP후경과월_제휴사서비스직접판매 = 0
+        ELSE M09_RP후경과월_제휴사서비스직접판매 = min(M08_RP후경과월_제휴사서비스직접판매 + 1, 6)
+    """
+    dd = df[["M09_RP건수_제휴사서비스직접판매_B0M", "M08_RP후경과월_제휴사서비스직접판매"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M09_RP후경과월_제휴사서비스직접판매"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_1188(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M09_RP건수_렌탈_B0M > 0 THEN M09_RP후경과월_렌탈 = 0
+        ELSE M09_RP후경과월_렌탈 = min(M08_RP후경과월_렌탈 + 1, 6)
+    """
+    dd = df[["M09_RP건수_렌탈_B0M", "M08_RP후경과월_렌탈"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M09_RP후경과월_렌탈"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_1189(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M09_RP건수_가스_B0M > 0 THEN M09_RP후경과월_가스 = 0
+        ELSE M09_RP후경과월_가스 = min(M08_RP후경과월_가스 + 1, 6)
+    """
+    dd = df[["M09_RP건수_가스_B0M", "M08_RP후경과월_가스"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M09_RP후경과월_가스"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_1190(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M09_RP건수_전기_B0M > 0 THEN M09_RP후경과월_전기 = 0
+        ELSE M09_RP후경과월_전기 = min(M08_RP후경과월_전기 + 1, 6)
+    """
+    dd = df[["M09_RP건수_전기_B0M", "M08_RP후경과월_전기"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M09_RP후경과월_전기"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_1191(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M09_RP건수_보험_B0M > 0 THEN M09_RP후경과월_보험 = 0
+        ELSE M09_RP후경과월_보험 = min(M08_RP후경과월_보험 + 1, 6)
+    """
+    dd = df[["M09_RP건수_보험_B0M", "M08_RP후경과월_보험"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M09_RP후경과월_보험"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_1192(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M09_RP건수_학습비_B0M > 0 THEN M09_RP후경과월_학습비 = 0
+        ELSE M09_RP후경과월_학습비 = min(M08_RP후경과월_학습비 + 1, 6)
+    """
+    dd = df[["M09_RP건수_학습비_B0M", "M08_RP후경과월_학습비"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M09_RP후경과월_학습비"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_1193(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M09_RP건수_유선방송_B0M > 0 THEN M09_RP후경과월_유선방송 = 0
+        ELSE M09_RP후경과월_유선방송 = min(M08_RP후경과월_유선방송 + 1, 6)
+    """
+    dd = df[["M09_RP건수_유선방송_B0M", "M08_RP후경과월_유선방송"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M09_RP후경과월_유선방송"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_1194(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M09_RP건수_건강_B0M > 0 THEN M09_RP후경과월_건강 = 0
+        ELSE M09_RP후경과월_건강 = min(M08_RP후경과월_건강 + 1, 6)
+    """
+    dd = df[["M09_RP건수_건강_B0M", "M08_RP후경과월_건강"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M09_RP후경과월_건강"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_1195(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M09_RP건수_교통_B0M > 0 THEN M09_RP후경과월_교통 = 0
+        ELSE M09_RP후경과월_교통 = min(M08_RP후경과월_교통 + 1, 6)
+    """
+    dd = df[["M09_RP건수_교통_B0M", "M08_RP후경과월_교통"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M09_RP후경과월_교통"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_1369(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        M09_승인거절건수_R3M = M07_승인거절건수_B0M + M08_승인거절건수_B0M + M09_승인거절건수_B0M
+    """
+    dd = df[["M07_승인거절건수_B0M", "M08_승인거절건수_B0M", "M09_승인거절건수_B0M"]]
+    res = dd.sum(axis=1).astype(int)
+
+    c = df["M09_승인거절건수_R3M"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_1370(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        M09_승인거절건수_한도초과_R3M = M07_승인거절건수_한도초과_B0M + M08_승인거절건수_한도초과_B0M + M09_승인거절건수_한도초과_B0M
+    """
+    dd = df[["M07_승인거절건수_한도초과_B0M", "M08_승인거절건수_한도초과_B0M", "M09_승인거절건수_한도초과_B0M"]]
+    res = dd.sum(axis=1).astype(int)
+
+    c = df["M09_승인거절건수_한도초과_R3M"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_1371(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        M09_승인거절건수_BL_R3M = M07_승인거절건수_BL_B0M + M08_승인거절건수_BL_B0M + M09_승인거절건수_BL_B0M
+    """
+    dd = df[["M07_승인거절건수_BL_B0M", "M08_승인거절건수_BL_B0M", "M09_승인거절건수_BL_B0M"]]
+    res = dd.sum(axis=1).astype(int)
+
+    c = df["M09_승인거절건수_BL_R3M"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_1372(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        M09_승인거절건수_입력오류_R3M = M07_승인거절건수_입력오류_B0M + M08_승인거절건수_입력오류_B0M + M09_승인거절건수_입력오류_B0M
+    """
+    dd = df[["M07_승인거절건수_입력오류_B0M", "M08_승인거절건수_입력오류_B0M", "M09_승인거절건수_입력오류_B0M"]]
+    res = dd.sum(axis=1).astype(int)
+
+    c = df["M09_승인거절건수_입력오류_R3M"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_1373(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        M09_승인거절건수_기타_R3M = M07_승인거절건수_기타_B0M + M08_승인거절건수_기타_B0M + M09_승인거절건수_기타_B0M
+    """
+    dd = df[["M07_승인거절건수_기타_B0M", "M08_승인거절건수_기타_B0M", "M09_승인거절건수_기타_B0M"]]
+    res = dd.sum(axis=1).astype(int)
+
+    c = df["M09_승인거절건수_기타_R3M"]
     return c == res
 
 
@@ -10696,6 +14956,239 @@ def cfs_03_1528(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     res = dd.sum(axis=1).astype(int)
 
     c = df["M10_금액_할부전환_R6M"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_1645(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M10_RP건수_B0M > 0 THEN M10_RP후경과월 = 0
+        ELSE M10_RP후경과월 = min(M09_RP후경과월 + 1, 6)
+    """
+    dd = df[["M10_RP건수_B0M", "M09_RP후경과월"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M10_RP후경과월"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_1646(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M10_RP건수_통신_B0M > 0 THEN M10_RP후경과월_통신 = 0
+        ELSE M10_RP후경과월_통신 = min(M09_RP후경과월_통신 + 1, 6)
+    """
+    dd = df[["M10_RP건수_통신_B0M", "M09_RP후경과월_통신"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M10_RP후경과월_통신"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_1647(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M10_RP건수_아파트_B0M > 0 THEN M10_RP후경과월_아파트 = 0
+        ELSE M10_RP후경과월_아파트 = min(M09_RP후경과월_아파트 + 1, 6)
+    """
+    dd = df[["M10_RP건수_아파트_B0M", "M09_RP후경과월_아파트"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M10_RP후경과월_아파트"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_1648(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M10_RP건수_제휴사서비스직접판매_B0M > 0 THEN M10_RP후경과월_제휴사서비스직접판매 = 0
+        ELSE M10_RP후경과월_제휴사서비스직접판매 = min(M09_RP후경과월_제휴사서비스직접판매 + 1, 6)
+    """
+    dd = df[["M10_RP건수_제휴사서비스직접판매_B0M", "M09_RP후경과월_제휴사서비스직접판매"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M10_RP후경과월_제휴사서비스직접판매"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_1649(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M10_RP건수_렌탈_B0M > 0 THEN M10_RP후경과월_렌탈 = 0
+        ELSE M10_RP후경과월_렌탈 = min(M09_RP후경과월_렌탈 + 1, 6)
+    """
+    dd = df[["M10_RP건수_렌탈_B0M", "M09_RP후경과월_렌탈"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M10_RP후경과월_렌탈"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_1650(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M10_RP건수_가스_B0M > 0 THEN M10_RP후경과월_가스 = 0
+        ELSE M10_RP후경과월_가스 = min(M09_RP후경과월_가스 + 1, 6)
+    """
+    dd = df[["M10_RP건수_가스_B0M", "M09_RP후경과월_가스"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M10_RP후경과월_가스"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_1651(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M10_RP건수_전기_B0M > 0 THEN M10_RP후경과월_전기 = 0
+        ELSE M10_RP후경과월_전기 = min(M09_RP후경과월_전기 + 1, 6)
+    """
+    dd = df[["M10_RP건수_전기_B0M", "M09_RP후경과월_전기"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M10_RP후경과월_전기"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_1652(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M10_RP건수_보험_B0M > 0 THEN M10_RP후경과월_보험 = 0
+        ELSE M10_RP후경과월_보험 = min(M09_RP후경과월_보험 + 1, 6)
+    """
+    dd = df[["M10_RP건수_보험_B0M", "M09_RP후경과월_보험"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M10_RP후경과월_보험"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_1653(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M10_RP건수_학습비_B0M > 0 THEN M10_RP후경과월_학습비 = 0
+        ELSE M10_RP후경과월_학습비 = min(M09_RP후경과월_학습비 + 1, 6)
+    """
+    dd = df[["M10_RP건수_학습비_B0M", "M09_RP후경과월_학습비"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M10_RP후경과월_학습비"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_1654(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M10_RP건수_유선방송_B0M > 0 THEN M10_RP후경과월_유선방송 = 0
+        ELSE M10_RP후경과월_유선방송 = min(M09_RP후경과월_유선방송 + 1, 6)
+    """
+    dd = df[["M10_RP건수_유선방송_B0M", "M09_RP후경과월_유선방송"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M10_RP후경과월_유선방송"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_1655(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M10_RP건수_건강_B0M > 0 THEN M10_RP후경과월_건강 = 0
+        ELSE M10_RP후경과월_건강 = min(M09_RP후경과월_건강 + 1, 6)
+    """
+    dd = df[["M10_RP건수_건강_B0M", "M09_RP후경과월_건강"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M10_RP후경과월_건강"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_1656(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M10_RP건수_교통_B0M > 0 THEN M10_RP후경과월_교통 = 0
+        ELSE M10_RP후경과월_교통 = min(M09_RP후경과월_교통 + 1, 6)
+    """
+    dd = df[["M10_RP건수_교통_B0M", "M09_RP후경과월_교통"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M10_RP후경과월_교통"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_1830(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        M10_승인거절건수_R3M = M08_승인거절건수_B0M + M09_승인거절건수_B0M + M10_승인거절건수_B0M
+    """
+    dd = df[["M08_승인거절건수_B0M", "M09_승인거절건수_B0M", "M10_승인거절건수_B0M"]]
+    res = dd.sum(axis=1).astype(int)
+
+    c = df["M10_승인거절건수_R3M"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_1831(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        M10_승인거절건수_한도초과_R3M = M08_승인거절건수_한도초과_B0M + M09_승인거절건수_한도초과_B0M + M10_승인거절건수_한도초과_B0M
+    """
+    dd = df[["M08_승인거절건수_한도초과_B0M", "M09_승인거절건수_한도초과_B0M", "M10_승인거절건수_한도초과_B0M"]]
+    res = dd.sum(axis=1).astype(int)
+
+    c = df["M10_승인거절건수_한도초과_R3M"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_1832(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        M10_승인거절건수_BL_R3M = M08_승인거절건수_BL_B0M + M09_승인거절건수_BL_B0M + M10_승인거절건수_BL_B0M
+    """
+    dd = df[["M08_승인거절건수_BL_B0M", "M09_승인거절건수_BL_B0M", "M10_승인거절건수_BL_B0M"]]
+    res = dd.sum(axis=1).astype(int)
+
+    c = df["M10_승인거절건수_BL_R3M"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_1833(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        M10_승인거절건수_입력오류_R3M = M08_승인거절건수_입력오류_B0M + M09_승인거절건수_입력오류_B0M + M10_승인거절건수_입력오류_B0M
+    """
+    dd = df[["M08_승인거절건수_입력오류_B0M", "M09_승인거절건수_입력오류_B0M", "M10_승인거절건수_입력오류_B0M"]]
+    res = dd.sum(axis=1).astype(int)
+
+    c = df["M10_승인거절건수_입력오류_R3M"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_1834(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        M10_승인거절건수_기타_R3M = M08_승인거절건수_기타_B0M + M09_승인거절건수_기타_B0M + M10_승인거절건수_기타_B0M
+    """
+    dd = df[["M08_승인거절건수_기타_B0M", "M09_승인거절건수_기타_B0M", "M10_승인거절건수_기타_B0M"]]
+    res = dd.sum(axis=1).astype(int)
+
+    c = df["M10_승인거절건수_기타_R3M"]
     return c == res
 
 
@@ -12178,6 +16671,239 @@ def cfs_03_1989(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     res = dd.sum(axis=1).astype(int)
 
     c = df["M11_금액_할부전환_R6M"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_2106(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M11_RP건수_B0M > 0 THEN M11_RP후경과월 = 0
+        ELSE M11_RP후경과월 = min(M10_RP후경과월 + 1, 6)
+    """
+    dd = df[["M11_RP건수_B0M", "M10_RP후경과월"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M11_RP후경과월"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_2107(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M11_RP건수_통신_B0M > 0 THEN M11_RP후경과월_통신 = 0
+        ELSE M11_RP후경과월_통신 = min(M10_RP후경과월_통신 + 1, 6)
+    """
+    dd = df[["M11_RP건수_통신_B0M", "M10_RP후경과월_통신"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M11_RP후경과월_통신"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_2108(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M11_RP건수_아파트_B0M > 0 THEN M11_RP후경과월_아파트 = 0
+        ELSE M11_RP후경과월_아파트 = min(M10_RP후경과월_아파트 + 1, 6)
+    """
+    dd = df[["M11_RP건수_아파트_B0M", "M10_RP후경과월_아파트"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M11_RP후경과월_아파트"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_2109(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M11_RP건수_제휴사서비스직접판매_B0M > 0 THEN M11_RP후경과월_제휴사서비스직접판매 = 0
+        ELSE M11_RP후경과월_제휴사서비스직접판매 = min(M10_RP후경과월_제휴사서비스직접판매 + 1, 6)
+    """
+    dd = df[["M11_RP건수_제휴사서비스직접판매_B0M", "M10_RP후경과월_제휴사서비스직접판매"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M11_RP후경과월_제휴사서비스직접판매"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_2110(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M11_RP건수_렌탈_B0M > 0 THEN M11_RP후경과월_렌탈 = 0
+        ELSE M11_RP후경과월_렌탈 = min(M10_RP후경과월_렌탈 + 1, 6)
+    """
+    dd = df[["M11_RP건수_렌탈_B0M", "M10_RP후경과월_렌탈"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M11_RP후경과월_렌탈"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_2111(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M11_RP건수_가스_B0M > 0 THEN M11_RP후경과월_가스 = 0
+        ELSE M11_RP후경과월_가스 = min(M10_RP후경과월_가스 + 1, 6)
+    """
+    dd = df[["M11_RP건수_가스_B0M", "M10_RP후경과월_가스"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M11_RP후경과월_가스"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_2112(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M11_RP건수_전기_B0M > 0 THEN M11_RP후경과월_전기 = 0
+        ELSE M11_RP후경과월_전기 = min(M10_RP후경과월_전기 + 1, 6)
+    """
+    dd = df[["M11_RP건수_전기_B0M", "M10_RP후경과월_전기"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M11_RP후경과월_전기"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_2113(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M11_RP건수_보험_B0M > 0 THEN M11_RP후경과월_보험 = 0
+        ELSE M11_RP후경과월_보험 = min(M10_RP후경과월_보험 + 1, 6)
+    """
+    dd = df[["M11_RP건수_보험_B0M", "M10_RP후경과월_보험"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M11_RP후경과월_보험"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_2114(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M11_RP건수_학습비_B0M > 0 THEN M11_RP후경과월_학습비 = 0
+        ELSE M11_RP후경과월_학습비 = min(M10_RP후경과월_학습비 + 1, 6)
+    """
+    dd = df[["M11_RP건수_학습비_B0M", "M10_RP후경과월_학습비"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M11_RP후경과월_학습비"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_2115(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M11_RP건수_유선방송_B0M > 0 THEN M11_RP후경과월_유선방송 = 0
+        ELSE M11_RP후경과월_유선방송 = min(M10_RP후경과월_유선방송 + 1, 6)
+    """
+    dd = df[["M11_RP건수_유선방송_B0M", "M10_RP후경과월_유선방송"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M11_RP후경과월_유선방송"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_2116(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M11_RP건수_건강_B0M > 0 THEN M11_RP후경과월_건강 = 0
+        ELSE M11_RP후경과월_건강 = min(M10_RP후경과월_건강 + 1, 6)
+    """
+    dd = df[["M11_RP건수_건강_B0M", "M10_RP후경과월_건강"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M11_RP후경과월_건강"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_2117(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M11_RP건수_교통_B0M > 0 THEN M11_RP후경과월_교통 = 0
+        ELSE M11_RP후경과월_교통 = min(M10_RP후경과월_교통 + 1, 6)
+    """
+    dd = df[["M11_RP건수_교통_B0M", "M10_RP후경과월_교통"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M11_RP후경과월_교통"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_2291(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        M11_승인거절건수_R3M = M09_승인거절건수_B0M + M10_승인거절건수_B0M + M11_승인거절건수_B0M
+    """
+    dd = df[["M09_승인거절건수_B0M", "M10_승인거절건수_B0M", "M11_승인거절건수_B0M"]]
+    res = dd.sum(axis=1).astype(int)
+
+    c = df["M11_승인거절건수_R3M"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_2292(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        M11_승인거절건수_한도초과_R3M = M09_승인거절건수_한도초과_B0M + M10_승인거절건수_한도초과_B0M + M11_승인거절건수_한도초과_B0M
+    """
+    dd = df[["M09_승인거절건수_한도초과_B0M", "M10_승인거절건수_한도초과_B0M", "M11_승인거절건수_한도초과_B0M"]]
+    res = dd.sum(axis=1).astype(int)
+
+    c = df["M11_승인거절건수_한도초과_R3M"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_2293(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        M11_승인거절건수_BL_R3M = M09_승인거절건수_BL_B0M + M10_승인거절건수_BL_B0M + M11_승인거절건수_BL_B0M
+    """
+    dd = df[["M09_승인거절건수_BL_B0M", "M10_승인거절건수_BL_B0M", "M11_승인거절건수_BL_B0M"]]
+    res = dd.sum(axis=1).astype(int)
+
+    c = df["M11_승인거절건수_BL_R3M"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_2294(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        M11_승인거절건수_입력오류_R3M = M09_승인거절건수_입력오류_B0M + M10_승인거절건수_입력오류_B0M + M11_승인거절건수_입력오류_B0M
+    """
+    dd = df[["M09_승인거절건수_입력오류_B0M", "M10_승인거절건수_입력오류_B0M", "M11_승인거절건수_입력오류_B0M"]]
+    res = dd.sum(axis=1).astype(int)
+
+    c = df["M11_승인거절건수_입력오류_R3M"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_2295(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        M11_승인거절건수_기타_R3M = M09_승인거절건수_기타_B0M + M10_승인거절건수_기타_B0M + M11_승인거절건수_기타_B0M
+    """
+    dd = df[["M09_승인거절건수_기타_B0M", "M10_승인거절건수_기타_B0M", "M11_승인거절건수_기타_B0M"]]
+    res = dd.sum(axis=1).astype(int)
+
+    c = df["M11_승인거절건수_기타_R3M"]
     return c == res
 
 
@@ -13790,6 +18516,239 @@ def cfs_03_2450(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     res = dd.sum(axis=1).astype(int)
 
     c = df["M12_금액_할부전환_R6M"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_2567(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M12_RP건수_B0M > 0 THEN M12_RP후경과월 = 0
+        ELSE M12_RP후경과월 = min(M11_RP후경과월 + 1, 6)
+    """
+    dd = df[["M12_RP건수_B0M", "M11_RP후경과월"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M12_RP후경과월"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_2568(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M12_RP건수_통신_B0M > 0 THEN M12_RP후경과월_통신 = 0
+        ELSE M12_RP후경과월_통신 = min(M11_RP후경과월_통신 + 1, 6)
+    """
+    dd = df[["M12_RP건수_통신_B0M", "M11_RP후경과월_통신"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M12_RP후경과월_통신"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_2569(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M12_RP건수_아파트_B0M > 0 THEN M12_RP후경과월_아파트 = 0
+        ELSE M12_RP후경과월_아파트 = min(M11_RP후경과월_아파트 + 1, 6)
+    """
+    dd = df[["M12_RP건수_아파트_B0M", "M11_RP후경과월_아파트"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M12_RP후경과월_아파트"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_2570(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M12_RP건수_제휴사서비스직접판매_B0M > 0 THEN M12_RP후경과월_제휴사서비스직접판매 = 0
+        ELSE M12_RP후경과월_제휴사서비스직접판매 = min(M11_RP후경과월_제휴사서비스직접판매 + 1, 6)
+    """
+    dd = df[["M12_RP건수_제휴사서비스직접판매_B0M", "M11_RP후경과월_제휴사서비스직접판매"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M12_RP후경과월_제휴사서비스직접판매"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_2571(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M12_RP건수_렌탈_B0M > 0 THEN M12_RP후경과월_렌탈 = 0
+        ELSE M12_RP후경과월_렌탈 = min(M11_RP후경과월_렌탈 + 1, 6)
+    """
+    dd = df[["M12_RP건수_렌탈_B0M", "M11_RP후경과월_렌탈"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M12_RP후경과월_렌탈"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_2572(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M12_RP건수_가스_B0M > 0 THEN M12_RP후경과월_가스 = 0
+        ELSE M12_RP후경과월_가스 = min(M11_RP후경과월_가스 + 1, 6)
+    """
+    dd = df[["M12_RP건수_가스_B0M", "M11_RP후경과월_가스"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M12_RP후경과월_가스"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_2573(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M12_RP건수_전기_B0M > 0 THEN M12_RP후경과월_전기 = 0
+        ELSE M12_RP후경과월_전기 = min(M11_RP후경과월_전기 + 1, 6)
+    """
+    dd = df[["M12_RP건수_전기_B0M", "M11_RP후경과월_전기"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M12_RP후경과월_전기"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_2574(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M12_RP건수_보험_B0M > 0 THEN M12_RP후경과월_보험 = 0
+        ELSE M12_RP후경과월_보험 = min(M11_RP후경과월_보험 + 1, 6)
+    """
+    dd = df[["M12_RP건수_보험_B0M", "M11_RP후경과월_보험"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M12_RP후경과월_보험"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_2575(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M12_RP건수_학습비_B0M > 0 THEN M12_RP후경과월_학습비 = 0
+        ELSE M12_RP후경과월_학습비 = min(M11_RP후경과월_학습비 + 1, 6)
+    """
+    dd = df[["M12_RP건수_학습비_B0M", "M11_RP후경과월_학습비"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M12_RP후경과월_학습비"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_2576(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M12_RP건수_유선방송_B0M > 0 THEN M12_RP후경과월_유선방송 = 0
+        ELSE M12_RP후경과월_유선방송 = min(M11_RP후경과월_유선방송 + 1, 6)
+    """
+    dd = df[["M12_RP건수_유선방송_B0M", "M11_RP후경과월_유선방송"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M12_RP후경과월_유선방송"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_2577(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M12_RP건수_건강_B0M > 0 THEN M12_RP후경과월_건강 = 0
+        ELSE M12_RP후경과월_건강 = min(M11_RP후경과월_건강 + 1, 6)
+    """
+    dd = df[["M12_RP건수_건강_B0M", "M11_RP후경과월_건강"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M12_RP후경과월_건강"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_2578(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF M12_RP건수_교통_B0M > 0 THEN M12_RP후경과월_교통 = 0
+        ELSE M12_RP후경과월_교통 = min(M11_RP후경과월_교통 + 1, 6)
+    """
+    dd = df[["M12_RP건수_교통_B0M", "M11_RP후경과월_교통"]]
+    res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+
+    c = df["M12_RP후경과월_교통"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_2752(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        M12_승인거절건수_R3M = M10_승인거절건수_B0M + M11_승인거절건수_B0M + M12_승인거절건수_B0M
+    """
+    dd = df[["M10_승인거절건수_B0M", "M11_승인거절건수_B0M", "M12_승인거절건수_B0M"]]
+    res = dd.sum(axis=1).astype(int)
+
+    c = df["M12_승인거절건수_R3M"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_2753(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        M12_승인거절건수_한도초과_R3M = M10_승인거절건수_한도초과_B0M + M11_승인거절건수_한도초과_B0M + M12_승인거절건수_한도초과_B0M
+    """
+    dd = df[["M10_승인거절건수_한도초과_B0M", "M11_승인거절건수_한도초과_B0M", "M12_승인거절건수_한도초과_B0M"]]
+    res = dd.sum(axis=1).astype(int)
+
+    c = df["M12_승인거절건수_한도초과_R3M"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_2754(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        M12_승인거절건수_BL_R3M = M10_승인거절건수_BL_B0M + M11_승인거절건수_BL_B0M + M12_승인거절건수_BL_B0M
+    """
+    dd = df[["M10_승인거절건수_BL_B0M", "M11_승인거절건수_BL_B0M", "M12_승인거절건수_BL_B0M"]]
+    res = dd.sum(axis=1).astype(int)
+
+    c = df["M12_승인거절건수_BL_R3M"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_2755(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        M12_승인거절건수_입력오류_R3M = M10_승인거절건수_입력오류_B0M + M11_승인거절건수_입력오류_B0M + M12_승인거절건수_입력오류_B0M
+    """
+    dd = df[["M10_승인거절건수_입력오류_B0M", "M11_승인거절건수_입력오류_B0M", "M12_승인거절건수_입력오류_B0M"]]
+    res = dd.sum(axis=1).astype(int)
+
+    c = df["M12_승인거절건수_입력오류_R3M"]
+    return c == res
+
+
+@constraint_udf
+def cfs_03_2756(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        M12_승인거절건수_기타_R3M = M10_승인거절건수_기타_B0M + M11_승인거절건수_기타_B0M + M12_승인거절건수_기타_B0M
+    """
+    dd = df[["M10_승인거절건수_기타_B0M", "M11_승인거절건수_기타_B0M", "M12_승인거절건수_기타_B0M"]]
+    res = dd.sum(axis=1).astype(int)
+
+    c = df["M12_승인거절건수_기타_R3M"]
     return c == res
 
 
