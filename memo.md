@@ -54,7 +54,10 @@ pyreverse -o png model
   - 얘는 불필요할듯.. 어차피 피클 로드시 내부 로직은 업데이트된 코드로 교체됨
 - formula 체크 [...]
   - 우선순위 알고리즘
-- discriminator 마지막 relu 레이어 없애보기 -> avg-pooling 으로 대체
+- discriminator 마지막 relu 레이어 없애보기 -> avg-pooling 으로 대체 [x]
+  - 채널로 이미 조절해서 불필요
+- auxiliary classifier 학습률 높이기
+- transformer 도입하기
 
 
 ---
