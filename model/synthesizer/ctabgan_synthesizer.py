@@ -899,11 +899,11 @@ class CTABGANSynthesizer:
                     # input: real  # (B, M(S), encode) -> (S, B, encode)
                     data = real.permute(1, 0, 2)  # (S, B, encode)
                     output = self.fsn(data, src_mask)
-                    targets = data[1:]
-                    loss_f = loss_f_criterion(
-                        output[:-1].reshape(-1, len_encoded),
-                        targets.reshape(-1, len_encoded),
-                    )
+                    # loss_f = loss_f_criterion(
+                    #     output[:-1].reshape(-1, len_encoded),  # input
+                    #     data[1:].reshape(-1, len_encoded),  # target
+                    # )
+                    loss_f = ((output[:-1] - data[1:]) ** 2).mean()  # mse loss
 
                     optimizerF.zero_grad()
                     loss_f.backward()

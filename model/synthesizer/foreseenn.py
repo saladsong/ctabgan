@@ -108,7 +108,7 @@ class ForeseeNN(nn.Module):
         src = self.pos_encoder(src)
         output = self.transformer_encoder(src, src_mask)
         output = self.decoder(output)
-        output = torch.tanh(output)
+        output = torch.tanh(output)  # activation fn. encoded 데이터와 레인지 통일 [-1~1]
         return output
 
 

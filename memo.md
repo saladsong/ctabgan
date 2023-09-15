@@ -56,9 +56,10 @@ pyreverse -o png model
   - 우선순위 알고리즘
 - discriminator 마지막 relu 레이어 없애보기 -> avg-pooling 으로 대체 [x]
   - 채널로 이미 조절해서 불필요
-- auxiliary classifier 학습률 높이기
-- transformer 도입하기
-
+- auxiliary classifier 학습률 높이기 [x]
+- transformer 도입하기 [x]
+- transformer loss rmse로 변경
+  - 확률 예측도 아니고 마지막 레이어가 tanh임
 
 ---
 8월말까지
