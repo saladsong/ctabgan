@@ -163,3 +163,29 @@ def generate_square_subsequent_mask(sz: int) -> Tensor:
 #     #             f'loss {cur_loss:5.2f} | ppl {ppl:8.2f}')
 #     #     total_loss = 0
 #     #     start_time = time.time()
+
+
+def foresee(
+    input: torch.Tensor,
+    fsn: ForeseeNN,
+    n_month: int,
+    optimizerF: torch.optim.Optimizer = None,
+) -> torch.Tensor:
+    """트랜스포머 이용해 첫 달 데이터로 이후 n_month 예측
+    IN: (B, M(S)(1), encode) -> (S(1), B, encode) -> (S(6), B, encode) ->
+    OUT: (B, S(6), encode)
+    """
+    # fsn.train()  # 학습 모드 시작
+    # optimizerF.zero_grad()
+    fsn.eval()
+    with torch.no_grad():
+        # input: fakeact  # (B, M(S)(1), encode) -> (S(1), B, encode)
+        # output: (S(6), B, encode)
+        data = input.permute(1, 0, 2)  # (S, B, encode)
+        output = [data]
+        for i in range(n_month - 1):
+            output.append(fsn(torch.concat(output), None)[-1].unsqueeze(0))
+
+        # (S(6), B, encode) -> (B, S(6), encode)
+        ret = torch.concat(output).permute(1, 0, 2)
+    return ret

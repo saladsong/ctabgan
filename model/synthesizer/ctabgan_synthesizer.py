@@ -29,7 +29,11 @@ import logging
 import wandb
 import os
 from typing import List, Tuple, Union
-from model.synthesizer.foreseenn import ForeseeNN, generate_square_subsequent_mask
+from model.synthesizer.foreseenn import (
+    ForeseeNN,
+    generate_square_subsequent_mask,
+    foresee,
+)
 
 
 class Classifier(Module):
@@ -846,26 +850,11 @@ class CTABGANSynthesizer:
                     faket = self.Gtransformer.inverse_transform(fake)
                     fakeact = apply_activate(faket, data_transformer.output_info)
 
-                    # foreseeNN 예측/학습
-                    # discriminator 학습때만 같이 학습, generator 때는 생성만 (첫월->6개월)
-                    self.fsn.train()  # 학습 모드 시작
-                    optimizerF.zero_grad()
-                    # input: fakeact  # (B, M(S)(1), encode) -> (S(1), B, encode)
-                    # output: (S(6), B, encode)
-                    data = fakeact.permute(1, 0, 2)  # (S, B, encode)
-                    output = [data]
-                    for i in range(n_month - 1):
-                        output.append(
-                            self.fsn(torch.concat(output), None)[-1].unsqueeze(0)
-                        )
-
                     # mmmm
                     # fake_cat = torch.cat([fakeact, condvec], dim=1)
                     # real_cat = torch.cat([real, c_perm], dim=1)
                     # fake_cat = fakeact
-                    fake_cat = torch.concat(output).permute(
-                        1, 0, 2
-                    )  # (S(6), B, encode) -> (B, S(6), encode)
+                    fake_cat = foresee(fakeact, self.fsn, self.n_month)  # foreseeNN 예측
                     real_cat = real
 
                     real_cat_d = self.Dtransformer.transform(real_cat)
@@ -893,8 +882,8 @@ class CTABGANSynthesizer:
 
                     # foreseeNN 학습
                     # discriminator 학습때만 같이 학습, generator 때는 생성만 (첫월->6개월)
-                    # self.fsn.train()  # 학습 모드 시작
-                    # optimizerF.zero_grad()
+                    self.fsn.train()  # 학습 모드 시작
+                    optimizerF.zero_grad()
                     src_mask = generate_square_subsequent_mask(seq_len).to(self.device)
                     # input: real  # (B, M(S), encode) -> (S, B, encode)
                     data = real.permute(1, 0, 2)  # (S, B, encode)
@@ -905,7 +894,6 @@ class CTABGANSynthesizer:
                     # )
                     loss_f = ((output[:-1] - data[1:]) ** 2).mean()  # mse loss
 
-                    optimizerF.zero_grad()
                     loss_f.backward()
                     torch.nn.utils.clip_grad_norm_(self.fsn.parameters(), 0.5)
 
@@ -938,24 +926,11 @@ class CTABGANSynthesizer:
                 faket = self.Gtransformer.inverse_transform(fake)
                 fakeact = apply_activate(faket, data_transformer.output_info)  # encoded
 
-                # foreseeNN 예측/학습
-                # discriminator 학습때만 같이 학습, generator 때는 생성만 (첫월->6개월)
-                # self.fsn.train()  # 학습 모드 시작
-                optimizerF.zero_grad()
-                # input: fakeact  # (B, M(S)(1), encode) -> (S(1), B, encode)
-                # output: (S(6), B, encode)
-                data = fakeact.permute(1, 0, 2)  # (S, B, encode)
-                output = [data]
-                for i in range(n_month - 1):
-                    output.append(self.fsn(torch.concat(output), None)[-1].unsqueeze(0))
-
                 # discriminator에 입력위해 encoded + condvec  concat
                 # mmmm
                 # fake_cat = torch.cat([fakeact, condvec], dim=1)
                 # fake_cat = fakeact
-                fake_cat = torch.concat(output).permute(
-                    1, 0, 2
-                )  # (S(6), B, encode) -> (B, S(6), encode)
+                fake_cat = foresee(fakeact, self.fsn, self.n_month)  # foreseeNN 예측
                 fake_cat = self.Dtransformer.transform(fake_cat)
 
                 y_fake, info_fake = self.discriminator(fake_cat)
@@ -1007,7 +982,7 @@ class CTABGANSynthesizer:
                 }
                 if (i_g + 1) % self.accumulation_steps == 0:
                     optimizerG.step()
-                    optimizerF.step()
+                    # optimizerF.step()
 
                 # loss_g_dstream
                 if target_index is not None:
@@ -1016,23 +991,11 @@ class CTABGANSynthesizer:
                     fake = self.generator(noisez)
                     faket = self.Gtransformer.inverse_transform(fake)
                     fakeact = apply_activate(faket, data_transformer.output_info)
-                    optimizerF.zero_grad()
-                    # input: fakeact  # (B, M(S)(1), encode) -> (S(1), B, encode)
-                    # output: (S(6), B, encode)
-                    data = fakeact.permute(1, 0, 2)  # (S, B, encode)
-                    output = [data]
-                    for i in range(n_month - 1):
-                        output.append(
-                            self.fsn(torch.concat(output), None)[-1].unsqueeze(0)
-                        )
-
-                    fake_cat = torch.concat(output).permute(
-                        1, 0, 2
-                    )  # (S(6), B, encode) -> (B, S(6), encode)
+                    fakeact = foresee(fakeact, self.fsn, self.n_month)  # foreseeNN 예측
 
                     # classifier 입력전에 3lank 텐서를 2lank 로 변환 (B*M, #encode)
                     real = real.contiguous().view(-1, len_encoded)
-                    fakeact = fake_cat.contiguous().view(-1, len_encoded)
+                    fakeact = fakeact.contiguous().view(-1, len_encoded)
                     # fakeact = fakeact.contiguous().view(-1, len_encoded)
                     # classifier 에 입력
                     real_pre, real_label = self.classifier(real)
@@ -1078,7 +1041,7 @@ class CTABGANSynthesizer:
                     if (i_g + 1) % self.accumulation_steps == 0:
                         optimizerG.step()
                         optimizerC.step()
-                        optimizerF.step()
+                        # optimizerF.step()
 
                 else:
                     wandblog.update(
@@ -1130,19 +1093,7 @@ class CTABGANSynthesizer:
             fake = self.generator(noisez)
             faket = self.Gtransformer.inverse_transform(fake)
             fakeact = apply_activate(faket, output_info)  # (B, M, #encode)
-
-            # for ForeseeNN
-            # input: fakeact  # (B, M(S)(1), encode) -> (S(1), B, encode)
-            # output: (S(6), B, encode)
-            self.fsn.eval()
-            _data = fakeact.permute(1, 0, 2)  # (S, B, encode)
-            output = [_data]
-            for i in range(self.n_month - 1):
-                output.append(self.fsn(torch.concat(output), None)[-1].unsqueeze(0))
-
-            fake_cat = torch.concat(output).permute(
-                1, 0, 2
-            )  # (S(6), B, encode) -> (B, S(6), encode)
+            fake_cat = foresee(fakeact, self.fsn, self.n_month)  # foreseeNN 예측
 
             data.append(
                 fake_cat.detach()
