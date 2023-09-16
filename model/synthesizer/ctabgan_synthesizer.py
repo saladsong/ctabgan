@@ -799,7 +799,7 @@ class CTABGANSynthesizer:
             optimizerC, T_max=steps_per_epoch * self.epochs, eta_min=self.lr * 0.01 * 10
         )
         schedulerF = optim.lr_scheduler.CosineAnnealingLR(
-            optimizerD, T_max=steps_per_epoch * self.epochs, eta_min=self.lr * 0.01
+            optimizerF, T_max=steps_per_epoch * self.epochs, eta_min=self.lr * 0.01
         )
         for epoch in tqdm(range(self.epochs)):
             # lsw: info loss 기중치 에폭 중반부터 증가 실험용
@@ -965,7 +965,7 @@ class CTABGANSynthesizer:
                 )
                 loss_g_info = self.info_loss_wgt * (loss_mean + loss_std)
 
-                loss_g = loss_g_default + loss_g_info + loss_g_gen
+                loss_g = loss_g_default + loss_g_info + loss_g_gen * 10
                 loss_g.backward()
 
                 wandblog = {
