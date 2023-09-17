@@ -622,7 +622,9 @@ class CTABGANSynthesizer:
         batch_size: int = 500,
         epochs: int = 50,
         ci: int = 1,  # D(critic) 학습 - ci: 반복 횟수
-        lr: float = 2e-4,  # adam optimizer learning rate
+        lr: float = 2e-4,  # adam optimizer learning rate for generator & disciminator
+        lr_c: float = 2e-4,  # adam optimizer learning rate for aux classifier
+        lr_f: float = 2e-4,  # adam optimizer learning rate for foreseenn
         betas: Tuple[float, float] = (0.9, 0.999),  # adam optimizer betas
         weight_decay: float = 1e-5,  # adam optimizer betas weight_decay
         device: str = None,
@@ -652,6 +654,8 @@ class CTABGANSynthesizer:
         self.epochs = epochs
         self.ci = ci
         self.lr = lr
+        self.lr_c = lr_c
+        self.lr_f = lr_f
         self.betas = betas
         self.weight_decay = weight_decay
         if device is None:
@@ -801,10 +805,10 @@ class CTABGANSynthesizer:
             optimizerD, T_max=steps_per_epoch * self.epochs, eta_min=self.lr * 0.01
         )
         schedulerC = optim.lr_scheduler.CosineAnnealingLR(
-            optimizerC, T_max=steps_per_epoch * self.epochs, eta_min=self.lr * 0.01 * 10
+            optimizerC, T_max=steps_per_epoch * self.epochs, eta_min=self.lr_c * 0.1
         )
         schedulerF = optim.lr_scheduler.CosineAnnealingLR(
-            optimizerF, T_max=steps_per_epoch * self.epochs, eta_min=self.lr * 0.01
+            optimizerF, T_max=steps_per_epoch * self.epochs, eta_min=self.lr_f * 0.01
         )
         for epoch in tqdm(range(self.epochs)):
             # lsw: info loss 기중치 에폭 중반부터 증가 실험용
