@@ -757,7 +757,12 @@ class CTABGANSynthesizer:
         # )
         optimizerG = Adam(self.generator.parameters(), **optimizer_params)
         optimizerD = Adam(self.discriminator.parameters(), **optimizer_params)
-        optimizerF = Adam(self.fsn.parameters(), **optimizer_params)
+        optimizerF = Adam(
+            self.fsn.parameters(),
+            lr=1e-4,
+            betas=self.betas,
+            weight_decay=self.weight_decay,
+        )
 
         # build auxiliary classifier
         tcol_idx_st_ed_tuple = (
@@ -967,6 +972,10 @@ class CTABGANSynthesizer:
 
                 loss_g = loss_g_default + loss_g_info + loss_g_gen * 10
                 loss_g.backward()
+
+                # for param_group in optimizerG.param_groups:
+                #     param_group['lr'] = param_group['lr']*0.1
+                # loss_g_gen.backward()
 
                 wandblog = {
                     # for loss_f

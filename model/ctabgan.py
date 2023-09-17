@@ -31,7 +31,7 @@ class CTABGAN:
         integer_columns: list = None,
         problem_type: dict = None,  # {"Classification": "income"} 포맷으로 입력
         transformer: DataTransformer = None,
-        project: str = "ctabgan-project",  # wandb config
+        project: str = "synthe",  # wandb config
     ):
         self.__name__ = "CTABGAN"
         # set initial params
