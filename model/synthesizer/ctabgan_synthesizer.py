@@ -638,6 +638,8 @@ class CTABGANSynthesizer:
         # for generator
         num_channels: int = 64,  # CNN 출력 직전 채널 수
         n_conv_layers: int = 4,  # conv layer 개수
+        # for foreseenn
+        train_foresee_all: bool = False,
     ):
         if class_dim is None:
             class_dim = (256, 256, 256, 256)
@@ -671,6 +673,8 @@ class CTABGANSynthesizer:
         self.info_loss_inc_rate = info_loss_inc_rate
         # for generator
         self.n_conv_layers = n_conv_layers
+        # for foreseenn
+        self.train_foresee_all = train_foresee_all
 
         self.is_fit_ = False
 
@@ -863,7 +867,13 @@ class CTABGANSynthesizer:
                     # fake_cat = torch.cat([fakeact, condvec], dim=1)
                     # real_cat = torch.cat([real, c_perm], dim=1)
                     # fake_cat = fakeact
-                    fake_cat = foresee(fakeact, self.fsn, self.n_month)  # foreseeNN 예측
+                    fake_cat = foresee(
+                        fakeact,
+                        self.fsn,
+                        self.n_month,
+                        train=self.train_foresee_all,
+                        optimizerF=optimizerF,
+                    )
                     real_cat = real
 
                     real_cat_d = self.Dtransformer.transform(real_cat)
@@ -892,7 +902,9 @@ class CTABGANSynthesizer:
                     # foreseeNN 학습
                     # discriminator 학습때만 같이 학습, generator 때는 생성만 (첫월->6개월)
                     self.fsn.train()  # 학습 모드 시작
-                    optimizerF.zero_grad()
+                    if not self.train_foresee_all:
+                        # train_foresee_all 이 True면 위에서 zero_grad 하므로 여기서 화면 안됨
+                        optimizerF.zero_grad()
                     src_mask = generate_square_subsequent_mask(seq_len).to(self.device)
                     # input: real  # (B, M(S), encode) -> (S, B, encode)
                     data = real.permute(1, 0, 2)  # (S, B, encode)
@@ -939,7 +951,13 @@ class CTABGANSynthesizer:
                 # mmmm
                 # fake_cat = torch.cat([fakeact, condvec], dim=1)
                 # fake_cat = fakeact
-                fake_cat = foresee(fakeact, self.fsn, self.n_month)  # foreseeNN 예측
+                fake_cat = foresee(
+                    fakeact,
+                    self.fsn,
+                    self.n_month,
+                    train=self.train_foresee_all,
+                    optimizerF=optimizerF,
+                )
                 fake_cat = self.Dtransformer.transform(fake_cat)
 
                 y_fake, info_fake = self.discriminator(fake_cat)
@@ -995,7 +1013,8 @@ class CTABGANSynthesizer:
                 }
                 if (i_g + 1) % self.accumulation_steps == 0:
                     optimizerG.step()
-                    # optimizerF.step()
+                    if self.train_foresee_all:
+                        optimizerF.step()
 
                 # loss_g_dstream
                 if target_index is not None:
@@ -1004,7 +1023,13 @@ class CTABGANSynthesizer:
                     fake = self.generator(noisez)
                     faket = self.Gtransformer.inverse_transform(fake)
                     fakeact = apply_activate(faket, data_transformer.output_info)
-                    fakeact = foresee(fakeact, self.fsn, self.n_month)  # foreseeNN 예측
+                    fakeact = foresee(
+                        fakeact,
+                        self.fsn,
+                        self.n_month,
+                        train=self.train_foresee_all,
+                        optimizerF=optimizerF,
+                    )
 
                     # classifier 입력전에 3lank 텐서를 2lank 로 변환 (B*M, #encode)
                     real = real.contiguous().view(-1, len_encoded)
@@ -1054,7 +1079,8 @@ class CTABGANSynthesizer:
                     if (i_g + 1) % self.accumulation_steps == 0:
                         optimizerG.step()
                         optimizerC.step()
-                        # optimizerF.step()
+                        if self.train_foresee_all:
+                            optimizerF.step()
 
                 else:
                     wandblog.update(

@@ -169,16 +169,15 @@ def foresee(
     input: torch.Tensor,
     fsn: ForeseeNN,
     n_month: int,
+    train: bool = False,
     optimizerF: torch.optim.Optimizer = None,
 ) -> torch.Tensor:
     """트랜스포머 이용해 첫 달 데이터로 이후 n_month 예측
     IN: (B, M(S)(1), encode) -> (S(1), B, encode) -> (S(6), B, encode) ->
     OUT: (B, S(6), encode)
     """
-    # fsn.train()  # 학습 모드 시작
-    # optimizerF.zero_grad()
-    fsn.eval()
-    with torch.no_grad():
+
+    def _run(input):
         # input: fakeact  # (B, M(S)(1), encode) -> (S(1), B, encode)
         # output: (S(6), B, encode)
         data = input.permute(1, 0, 2)  # (S, B, encode)
@@ -188,4 +187,15 @@ def foresee(
 
         # (S(6), B, encode) -> (B, S(6), encode)
         ret = torch.concat(output).permute(1, 0, 2)
+        return ret
+
+    if train:
+        assert optimizerF is not None
+        fsn.train()  # 학습 모드 시작
+        optimizerF.zero_grad()
+        ret = _run(input)
+    else:
+        fsn.eval()
+        with torch.no_grad():
+            ret = _run(input)
     return ret
