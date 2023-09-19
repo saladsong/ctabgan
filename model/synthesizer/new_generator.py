@@ -32,7 +32,9 @@ class MultiHeadSelfAttention(nn.Module):
         self.n_head = n_head
         self.in_channels_sub = self.in_channels // n_head
         assert in_channels % n_head == 0
-        self.attentions = [SelfAttention(self.in_channels_sub) for _ in range(n_head)]
+        self.attentions = nn.ModuleList(
+            [SelfAttention(self.in_channels_sub) for _ in range(n_head)]
+        )
 
     def forward(self, x):
         # x (B, C, W, H)

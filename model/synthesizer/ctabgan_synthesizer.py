@@ -755,7 +755,7 @@ class CTABGANSynthesizer:
         self.fsn = ForeseeNN(len_encoded, emsize, nhead, d_hid, nlayers, dropout).to(
             self.device
         )
-        loss_f_criterion = CrossEntropyLoss()
+        # loss_f_criterion = CrossEntropyLoss()
 
         # set optimizer
         # 이부분 설정으로 빼기
