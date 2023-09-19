@@ -34,6 +34,7 @@ from model.synthesizer.foreseenn import (
     generate_square_subsequent_mask,
     foresee,
 )
+from model.synthesizer.new_generator import NewGenerator
 
 
 class Classifier(Module):
@@ -727,14 +728,15 @@ class CTABGANSynthesizer:
 
         # build generator
         col_size_d = self.random_dim + n_opt
-        self.generator = Generator(
-            self.gside,
-            col_size_d,
-            self.num_channels,
-            1,
-            self.n_conv_layers
-            # self.gside, col_size_d, self.num_channels, n_month, self.n_conv_layers
-        ).to(self.device)
+        # self.generator = Generator(
+        #     self.gside,
+        #     col_size_d,
+        #     self.num_channels,
+        #     1,
+        #     self.n_conv_layers
+        #     # self.gside, col_size_d, self.num_channels, n_month, self.n_conv_layers
+        # ).to(self.device)
+        self.generator = NewGenerator(self.random_dim + n_opt).to(self.device)
 
         # build discriminator
         self.discriminator = Discriminator(self.dside, self.num_channels, n_month).to(
