@@ -767,7 +767,7 @@ class CTABGANSynthesizer:
         optimizerD = Adam(self.discriminator.parameters(), **optimizer_params)
         optimizerF = Adam(
             self.fsn.parameters(),
-            lr=1e-4,
+            lr=self.lr_f,
             betas=self.betas,
             weight_decay=self.weight_decay,
         )
@@ -787,7 +787,7 @@ class CTABGANSynthesizer:
             ).to(self.device)
             optimizerC = optim.Adam(
                 self.classifier.parameters(),
-                lr=1e-4,
+                lr=self.lr_c,
                 betas=self.betas,
                 weight_decay=self.weight_decay,
             )
