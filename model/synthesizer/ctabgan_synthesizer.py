@@ -749,7 +749,7 @@ class CTABGANSynthesizer:
         d_hid = (
             256  # ``nn.TransformerEncoder`` 에서 피드포워드 네트워크(feedforward network) 모델의 차원
         )
-        nlayers = 4  # ``nn.TransformerEncoder`` 내부의 nn.TransformerEncoderLayer 개수
+        nlayers = 5  # ``nn.TransformerEncoder`` 내부의 nn.TransformerEncoderLayer 개수
         nhead = 4  # ``nn.MultiheadAttention`` 의 헤드 개수
         dropout = 0.2  # 드랍아웃(dropout) 확률
         self.fsn = ForeseeNN(len_encoded, emsize, nhead, d_hid, nlayers, dropout).to(
@@ -980,16 +980,29 @@ class CTABGANSynthesizer:
                 # lsw: 1. 논문은 L2놈인데 왜 L1놈 사용중임?
                 # lsw: 2. real_cat_d, fake_cat 은 다른 condvec 으로부터 만들어짐. info_fake, info_real은 D의 마지막 전 레이어 값 (약 13,13)
                 #           둘을 맞추는게 맞나...? 너무 불안정하지 않을까 싶기도 하고 피처니까 굳이 상관없을듯도 하고
+                ### for discirminator (original paper)
+                # loss_mean = torch.norm(
+                #     torch.mean(info_fake.view(self.batch_size, -1), dim=0)
+                #     - torch.mean(info_real.view(self.batch_size, -1), dim=0),
+                #     # 1,
+                #     2,
+                # )
+                # loss_std = torch.norm(
+                #     torch.std(info_fake.view(self.batch_size, -1), dim=0)
+                #     - torch.std(info_real.view(self.batch_size, -1), dim=0),
+                #     # 1,
+                #     2,
+                # )
+                ### for generator (lsw 변경)
+                # 일단 6월 것만 보기로
                 loss_mean = torch.norm(
-                    torch.mean(info_fake.view(self.batch_size, -1), dim=0)
-                    - torch.mean(info_real.view(self.batch_size, -1), dim=0),
-                    # 1,
+                    torch.mean(fakeact.view(self.batch_size, -1), dim=0)
+                    - torch.mean(real[:, 0].view(self.batch_size, -1), dim=0),
                     2,
                 )
                 loss_std = torch.norm(
-                    torch.std(info_fake.view(self.batch_size, -1), dim=0)
-                    - torch.std(info_real.view(self.batch_size, -1), dim=0),
-                    # 1,
+                    torch.std(fakeact.view(self.batch_size, -1), dim=0)
+                    - torch.std(real[:, 0].view(self.batch_size, -1), dim=0),
                     2,
                 )
                 loss_g_info = self.info_loss_wgt * (loss_mean + loss_std)

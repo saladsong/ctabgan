@@ -163,54 +163,6 @@ def generate_square_subsequent_mask(sz: int) -> Tensor:
     return torch.triu(torch.ones(sz, sz) * float("-inf"), diagonal=1)
 
 
-# seq_len = 6  # 시퀀스 길이
-# ntokens = len(vocab)  # 단어 사전(어휘집)의 크기 -> a,b,r 크기
-# emsize = 256  # 임베딩 차원
-# d_hid = 256  # ``nn.TransformerEncoder`` 에서 피드포워드 네트워크(feedforward network) 모델의 차원
-# nlayers = 4  # ``nn.TransformerEncoder`` 내부의 nn.TransformerEncoderLayer 개수
-# nhead = 4  # ``nn.MultiheadAttention`` 의 헤드 개수
-# dropout = 0.2  # 드랍아웃(dropout) 확률
-# model = ForeseeNN(ntokens, emsize, nhead, d_hid, nlayers, dropout).to(device)
-
-
-# criterion = nn.CrossEntropyLoss()
-# lr = 5.0  # 학습률(learning rate)
-# optimizer = torch.optim.SGD(model.parameters(), lr=lr)
-# scheduler = torch.optim.lr_scheduler.StepLR(optimizer, 1.0, gamma=0.95)
-
-
-# model.train()  # 학습 모드 시작
-# total_loss = 0.0
-# log_interval = 200
-# src_mask = generate_square_subsequent_mask(seq_len).to(device)
-
-# num_batches = len(train_data) // seq_len
-# for batch, i in enumerate(range(0, train_data.size(0) - 1, seq_len)):
-#     data, targets = get_batch(train_data, i)
-#     seq_len = data.size(0)
-#     if seq_len != seq_len:  # 마지막 배치에만 적용
-#         src_mask = src_mask[:seq_len, :seq_len]
-#     output = model(data, src_mask)
-#     loss = criterion(output.view(-1, ntokens), targets)
-
-#     optimizer.zero_grad()
-#     loss.backward()
-#     torch.nn.utils.clip_grad_norm_(model.parameters(), 0.5)
-#     optimizer.step()
-
-#     # total_loss += loss.item()
-#     # if batch % log_interval == 0 and batch > 0:
-#     #     lr = scheduler.get_last_lr()[0]
-#     #     ms_per_batch = (time.time() - start_time) * 1000 / log_interval
-#     #     cur_loss = total_loss / log_interval
-#     #     ppl = math.exp(cur_loss)
-#     #     print(f'| epoch {epoch:3d} | {batch:5d}/{num_batches:5d} batches | '
-#     #             f'lr {lr:02.2f} | ms/batch {ms_per_batch:5.2f} | '
-#     #             f'loss {cur_loss:5.2f} | ppl {ppl:8.2f}')
-#     #     total_loss = 0
-#     #     start_time = time.time()
-
-
 def foresee(
     input: torch.Tensor,
     fsn: ForeseeNN,

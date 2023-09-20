@@ -128,13 +128,10 @@ class NewGenerator(nn.Module):
         self.block4 = ResidualBlock(
             32, 16, upsample=True, use_self_attention=True, n_head=1
         )
-        #         self.block1 = ResidualBlock(256, 128, upsample=True, use_self_attention=True,)
-        #         self.block2 = ResidualBlock(128, 64, upsample=True, use_self_attention=False,)
-        #         self.block3 = ResidualBlock(64, 32, upsample=True, use_self_attention=False,)
-        #         self.block4 = ResidualBlock(32, 16, upsample=True, use_self_attention=False,)
 
         # Final output layer
-        self.conv_out = nn.Conv2d(16, 1, kernel_size=3, stride=1, padding=1)
+        self.conv_out = nn.Conv2d(16, 1, kernel_size=1, stride=1, padding=0)
+        # self.conv_out = nn.Conv2d(16, 1, kernel_size=3, stride=1, padding=1)
 
     def forward(self, z):
         # Initial dense layer
@@ -148,4 +145,5 @@ class NewGenerator(nn.Module):
         x = self.block4(x)
 
         # Final output layer
-        return torch.tanh(self.conv_out(x))
+        # return torch.tanh(self.conv_out(x))
+        return self.conv_out(x)
