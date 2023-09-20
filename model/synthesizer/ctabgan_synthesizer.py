@@ -35,6 +35,7 @@ from model.synthesizer.foreseenn import (
     foresee,
 )
 from model.synthesizer.new_generator import NewGenerator
+from model.synthesizer.eval import get_jsd
 
 
 class Classifier(Module):
@@ -960,9 +961,9 @@ class CTABGANSynthesizer:
                     train=self.train_foresee_all,
                     optimizerF=optimizerF,
                 )
-                fake_cat = self.Dtransformer.transform(fake_cat)
+                fake_cat_d = self.Dtransformer.transform(fake_cat)
 
-                y_fake, info_fake = self.discriminator(fake_cat)
+                y_fake, info_fake = self.discriminator(fake_cat_d)
 
                 # loss_g_gen (cross_entropy)
                 # 왜 activation 전 값을 넣지??? -> logit을 입력으로 받음, 함수 내부에서 softmax 자동 계산
@@ -1007,7 +1008,14 @@ class CTABGANSynthesizer:
                 )
                 loss_g_info = self.info_loss_wgt * (loss_mean + loss_std)
 
-                loss_g = loss_g_default + loss_g_info + loss_g_gen * 10
+                # lsw: add jsd
+                jsd_list = []
+                assert fake_cat.shape == real_cat.shape  # (B, M, #encoded)
+                for i in range(real_cat.shape[1]):  # loop monthly
+                    jsd_list.append(get_jsd(real_cat[:, i], fake_cat[:, i]))
+                jsd = torch.stack(jsd_list).mean()
+
+                loss_g = loss_g_default + loss_g_info + loss_g_gen * 10 + jsd * 10
                 loss_g.backward()
 
                 # for param_group in optimizerG.param_groups:
@@ -1024,6 +1032,7 @@ class CTABGANSynthesizer:
                     "loss_g_default": loss_g_default,
                     "loss_g_info": loss_g_info,
                     "loss_g_gen": loss_g_gen,
+                    "jsd": jsd,
                     "info_loss_wgt": self.info_loss_wgt,
                 }
                 if (i_g + 1) % self.accumulation_steps == 0:

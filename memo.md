@@ -58,8 +58,9 @@ pyreverse -o png model
   - 채널로 이미 조절해서 불필요
 - auxiliary classifier 학습률 높이기 [x]
 - transformer 도입하기 [x]
-- transformer loss rmse로 변경
+- transformer loss mse로 변경 [x]
   - 확률 예측도 아니고 마지막 레이어가 tanh임
+- pixelCNN 모델 적용해보기
 
 ---
 8월말까지
