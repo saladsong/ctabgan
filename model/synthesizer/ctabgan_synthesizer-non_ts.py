@@ -744,19 +744,18 @@ class CTABGANSynthesizer:
             self.device
         )
 
-        # build foreseeNN
-        seq_len = n_month  # 시퀀스 길이
-        emsize = 256  # 임베딩 차원
-        d_hid = (
-            256  # ``nn.TransformerEncoder`` 에서 피드포워드 네트워크(feedforward network) 모델의 차원
-        )
-        nlayers = 5  # ``nn.TransformerEncoder`` 내부의 nn.TransformerEncoderLayer 개수
-        nhead = 4  # ``nn.MultiheadAttention`` 의 헤드 개수
-        dropout = 0.2  # 드랍아웃(dropout) 확률
-        self.fsn = ForeseeNN(len_encoded, emsize, nhead, d_hid, nlayers, dropout).to(
-            self.device
-        )
-        # loss_f_criterion = CrossEntropyLoss()
+        # # build foreseeNN
+        # seq_len = n_month  # 시퀀스 길이
+        # emsize = 256  # 임베딩 차원
+        # d_hid = (
+        #     256  # ``nn.TransformerEncoder`` 에서 피드포워드 네트워크(feedforward network) 모델의 차원
+        # )
+        # nlayers = 5  # ``nn.TransformerEncoder`` 내부의 nn.TransformerEncoderLayer 개수
+        # nhead = 4  # ``nn.MultiheadAttention`` 의 헤드 개수
+        # dropout = 0.2  # 드랍아웃(dropout) 확률
+        # self.fsn = ForeseeNN(len_encoded, emsize, nhead, d_hid, nlayers, dropout).to(
+        #     self.device
+        # )
 
         # set optimizer
         # 이부분 설정으로 빼기
@@ -768,12 +767,12 @@ class CTABGANSynthesizer:
         # )
         optimizerG = Adam(self.generator.parameters(), **optimizer_params)
         optimizerD = Adam(self.discriminator.parameters(), **optimizer_params)
-        optimizerF = Adam(
-            self.fsn.parameters(),
-            lr=self.lr_f,
-            betas=self.betas,
-            weight_decay=self.weight_decay,
-        )
+        # optimizerF = Adam(
+        #     self.fsn.parameters(),
+        #     lr=self.lr_f,
+        #     betas=self.betas,
+        #     weight_decay=self.weight_decay,
+        # )
 
         # build auxiliary classifier
         tcol_idx_st_ed_tuple = (
@@ -799,8 +798,8 @@ class CTABGANSynthesizer:
         self.generator.apply(weights_init)
         self.discriminator.apply(weights_init)
 
-        self.Gtransformer = ImageTransformer(self.gside, n_month=1)
-        # self.Gtransformer = ImageTransformer(self.gside, n_month=n_month)
+        # self.Gtransformer = ImageTransformer(self.gside, n_month=1)
+        self.Gtransformer = ImageTransformer(self.gside, n_month=n_month)
         self.Dtransformer = ImageTransformer(self.dside, n_month=n_month)
 
         steps_per_epoch = max(1, len(encoded_data) // self.batch_size)
@@ -814,9 +813,9 @@ class CTABGANSynthesizer:
         schedulerC = optim.lr_scheduler.CosineAnnealingLR(
             optimizerC, T_max=steps_per_epoch * self.epochs, eta_min=self.lr_c * 0.1
         )
-        schedulerF = optim.lr_scheduler.CosineAnnealingLR(
-            optimizerF, T_max=steps_per_epoch * self.epochs, eta_min=self.lr_f * 0.01
-        )
+        # schedulerF = optim.lr_scheduler.CosineAnnealingLR(
+        #     optimizerF, T_max=steps_per_epoch * self.epochs, eta_min=self.lr_f * 0.01
+        # )
         for epoch in tqdm(range(self.epochs)):
             # lsw: info loss 기중치 에폭 중반부터 증가 실험용
             if (
@@ -869,14 +868,14 @@ class CTABGANSynthesizer:
                     # mmmm
                     # fake_cat = torch.cat([fakeact, condvec], dim=1)
                     # real_cat = torch.cat([real, c_perm], dim=1)
-                    # fake_cat = fakeact
-                    fake_cat = foresee(
-                        fakeact,
-                        self.fsn,
-                        self.n_month,
-                        train=self.train_foresee_all,
-                        optimizerF=optimizerF,
-                    )
+                    fake_cat = fakeact
+                    # fake_cat = foresee(
+                    #     fakeact,
+                    #     self.fsn,
+                    #     self.n_month,
+                    #     train=self.train_foresee_all,
+                    #     optimizerF=optimizerF,
+                    # )
                     real_cat = real
 
                     real_cat_d = self.Dtransformer.transform(real_cat)
@@ -902,29 +901,24 @@ class CTABGANSynthesizer:
                     loss_d_was_gp = d_real + d_fake + pen
                     loss_d_was_gp.backward()
 
-                    # foreseeNN 학습
-                    # discriminator 학습때만 같이 학습, generator 때는 생성만 (첫월->6개월)
-                    self.fsn.train()  # 학습 모드 시작
-                    if not self.train_foresee_all:
-                        # train_foresee_all 이 True면 위에서 zero_grad 하므로 여기서 화면 안됨
-                        optimizerF.zero_grad()
-                    src_mask = generate_square_subsequent_mask(seq_len).to(self.device)
-                    # input: real  # (B, M(S), encode) -> (S, B, encode)
-                    data = real.permute(1, 0, 2)  # (S, B, encode)
-                    output = self.fsn(data, src_mask)
-                    # loss_f = loss_f_criterion(
-                    #     output[:-1].reshape(-1, len_encoded),  # input
-                    #     data[1:].reshape(-1, len_encoded),  # target
-                    # )
-                    loss_f = ((output[:-1] - data[1:]) ** 2).mean()  # mse loss
-
-                    loss_f.backward()
-                    torch.nn.utils.clip_grad_norm_(self.fsn.parameters(), 0.5)
+                    # # foreseeNN 학습
+                    # # discriminator 학습때만 같이 학습, generator 때는 생성만 (첫월->6개월)
+                    # self.fsn.train()  # 학습 모드 시작
+                    # if not self.train_foresee_all:
+                    #     # train_foresee_all 이 True면 위에서 zero_grad 하므로 여기서 화면 안됨
+                    #     optimizerF.zero_grad()
+                    # src_mask = generate_square_subsequent_mask(seq_len).to(self.device)
+                    # # input: real  # (B, M(S), encode) -> (S, B, encode)
+                    # data = real.permute(1, 0, 2)  # (S, B, encode)
+                    # output = self.fsn(data, src_mask)
+                    # loss_f = ((output[:-1] - data[1:]) ** 2).mean()  # mse loss
+                    # loss_f.backward()
+                    # torch.nn.utils.clip_grad_norm_(self.fsn.parameters(), 0.5)
 
                     # accumulation_steps 마다 update
                     if (i_ci + 1) % self.accumulation_steps == 0:
                         optimizerD.step()  # 파라미터 업데이트
-                        optimizerF.step()
+                        # optimizerF.step()
 
                     # ci 이터레이션 중 맨 마지막 값만 step에 기록위헤 아래에서 한번에 등록
                     # wandb.log({"gp": pen, "loss_d_was_gp": loss_d_was_gp})
@@ -953,14 +947,14 @@ class CTABGANSynthesizer:
                 # discriminator에 입력위해 encoded + condvec  concat
                 # mmmm
                 # fake_cat = torch.cat([fakeact, condvec], dim=1)
-                # fake_cat = fakeact
-                fake_cat = foresee(
-                    fakeact,
-                    self.fsn,
-                    self.n_month,
-                    train=self.train_foresee_all,
-                    optimizerF=optimizerF,
-                )
+                fake_cat = fakeact
+                # fake_cat = foresee(
+                #     fakeact,
+                #     self.fsn,
+                #     self.n_month,
+                #     train=self.train_foresee_all,
+                #     optimizerF=optimizerF,
+                # )
                 fake_cat_d = self.Dtransformer.transform(fake_cat)
 
                 y_fake, info_fake = self.discriminator(fake_cat_d)
@@ -981,31 +975,32 @@ class CTABGANSynthesizer:
                 # lsw: 1. 논문은 L2놈인데 왜 L1놈 사용중임?
                 # lsw: 2. real_cat_d, fake_cat 은 다른 condvec 으로부터 만들어짐. info_fake, info_real은 D의 마지막 전 레이어 값 (약 13,13)
                 #           둘을 맞추는게 맞나...? 너무 불안정하지 않을까 싶기도 하고 피처니까 굳이 상관없을듯도 하고
-                ### for discirminator (original paper)
-                # loss_mean = torch.norm(
-                #     torch.mean(info_fake.view(self.batch_size, -1), dim=0)
-                #     - torch.mean(info_real.view(self.batch_size, -1), dim=0),
-                #     # 1,
-                #     2,
-                # )
-                # loss_std = torch.norm(
-                #     torch.std(info_fake.view(self.batch_size, -1), dim=0)
-                #     - torch.std(info_real.view(self.batch_size, -1), dim=0),
-                #     # 1,
-                #     2,
-                # )
-                ### for generator (lsw 변경)
-                # 일단 6월 것만 보기로
+                ## for discirminator (original paper)
                 loss_mean = torch.norm(
-                    torch.mean(fakeact.view(self.batch_size, -1), dim=0)
-                    - torch.mean(real[:, 0].view(self.batch_size, -1), dim=0),
+                    torch.mean(info_fake.view(self.batch_size, -1), dim=0)
+                    - torch.mean(info_real.view(self.batch_size, -1), dim=0),
+                    # 1,
                     2,
                 )
                 loss_std = torch.norm(
-                    torch.std(fakeact.view(self.batch_size, -1), dim=0)
-                    - torch.std(real[:, 0].view(self.batch_size, -1), dim=0),
+                    torch.std(info_fake.view(self.batch_size, -1), dim=0)
+                    - torch.std(info_real.view(self.batch_size, -1), dim=0),
+                    # 1,
                     2,
                 )
+                # ### for generator (lsw 변경)
+                # # 일단 6월 것만 보기로
+                # loss_mean = torch.norm(
+                #     torch.mean(fakeact.view(self.batch_size, -1), dim=0)
+                #     - torch.mean(real[:, 0].view(self.batch_size, -1), dim=0),
+                #     2,
+                # )
+                # loss_std = torch.norm(
+                #     torch.std(fakeact.view(self.batch_size, -1), dim=0)
+                #     - torch.std(real[:, 0].view(self.batch_size, -1), dim=0),
+                #     2,
+                # )
+
                 loss_g_info = self.info_loss_wgt * (loss_mean + loss_std)
 
                 # lsw: add jsd
@@ -1018,13 +1013,9 @@ class CTABGANSynthesizer:
                 loss_g = loss_g_default + loss_g_info + loss_g_gen * 10 + jsd * 10
                 loss_g.backward()
 
-                # for param_group in optimizerG.param_groups:
-                #     param_group['lr'] = param_group['lr']*0.1
-                # loss_g_gen.backward()
-
                 wandblog = {
                     # for loss_f
-                    "loss_f": loss_f,
+                    # "loss_f": loss_f,
                     # for loss_d
                     "gp": pen,
                     "loss_d_was_gp": loss_d_was_gp,
@@ -1037,8 +1028,8 @@ class CTABGANSynthesizer:
                 }
                 if (i_g + 1) % self.accumulation_steps == 0:
                     optimizerG.step()
-                    if self.train_foresee_all:
-                        optimizerF.step()
+                    # if self.train_foresee_all:
+                    #     optimizerF.step()
 
                 # loss_g_dstream
                 if target_index is not None:
@@ -1047,13 +1038,13 @@ class CTABGANSynthesizer:
                     fake = self.generator(noisez)
                     faket = self.Gtransformer.inverse_transform(fake)
                     fakeact = apply_activate(faket, data_transformer.output_info)
-                    fakeact = foresee(
-                        fakeact,
-                        self.fsn,
-                        self.n_month,
-                        train=self.train_foresee_all,
-                        optimizerF=optimizerF,
-                    )
+                    # fakeact = foresee(
+                    #     fakeact,
+                    #     self.fsn,
+                    #     self.n_month,
+                    #     train=self.train_foresee_all,
+                    #     optimizerF=optimizerF,
+                    # )
 
                     # classifier 입력전에 3lank 텐서를 2lank 로 변환 (B*M, #encode)
                     real = real.contiguous().view(-1, len_encoded)
@@ -1103,8 +1094,8 @@ class CTABGANSynthesizer:
                     if (i_g + 1) % self.accumulation_steps == 0:
                         optimizerG.step()
                         optimizerC.step()
-                        if self.train_foresee_all:
-                            optimizerF.step()
+                        # if self.train_foresee_all:
+                        #     optimizerF.step()
 
                 else:
                     wandblog.update(
@@ -1119,7 +1110,7 @@ class CTABGANSynthesizer:
                 schedulerG.step()
                 schedulerD.step()
                 schedulerC.step()
-                schedulerF.step()
+                # schedulerF.step()
                 wandb.log(wandblog)  # 시각화 데이터 등록
 
         self.is_fit_ = True
@@ -1156,7 +1147,8 @@ class CTABGANSynthesizer:
             fake = self.generator(noisez)
             faket = self.Gtransformer.inverse_transform(fake)
             fakeact = apply_activate(faket, output_info)  # (B, M, #encode)
-            fake_cat = foresee(fakeact, self.fsn, self.n_month)  # foreseeNN 예측
+            fake_cat = fakeact
+            # fake_cat = foresee(fakeact, self.fsn, self.n_month)  # foreseeNN 예측
 
             data.append(
                 fake_cat.detach()
