@@ -1033,6 +1033,8 @@ class CTABGANSynthesizer:
                     + cdiff_loss * 10
                 )
                 loss_g.backward()
+                torch.nn.utils.clip_grad_norm_(self.generator.parameters(), 0.5)
+                torch.nn.utils.clip_grad_norm_(self.fsn.parameters(), 0.5)
 
                 # for param_group in optimizerG.param_groups:
                 #     param_group['lr'] = param_group['lr']*0.1
