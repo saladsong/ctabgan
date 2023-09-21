@@ -130,7 +130,7 @@ class NewGenerator(nn.Module):
         )
 
         # Final output layer
-        self.conv_out = nn.Conv2d(16, 1, kernel_size=1, stride=1, padding=0)
+        self.conv_out = nn.Conv2d(16, 6, kernel_size=1, stride=1, padding=0)
         # self.conv_out = nn.Conv2d(16, 1, kernel_size=3, stride=1, padding=1)
 
     def forward(self, z):
