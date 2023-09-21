@@ -642,6 +642,8 @@ class CTABGANSynthesizer:
         n_conv_layers: int = 4,  # conv layer 개수
         # for foreseenn
         train_foresee_all: bool = False,
+        # lsw temp
+        n_cdiff_cols: int = 1000,
     ):
         if class_dim is None:
             class_dim = (256, 256, 256, 256)
@@ -677,6 +679,8 @@ class CTABGANSynthesizer:
         self.n_conv_layers = n_conv_layers
         # for foreseenn
         self.train_foresee_all = train_foresee_all
+        # lsw temp
+        self.n_cdiff_cols = n_cdiff_cols
 
         self.is_fit_ = False
 
@@ -958,7 +962,8 @@ class CTABGANSynthesizer:
                     fakeact,
                     self.fsn,
                     self.n_month,
-                    train=self.train_foresee_all,
+                    train=True,  # jsd 학습 위해 임시로
+                    # train=self.train_foresee_all,
                     optimizerF=optimizerF,
                 )
                 fake_cat_d = self.Dtransformer.transform(fake_cat)
@@ -995,18 +1000,6 @@ class CTABGANSynthesizer:
                 #     2,
                 # )
                 ### for generator (lsw 변경)
-                # 일단 6월 것만 보기로
-                loss_mean = torch.norm(
-                    torch.mean(fakeact.view(self.batch_size, -1), dim=0)
-                    - torch.mean(real[:, 0].view(self.batch_size, -1), dim=0),
-                    2,
-                )
-                loss_std = torch.norm(
-                    torch.std(fakeact.view(self.batch_size, -1), dim=0)
-                    - torch.std(real[:, 0].view(self.batch_size, -1), dim=0),
-                    2,
-                )
-                loss_g_info = self.info_loss_wgt * (loss_mean + loss_std)
 
                 # lsw: add jsd
                 jsd_list = []
@@ -1016,21 +1009,30 @@ class CTABGANSynthesizer:
                 jsd = torch.stack(jsd_list).mean()
 
                 # lsw: add cdiff_loss
-                # cdiff_loss = get_cdiff_loss(real_cat, fake_cat, n=10000)
+                cdiff_loss = get_cdiff_loss(real_cat, fake_cat, n=self.n_cdiff_cols)
+
+                loss_mean = torch.norm(
+                    torch.mean(fake_cat, dim=0) - torch.mean(real, dim=0),
+                    # torch.mean(fakeact.view(self.batch_size, -1), dim=0)
+                    # - torch.mean(real[:, 0].view(self.batch_size, -1), dim=0),  # 7월 것만
+                    2,
+                )
+                loss_std = torch.norm(
+                    torch.std(fake_cat, dim=0) - torch.std(real, dim=0),
+                    # torch.std(fakeact.view(self.batch_size, -1), dim=0)
+                    # - torch.std(real[:, 0].view(self.batch_size, -1), dim=0),  # 7월 것만
+                    2,
+                )
+                loss_g_info = self.info_loss_wgt * (loss_mean + loss_std)
 
                 loss_g = (
                     loss_g_default
                     + loss_g_info
                     + loss_g_gen * 10
                     + jsd * 10
-                    # + cdiff_loss
+                    + cdiff_loss * 10
                 )
                 loss_g.backward()
-                # for name, param in self.generator.named_parameters():
-                #     print(name)
-                #     print(param.grad)
-                #     print("----------")
-                # torch.nn.utils.clip_grad_norm_(self.generator.parameters(), 0.5)
 
                 # for param_group in optimizerG.param_groups:
                 #     param_group['lr'] = param_group['lr']*0.1
@@ -1047,12 +1049,13 @@ class CTABGANSynthesizer:
                     "loss_g_info": loss_g_info,
                     "loss_g_gen": loss_g_gen,
                     "jsd": jsd,
-                    # "cdiff": cdiff_loss,
+                    "cdiff": cdiff_loss,
                     "info_loss_wgt": self.info_loss_wgt,
                 }
                 if (i_g + 1) % self.accumulation_steps == 0:
                     optimizerG.step()
-                    if self.train_foresee_all:
+                    # if self.train_foresee_all:
+                    if True:
                         optimizerF.step()
 
                 # loss_g_dstream

@@ -1,4 +1,5 @@
 import torch
+import numpy as np
 
 
 def _js_divergence(p, q):
@@ -70,9 +71,11 @@ def get_cdiff_loss(ee, ss, n=1000):
     ee2 = ee.permute((1, 2, 0)).reshape(-1, ee_nrow)
     ss2 = ss.permute((1, 2, 0)).reshape(-1, ss_nrow)
 
-    #     print(ee2.shape, ss2.shape)
-
-    pairs = torch.randint(low=0, high=ee2.shape[0], size=(2, n))
+    # pairs = torch.randint(low=0, high=ee2.shape[0], size=(2, n))  # 중복 컬럼 허용
+    pairs = np.random.choice(
+        range(ee2.shape[0]), size=(2, n), replace=False
+    )  # 중복 컬럼 제거
+    # print(ee2.shape, pairs)
 
     ee_corr = batch_pearson_correlation(ee2[pairs[0]], ee2[pairs[1]])
     ss_corr = batch_pearson_correlation(ss2[pairs[0]], ss2[pairs[1]])

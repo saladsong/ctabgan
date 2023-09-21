@@ -61,6 +61,9 @@ pyreverse -o png model
 - transformer loss mse로 변경 [x]
   - 확률 예측도 아니고 마지막 레이어가 tanh임
 - pixelCNN 모델 적용해보기
+- jsd loss 첫달 말고 8월 이후도 넣기 -> 트랜스포머에 로스 적용 [x]
+- corr_diff loss 적용하기 [x]
+  - grad nan 튀는거 해결하기 [...]
 
 ---
 8월말까지
