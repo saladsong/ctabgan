@@ -48,7 +48,7 @@ def batch_pearson_correlation(x, y):
     mean_y = torch.mean(y, dim=1).unsqueeze(1)
 
     #  input: (B, 1)
-    # 각 변수에서 평균을 뺀 값을 계산
+    # 각 변수에서 평균을 뺀 값 (편차)을 계산
     xm = x - mean_x
     ym = y - mean_y
 
@@ -56,8 +56,9 @@ def batch_pearson_correlation(x, y):
     cov = torch.mean(xm * ym, dim=1)  # (B, 1)
 
     # 각 변수의 표준편차를 계산
-    sx = torch.std(x, correction=0, dim=1)
-    sy = torch.std(y, correction=0, dim=1)
+    eps = 1e-8
+    sx = torch.std(x, correction=1, dim=1) + eps
+    sy = torch.std(y, correction=1, dim=1) + eps
 
     # 피어슨 상관계수를 계산
     corr = cov / (sx * sy)
@@ -80,6 +81,7 @@ def get_cdiff_loss(ee, ss, n=1000):
     ee_corr = batch_pearson_correlation(ee2[pairs[0]], ee2[pairs[1]])
     ss_corr = batch_pearson_correlation(ss2[pairs[0]], ss2[pairs[1]])
     cdiff = ee_corr - ss_corr
-    cdiff = cdiff[~cdiff.isnan()]
+    cdiff = cdiff[~(cdiff.isnan() | cdiff.isinf())]  # 비정상치 (nan, inf, -inf) 제거
     cdiff_mse = (cdiff**2).mean()
+    print(cdiff_mse)
     return cdiff_mse
