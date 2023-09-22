@@ -72,10 +72,10 @@ def get_cdiff_loss(ee, ss, n=1000):
     ee2 = ee.permute((1, 2, 0)).reshape(-1, ee_nrow)
     ss2 = ss.permute((1, 2, 0)).reshape(-1, ss_nrow)
 
-    # pairs = torch.randint(low=0, high=ee2.shape[0], size=(2, n))  # 중복 컬럼 허용
-    pairs = np.random.choice(
-        range(ee2.shape[0]), size=(2, n), replace=False
-    )  # 중복 컬럼 제거
+    pairs = torch.randint(low=0, high=ee2.shape[0], size=(2, int(n)))  # 중복 컬럼 허용
+    # pairs = np.random.choice(
+    #     range(ee2.shape[0]), size=(2, int(n)), replace=False
+    # )  # 중복 컬럼 제거
     # print(ee2.shape, pairs)
 
     ee_corr = batch_pearson_correlation(ee2[pairs[0]], ee2[pairs[1]])
@@ -83,5 +83,5 @@ def get_cdiff_loss(ee, ss, n=1000):
     cdiff = ee_corr - ss_corr
     cdiff = cdiff[~(cdiff.isnan() | cdiff.isinf())]  # 비정상치 (nan, inf, -inf) 제거
     cdiff_mse = (cdiff**2).mean()
-    print(cdiff_mse)
+    # print(cdiff_mse)
     return cdiff_mse

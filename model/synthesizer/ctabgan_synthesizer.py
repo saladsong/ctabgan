@@ -34,7 +34,8 @@ from model.synthesizer.foreseenn import (
     generate_square_subsequent_mask,
     foresee,
 )
-from model.synthesizer.new_generator import NewGenerator
+from model.synthesizer.new_generator import NewGenerator, NewDiscriminator
+from model.synthesizer.neo_networks import NeoDiscriminator, NeoGenerator
 from model.synthesizer.eval import get_jsd, get_cdiff_loss
 
 
@@ -608,7 +609,12 @@ def weights_init(m):
     classname = m.__class__.__name__
 
     if classname.find("Conv") != -1:
-        init.normal_(m.weight.data, 0.0, 0.02)
+        try:
+            init.normal_(m.weight.data, 0.0, 0.02)
+        except Exception as e:
+            init.normal_(m.weight_u.data, 0.0, 0.02)
+            init.normal_(m.weight_v.data, 0.0, 0.02)
+            init.normal_(m.weight_bar.data, 0.0, 0.02)
 
     elif classname.find("BatchNorm") != -1:
         init.normal_(m.weight.data, 1.0, 0.02)
@@ -739,14 +745,20 @@ class CTABGANSynthesizer:
         #     self.num_channels,
         #     1,
         #     self.n_conv_layers
-        #     # self.gside, col_size_d, self.num_channels, n_month, self.n_conv_layers
         # ).to(self.device)
         self.generator = NewGenerator(self.random_dim + n_opt).to(self.device)
+        # self.generator = NeoGenerator(
+        #     self.gside, col_size_d, self.num_channels, 1, self.n_conv_layers
+        # ).to(self.device)
 
         # build discriminator
-        self.discriminator = Discriminator(self.dside, self.num_channels, n_month).to(
-            self.device
-        )
+        # self.discriminator = Discriminator(self.dside, self.num_channels, n_month).to(
+        #     self.device
+        # )
+        self.discriminator = NewDiscriminator(n_month).to(self.device)
+        # self.discriminator = NeoDiscriminator(
+        #     self.dside, self.num_channels, n_month
+        # ).to(self.device)
 
         # build foreseeNN
         seq_len = n_month  # 시퀀스 길이

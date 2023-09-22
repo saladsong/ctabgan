@@ -98,8 +98,8 @@ class ResidualBlock(nn.Module):
             x = self.self_attention(x)
         x = self.bn2(self.conv2(x))
 
+        shortcut = self.conv_shortcut(shortcut)
         if self.upsample:
-            shortcut = self.conv_shortcut(shortcut)
             # Upsampling the shortcut connection to match dimensions
             shortcut = F.interpolate(shortcut, scale_factor=2)
 
@@ -147,3 +147,46 @@ class NewGenerator(nn.Module):
         # Final output layer
         # return torch.tanh(self.conv_out(x))
         return self.conv_out(x)
+
+
+class NewDiscriminator(nn.Module):
+    def __init__(self, in_channel):
+        super(NewDiscriminator, self).__init__()
+        self.side = 5
+
+        # # Initial dense layer
+        # self.fc = Linear(z_dim, self.side * self.side * 256)
+
+        # Residual blocks
+        # Residual blocks 지날때마다 W, H 각 /2
+        self.block1 = ResidualBlock(
+            in_channel, 32, upsample=False, use_self_attention=True, n_head=1
+        )
+        self.block2 = ResidualBlock(
+            32, 64, upsample=False, use_self_attention=True, n_head=1
+        )
+        self.block3 = ResidualBlock(
+            64, 128, upsample=False, use_self_attention=True, n_head=1
+        )
+        self.block4 = ResidualBlock(
+            128, 256, upsample=False, use_self_attention=True, n_head=1
+        )
+
+        # Final output layer
+        self.conv_out = nn.Conv2d(256, 1, kernel_size=self.side, stride=1, padding=0)
+        # self.conv_out = Conv2d(16, 1, kernel_size=3, stride=1, padding=1)
+
+    def forward(self, x):
+        # Initial dense layer
+        # x = self.fc(z.view(z.shape[0], -1))  # 4d -> 2d
+        # x = x.view(x.size(0), 256, self.side, self.side)
+
+        # Residual blocks
+        x = self.block1(x)
+        x = self.block2(x)
+        x = self.block3(x)
+        x = self.block4(x)  # before the last layer
+
+        # Final output layer
+        # return torch.tanh(self.conv_out(x))
+        return self.conv_out(x), x
