@@ -160,11 +160,11 @@ class NewDiscriminator(nn.Module):
         # Residual blocks
         # Residual blocks 지날때마다 W, H 각 /2
         self.block1 = ResidualBlock(
-            in_channel, 32, upsample=False, use_self_attention=True, n_head=1
+            in_channel, 64, upsample=False, use_self_attention=True, n_head=1
         )
-        self.block2 = ResidualBlock(
-            32, 64, upsample=False, use_self_attention=True, n_head=1
-        )
+        # self.block2 = ResidualBlock(
+        #     32, 64, upsample=False, use_self_attention=True, n_head=1
+        # )
         self.block3 = ResidualBlock(
             64, 128, upsample=False, use_self_attention=True, n_head=1
         )
