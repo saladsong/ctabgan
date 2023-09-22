@@ -183,7 +183,7 @@ class NewDiscriminator(nn.Module):
 
         # Residual blocks
         x = self.block1(x)
-        x = self.block2(x)
+        # x = self.block2(x)
         x = self.block3(x)
         x = self.block4(x)  # before the last layer
 
