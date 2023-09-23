@@ -651,6 +651,7 @@ class CTABGANSynthesizer:
         # lsw temp
         n_cdiff_cols: int = 1000,
         jsd_all: bool = False,  # 트랜스포머도 fake 데이터 jsd 학습할지 (real 데이터 아님주의)
+        epoch_f_jsd_start: int = 10,  # fsn의 jsd, cdiff loss 학습 시작할 에포크
     ):
         if class_dim is None:
             class_dim = (256, 256, 256, 256)
@@ -689,6 +690,7 @@ class CTABGANSynthesizer:
         # lsw temp
         self.n_cdiff_cols = n_cdiff_cols
         self.jsd_all = jsd_all
+        self.epoch_f_jsd_start = epoch_f_jsd_start
 
         self.is_fit_ = False
 
@@ -948,7 +950,11 @@ class CTABGANSynthesizer:
                         f_real_cat, f_fake_cat, n=self.n_cdiff_cols
                     )
 
-                    loss_f = loss_f_default + loss_f_jsd + loss_f_cdiff
+                    if epoch < epoch_f_jsd_start:
+                        loss_f = loss_f_default
+                    else:
+                        loss_f = loss_f_default + loss_f_jsd * 0.1 + loss_f_cdiff * 0.1
+
                     loss_f.backward()
                     torch.nn.utils.clip_grad_norm_(self.fsn.parameters(), 0.5)
 
