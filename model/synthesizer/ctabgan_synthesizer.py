@@ -650,7 +650,7 @@ class CTABGANSynthesizer:
         train_foresee_all: bool = False,
         # lsw temp
         n_cdiff_cols: int = 1000,
-        jsd_all: bool = False,  # 트랜스포머도 jsd 학습할지
+        jsd_all: bool = False,  # 트랜스포머도 fake 데이터 jsd 학습할지 (real 데이터 아님주의)
     ):
         if class_dim is None:
             class_dim = (256, 256, 256, 256)
@@ -920,22 +920,35 @@ class CTABGANSynthesizer:
                     loss_d_was_gp = d_real + d_fake + pen
                     loss_d_was_gp.backward()
 
-                    # foreseeNN 학습
+                    # foreseeNN 학습 (for real data)
                     # discriminator 학습때만 같이 학습, generator 때는 생성만 (첫월->6개월)
                     self.fsn.train()  # 학습 모드 시작
                     if not self.train_foresee_all:
-                        # train_foresee_all 이 True면 위에서 zero_grad 하므로 여기서 화면 안됨
+                        # train_foresee_all 이 True면 위에서 zero_grad 하므로 여기서 하면 안됨
                         optimizerF.zero_grad()
                     src_mask = generate_square_subsequent_mask(seq_len).to(self.device)
                     # input: real  # (B, M(S), encode) -> (S, B, encode)
-                    data = real.permute(1, 0, 2)  # (S, B, encode)
-                    output = self.fsn(data, src_mask)
-                    # loss_f = loss_f_criterion(
-                    #     output[:-1].reshape(-1, len_encoded),  # input
-                    #     data[1:].reshape(-1, len_encoded),  # target
-                    # )
-                    loss_f = ((output[:-1] - data[1:]) ** 2).mean()  # mse loss
+                    fsn_input = real.permute(1, 0, 2)  # (S, B, encode)
+                    fsn_output = self.fsn(fsn_input, src_mask)
 
+                    f_real_cat = fsn_input[1:]
+                    f_fake_cat = fsn_output[:-1]
+                    assert fake_cat.shape == real_cat.shape  # (B, M-1, #encoded)
+
+                    loss_f_default = ((f_fake_cat - f_real_cat) ** 2).mean()  # mse loss
+
+                    # foreseeNN add jsd loss
+                    f_jsd_list = []
+                    for i in range(f_real_cat.shape[1]):  # loop monthly
+                        f_jsd_list.append(get_jsd(f_real_cat[:, i], f_fake_cat[:, i]))
+                    loss_f_jsd = torch.stack(f_jsd_list).mean()
+
+                    # foreseeNN add cdiff_loss
+                    loss_f_cdiff = get_cdiff_loss(
+                        f_real_cat, f_fake_cat, n=self.n_cdiff_cols
+                    )
+
+                    loss_f = loss_f_default + loss_f_jsd + loss_f_cdiff
                     loss_f.backward()
                     torch.nn.utils.clip_grad_norm_(self.fsn.parameters(), 0.5)
 
@@ -1020,10 +1033,10 @@ class CTABGANSynthesizer:
                 assert fake_cat.shape == real_cat.shape  # (B, M, #encoded)
                 for i in range(real_cat.shape[1]):  # loop monthly
                     jsd_list.append(get_jsd(real_cat[:, i], fake_cat[:, i]))
-                jsd = torch.stack(jsd_list).mean()
+                loss_g_jsd = torch.stack(jsd_list).mean()
 
                 # lsw: add cdiff_loss
-                cdiff_loss = get_cdiff_loss(real_cat, fake_cat, n=self.n_cdiff_cols)
+                loss_g_cdiff = get_cdiff_loss(real_cat, fake_cat, n=self.n_cdiff_cols)
 
                 loss_mean = torch.norm(
                     torch.mean(fake_cat, dim=0) - torch.mean(real, dim=0),
@@ -1043,8 +1056,8 @@ class CTABGANSynthesizer:
                     loss_g_default
                     + loss_g_info
                     + loss_g_gen * 10
-                    + jsd * 10
-                    + cdiff_loss
+                    + loss_g_jsd * 10
+                    + loss_g_cdiff
                 )
                 loss_g.backward()
                 torch.nn.utils.clip_grad_norm_(self.generator.parameters(), 0.5)
@@ -1057,6 +1070,9 @@ class CTABGANSynthesizer:
                 wandblog = {
                     # for loss_f
                     "loss_f": loss_f,
+                    "loss_f_default": loss_f_default,
+                    "loss_f_jsd": loss_f_jsd,
+                    "loss_f_cdiff": loss_f_cdiff,
                     # for loss_d
                     "gp": pen,
                     "loss_d_was_gp": loss_d_was_gp,
@@ -1064,9 +1080,9 @@ class CTABGANSynthesizer:
                     "loss_g_default": loss_g_default,
                     "loss_g_info": loss_g_info,
                     "loss_g_gen": loss_g_gen,
-                    "jsd": jsd,
-                    "cdiff": cdiff_loss,
-                    "info_loss_wgt": self.info_loss_wgt,
+                    "loss_g_jsd": loss_g_jsd,
+                    "loss_g_cdiff": loss_g_cdiff,
+                    # "info_loss_wgt": self.info_loss_wgt,
                 }
                 if (i_g + 1) % self.accumulation_steps == 0:
                     optimizerG.step()

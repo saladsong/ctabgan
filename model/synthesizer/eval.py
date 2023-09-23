@@ -66,21 +66,21 @@ def batch_pearson_correlation(x, y):
     return corr
 
 
-def get_cdiff_loss(ee, ss, n=1000):
-    ee_nrow = ee.shape[0]
-    ss_nrow = ss.shape[0]
-    ee2 = ee.permute((1, 2, 0)).reshape(-1, ee_nrow)
-    ss2 = ss.permute((1, 2, 0)).reshape(-1, ss_nrow)
+def get_cdiff_loss(aa, bb, n=1000):
+    aa_nrow = aa.shape[0]
+    bb_nrow = bb.shape[0]
+    aa2 = aa.permute((1, 2, 0)).reshape(-1, aa_nrow)
+    bb2 = bb.permute((1, 2, 0)).reshape(-1, bb_nrow)
 
-    pairs = torch.randint(low=0, high=ee2.shape[0], size=(2, int(n)))  # 중복 컬럼 허용
+    pairs = torch.randint(low=0, high=aa2.shape[0], size=(2, int(n)))  # 중복 컬럼 허용
     # pairs = np.random.choice(
-    #     range(ee2.shape[0]), size=(2, int(n)), replace=False
+    #     range(aa2.shape[0]), size=(2, int(n)), replace=False
     # )  # 중복 컬럼 제거
-    # print(ee2.shape, pairs)
+    # print(aa2.shape, pairs)
 
-    ee_corr = batch_pearson_correlation(ee2[pairs[0]], ee2[pairs[1]])
-    ss_corr = batch_pearson_correlation(ss2[pairs[0]], ss2[pairs[1]])
-    cdiff = ee_corr - ss_corr
+    aa_corr = batch_pearson_correlation(aa2[pairs[0]], aa2[pairs[1]])
+    bb_corr = batch_pearson_correlation(bb2[pairs[0]], bb2[pairs[1]])
+    cdiff = aa_corr - bb_corr
     cdiff = cdiff[~(cdiff.isnan() | cdiff.isinf())]  # 비정상치 (nan, inf, -inf) 제거
     cdiff_mse = (cdiff**2).mean()
     # print(cdiff_mse)
