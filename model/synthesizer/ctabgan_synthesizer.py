@@ -1062,8 +1062,8 @@ class CTABGANSynthesizer:
                     loss_g_default
                     + loss_g_info
                     + loss_g_gen * 10
-                    + loss_g_jsd * 10
-                    + loss_g_cdiff
+                    + loss_g_jsd * 0.1
+                    + loss_g_cdiff * 0.1
                 )
                 loss_g.backward()
                 torch.nn.utils.clip_grad_norm_(self.generator.parameters(), 0.5)
