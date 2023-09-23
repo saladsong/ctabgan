@@ -87,9 +87,11 @@ class ResidualBlock(nn.Module):
         )
 
         if use_self_attention:
-            self.self_attention = MultiHeadSelfAttention(out_channels, n_head)
-
-    #             self.self_attention = SelfAttention(out_channels)
+            self.self_attention = (
+                MultiHeadSelfAttention(out_channels, n_head)
+                if self.n_head == 1
+                else SelfAttention(out_channels)
+            )
 
     def forward(self, x):
         shortcut = x
@@ -109,40 +111,54 @@ class ResidualBlock(nn.Module):
 class NewGenerator(nn.Module):
     def __init__(self, z_dim):
         super(NewGenerator, self).__init__()
-        self.side = 5
+        self.hdim = 128
+        dropout = 0.2
+        n_block = 2
+        self.factor = 2**n_block
+        self.side = 5 * self.factor
 
         # Initial dense layer
-        self.fc = nn.Linear(z_dim, self.side * self.side * 256)
+        self.fc1 = nn.Linear(z_dim, 256)
+        self.dropout1 = nn.Dropout(p=dropout)
+        self.fc2 = nn.Linear(256, self.hdim)
+        self.dropout2 = nn.Dropout(p=dropout)
+        self.fc3 = nn.Linear(self.hdim, self.side * self.side * 128)
+        self.dropout3 = nn.Dropout(p=dropout)
 
         # Residual blocks
         # Residual blocks 지날때마다 W, H 각 x2
         self.block1 = ResidualBlock(
-            256, 128, upsample=True, use_self_attention=True, n_head=4
-        )
-        self.block2 = ResidualBlock(
             128, 64, upsample=True, use_self_attention=True, n_head=4
         )
-        self.block3 = ResidualBlock(
+        self.block2 = ResidualBlock(
             64, 32, upsample=True, use_self_attention=True, n_head=2
         )
-        self.block4 = ResidualBlock(
-            32, 16, upsample=True, use_self_attention=True, n_head=1
-        )
+        # self.block3 = ResidualBlock(
+        #     64, 32, upsample=True, use_self_attention=True, n_head=2
+        # )
+        # self.block4 = ResidualBlock(
+        #     32, 16, upsample=True, use_self_attention=True, n_head=1
+        # )
 
         # Final output layer
         # self.conv_out = nn.Conv2d(16, 6, kernel_size=1, stride=1, padding=0)
-        self.conv_out = nn.Conv2d(16, 1, kernel_size=3, stride=1, padding=1)
+        self.conv_out = nn.Conv2d(32, 1, kernel_size=3, stride=1, padding=1)
 
     def forward(self, z):
         # Initial dense layer
-        x = self.fc(z.view(z.shape[0], -1))  # 4d -> 2d
-        x = x.view(x.size(0), 256, self.side, self.side)
+        x = self.fc1(z.view(z.shape[0], -1))  # 4d -> 2d
+        x = self.dropout1(F.relu(x))
+        x = self.fc2((x))
+        x = self.dropout2(F.relu(x))
+        x = self.fc3(x)
+        x = self.dropout3(F.tanh(x))
+        x = x.view(x.size(0), 128, self.side, self.side)
 
         # Residual blocks
         x = self.block1(x)
         x = self.block2(x)
-        x = self.block3(x)
-        x = self.block4(x)
+        # x = self.block3(x)
+        # x = self.block4(x)
 
         # Final output layer
         # return torch.tanh(self.conv_out(x))
@@ -162,18 +178,17 @@ class NewDiscriminator(nn.Module):
         self.block1 = ResidualBlock(
             in_channel, 64, upsample=False, use_self_attention=True, n_head=1
         )
-        # self.block2 = ResidualBlock(
-        #     32, 64, upsample=False, use_self_attention=True, n_head=1
-        # )
-        self.block3 = ResidualBlock(
+        self.block2 = ResidualBlock(
             64, 128, upsample=False, use_self_attention=True, n_head=1
         )
-        self.block4 = ResidualBlock(
-            128, 256, upsample=False, use_self_attention=True, n_head=1
-        )
+        # self.block3 = ResidualBlock(
+        #     128, 256, upsample=False, use_self_attention=True, n_head=1
+        # )
+        self.block4 = nn.Conv2d(128, 1, kernel_size=3, stride=1, padding=1)
 
         # Final output layer
-        self.conv_out = nn.Conv2d(256, 1, kernel_size=self.side, stride=1, padding=0)
+        self.conv_out = nn.AdaptiveAvgPool2d(1)  # (B, 1, 1, 1)
+        # self.conv_out = nn.Conv2d(256, 1, kernel_size=self.side, stride=1, padding=0)
         # self.conv_out = Conv2d(16, 1, kernel_size=3, stride=1, padding=1)
 
     def forward(self, x):
@@ -183,10 +198,9 @@ class NewDiscriminator(nn.Module):
 
         # Residual blocks
         x = self.block1(x)
-        # x = self.block2(x)
-        x = self.block3(x)
+        x = self.block2(x)
+        # x = self.block3(x)
         x = self.block4(x)  # before the last layer
 
         # Final output layer
-        # return torch.tanh(self.conv_out(x))
         return self.conv_out(x), x

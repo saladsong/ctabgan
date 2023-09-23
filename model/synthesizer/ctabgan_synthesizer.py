@@ -650,6 +650,7 @@ class CTABGANSynthesizer:
         train_foresee_all: bool = False,
         # lsw temp
         n_cdiff_cols: int = 1000,
+        jsd_all: bool = False,  # 트랜스포머도 jsd 학습할지
     ):
         if class_dim is None:
             class_dim = (256, 256, 256, 256)
@@ -687,6 +688,7 @@ class CTABGANSynthesizer:
         self.train_foresee_all = train_foresee_all
         # lsw temp
         self.n_cdiff_cols = n_cdiff_cols
+        self.jsd_all = jsd_all
 
         self.is_fit_ = False
 
@@ -974,7 +976,7 @@ class CTABGANSynthesizer:
                     fakeact,
                     self.fsn,
                     self.n_month,
-                    train=True,  # jsd 학습 위해 임시로
+                    train=self.jsd_all,  # jsd 학습 위해 임시로
                     # train=self.train_foresee_all,
                     optimizerF=optimizerF,
                 )
@@ -988,8 +990,8 @@ class CTABGANSynthesizer:
                     faket, data_transformer.output_info, condvec, mask
                 )
 
-                # lsw: real_cat_d 얘는 위의 discrminator것 재활용 하네?
-                _, info_real = self.discriminator(real_cat_d)
+                # # lsw: real_cat_d 얘는 위의 discrminator것 재활용 하네?
+                # _, info_real = self.discriminator(real_cat_d)
 
                 # loss_g_default
                 loss_g_default = -torch.mean(y_fake)
@@ -1042,7 +1044,7 @@ class CTABGANSynthesizer:
                     + loss_g_info
                     + loss_g_gen * 10
                     + jsd * 10
-                    + cdiff_loss * 10
+                    + cdiff_loss
                 )
                 loss_g.backward()
                 torch.nn.utils.clip_grad_norm_(self.generator.parameters(), 0.5)
@@ -1069,7 +1071,7 @@ class CTABGANSynthesizer:
                 if (i_g + 1) % self.accumulation_steps == 0:
                     optimizerG.step()
                     # if self.train_foresee_all:
-                    if True:
+                    if self.jsd_all:
                         optimizerF.step()
 
                 # loss_g_dstream
