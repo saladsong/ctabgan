@@ -174,22 +174,22 @@ class NewDiscriminator(nn.Module):
         # self.fc = Linear(z_dim, self.side * self.side * 256)
 
         # Residual blocks
-        # Residual blocks 지날때마다 W, H 각 /2
+        # Max Pooling 지날때마다 W, H 각 /2
         self.block1 = ResidualBlock(
             in_channel, 64, upsample=False, use_self_attention=True, n_head=1
         )
+        self.max_pool1 = nn.MaxPool2d(2, 2)
         self.block2 = ResidualBlock(
             64, 128, upsample=False, use_self_attention=True, n_head=1
         )
         # self.block3 = ResidualBlock(
         #     128, 256, upsample=False, use_self_attention=True, n_head=1
         # )
+        self.max_pool2 = nn.MaxPool2d(2, 2)
         self.block4 = nn.Conv2d(128, 1, kernel_size=3, stride=1, padding=1)
 
         # Final output layer
         self.conv_out = nn.AdaptiveAvgPool2d(1)  # (B, 1, 1, 1)
-        # self.conv_out = nn.Conv2d(256, 1, kernel_size=self.side, stride=1, padding=0)
-        # self.conv_out = Conv2d(16, 1, kernel_size=3, stride=1, padding=1)
 
     def forward(self, x):
         # Initial dense layer
@@ -198,7 +198,9 @@ class NewDiscriminator(nn.Module):
 
         # Residual blocks
         x = self.block1(x)
+        x = self.max_pool1(x)
         x = self.block2(x)
+        x = self.max_pool2(x)
         # x = self.block3(x)
         x = self.block4(x)  # before the last layer
 
