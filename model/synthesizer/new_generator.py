@@ -15,6 +15,7 @@ class SelfAttention(nn.Module):
         batch_size, C, width, height = x.size()
         query = self.query(x).view(batch_size, -1, width * height).permute(0, 2, 1)
         key = self.key(x).view(batch_size, -1, width * height)
+        # F.bmm 시에 (B, W^2, H^2) 의 매우 큰 매트릭스가 만들어지므로 주의 필요!
         attention = F.softmax(torch.bmm(query, key), dim=-1)
         value = self.value(x).view(batch_size, -1, width * height)
         # print(query.shape, key.shape, value.shape)
@@ -127,6 +128,7 @@ class NewGenerator(nn.Module):
 
         # Residual blocks
         # Residual blocks 지날때마다 W, H 각 x2
+        # self-attention F.bmm() 메모리 폭발 때문에 G는 W, H 가 작은 초기부분에 어텐션 사용하고 D는 후반 부분에 사용하길 권장
         self.block1 = ResidualBlock(
             128, 64, upsample=True, use_self_attention=True, n_head=4
         )
@@ -136,8 +138,8 @@ class NewGenerator(nn.Module):
         # self.block3 = ResidualBlock(
         #     64, 32, upsample=True, use_self_attention=True, n_head=2
         # )
-        # self.block4 = ResidualBlock(
-        #     32, 16, upsample=True, use_self_attention=True, n_head=1
+        # self.block3 = ResidualBlock(
+        #     32, 16, upsample=True, use_self_attention=False, n_head=1
         # )
 
         # Final output layer
@@ -159,7 +161,6 @@ class NewGenerator(nn.Module):
         x = self.block2(x)
         # x = self.block3(x)
         # x = self.block4(x)
-
         # Final output layer
         # return torch.tanh(self.conv_out(x))
         return self.conv_out(x)
@@ -168,40 +169,33 @@ class NewGenerator(nn.Module):
 class NewDiscriminator(nn.Module):
     def __init__(self, in_channel):
         super(NewDiscriminator, self).__init__()
-        self.side = 5
-
-        # # Initial dense layer
-        # self.fc = Linear(z_dim, self.side * self.side * 256)
 
         # Residual blocks
         # Max Pooling 지날때마다 W, H 각 /2
+        # self-attention F.bmm() 메모리 폭발 때문에 G는 W, H 가 작은 초기부분에 어텐션 사용하고 D는 후반 부분에 사용하길 권장
         self.block1 = ResidualBlock(
-            in_channel, 64, upsample=False, use_self_attention=True, n_head=1
+            in_channel, 64, upsample=False, use_self_attention=False
         )
         self.max_pool1 = nn.MaxPool2d(2, 2)
-        self.block2 = ResidualBlock(
-            64, 128, upsample=False, use_self_attention=True, n_head=1
+        self.block2 = ResidualBlock(64, 128, upsample=False, use_self_attention=False)
+        self.max_pool2 = nn.MaxPool2d(4, 4)
+        self.block3 = ResidualBlock(
+            128, 256, upsample=False, use_self_attention=True, n_head=1
         )
-        # self.block3 = ResidualBlock(
-        #     128, 256, upsample=False, use_self_attention=True, n_head=1
-        # )
-        self.max_pool2 = nn.MaxPool2d(2, 2)
-        self.block4 = nn.Conv2d(128, 1, kernel_size=3, stride=1, padding=1)
+        self.max_pool3 = nn.MaxPool2d(2, 2)
+        self.block4 = nn.Conv2d(256, 1, kernel_size=3, stride=1, padding=1)
 
         # Final output layer
         self.conv_out = nn.AdaptiveAvgPool2d(1)  # (B, 1, 1, 1)
 
     def forward(self, x):
-        # Initial dense layer
-        # x = self.fc(z.view(z.shape[0], -1))  # 4d -> 2d
-        # x = x.view(x.size(0), 256, self.side, self.side)
-
         # Residual blocks
         x = self.block1(x)
         x = self.max_pool1(x)
         x = self.block2(x)
         x = self.max_pool2(x)
-        # x = self.block3(x)
+        x = self.block3(x)
+        x = self.max_pool3(x)
         x = self.block4(x)  # before the last layer
 
         # Final output layer
