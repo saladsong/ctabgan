@@ -950,7 +950,7 @@ class CTABGANSynthesizer:
                         f_real_cat, f_fake_cat, n=self.n_cdiff_cols
                     )
 
-                    if epoch < epoch_f_jsd_start:
+                    if epoch < self.epoch_f_jsd_start:
                         loss_f = loss_f_default
                     else:
                         loss_f = loss_f_default + loss_f_jsd * 0.1 + loss_f_cdiff * 0.1
