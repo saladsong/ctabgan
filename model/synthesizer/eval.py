@@ -1,22 +1,60 @@
 import torch
 import numpy as np
+import os
+
+realpath = os.path.dirname(os.path.realpath(__file__))
 
 
 def _js_divergence(p, q):
+    """
+    Args:
+        p, q: (encoded(n_cols), bins)
+    Return: (encoded,)
+    """
     eps = 1e-8
+    p = p + eps
+    q = q + eps
     m = 0.5 * (p + q)
-    return 0.5 * (p * ((p / m + eps).log()) + q * ((q / m + eps).log())).sum()
+    return 0.5 * (p * ((p / m).log()) + q * ((q / m).log())).sum(dim=1)
 
 
-def get_distribution(data, bins=20):
-    hist = torch.histc(data, bins=bins, min=0, max=1)
-    return hist / hist.sum()
+def get_distribution(data: torch.Tensor, bins: int = 20):
+    """
+    Args:
+        data: (B, encoded)
+    Return: (encoded, bins(20))
+    """
+    # hist = torch.histc(data, bins=bins, min=0, max=1)
+    hists = [
+        torch.histc(row, bins=bins, min=-1, max=1)
+        for row in data.permute(1, 0)  # (encoded, B)
+    ]
+    hists = torch.stack(hists)  # (encoded, bins(20))
+    return hists / hists.sum(dim=1).unsqueeze(1)  # (encoded, bins(20))
 
 
-def get_jsd(data_p, data_q):
-    p = get_distribution(data_p)
-    q = get_distribution(data_q)
-    return _js_divergence(p, q)
+# def get_jsd_old(data_p, data_q):  # (B, encoded)
+#     p = get_distribution(data_p)
+#     q = get_distribution(data_q)
+#     return _js_divergence(p, q)
+
+
+def get_jsd(data_q: torch.Tensor, dists: torch.Tensor, m: int, n: int = None):
+    """월별 컬럼별 jsd 계산
+    Args:
+        data_q: (B, encoded)
+        m: month idx [0~5]
+    Return: scala
+    """
+    assert data_q.shape[1] == dists.shape[1]
+    if n is None:
+        p = dists[m]  # (encoded, bins(20))
+        q = get_distribution(data_q)
+    else:
+        _idxs = np.random.choice(range(dists.shape[1]), size=int(n), replace=False)
+        p = dists[m][_idxs]  # (#_idxs, 20)
+        q = get_distribution(data_q[:, _idxs])
+    return _js_divergence(p, q).mean()
 
 
 def pearson_correlation(x, y):
@@ -66,7 +104,37 @@ def batch_pearson_correlation(x, y):
     return corr
 
 
-def get_cdiff_loss(aa, bb, n=1000):
+corrs_idx_pairs = np.load(os.path.join(realpath, "../../corrs-pairs.npy"))  # (2, 약1e6)
+
+
+def get_cdiff_loss(bb: torch.Tensor, corrs: torch.Tensor, n=1000):
+    """
+    bb: (B, M, #encoded)
+    """
+    global corrs_idx_pairs
+    # global corrs
+    bb_nrow = bb.shape[0]
+    bb2 = bb.permute((1, 2, 0)).reshape(-1, bb_nrow)
+
+    if n >= corrs_idx_pairs.shape[1]:
+        pairs = corrs_idx_pairs
+    else:
+        _idxs = np.random.choice(
+            range(corrs_idx_pairs.shape[1]), size=int(n), replace=False
+        )
+        pairs = corrs_idx_pairs[:, _idxs]
+
+    aa_corr = corrs[pairs[0], pairs[1]]
+    # print(bb2.shape, pairs)
+    bb_corr = batch_pearson_correlation(bb2[pairs[0]], bb2[pairs[1]])
+    cdiff = aa_corr - bb_corr
+    cdiff = cdiff[~(cdiff.isnan() | cdiff.isinf())]  # 비정상치 (nan, inf, -inf) 제거
+    cdiff_mse = (cdiff**2).mean()
+    # print(cdiff_mse)
+    return cdiff_mse
+
+
+def get_cdiff_loss_old(aa, bb, n=1000):
     aa_nrow = aa.shape[0]
     bb_nrow = bb.shape[0]
     aa2 = aa.permute((1, 2, 0)).reshape(-1, aa_nrow)
