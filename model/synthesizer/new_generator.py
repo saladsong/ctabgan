@@ -114,9 +114,9 @@ class NewGenerator(nn.Module):
         super(NewGenerator, self).__init__()
         self.hdim = 128
         dropout = 0.2
-        n_block = 2
+        n_block = 3
         self.factor = 2**n_block
-        self.side = 5 * self.factor
+        self.side = 80 // self.factor
 
         # Initial dense layer
         self.fc1 = nn.Linear(z_dim, 256)
@@ -138,13 +138,13 @@ class NewGenerator(nn.Module):
         # self.block3 = ResidualBlock(
         #     64, 32, upsample=True, use_self_attention=True, n_head=2
         # )
-        # self.block3 = ResidualBlock(
-        #     32, 16, upsample=True, use_self_attention=False, n_head=1
-        # )
+        self.block3 = ResidualBlock(
+            32, 16, upsample=True, use_self_attention=False, n_head=1
+        )
 
         # Final output layer
         # self.conv_out = nn.Conv2d(16, 6, kernel_size=1, stride=1, padding=0)
-        self.conv_out = nn.Conv2d(32, 1, kernel_size=3, stride=1, padding=1)
+        self.conv_out = nn.Conv2d(16, 1, kernel_size=3, stride=1, padding=1)
 
     def forward(self, z):
         # Initial dense layer
@@ -153,17 +153,17 @@ class NewGenerator(nn.Module):
         x = self.fc2((x))
         x = self.dropout2(F.relu(x))
         x = self.fc3(x)
-        x = self.dropout3(F.tanh(x))
+        x = self.dropout3(F.relu(x))
         x = x.view(x.size(0), 128, self.side, self.side)
 
         # Residual blocks
         x = self.block1(x)
         x = self.block2(x)
-        # x = self.block3(x)
+        x = self.block3(x)
         # x = self.block4(x)
         # Final output layer
-        # return torch.tanh(self.conv_out(x))
-        return self.conv_out(x)
+        # return self.conv_out(x)
+        return torch.tanh(self.conv_out(x))
 
 
 class NewDiscriminator(nn.Module):
