@@ -1,0 +1,386 @@
+[
+    {
+        "cc_col_nm": "cf_01_0018",
+        "valid_rate": 0.987
+    },
+    {
+        "cc_col_nm": "cf_01_0023",
+        "valid_rate": 0.9269
+    },
+    {
+        "cc_col_nm": "cf_01_0039",
+        "valid_rate": 1.0
+    },
+    {
+        "cc_col_nm": "cf_01_0044",
+        "valid_rate": 1.0
+    },
+    {
+        "cc_col_nm": "cf_01_0049",
+        "valid_rate": 0.9858
+    },
+    {
+        "cc_col_nm": "cf_01_0054",
+        "valid_rate": 1.0
+    },
+    {
+        "cc_col_nm": "cf_01_0083",
+        "valid_rate": 1.0
+    },
+    {
+        "cc_col_nm": "cf_01_0084",
+        "valid_rate": 1.0
+    },
+    {
+        "cc_col_nm": "cf_02_0030",
+        "valid_rate": 0.8148
+    },
+    {
+        "cc_col_nm": "cf_03_0006",
+        "valid_rate": 0.9934
+    },
+    {
+        "cc_col_nm": "cf_03_0007",
+        "valid_rate": 1.0
+    },
+    {
+        "cc_col_nm": "cf_03_0013",
+        "valid_rate": 1.0
+    },
+    {
+        "cc_col_nm": "cf_03_0014",
+        "valid_rate": 1.0
+    },
+    {
+        "cc_col_nm": "cf_03_0016",
+        "valid_rate": 1.0
+    },
+    {
+        "cc_col_nm": "cf_03_0023",
+        "valid_rate": 1.0
+    },
+    {
+        "cc_col_nm": "cf_03_0024",
+        "valid_rate": 1.0
+    },
+    {
+        "cc_col_nm": "cf_03_0026",
+        "valid_rate": 1.0
+    },
+    {
+        "cc_col_nm": "cf_03_0034",
+        "valid_rate": 0.9927
+    },
+    {
+        "cc_col_nm": "cf_03_0035",
+        "valid_rate": 0.9539
+    },
+    {
+        "cc_col_nm": "cf_03_0036",
+        "valid_rate": 0.9992
+    },
+    {
+        "cc_col_nm": "cf_03_0040",
+        "valid_rate": 0.9998
+    },
+    {
+        "cc_col_nm": "cf_03_0041",
+        "valid_rate": 0.9928
+    },
+    {
+        "cc_col_nm": "cf_03_0042",
+        "valid_rate": 1.0
+    },
+    {
+        "cc_col_nm": "cf_03_0043",
+        "valid_rate": 1.0
+    },
+    {
+        "cc_col_nm": "cf_03_0044",
+        "valid_rate": 1.0
+    },
+    {
+        "cc_col_nm": "cf_03_0046",
+        "valid_rate": 1.0
+    },
+    {
+        "cc_col_nm": "cf_03_0047",
+        "valid_rate": 0.9339
+    },
+    {
+        "cc_col_nm": "cf_03_0048",
+        "valid_rate": 0.8658
+    },
+    {
+        "cc_col_nm": "cf_03_0049",
+        "valid_rate": 0.9969
+    },
+    {
+        "cc_col_nm": "cf_03_0053",
+        "valid_rate": 1.0
+    },
+    {
+        "cc_col_nm": "cf_03_0054",
+        "valid_rate": 1.0
+    },
+    {
+        "cc_col_nm": "cf_03_0056",
+        "valid_rate": 1.0
+    },
+    {
+        "cc_col_nm": "cf_03_0057",
+        "valid_rate": 0.933
+    },
+    {
+        "cc_col_nm": "cf_03_0058",
+        "valid_rate": 0.8588
+    },
+    {
+        "cc_col_nm": "cf_03_0059",
+        "valid_rate": 0.9969
+    },
+    {
+        "cc_col_nm": "cf_03_0066",
+        "valid_rate": 0.9365
+    },
+    {
+        "cc_col_nm": "cf_03_0083",
+        "valid_rate": 1.0
+    },
+    {
+        "cc_col_nm": "cf_03_0084",
+        "valid_rate": 1.0
+    },
+    {
+        "cc_col_nm": "cf_03_0086",
+        "valid_rate": 1.0
+    },
+    {
+        "cc_col_nm": "cf_03_0093",
+        "valid_rate": 1.0
+    },
+    {
+        "cc_col_nm": "cf_03_0094",
+        "valid_rate": 1.0
+    },
+    {
+        "cc_col_nm": "cf_03_0096",
+        "valid_rate": 1.0
+    },
+    {
+        "cc_col_nm": "cf_03_0113",
+        "valid_rate": 1.0
+    },
+    {
+        "cc_col_nm": "cf_03_0114",
+        "valid_rate": 1.0
+    },
+    {
+        "cc_col_nm": "cf_03_0116",
+        "valid_rate": 1.0
+    },
+    {
+        "cc_col_nm": "cf_03_0123",
+        "valid_rate": 1.0
+    },
+    {
+        "cc_col_nm": "cf_03_0124",
+        "valid_rate": 1.0
+    },
+    {
+        "cc_col_nm": "cf_03_0126",
+        "valid_rate": 1.0
+    },
+    {
+        "cc_col_nm": "cf_03_0158",
+        "valid_rate": 1.0
+    },
+    {
+        "cc_col_nm": "cf_03_0160",
+        "valid_rate": 1.0
+    },
+    {
+        "cc_col_nm": "cf_03_0162",
+        "valid_rate": 1.0
+    },
+    {
+        "cc_col_nm": "cf_03_0164",
+        "valid_rate": 1.0
+    },
+    {
+        "cc_col_nm": "cf_03_0183",
+        "valid_rate": 1.0
+    },
+    {
+        "cc_col_nm": "cf_03_0192",
+        "valid_rate": 1.0
+    },
+    {
+        "cc_col_nm": "cf_03_0201",
+        "valid_rate": 1.0
+    },
+    {
+        "cc_col_nm": "cf_03_0202",
+        "valid_rate": 0.8029
+    },
+    {
+        "cc_col_nm": "cf_03_0203",
+        "valid_rate": 0.9883
+    },
+    {
+        "cc_col_nm": "cf_03_0204",
+        "valid_rate": 0.5674
+    },
+    {
+        "cc_col_nm": "cf_03_0205",
+        "valid_rate": 0.9654
+    },
+    {
+        "cc_col_nm": "cf_03_0206",
+        "valid_rate": 0.6384
+    },
+    {
+        "cc_col_nm": "cf_03_0207",
+        "valid_rate": 0.9794
+    },
+    {
+        "cc_col_nm": "cf_03_0208",
+        "valid_rate": 0.4364
+    },
+    {
+        "cc_col_nm": "cf_03_0209",
+        "valid_rate": 0.9591
+    },
+    {
+        "cc_col_nm": "cf_03_0210",
+        "valid_rate": 0.558
+    },
+    {
+        "cc_col_nm": "cf_03_0211",
+        "valid_rate": 1.0
+    },
+    {
+        "cc_col_nm": "cf_03_0212",
+        "valid_rate": 0.1905
+    },
+    {
+        "cc_col_nm": "cf_03_0213",
+        "valid_rate": 1.0
+    },
+    {
+        "cc_col_nm": "cf_03_0214",
+        "valid_rate": 0.3246
+    },
+    {
+        "cc_col_nm": "cf_03_0215",
+        "valid_rate": 1.0
+    },
+    {
+        "cc_col_nm": "cf_03_0216",
+        "valid_rate": 0.0535
+    },
+    {
+        "cc_col_nm": "cf_03_0217",
+        "valid_rate": 1.0
+    },
+    {
+        "cc_col_nm": "cf_03_0218",
+        "valid_rate": 0.5248
+    },
+    {
+        "cc_col_nm": "cf_03_0219",
+        "valid_rate": 1.0
+    },
+    {
+        "cc_col_nm": "cf_03_0220",
+        "valid_rate": 0.0422
+    },
+    {
+        "cc_col_nm": "cf_03_0221",
+        "valid_rate": 1.0
+    },
+    {
+        "cc_col_nm": "cf_03_0222",
+        "valid_rate": 0.9999
+    },
+    {
+        "cc_col_nm": "cf_03_0223",
+        "valid_rate": 0.9999
+    },
+    {
+        "cc_col_nm": "cf_03_0224",
+        "valid_rate": 1.0
+    },
+    {
+        "cc_col_nm": "cf_03_0225",
+        "valid_rate": 1.0
+    },
+    {
+        "cc_col_nm": "cf_03_0226",
+        "valid_rate": 0.9999
+    },
+    {
+        "cc_col_nm": "cf_03_0227",
+        "valid_rate": 0.9999
+    },
+    {
+        "cc_col_nm": "cf_03_0228",
+        "valid_rate": 1.0
+    },
+    {
+        "cc_col_nm": "cf_03_0229",
+        "valid_rate": 1.0
+    },
+    {
+        "cc_col_nm": "cf_03_0254",
+        "valid_rate": 0.9904
+    },
+    {
+        "cc_col_nm": "cf_03_0268",
+        "valid_rate": 0.99
+    },
+    {
+        "cc_col_nm": "cf_03_0281",
+        "valid_rate": 0.9848
+    },
+    {
+        "cc_col_nm": "cf_03_0408",
+        "valid_rate": 0.9623
+    },
+    {
+        "cc_col_nm": "cf_03_0409",
+        "valid_rate": 0.9631
+    },
+    {
+        "cc_col_nm": "cf_03_0410",
+        "valid_rate": 0.9648
+    },
+    {
+        "cc_col_nm": "cf_04_0011",
+        "valid_rate": 0.9865
+    },
+    {
+        "cc_col_nm": "cf_04_0027",
+        "valid_rate": 0.8599
+    },
+    {
+        "cc_col_nm": "cf_04_0032",
+        "valid_rate": 0.9574
+    },
+    {
+        "cc_col_nm": "cf_05_0006",
+        "valid_rate": 0.9577
+    },
+    {
+        "cc_col_nm": "cf_05_0018",
+        "valid_rate": 0.9986
+    },
+    {
+        "cc_col_nm": "cf_06_0066",
+        "valid_rate": 0.9998
+    },
+    {
+        "cc_col_nm": "cf_06_0089",
+        "valid_rate": 0.9988
+    }
+]
