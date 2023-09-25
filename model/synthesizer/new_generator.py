@@ -114,7 +114,7 @@ class NewGenerator(nn.Module):
         super(NewGenerator, self).__init__()
         self.hdim = 128
         dropout = 0.2
-        n_block = 3
+        n_block = 4
         self.factor = 2**n_block
         self.side = 80 // self.factor
 
@@ -135,10 +135,10 @@ class NewGenerator(nn.Module):
         self.block2 = ResidualBlock(
             64, 32, upsample=True, use_self_attention=True, n_head=2
         )
-        # self.block3 = ResidualBlock(
-        #     64, 32, upsample=True, use_self_attention=True, n_head=2
-        # )
         self.block3 = ResidualBlock(
+            32, 32, upsample=True, use_self_attention=True, n_head=2
+        )
+        self.block4 = ResidualBlock(
             32, 16, upsample=True, use_self_attention=False, n_head=1
         )
 
@@ -160,7 +160,7 @@ class NewGenerator(nn.Module):
         x = self.block1(x)
         x = self.block2(x)
         x = self.block3(x)
-        # x = self.block4(x)
+        x = self.block4(x)
         # Final output layer
         # return self.conv_out(x)
         return torch.tanh(self.conv_out(x))

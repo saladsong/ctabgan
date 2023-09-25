@@ -63,8 +63,13 @@ pyreverse -o png model
 - pixelCNN 모델 적용해보기
 - jsd loss 첫달 말고 8월 이후도 넣기 -> 트랜스포머에 로스 적용 [x]
 - corr_diff loss 적용하기 [x]
-  - grad nan 튀는거 해결하기 [...]
+  - grad nan 튀는거 해결하기 [x]
 
+
+트랜스포머에 jsd, cdiff 같이 학습하는거는 계속 문제를 일으키네 ...
+
+synthpop-R
+- https://www.r-bloggers.com/2019/01/generating-synthetic-data-sets-with-synthpop-in-r/
 ---
 8월말까지
 - 월별로 4만건

@@ -971,12 +971,15 @@ class CTABGANSynthesizer:
 
                     # foreseeNN add cdiff_loss
                     # 여기 f_fake_cat은 6개월 아니고 첫달 제외한 5개월임 주의!!
-                    # loss_f_cdiff = get_cdiff_loss(
-                    #     f_fake_cat, corrs=self.corrs, n=self.n_cdiff_cols
-                    # )
-                    loss_f_cdiff = 0
+                    #   get_cdiff_loss 는 6개월 기준으로 인덱싱되어있으니 임시로 real data의 첫달을 맨 앞에 붙임
+                    f_fake_cat_tmp6 = torch.concat(
+                        [f_real_cat[:, [0]], f_fake_cat], dim=1
+                    )  # (B, M, #encoded)
+                    loss_f_cdiff = get_cdiff_loss(
+                        f_fake_cat_tmp6, corrs=self.corrs, n=self.n_cdiff_cols
+                    )
 
-                    if epoch < self.epoch_f_jsd_start:
+                    if self.epoch_f_jsd_start < 0 or epoch < self.epoch_f_jsd_start:
                         loss_f = loss_f_default
                     else:
                         loss_f = loss_f_default + loss_f_jsd * 0.1 + loss_f_cdiff * 0.1
