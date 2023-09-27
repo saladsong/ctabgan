@@ -952,7 +952,7 @@ class CTABGANSynthesizer:
 
                     f_real_cat = fsn_input[1:].permute(1, 0, 2)
                     f_fake_cat = fsn_output[:-1].permute(1, 0, 2)
-                    assert fake_cat.shape == real_cat.shape  # (B, M-1, #encoded)
+                    assert f_fake_cat.shape == f_real_cat.shape  # (B, M-1, #encoded)
 
                     loss_f_default = ((f_fake_cat - f_real_cat) ** 2).mean()  # mse loss
 
@@ -1250,7 +1250,7 @@ class CTABGANSynthesizer:
 
             fake = self.generator(noisez)
             faket = self.Gtransformer.inverse_transform(fake)
-            fakeact = apply_activate(faket, output_info)  # (B, M, #encode)
+            fakeact = apply_activate(faket, output_info)  # (B, M(1), #encode)
             fake_cat = foresee(fakeact, self.fsn, self.n_month)  # foreseeNN 예측
 
             data.append(
