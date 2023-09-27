@@ -27,6 +27,7 @@ class CTABGAN:
         log_columns: list = None,
         mixed_columns: dict = None,  # {"capital-loss": [0.0], "capital-gain": [0.0]} 포맷으로 입력
         general_columns: list = None,  # categorical 중 one-hot 안하고 GT 적용할 컬럼들도 같이 적어줘야 함
+        skewed_columns: list = None,  # jys: contiunous / mixed 중 MSN 안하고 skew-norm 적용할 컬럼
         non_categorical_columns: list = None,  # categorical 중 one-hot 안하고 MSN 적용할 컬럼들...  lsw: 헷갈림. 이름 변경필요
         integer_columns: list = None,
         problem_type: dict = None,  # {"Classification": "income"} 포맷으로 입력
@@ -43,6 +44,8 @@ class CTABGAN:
             mixed_columns = {}
         if general_columns is None:
             general_columns = []
+        if skewed_columns is None:
+            skewed_columns = []
         if non_categorical_columns is None:
             non_categorical_columns = []
         if integer_columns is None:
@@ -61,6 +64,7 @@ class CTABGAN:
         self.log_columns = log_columns
         self.mixed_columns = mixed_columns
         self.general_columns = general_columns
+        self.skewed_columns = skewed_columns
         self.non_categorical_columns = non_categorical_columns
         self.integer_columns = integer_columns
         self.problem_type = problem_type
@@ -83,6 +87,7 @@ class CTABGAN:
             self.log_columns,
             self.mixed_columns,
             self.general_columns,
+            self.skewed_columns,
             self.non_categorical_columns,
             self.integer_columns,
             self.problem_type,
@@ -96,6 +101,7 @@ class CTABGAN:
                 categorical_list=self.data_prep.column_types["categorical"],
                 mixed_dict=self.data_prep.column_types["mixed"],
                 general_list=self.data_prep.column_types["general"],
+                skew_norm_list=self.data_prep.column_types["skewed"],
                 non_categorical_list=self.data_prep.column_types["non_categorical"],
             )
             self.transformer.fit(train_data=self.data_prep.df)

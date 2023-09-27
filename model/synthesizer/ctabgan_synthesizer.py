@@ -133,7 +133,7 @@ def get_tcol_idx_st_ed_tuple(
             break
         if item[1] == "tanh":
             st += item[0]
-            if item[3] == "gt":
+            if item[3] in ["gt", "skew"]:
                 col_cnt += 1
         elif item[1] == "softmax":
             st += item[0]

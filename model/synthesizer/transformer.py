@@ -1,13 +1,15 @@
+import logging
+import os
+import pickle
+from multiprocessing import Manager, Pool, Queue, cpu_count
+from typing import List, Tuple, Union
+
 import numpy as np
 import pandas as pd
 import torch
+from scipy.stats import skewnorm
 from sklearn.mixture import BayesianGaussianMixture
-import logging
 from tqdm.auto import tqdm
-from typing import List, Union, Tuple
-import pickle
-import os
-from multiprocessing import Queue, Pool, Manager, cpu_count
 
 RANDOM_SEED = 777
 
@@ -27,7 +29,7 @@ def encode_column(
 
     if info["type"] == "continuous":
         # MSN 적용 대상 컬럼인 경우: get alpha_i, beta_i
-        if id_ not in transformer.general_columns:
+        if (id_ not in transformer.general_columns) & (id_ not in transformer.skewed_columns):
             arr = arr.reshape([-1, 1])
             means = transformer.model[id_].means_.reshape((1, transformer.n_clusters))
             stds = np.sqrt(transformer.model[id_].covariances_).reshape(
@@ -89,6 +91,23 @@ def encode_column(
                 re_ordered_phot,
             ]  # alpha_i (N * 1), beta_i (N * #valid_mode)
 
+        # skew-norm 적용 컬럼인 경우
+        elif (id_ not in transformer.general_columns):
+            order = None
+            _mean = transformer.model[id_]['mean']
+            _std = transformer.model[id_]['std']
+            _alpha = transformer.model[id_]['alpha']
+
+            if ispositive is True:
+                if id_ in positive_list:
+                    features = np.abs(arr - _mean) / (4 * _std)
+            else:
+                features = (arr - _mean) / (4 * _std)
+
+            features = np.clip(features, -0.99, 0.99)
+            features = features.reshape([-1, 1])
+            ret = features
+
         # GT 적용 대상 컬럼인 경우: transform to x_t
         # lsw: 추후 데이터 미니 배치로 넣으면 이부분도 최소, 최대값 저장했다가 다시 쓰도록 리팩토링 해야할지도 ...
         else:
@@ -101,121 +120,196 @@ def encode_column(
             arr = (arr - (info["min"])) / (info["max"] - info["min"])
             arr = arr * 2 - 1
             arr = arr.reshape([-1, 1])
+            # _alpha_norm = np.zeros(arr.shape[0]).reshape([-1, 1])
+            # ret = np.concatenate([arr, _alpha_norm], axis=1)  # (N * 2)
             ret = arr  # alpha_i (N * 1)
 
     # MSN 적용 대상 mixed 컬럼인 경우: get alpha_i, beta_i
     elif info["type"] == "mixed":
-        means_0 = transformer.model[id_][0].means_.reshape([-1])
-        stds_0 = np.sqrt(transformer.model[id_][0].covariances_).reshape([-1])
+        if (id_ not in transformer.skewed_columns):
+            means_0 = transformer.model[id_][0].means_.reshape([-1])
+            stds_0 = np.sqrt(transformer.model[id_][0].covariances_).reshape([-1])
 
-        zero_std_list = []
-        means_needed = []
-        stds_needed = []
+            zero_std_list = []
+            means_needed = []
+            stds_needed = []
 
-        # -9999999 외의 modal 값에 대한 mean, sqrt 계산 (normalize 에 활용)
-        # gm1 모델의 10개 mode 중, modal 값과 mean 값이 가장 가까운 mode 의 mean, sqrt 를 취함
-        for mode in info["modal"]:
-            if mode != -9999999:
-                dist = []
-                for idx, val in enumerate(list(means_0.flatten())):
-                    dist.append(abs(mode - val))
-                index_min = np.argmin(np.array(dist))
-                zero_std_list.append(index_min)
+            # -9999999 외의 modal 값에 대한 mean, sqrt 계산 (normalize 에 활용)
+            # gm1 모델의 10개 mode 중, modal 값과 mean 값이 가장 가까운 mode 의 mean, sqrt 를 취함
+            for mode in info["modal"]:
+                if mode != -9999999:
+                    dist = []
+                    for idx, val in enumerate(list(means_0.flatten())):
+                        dist.append(abs(mode - val))
+                    index_min = np.argmin(np.array(dist))
+                    zero_std_list.append(index_min)
+                else:
+                    continue
+
+            for idx in zero_std_list:
+                means_needed.append(means_0[idx])
+                stds_needed.append(stds_0[idx])
+
+            # mode 별 normalized alpha_i 를 저장
+            mode_vals = []
+            # lsw: 이 코드는 -9999999 가 info["modal"]의 맨 마지막에 추가되므로 가능한 것임 - 안좋은 코드
+            # modal 값에 대한 alpha_i 계산
+            for i, j, k in zip(info["modal"], means_needed, stds_needed):
+                this_val = np.abs(i - j) / (4 * k)
+                mode_vals.append(this_val)
+            if -9999999 in info["modal"]:
+                mode_vals.append(0)
+
+            # modal 이 아닌 continuous 값의 mode 에 대한 alpha_i, beta_i 계산
+            # gm2 모델의 mean, std 활용
+            arr_orig = arr.copy()  # 뒤에서 재사용되므로 복사 필요
+            arr = arr.reshape([-1, 1])
+            filter_arr = info["filter_arr"]
+            arr = arr[filter_arr]
+
+            means = transformer.model[id_][1].means_.reshape((1, transformer.n_clusters))
+            stds = np.sqrt(transformer.model[id_][1].covariances_).reshape(
+                (1, transformer.n_clusters)
+            )
+            features = np.empty(shape=(len(arr), transformer.n_clusters))
+            if ispositive is True:
+                if id_ in positive_list:
+                    features = np.abs(arr - means) / (4 * stds)
             else:
-                continue
+                features = (arr - means) / (4 * stds)
 
-        for idx in zero_std_list:
-            means_needed.append(means_0[idx])
-            stds_needed.append(stds_0[idx])
+            probs = transformer.model[id_][1].predict_proba(arr.reshape([-1, 1]))
+            n_opts = sum(transformer.valid_mode_flags[id_])
+            features = features[:, transformer.valid_mode_flags[id_]]
+            probs = probs[:, transformer.valid_mode_flags[id_]]
 
-        # mode 별 normalized alpha_i 를 저장
-        mode_vals = []
-        # lsw: 이 코드는 -9999999 가 info["modal"]의 맨 마지막에 추가되므로 가능한 것임 - 안좋은 코드
-        # modal 값에 대한 alpha_i 계산
-        for i, j, k in zip(info["modal"], means_needed, stds_needed):
-            this_val = np.abs(i - j) / (4 * k)
-            mode_vals.append(this_val)
-        if -9999999 in info["modal"]:
-            mode_vals.append(0)
+            opt_sel = np.zeros(len(arr), dtype="int")
+            for i in range(len(arr)):
+                pp = probs[i] + 1e-6
+                pp = pp / sum(pp)
+                opt_sel[i] = np.random.choice(np.arange(n_opts), p=pp)
 
-        # modal 이 아닌 continuous 값의 mode 에 대한 alpha_i, beta_i 계산
-        # gm2 모델의 mean, std 활용
-        arr_orig = arr.copy()  # 뒤에서 재사용되므로 복사 필요
-        arr = arr.reshape([-1, 1])
-        filter_arr = info["filter_arr"]
-        arr = arr[filter_arr]
+            idx = np.arange((len(features)))
+            features = features[idx, opt_sel].reshape([-1, 1])
+            features = np.clip(features, -0.99, 0.99)
+            probs_onehot = np.zeros_like(probs)
+            probs_onehot[np.arange(len(probs)), opt_sel] = 1
 
-        means = transformer.model[id_][1].means_.reshape((1, transformer.n_clusters))
-        stds = np.sqrt(transformer.model[id_][1].covariances_).reshape(
-            (1, transformer.n_clusters)
-        )
-        features = np.empty(shape=(len(arr), transformer.n_clusters))
-        if ispositive is True:
-            if id_ in positive_list:
-                features = np.abs(arr - means) / (4 * stds)
+            # modal 값 포함 전체 mode 에 대한 최종 concat vector (final) 생성
+            # final shape: (n * (1 for alpha_i + one-hot for modal + one-hot for modes))
+            extra_bits = np.zeros([len(arr), len(info["modal"])])
+            temp_probs_onehot = np.concatenate(
+                [extra_bits, probs_onehot], axis=1
+            )  # modal 을 MSN 앞에 붙이네
+            final = np.zeros(
+                [
+                    len_data,
+                    1 + probs_onehot.shape[1] + len(info["modal"]),
+                ]  # (N * 1+ #vaild_mode + #modal)  // +1 은 alpha 위한 것
+            )
+
+            # final 내에 alpha, beta 채우는 과정
+            features_curser = 0
+            for idx, val in enumerate(arr_orig):
+                if val in info["modal"]:
+                    # category_ = list(map(info["modal"].index, [val]))[0]
+                    category_ = info["modal"].index(val)
+                    final[idx, 0] = mode_vals[category_]  # alpha_i
+                    final[idx, (category_ + 1)] = 1  # beta_i
+
+                else:
+                    final[idx, 0] = features[features_curser]
+                    final[idx, (1 + len(info["modal"])) :] = temp_probs_onehot[
+                        features_curser
+                    ][len(info["modal"]) :]
+                    features_curser = features_curser + 1
+
+            # one-hot mode 순서 정렬 (빈도 수 높은 mode 순)
+            just_onehot = final[:, 1:]
+            re_ordered_jhot = np.zeros_like(just_onehot)
+            col_sums = just_onehot.sum(axis=0)
+            largest_indices = np.argsort(-1 * col_sums)
+            # n = just_onehot.shape[1]
+            # largest_indices = np.argsort(-1 * col_sums)[:n]
+            order = largest_indices
+
+            for id, val in enumerate(largest_indices):
+                re_ordered_jhot[:, id] = just_onehot[:, val]
+
+            final_features = final[:, 0].reshape([-1, 1])
+            ret = [final_features, re_ordered_jhot]  # alpha_i, beta_i
+
+        #### mixed + skewed (single-mode 가정) 인 경우
         else:
-            features = (arr - means) / (4 * stds)
+            order = None
+            _mean1 = transformer.model[id_][0]['mean']
+            _std1 = transformer.model[id_][0]['std']
 
-        probs = transformer.model[id_][1].predict_proba(arr.reshape([-1, 1]))
-        n_opts = sum(transformer.valid_mode_flags[id_])
-        features = features[:, transformer.valid_mode_flags[id_]]
-        probs = probs[:, transformer.valid_mode_flags[id_]]
+            # mode 별 normalized alpha_i 를 저장  means_needed / stds_needed -> 각 modal 별 mean,std
+            mode_vals = []
+            for mdl in info["modal"]:
+                if mdl != -9999999:
+                    this_val = np.abs(mdl - _mean1) / (4 * _std1)
+                    mode_vals.append(this_val)
+                else:
+                    mode_vals.append(0)
 
-        opt_sel = np.zeros(len(arr), dtype="int")
-        for i in range(len(arr)):
-            pp = probs[i] + 1e-6
-            pp = pp / sum(pp)
-            opt_sel[i] = np.random.choice(np.arange(n_opts), p=pp)
+            # modal 이 아닌 continuous 값의 mode 에 대한 alpha_i, beta_i 계산
+            # gm2 모델의 mean, std 활용
+            arr_orig = arr.copy()     # 뒤에서 재사용되므로 복사 필요
+            arr = arr.reshape([-1, 1])
+            filter_arr = info["filter_arr"]
+            arr = arr[filter_arr]
 
-        idx = np.arange((len(features)))
-        features = features[idx, opt_sel].reshape([-1, 1])
-        features = np.clip(features, -0.99, 0.99)
-        probs_onehot = np.zeros_like(probs)
-        probs_onehot[np.arange(len(probs)), opt_sel] = 1
-
-        # modal 값 포함 전체 mode 에 대한 최종 concat vector (final) 생성
-        # final shape: (n * (1 for alpha_i + one-hot for modal + one-hot for modes))
-        extra_bits = np.zeros([len(arr), len(info["modal"])])
-        temp_probs_onehot = np.concatenate(
-            [extra_bits, probs_onehot], axis=1
-        )  # modal 을 MSN 앞에 붙이네
-        final = np.zeros(
-            [
-                len_data,
-                1 + probs_onehot.shape[1] + len(info["modal"]),
-            ]  # (N * 1+ #vaild_mode + #modal)  // +1 은 alpha 위한 것
-        )
-
-        # final 내에 alpha, beta 채우는 과정
-        features_curser = 0
-        for idx, val in enumerate(arr_orig):
-            if val in info["modal"]:
-                # category_ = list(map(info["modal"].index, [val]))[0]
-                category_ = info["modal"].index(val)
-                final[idx, 0] = mode_vals[category_]  # alpha_i
-                final[idx, (category_ + 1)] = 1  # beta_i
-
+            _mean2 = transformer.model[id_][1]['mean']
+            _std2 = transformer.model[id_][1]['std']
+            features = np.empty(shape=(len(arr), 1))
+            if ispositive is True:
+                if id_ in positive_list:
+                    features = np.abs(arr - _mean2) / (4 * _std2)
             else:
-                final[idx, 0] = features[features_curser]
-                final[idx, (1 + len(info["modal"])) :] = temp_probs_onehot[
-                    features_curser
-                ][len(info["modal"]) :]
-                features_curser = features_curser + 1
+                features = (arr - _mean2) / (4 * _std2)
+            features = np.clip(features, -0.99, 0.99)
 
-        # one-hot mode 순서 정렬 (빈도 수 높은 mode 순)
-        just_onehot = final[:, 1:]
-        re_ordered_jhot = np.zeros_like(just_onehot)
-        col_sums = just_onehot.sum(axis=0)
-        largest_indices = np.argsort(-1 * col_sums)
-        # n = just_onehot.shape[1]
-        # largest_indices = np.argsort(-1 * col_sums)[:n]
-        order = largest_indices
+            # modal 값 포함 전체 mode 에 대한 최종 concat vector (final) 생성
+            # final shape: (n * (1 for alpha_i + one-hot for modal + 1 for single mode))
+            temp_probs_onehot = np.zeros([len(arr), len(info["modal"]) + 1])
+            # modal 외 single-mode 가정하므로 one-hot 대신 1-dim 만 추가
+            final = np.zeros(
+                [
+                    len_data,
+                    1 + len(info["modal"]) + 1
+                ]
+            )
 
-        for id, val in enumerate(largest_indices):
-            re_ordered_jhot[:, id] = just_onehot[:, val]
+            # final 내에 alpha, beta 채우는 과정
+            features_curser = 0
+            for idx, val in enumerate(arr_orig):
+                if val in info["modal"]:
+                    # category_ = list(map(info["modal"].index, [val]))[0]
+                    category_ = info["modal"].index(val)
+                    final[idx, 0] = mode_vals[category_]  # alpha_i
+                    final[idx, (category_ + 1)] = 1  # beta_i
 
-        final_features = final[:, 0].reshape([-1, 1])
-        ret = [final_features, re_ordered_jhot]  # alpha_i, beta_i
+                else:
+                    final[idx, 0] = features[features_curser]
+                    final[idx, -1] = 1
+                    features_curser = features_curser + 1
+
+            # one-hot mode 순서 정렬 (빈도 수 높은 mode 순)
+            just_onehot = final[:, 1:]
+            re_ordered_jhot = np.zeros_like(just_onehot)
+            col_sums = just_onehot.sum(axis=0)
+            largest_indices = np.argsort(-1 * col_sums)
+            # n = just_onehot.shape[1]
+            # largest_indices = np.argsort(-1 * col_sums)[:n]
+            order = largest_indices
+
+            for id, val in enumerate(largest_indices):
+                re_ordered_jhot[:, id] = just_onehot[:, val]
+
+            final_features = final[:, 0].reshape([-1, 1])
+            ret = [final_features, re_ordered_jhot]  # alpha_i, beta_i
 
     # categorical 컬럼인 경우: get one-hot
     else:
@@ -243,7 +337,7 @@ def decode_column(
     ret = None
     if info["type"] == "continuous":
         # MSN 역변환
-        if id_ not in transformer.general_columns:
+        if (id_ not in transformer.general_columns) & (id_ not in transformer.skewed_columns):
             u = arr[:, 0]  # alphas
             v = arr[:, 1:]  # betas
             v_re_ordered = np.zeros_like(v)
@@ -278,6 +372,26 @@ def decode_column(
 
             ret = tmp
 
+        #### skew-norm 컬럼 역변환
+        elif (id_ not in transformer.general_columns):
+            u = arr[:, 0]  # alphas
+            u = np.clip(u, -1, 1)
+
+            _mean = transformer.model[id_]['mean']
+            _std = transformer.model[id_]['std']
+            tmp = u * 4 * _std + _mean
+
+            # non-cate 값들은 뒤의 label decoding 에러 막기위해 일단 min,max 클리핑 적용
+            if from_non_categorical_columns:
+                tmp = np.round(tmp)
+                tmp = np.clip(tmp, info["min"], info["max"])
+
+            for idx, val in enumerate(tmp):
+                if (val < info["min"]) | (val > info["max"]):
+                    invalid_ids.append(idx)
+
+            ret = tmp
+
         # GT 역변환
         else:
             u = arr[:, 0]  # alphas
@@ -294,45 +408,88 @@ def decode_column(
 
     # mixed MSN 역변환
     elif info["type"] == "mixed":
-        u = arr[:, 0]  # alphas
-        full_v = arr[:, 1:]  # betas
-        full_v_re_ordered = np.zeros_like(full_v)
+        if (id_ not in transformer.skewed_columns):
+            u = arr[:, 0]  # alphas
+            full_v = arr[:, 1:]  # betas
+            full_v_re_ordered = np.zeros_like(full_v)
 
-        for id, val in enumerate(order):
-            full_v_re_ordered[:, val] = full_v[:, id]
+            for id, val in enumerate(order):
+                full_v_re_ordered[:, val] = full_v[:, id]
 
-        full_v = full_v_re_ordered
+            full_v = full_v_re_ordered
 
-        mixed_v = full_v[:, : len(info["modal"])]  # modal 부분 beta
-        v = full_v[:, -np.sum(transformer.valid_mode_flags[id_]) :]  # modal 제외 부분 beta
+            mixed_v = full_v[:, : len(info["modal"])]  # modal 부분 beta
+            v = full_v[:, -np.sum(transformer.valid_mode_flags[id_]) :]  # modal 제외 부분 beta
 
-        u = np.clip(u, -1, 1)
-        v_t = np.ones((len_data, transformer.n_clusters)) * -100
-        v_t[:, transformer.valid_mode_flags[id_]] = v
-        v = np.concatenate([mixed_v, v_t], axis=1)
+            u = np.clip(u, -1, 1)
+            v_t = np.ones((len_data, transformer.n_clusters)) * -100
+            v_t[:, transformer.valid_mode_flags[id_]] = v
+            v = np.concatenate([mixed_v, v_t], axis=1)
 
-        means = transformer.model[id_][1].means_.reshape([-1])
-        stds = np.sqrt(transformer.model[id_][1].covariances_).reshape([-1])
-        p_argmax = np.argmax(v, axis=1)
+            means = transformer.model[id_][1].means_.reshape([-1])
+            stds = np.sqrt(transformer.model[id_][1].covariances_).reshape([-1])
+            p_argmax = np.argmax(v, axis=1)
 
-        result = np.zeros_like(u)
+            result = np.zeros_like(u)
 
-        for idx in range(len_data):
-            if p_argmax[idx] < len(info["modal"]):
-                argmax_value = p_argmax[idx]
-                result[idx] = float(
-                    list(map(info["modal"].__getitem__, [argmax_value]))[0]
-                )
-            else:
-                std_t = stds[(p_argmax[idx] - len(info["modal"]))]
-                mean_t = means[(p_argmax[idx] - len(info["modal"]))]
-                result[idx] = u[idx] * 4 * std_t + mean_t
+            for idx in range(len_data):
+                if p_argmax[idx] < len(info["modal"]):
+                    argmax_value = p_argmax[idx]
+                    result[idx] = float(
+                        list(map(info["modal"].__getitem__, [argmax_value]))[0]
+                    )
+                else:
+                    std_t = stds[(p_argmax[idx] - len(info["modal"]))]
+                    mean_t = means[(p_argmax[idx] - len(info["modal"]))]
+                    result[idx] = u[idx] * 4 * std_t + mean_t
 
-        for idx, val in enumerate(result):
-            if (val < info["min"]) | (val > info["max"]):
-                invalid_ids.append(idx)
+            for idx, val in enumerate(result):
+                if (val < info["min"]) | (val > info["max"]):
+                    invalid_ids.append(idx)
 
-        ret = result
+            ret = result
+
+        #### skew-norm 컬럼 역변환
+        else:
+            u = arr[:, 0]  # alphas
+            full_v = arr[:, 1:]  # betas (dim: #modal + 1)
+            full_v_re_ordered = np.zeros_like(full_v)
+
+            for id, val in enumerate(order):
+                full_v_re_ordered[:, val] = full_v[:, id]
+
+            full_v = full_v_re_ordered
+
+            mixed_v = full_v[:, : len(info["modal"])]  # modal 부분 beta
+            v = full_v[:, -1].reshape([-1, 1])  # modal 제외 부분 (single-mode) beta
+
+            u = np.clip(u, -1, 1)
+            # v_t = np.ones((len_data, 1)) * -100
+            # v_t[:, transformer.valid_mode_flags[id_]] = v
+            # v = np.concatenate([mixed_v, v_t], axis=1)
+            v = np.concatenate([mixed_v, v], axis=1)
+
+            _mean = transformer.model[id_][1]['mean']
+            _std = transformer.model[id_][1]['std']
+            p_argmax = np.argmax(v, axis=1)
+
+            result = np.zeros_like(u)
+
+            for idx in range(len_data):
+                if p_argmax[idx] < len(info["modal"]):
+                    argmax_value = p_argmax[idx]  # modal 에 해당
+                    result[idx] = float(
+                        list(map(info["modal"].__getitem__, [argmax_value]))[0]
+                    )
+                else:
+                    # not modal (skewed-normal)
+                    result[idx] = u[idx] * 4 * _std + _mean
+
+            for idx, val in enumerate(result):
+                if (val < info["min"]) | (val > info["max"]):
+                    invalid_ids.append(idx)
+
+            ret = result
 
     # one-hot 역변환
     else:
@@ -350,6 +507,7 @@ class DataTransformer:
         mixed_dict: dict = None,
         general_list: list = None,
         non_categorical_list: list = None,
+        skew_norm_list: list = None,
         n_clusters: int = 10,
         eps: float = 0.005,
     ):
@@ -360,6 +518,8 @@ class DataTransformer:
             mixed_dict = {}
         if general_list is None:
             general_list = []
+        if skew_norm_list is None:
+            skew_norm_list = []
         if non_categorical_list is None:
             non_categorical_list = []
 
@@ -370,6 +530,7 @@ class DataTransformer:
         self.categorical_columns = categorical_list
         self.mixed_columns = mixed_dict
         self.general_columns = general_list
+        self.skewed_columns = skew_norm_list
         self.non_categorical_columns = non_categorical_list
         self.is_fit_ = False
 
@@ -433,7 +594,7 @@ class DataTransformer:
         """VGM(MSN) 모델 피팅"""
         data = train_data.values
         self.meta = self.get_metadata(train_data)
-        model = []  # VGM Model 저장 영역
+        model = []  # VGM or SN Model 저장 영역
         self.output_info = []  # 데이터 인코딩 후 출력 정보 List[tuple]
         self.output_dim = 0  # 데이터 인코딩 후 차원
         self.valid_mode_flags = []  # 컬럼별 MSN 모드별 유효여부 저장 영역 List[bool]
@@ -447,7 +608,7 @@ class DataTransformer:
             current_arr = data[:, id_]
             if info["type"] == "continuous":
                 # num. type & single Gaussian 이 아닌 경우: MSN (VGM)
-                if id_ not in self.general_columns:
+                if (id_ not in self.general_columns) & (id_ not in self.skewed_columns):
                     gm = BayesianGaussianMixture(
                         n_components=self.n_clusters,
                         weight_concentration_prior_type="dirichlet_process",
@@ -473,6 +634,11 @@ class DataTransformer:
                             colname,
                             "msn",
                         ),  # for alpha_i  (len(alpha_i), activaton_fn, col_name, GT_indicator) // 'msn' 이것 'get_tcol_idx_st_ed_tuple' 에 쓰임
+                        # (
+                        #     1,
+                        #     "tanh",
+                        #     colname,  # for skewness alpha
+                        # ),
                         (
                             np.sum(comp),
                             "softmax",
@@ -483,11 +649,31 @@ class DataTransformer:
                     self.output_dim += st_delta
                     info.update({"st": st, "end": st + st_delta})
                     st += st_delta
-                else:  # single Gaussian 또는 large num cate 인 경우: GT
+
+                # single-mode skewed-normal 인 경우: skew-norm
+                elif (id_ not in self.general_columns):
+                    _alpha, _loc, _scale = skewnorm.fit(current_arr)  # current_arr.reshape([-1, 1])
+                    _mean, _std = skewnorm.mean(_alpha, _loc, _scale), skewnorm.std(_alpha, _loc, _scale)
+                    sn = {'mean': _mean, 'std': _std, 'alpha': _alpha, 'loc': _loc, 'scale': _scale}
+
+                    model.append(sn)
+                    self.valid_mode_flags.append(None)
+                    self.output_info += [
+                        (1, "tanh", colname, "skew"),  # for alpha_i (N * 1)
+                        #(1, "tanh", colname)  # for skewness alpha
+                    ]
+                    st_delta = 1
+                    self.output_dim += st_delta
+                    info.update({"st": st, "end": st + st_delta})
+                    st += st_delta
+
+                # single Gaussian 또는 large num cate 인 경우: GT
+                else:
                     model.append(None)
                     self.valid_mode_flags.append(None)
                     self.output_info += [
-                        (1, "tanh", colname, "gt")
+                        (1, "tanh", colname, "gt"),
+                        # (1, "tanh", colname)  # for skewness alpha
                     ]  # for alpha_i // gt는 beta_i 불필요
                     st_delta = 1
                     self.output_dim += st_delta
@@ -496,51 +682,81 @@ class DataTransformer:
 
             # mixed type 인 경우: MSN (VGM)
             elif info["type"] == "mixed":
-                # modal(범주/Nan/null...) 포함 피팅
-                gm1 = BayesianGaussianMixture(
-                    n_components=self.n_clusters,
-                    weight_concentration_prior_type="dirichlet_process",
-                    weight_concentration_prior=0.001,
-                    max_iter=100,
-                    n_init=1,
-                    random_state=RANDOM_SEED,
-                )
-                # modal(범주/Nan/null...) 제거 후 피팅
-                gm2 = BayesianGaussianMixture(
-                    n_components=self.n_clusters,
-                    weight_concentration_prior_type="dirichlet_process",
-                    weight_concentration_prior=0.001,
-                    max_iter=100,
-                    n_init=1,
-                    random_state=RANDOM_SEED,
-                )
+                if (id_ not in self.skewed_columns):
+                    # modal(범주/Nan/null...) 포함 피팅
+                    gm1 = BayesianGaussianMixture(
+                        n_components=self.n_clusters,
+                        weight_concentration_prior_type="dirichlet_process",
+                        weight_concentration_prior=0.001,
+                        max_iter=100,
+                        n_init=1,
+                        random_state=RANDOM_SEED,
+                    )
+                    # modal(범주/Nan/null...) 제거 후 피팅
+                    gm2 = BayesianGaussianMixture(
+                        n_components=self.n_clusters,
+                        weight_concentration_prior_type="dirichlet_process",
+                        weight_concentration_prior=0.001,
+                        max_iter=100,
+                        n_init=1,
+                        random_state=RANDOM_SEED,
+                    )
 
-                gm1.fit(current_arr.reshape([-1, 1]))
+                    gm1.fit(current_arr.reshape([-1, 1]))
 
-                # modal값이 아닌 데이터 샘플만 필터링 (T/F indicating)
-                #  -> mixed 애서 continuous 부분만
-                filter_arr = ~np.isin(current_arr, info["modal"])
+                    # modal값이 아닌 데이터 샘플만 필터링 (T/F indicating)
+                    #  -> mixed 애서 continuous 부분만
+                    filter_arr = ~np.isin(current_arr, info["modal"])
 
-                gm2.fit(current_arr[filter_arr].reshape([-1, 1]))
-                info["filter_arr"] = filter_arr
-                model.append((gm1, gm2))
-                comp = (
-                    gm2.weights_ > self.eps
-                )  # weight 가 epsilon 보다 크고 데이터 상 존재하는 mode(comp) 만 True
-                self.valid_mode_flags.append(comp)
+                    gm2.fit(current_arr[filter_arr].reshape([-1, 1]))
+                    info["filter_arr"] = filter_arr
+                    model.append((gm1, gm2))
+                    comp = (
+                        gm2.weights_ > self.eps
+                    )  # weight 가 epsilon 보다 크고 데이터 상 존재하는 mode(comp) 만 True
+                    self.valid_mode_flags.append(comp)
 
-                self.output_info += [
-                    (1, "tanh", colname, "msn"),  # for alpha_i
-                    (
-                        np.sum(comp) + len(info["modal"]),
-                        "softmax",
-                        colname,
-                    ),  # for beta_i
-                ]
-                st_delta = 1 + np.sum(comp) + len(info["modal"])
-                self.output_dim += st_delta
-                info.update({"st": st, "end": st + st_delta})
-                st += st_delta
+                    self.output_info += [
+                        (1, "tanh", colname, "msn"),  # for alpha_i
+                        # (1, "tanh", colname),  # for skewness alpha
+                        (
+                            np.sum(comp) + len(info["modal"]),
+                            "softmax",
+                            colname,
+                        ),  # for beta_i
+                    ]
+                    st_delta = 1 + np.sum(comp) + len(info["modal"])
+                    self.output_dim += st_delta
+                    info.update({"st": st, "end": st + st_delta})
+                    st += st_delta
+
+                # mixed skewed-normal 인 경우: skew-norm
+                elif (id_ in self.skewed_columns):
+                    print(current_arr.shape)
+                    _alpha1, _loc1, _scale1 = skewnorm.fit(current_arr)
+                    _mean1, _std1 = skewnorm.mean(_alpha1, _loc1, _scale1), skewnorm.std(_alpha1, _loc1, _scale1)
+                    sn1 = {'mean': _mean1, 'std': _std1, 'alpha': _alpha1, 'loc': _loc1, 'scale': _scale1}
+
+                    filter_arr = ~np.isin(current_arr, info["modal"])
+                    f_arr = current_arr[filter_arr]
+                    print(f_arr.shape)
+                    _alpha2, _loc2, _scale2 = skewnorm.fit(f_arr)
+                    _mean2, _std2 = skewnorm.mean(_alpha2, _loc2, _scale2), skewnorm.std(_alpha2, _loc2, _scale2)
+                    sn2 = {'mean': _mean2, 'std': _std2, 'alpha': _alpha2, 'loc': _loc2, 'scale': _scale2}
+
+                    info["filter_arr"] = filter_arr
+                    model.append((sn1, sn2))
+                    self.valid_mode_flags.append([1])  # single-mode -> None?
+
+                    self.output_info += [
+                        (1, "tanh", colname, "mixed_skew"),  # for alpha_i
+                        # (1, "tanh", colname),  # for skewness alpha
+                        (1 + len(info["modal"]), "softmax", colname),  # for beta_i
+                    ]
+                    st_delta = 1 + (1 + len(info["modal"]))
+                    self.output_dim += st_delta
+                    info.update({"st": st, "end": st + st_delta})
+                    st += st_delta
 
             # categorical type 인 경우: one-hot
             else:

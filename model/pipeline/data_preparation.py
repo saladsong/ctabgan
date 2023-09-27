@@ -11,6 +11,7 @@ class DataPrep(object):
         log: list,
         mixed: dict,
         general: list,
+        skewed: list,  # jys: added
         non_categorical: list,
         integer: list,
         ptype: dict,
@@ -21,6 +22,7 @@ class DataPrep(object):
         self.general_columns = (
             general  # num type 중 single-mode gaussian | cate type 중 high class num
         )
+        self.skewed_columns = skewed  # jys: added
         self.non_categorical_columns = (
             non_categorical  # categorical 중 one-hot 안하고 MSN 적용할 컬럼들
         )
@@ -30,6 +32,7 @@ class DataPrep(object):
         self.column_types["categorical"] = []
         self.column_types["mixed"] = {}
         self.column_types["general"] = []
+        self.column_types["skewed"] = []
         self.column_types["non_categorical"] = []
         self.lower_bounds = {}
         self.label_encoder_list = []
@@ -100,7 +103,7 @@ class DataPrep(object):
 
         for column_index, column in enumerate(self.df.columns):
             # 카테고리 컬럼인경우 더미화
-            # 저자의 저서는 이미 수치형으로 인코딩된 카테공리형식의 컬럼이 들어옴
+            # 저자의 저서는 이미 수치형으로 인코딩된 카테고리 형식의 컬럼이 들어옴
             if column in self.categorical_columns:
                 label_encoder = preprocessing.LabelEncoder()
                 label_encoder.fit(self.df[column])
@@ -123,8 +126,14 @@ class DataPrep(object):
             elif column in self.mixed_columns:
                 self.column_types["mixed"][column_index] = self.mixed_columns[column]
 
+                if column in self.skewed_columns:  # jys: mixed & skewed
+                    self.column_types["skewed"].append(column_index)
+
             elif column in self.general_columns:
                 self.column_types["general"].append(column_index)
+
+            elif column in self.skewed_columns:  # jys: continuous & skewed
+                self.column_types["skewed"].append(column_index)
 
         super().__init__()
 
