@@ -56,6 +56,9 @@ def get_col_lists(col_info, min_nuniq_for_num=11, max_nuniq_for_cate=10):
             n_violations += check_cond(
                 col_prop["is_positive"] == 0, f"{subject} cannot be positive."
             )
+            n_violations += check_cond(
+                col_prop["is_skewed"] == 0, f"{subject} cannot be skewed."
+            )
 
         # mixed인 경우
         elif col_prop["is_mixed"] == 1:
@@ -126,6 +129,11 @@ def get_col_lists(col_info, min_nuniq_for_num=11, max_nuniq_for_cate=10):
     general_list = [k for k, v in tmp]
     print(f"[general]: {len(general_list)}")
 
+    # skewed
+    tmp = list(filter(lambda x: x[1]["properties"]["is_skewed"] == 1, col_info.items()))
+    skewed_list = [k for k, v in tmp]
+    print(f"[skewed]: {len(skewed_list)}")
+
     # integer
     tmp = list(
         filter(lambda x: x[1]["properties"]["is_integer"] == 1, col_info.items())
@@ -138,6 +146,7 @@ def get_col_lists(col_info, min_nuniq_for_num=11, max_nuniq_for_cate=10):
         "log_columns": log_list,
         "mixed_columns": mixed_dict,
         "general_columns": general_list,
+        "skewed_columns": skewed_list,
         "non_categorical_columns": non_cate_list,
         "integer_columns": integer_list,
     }
