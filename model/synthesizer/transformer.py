@@ -29,7 +29,9 @@ def encode_column(
 
     if info["type"] == "continuous":
         # MSN 적용 대상 컬럼인 경우: get alpha_i, beta_i
-        if (id_ not in transformer.general_columns) & (id_ not in transformer.skewed_columns):
+        if (id_ not in transformer.general_columns) & (
+            id_ not in transformer.skewed_columns
+        ):
             arr = arr.reshape([-1, 1])
             means = transformer.model[id_].means_.reshape((1, transformer.n_clusters))
             stds = np.sqrt(transformer.model[id_].covariances_).reshape(
@@ -92,11 +94,11 @@ def encode_column(
             ]  # alpha_i (N * 1), beta_i (N * #valid_mode)
 
         # skew-norm 적용 컬럼인 경우
-        elif (id_ not in transformer.general_columns):
+        elif id_ not in transformer.general_columns:
             order = None
-            _mean = transformer.model[id_]['mean']
-            _std = transformer.model[id_]['std']
-            _alpha = transformer.model[id_]['alpha']
+            _mean = transformer.model[id_]["mean"]
+            _std = transformer.model[id_]["std"]
+            _alpha = transformer.model[id_]["alpha"]
 
             if ispositive is True:
                 if id_ in positive_list:
@@ -126,7 +128,7 @@ def encode_column(
 
     # MSN 적용 대상 mixed 컬럼인 경우: get alpha_i, beta_i
     elif info["type"] == "mixed":
-        if (id_ not in transformer.skewed_columns):
+        if id_ not in transformer.skewed_columns:
             means_0 = transformer.model[id_][0].means_.reshape([-1])
             stds_0 = np.sqrt(transformer.model[id_][0].covariances_).reshape([-1])
 
@@ -167,7 +169,9 @@ def encode_column(
             filter_arr = info["filter_arr"]
             arr = arr[filter_arr]
 
-            means = transformer.model[id_][1].means_.reshape((1, transformer.n_clusters))
+            means = transformer.model[id_][1].means_.reshape(
+                (1, transformer.n_clusters)
+            )
             stds = np.sqrt(transformer.model[id_][1].covariances_).reshape(
                 (1, transformer.n_clusters)
             )
@@ -242,8 +246,8 @@ def encode_column(
         #### mixed + skewed (single-mode 가정) 인 경우
         else:
             order = None
-            _mean1 = transformer.model[id_][0]['mean']
-            _std1 = transformer.model[id_][0]['std']
+            _mean1 = transformer.model[id_][0]["mean"]
+            _std1 = transformer.model[id_][0]["std"]
 
             # mode 별 normalized alpha_i 를 저장  means_needed / stds_needed -> 각 modal 별 mean,std
             mode_vals = []
@@ -256,13 +260,13 @@ def encode_column(
 
             # modal 이 아닌 continuous 값의 mode 에 대한 alpha_i, beta_i 계산
             # gm2 모델의 mean, std 활용
-            arr_orig = arr.copy()     # 뒤에서 재사용되므로 복사 필요
+            arr_orig = arr.copy()  # 뒤에서 재사용되므로 복사 필요
             arr = arr.reshape([-1, 1])
             filter_arr = info["filter_arr"]
             arr = arr[filter_arr]
 
-            _mean2 = transformer.model[id_][1]['mean']
-            _std2 = transformer.model[id_][1]['std']
+            _mean2 = transformer.model[id_][1]["mean"]
+            _std2 = transformer.model[id_][1]["std"]
             features = np.empty(shape=(len(arr), 1))
             if ispositive is True:
                 if id_ in positive_list:
@@ -275,12 +279,7 @@ def encode_column(
             # final shape: (n * (1 for alpha_i + one-hot for modal + 1 for single mode))
             temp_probs_onehot = np.zeros([len(arr), len(info["modal"]) + 1])
             # modal 외 single-mode 가정하므로 one-hot 대신 1-dim 만 추가
-            final = np.zeros(
-                [
-                    len_data,
-                    1 + len(info["modal"]) + 1
-                ]
-            )
+            final = np.zeros([len_data, 1 + len(info["modal"]) + 1])
 
             # final 내에 alpha, beta 채우는 과정
             features_curser = 0
@@ -337,7 +336,9 @@ def decode_column(
     ret = None
     if info["type"] == "continuous":
         # MSN 역변환
-        if (id_ not in transformer.general_columns) & (id_ not in transformer.skewed_columns):
+        if (id_ not in transformer.general_columns) & (
+            id_ not in transformer.skewed_columns
+        ):
             u = arr[:, 0]  # alphas
             v = arr[:, 1:]  # betas
             v_re_ordered = np.zeros_like(v)
@@ -373,12 +374,12 @@ def decode_column(
             ret = tmp
 
         #### skew-norm 컬럼 역변환
-        elif (id_ not in transformer.general_columns):
+        elif id_ not in transformer.general_columns:
             u = arr[:, 0]  # alphas
             u = np.clip(u, -1, 1)
 
-            _mean = transformer.model[id_]['mean']
-            _std = transformer.model[id_]['std']
+            _mean = transformer.model[id_]["mean"]
+            _std = transformer.model[id_]["std"]
             tmp = u * 4 * _std + _mean
 
             # non-cate 값들은 뒤의 label decoding 에러 막기위해 일단 min,max 클리핑 적용
@@ -408,7 +409,7 @@ def decode_column(
 
     # mixed MSN 역변환
     elif info["type"] == "mixed":
-        if (id_ not in transformer.skewed_columns):
+        if id_ not in transformer.skewed_columns:
             u = arr[:, 0]  # alphas
             full_v = arr[:, 1:]  # betas
             full_v_re_ordered = np.zeros_like(full_v)
@@ -419,7 +420,9 @@ def decode_column(
             full_v = full_v_re_ordered
 
             mixed_v = full_v[:, : len(info["modal"])]  # modal 부분 beta
-            v = full_v[:, -np.sum(transformer.valid_mode_flags[id_]) :]  # modal 제외 부분 beta
+            v = full_v[
+                :, -np.sum(transformer.valid_mode_flags[id_]) :
+            ]  # modal 제외 부분 beta
 
             u = np.clip(u, -1, 1)
             v_t = np.ones((len_data, transformer.n_clusters)) * -100
@@ -469,8 +472,8 @@ def decode_column(
             # v = np.concatenate([mixed_v, v_t], axis=1)
             v = np.concatenate([mixed_v, v], axis=1)
 
-            _mean = transformer.model[id_][1]['mean']
-            _std = transformer.model[id_][1]['std']
+            _mean = transformer.model[id_][1]["mean"]
+            _std = transformer.model[id_][1]["std"]
             p_argmax = np.argmax(v, axis=1)
 
             result = np.zeros_like(u)
@@ -651,16 +654,25 @@ class DataTransformer:
                     st += st_delta
 
                 # single-mode skewed-normal 인 경우: skew-norm
-                elif (id_ not in self.general_columns):
-                    _alpha, _loc, _scale = skewnorm.fit(current_arr)  # current_arr.reshape([-1, 1])
-                    _mean, _std = skewnorm.mean(_alpha, _loc, _scale), skewnorm.std(_alpha, _loc, _scale)
-                    sn = {'mean': _mean, 'std': _std, 'alpha': _alpha, 'loc': _loc, 'scale': _scale}
+                elif id_ not in self.general_columns:
+                    _alpha, _loc, _scale = skewnorm.fit(
+                        current_arr
+                    )  # current_arr.reshape([-1, 1])
+                    _mean, _std = skewnorm.mean(_alpha, _loc, _scale), skewnorm.std(
+                        _alpha, _loc, _scale
+                    )
+                    sn = {
+                        "mean": _mean,
+                        "std": _std,
+                        "alpha": _alpha,
+                        "loc": _loc,
+                        "scale": _scale,
+                    }
 
                     model.append(sn)
                     self.valid_mode_flags.append(None)
                     self.output_info += [
                         (1, "tanh", colname, "skew"),  # for alpha_i (N * 1)
-                        #(1, "tanh", colname)  # for skewness alpha
                     ]
                     st_delta = 1
                     self.output_dim += st_delta
@@ -682,7 +694,7 @@ class DataTransformer:
 
             # mixed type 인 경우: MSN (VGM)
             elif info["type"] == "mixed":
-                if (id_ not in self.skewed_columns):
+                if id_ not in self.skewed_columns:
                     # modal(범주/Nan/null...) 포함 피팅
                     gm1 = BayesianGaussianMixture(
                         n_components=self.n_clusters,
@@ -731,18 +743,34 @@ class DataTransformer:
                     st += st_delta
 
                 # mixed skewed-normal 인 경우: skew-norm
-                elif (id_ in self.skewed_columns):
+                elif id_ in self.skewed_columns:
                     print(current_arr.shape)
                     _alpha1, _loc1, _scale1 = skewnorm.fit(current_arr)
-                    _mean1, _std1 = skewnorm.mean(_alpha1, _loc1, _scale1), skewnorm.std(_alpha1, _loc1, _scale1)
-                    sn1 = {'mean': _mean1, 'std': _std1, 'alpha': _alpha1, 'loc': _loc1, 'scale': _scale1}
+                    _mean1, _std1 = skewnorm.mean(
+                        _alpha1, _loc1, _scale1
+                    ), skewnorm.std(_alpha1, _loc1, _scale1)
+                    sn1 = {
+                        "mean": _mean1,
+                        "std": _std1,
+                        "alpha": _alpha1,
+                        "loc": _loc1,
+                        "scale": _scale1,
+                    }
 
                     filter_arr = ~np.isin(current_arr, info["modal"])
                     f_arr = current_arr[filter_arr]
                     print(f_arr.shape)
                     _alpha2, _loc2, _scale2 = skewnorm.fit(f_arr)
-                    _mean2, _std2 = skewnorm.mean(_alpha2, _loc2, _scale2), skewnorm.std(_alpha2, _loc2, _scale2)
-                    sn2 = {'mean': _mean2, 'std': _std2, 'alpha': _alpha2, 'loc': _loc2, 'scale': _scale2}
+                    _mean2, _std2 = skewnorm.mean(
+                        _alpha2, _loc2, _scale2
+                    ), skewnorm.std(_alpha2, _loc2, _scale2)
+                    sn2 = {
+                        "mean": _mean2,
+                        "std": _std2,
+                        "alpha": _alpha2,
+                        "loc": _loc2,
+                        "scale": _scale2,
+                    }
 
                     info["filter_arr"] = filter_arr
                     model.append((sn1, sn2))
