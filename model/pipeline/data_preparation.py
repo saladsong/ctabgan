@@ -1,5 +1,8 @@
 import numpy as np
 import pandas as pd
+import pickle
+import os
+import logging
 from sklearn import preprocessing
 
 
@@ -14,7 +17,7 @@ class DataPrep(object):
         skewed: list,  # jys: added
         non_categorical: list,
         integer: list,
-        ptype: dict,
+        ptype: dict = None,
     ):
         self.categorical_columns = categorical  # cate type
         self.log_columns = log  # num type 중 long-tail dist.
@@ -36,37 +39,39 @@ class DataPrep(object):
         self.column_types["non_categorical"] = []
         self.lower_bounds = {}
         self.label_encoder_list = []
+        self.logger = logging.getLogger()
 
-        target_col = list(ptype.values())[0]  # ptype - {"Classification": "income"}
-        if target_col is not None:
-            # target(y) 맨 뒤로 보내주기
-            y_real = raw_df[target_col]
-            X_real = raw_df.drop(columns=[target_col])
-            X_real[target_col] = y_real
-            self.df = X_real
-        else:
-            self.df = raw_df
+        if ptype is not None:
+            target_col = list(ptype.values())[0]  # ptype - {"Classification": "income"}
+            if target_col is not None:
+                # target(y) 맨 뒤로 보내주기
+                y_real = raw_df[target_col]
+                X_real = raw_df.drop(columns=[target_col])
+                X_real[target_col] = y_real
+                df = X_real
+            else:
+                df = raw_df
 
         # data imputation
         # lsw: 이 부분은 데이터셋에 따라 변경 필요
-        # self.df = self.df.replace(r" ", np.nan)
-        self.df = self.df.fillna("empty")
+        # df = df.replace(r" ", np.nan)
+        df = df.fillna("empty")
         # # 데이터 타입에 따른 fillna 수행
-        # for col in self.df.columns:
-        #     if self.df[col].dtype == "object":  # 문자열 타입
-        #         self.df[col].fillna("empty", inplace=True)
-        #     elif self.df[col].dtype in ["int", "float"]:  # 숫자 타입
-        #         self.df[col].fillna(-9999999, inplace=True)
+        # for col in df.columns:
+        #     if df[col].dtype == "object":  # 문자열 타입
+        #         df[col].fillna("empty", inplace=True)
+        #     elif df[col].dtype in ["int", "float"]:  # 숫자 타입
+        #         df[col].fillna(-9999999, inplace=True)
 
-        all_columns = set(self.df.columns)
+        all_columns = set(df.columns)
         irrelevant_missing_columns = set(self.categorical_columns)
         # numeric, mixed type
         relevant_missing_columns = list(all_columns - irrelevant_missing_columns)
 
         # numeric, mixed type 컬럼 중 null 값 존재시에 -9999999 등록/추가하고 mixed 타입으로 변경
         for i in relevant_missing_columns:
-            if "empty" in self.df[i].values:
-                self.df[i] = self.df[i].replace(
+            if "empty" in df[i].values:
+                df[i] = df[i].replace(
                     "empty", -9999999
                 )  # numeric, mixed type 은 null 값 -9999999 로 변경
                 if i in self.mixed_columns.keys():
@@ -79,36 +84,36 @@ class DataPrep(object):
             for log_column in self.log_columns:
                 # 유효한 값만 탐색하며 최소값 뽑기
                 valid_indices = []
-                for idx, val in enumerate(self.df[log_column].values):
+                for idx, val in enumerate(df[log_column].values):
                     if val != -9999999 and val not in self.mixed_columns.get(
                         log_column, []
                     ):
                         valid_indices.append(idx)
                 eps = 1
-                lower = np.min(self.df[log_column].iloc[valid_indices].values)
+                lower = np.min(df[log_column].iloc[valid_indices].values)
                 self.lower_bounds[log_column] = lower
                 # 그 후 로그변환 수행 (유효값들만)
                 if lower > 0:
-                    self.df.loc[valid_indices, log_column] = self.df.loc[
+                    df.loc[valid_indices, log_column] = df.loc[
                         valid_indices, log_column
                     ].apply(lambda x: np.log(x))
                 elif lower == 0:
-                    self.df.loc[valid_indices, log_column] = self.df.loc[
+                    df.loc[valid_indices, log_column] = df.loc[
                         valid_indices, log_column
                     ].apply(lambda x: np.log(x + eps))
                 else:
-                    self.df.loc[valid_indices, log_column] = self.df.loc[
+                    df.loc[valid_indices, log_column] = df.loc[
                         valid_indices, log_column
                     ].apply(lambda x: np.log(x - lower + eps))
 
-        for column_index, column in enumerate(self.df.columns):
+        for column_index, column in enumerate(df.columns):
             # 카테고리 컬럼인경우 더미화
             # 저자의 저서는 이미 수치형으로 인코딩된 카테고리 형식의 컬럼이 들어옴
             if column in self.categorical_columns:
                 label_encoder = preprocessing.LabelEncoder()
-                label_encoder.fit(self.df[column])
-                # label_encoder.fit(self.df[column].astype(str))
-                self.df[column] = label_encoder.transform(self.df[column])
+                label_encoder.fit(df[column])
+                # label_encoder.fit(df[column].astype(str))
+                df[column] = label_encoder.transform(df[column])
                 current_label_encoder = {
                     "column": column,
                     "label_encoder": label_encoder,
@@ -135,10 +140,11 @@ class DataPrep(object):
             elif column in self.skewed_columns:  # jys: continuous & skewed
                 self.column_types["skewed"].append(column_index)
 
+        self.columns = df.columns
         super().__init__()
 
     def inverse_prep(self, data, eps=1):
-        df_sample = pd.DataFrame(data, columns=self.df.columns)
+        df_sample = pd.DataFrame(data, columns=self.columns)
 
         # 카테고리 컬럼 역변환
         for le_dict in self.label_encoder_list:
@@ -188,3 +194,21 @@ class DataPrep(object):
         df_sample.replace("empty", np.nan, inplace=True)
 
         return df_sample
+
+    def save(self, mpath: str):
+        """확장자는 *.pickle 로"""
+        assert self.is_fit_, "only fitted model could be saved, fit first please..."
+        os.makedirs(os.path.dirname(mpath), exist_ok=True)
+
+        with open(mpath, "wb") as f:
+            pickle.dump(self, f)
+            self.logger.info(f"[DataPrep]: Model saved at {mpath}")
+        return
+
+    @staticmethod
+    def load(mpath: str) -> "DataPrep":
+        if not os.path.exists(mpath):
+            raise FileNotFoundError(f"[DataPrep]: Model not exists at {mpath}")
+        with open(mpath, "rb") as f:
+            loaded_model = pickle.load(f)
+        return loaded_model

@@ -601,7 +601,6 @@ class DataTransformer:
         self.output_info = []  # 데이터 인코딩 후 출력 정보 List[tuple]
         self.output_dim = 0  # 데이터 인코딩 후 차원
         self.valid_mode_flags = []  # 컬럼별 MSN 모드별 유효여부 저장 영역 List[bool]
-        self.filter_arr = []
 
         self.logger.info("[DataTransformer]: fitting start ...")
         st = 0  # encoding 후 인덱스 추적용
