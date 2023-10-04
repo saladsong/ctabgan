@@ -21,7 +21,6 @@ warnings.filterwarnings("ignore")
 class CTABGAN:
     def __init__(
         self,
-        raw_df: pd.DataFrame,
         *,
         categorical_columns: list = None,
         log_columns: list = None,
@@ -59,7 +58,6 @@ class CTABGAN:
         self.transformer = (
             transformer  # transformer 의 경우 VGM 학습에 오랜 시간이 걸리므로 저장 후 재사용 가능토록 함.
         )
-        self.raw_df = raw_df
         self.categorical_columns = categorical_columns
         self.log_columns = log_columns
         self.mixed_columns = mixed_columns
@@ -73,10 +71,13 @@ class CTABGAN:
 
         self.is_fit_ = False
 
-    def pps(self) -> pd.DataFrame:
-        """본격적인 GAN 모델 학습에 앞서 입력 데이터의 인코딩에 사용되는 DataPrep, DataTransformer 를 적합 시키고 그 객체를 준비
+    def _prep(
+        self,
+        raw_df: pd.DataFrame,
+    ) -> pd.DataFrame:
+        """본격적인 GAN 모델 학습에 앞서 입력 데이터의 인코딩에 사용되는 DataTransformer 를 적합 시키고 그 객체를 준비
         Returns:
-            pd.DataFrame: data_prep 이후 데이터프레임. df_prep = self.data_prep.prep(self.raw_df)
+            pd.DataFrame: data_prep 이후 데이터프레임. df_prep = self.data_prep.prep(raw_df)
         """
         self.logger.info("[CTABGAN]: build data preprocessor start")
         # DataPrep: 데이터 전처리 (오래 걸리는 작업은 아님)
@@ -94,9 +95,11 @@ class CTABGAN:
             self.integer_columns,
             self.problem_type,
         )
-        df_prep = self.data_prep.prep(self.raw_df)
+        df_prep = self.data_prep.prep(raw_df)
         self.logger.info("[CTABGAN]: build data preprocessor end")
+        return df_prep
 
+    def _fit_encoder(self, df_prep=pd.DataFrame):
         # set data transformer
         if self.transformer is None or not self.transformer.is_fit_:
             self.logger.info("[CTABGAN]: fit data transformer start")
@@ -111,7 +114,16 @@ class CTABGAN:
             self.logger.info("[CTABGAN]: fit data transformer end")
         else:
             self.logger.info("[CTABGAN]: use already fitted transformer")
-        return df_prep
+
+    def pps(
+        self,
+        raw_df: pd.DataFrame,
+    ):
+        """본격적인 GAN 모델 학습에 앞서 입력 데이터의 인코딩에 사용되는 DataPrep, DataTransformer 를 적합 시키고 그 객체를 준비"""
+        # data_prep 학습
+        df_prep = self._prep(raw_df)
+        # data_transformer 학습
+        self._fit_encoder(df_prep)
 
     def fit(
         self,
@@ -152,7 +164,7 @@ class CTABGAN:
                 self.problem_type[pkind]
             )  # data_prep 에서 target_col 맨 마지막으로 밀었음. lsw: 굳이 밀어야 하나?
 
-        # 데이터 전처리(인코딩)하는 부분 (pps -> encoded)
+        # 데이터 전처리(인코딩)하는 부분 (prep -> encoded)
         if encoded_data is None:
             assert isinstance(
                 df_prep, pd.DataFrame
@@ -175,7 +187,7 @@ class CTABGAN:
 
     def generate_samples(
         self,
-        n: int = None,
+        n: int,
         transformer: DataTransformer = None,
         *,
         n_jobs: Union[float, int] = None,
@@ -190,8 +202,6 @@ class CTABGAN:
             transformer = self.transformer
         len_encoded = transformer.output_dim
 
-        if n is None:
-            n = len(self.raw_df)
         # smaple encode data
         sample = self.synthesizer.sample(n, transformer)  # (n, M, #encode)
         # inverse_transform전에 월별로 정렬 후 3lank 텐서를 2lank 로 변환

@@ -39,6 +39,7 @@ class DataPrep(object):
         self.lower_bounds = {}
         self.label_encoder_list = []
         self.ptype = ptype
+        self.is_fit_ = False
         self.logger = logging.getLogger()
         super().__init__()
 
@@ -147,6 +148,7 @@ class DataPrep(object):
                 self.column_types["skewed"].append(column_index)
 
         self.columns = df.columns
+        self.is_fit_ = True
         return df
 
     def inverse_prep(self, data, eps=1):
