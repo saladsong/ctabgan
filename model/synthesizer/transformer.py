@@ -322,7 +322,10 @@ def encode_column(
 
 
 def decode_column(
-    transformer: "DataTransformer", arr: np.ndarray, info: dict
+    transformer: "DataTransformer",
+    arr: np.ndarray,
+    info: dict,
+    minmax_clip: bool = True,
 ) -> Tuple[np.ndarray, list]:
     """decode single column"""
     np.random.seed(RANDOM_SEED)  # 병렬처리시 반드시 여기에 정의되어야 함.... 약간 모호하나 보수적으로
@@ -359,17 +362,17 @@ def decode_column(
             mean_t = means[p_argmax]
             tmp = u * 4 * std_t + mean_t
 
+            # non-cate 값들은 뒤의 label decoding 에러 막기위해 일단 min,max 클리핑 적용
             if from_non_categorical_columns:
                 tmp = np.round(tmp)
-
-            for idx, val in enumerate(tmp):
-                if (val < info["min"]) | (val > info["max"]):
-                    invalid_ids.append(idx)
-
-            if (
-                from_non_categorical_columns
-            ):  # non-cate 값들은 뒤의 label decoding 에러 막기위해 일단 min,max 클리핑 적용
                 tmp = np.clip(tmp, info["min"], info["max"])
+
+            if minmax_clip:
+                tmp = np.clip(tmp, info["min"], info["max"])
+            else:
+                invalid_ids = list(
+                    np.where((tmp < info["min"]) & (tmp > info["max"]))[0]
+                )
 
             ret = tmp
 
@@ -387,9 +390,12 @@ def decode_column(
                 tmp = np.round(tmp)
                 tmp = np.clip(tmp, info["min"], info["max"])
 
-            for idx, val in enumerate(tmp):
-                if (val < info["min"]) | (val > info["max"]):
-                    invalid_ids.append(idx)
+            if minmax_clip:
+                tmp = np.clip(tmp, info["min"], info["max"])
+            else:
+                invalid_ids = list(
+                    np.where((tmp < info["min"]) & (tmp > info["max"]))[0]
+                )
 
             ret = tmp
 
@@ -399,13 +405,19 @@ def decode_column(
             u = (u + 1) / 2
             u = np.clip(u, 0, 1)
             u = u * (info["max"] - info["min"]) + info["min"]
+            # non-cate 값들은 뒤의 label decoding 에러 막기위해 일단 min,max 클리핑 적용
             if from_non_categorical_columns:
                 tmp = np.round(u)
-                tmp = np.clip(
-                    tmp, info["min"], info["max"]
-                )  # non-cate 값들은 뒤의 label decoding 에러 막기위해 일단 min,max 클리핑 적용
+                tmp = np.clip(tmp, info["min"], info["max"])
             else:
-                ret = u
+                tmp = u
+                if minmax_clip:
+                    tmp = np.clip(tmp, info["min"], info["max"])
+                else:
+                    invalid_ids = list(
+                        np.where((tmp < info["min"]) & (tmp > info["max"]))[0]
+                    )
+            ret = tmp
 
     # mixed MSN 역변환
     elif info["type"] == "mixed":
@@ -446,11 +458,15 @@ def decode_column(
                     mean_t = means[(p_argmax[idx] - len(info["modal"]))]
                     result[idx] = u[idx] * 4 * std_t + mean_t
 
-            for idx, val in enumerate(result):
-                if (val < info["min"]) | (val > info["max"]):
-                    invalid_ids.append(idx)
+            tmp = result
+            if minmax_clip:
+                tmp = np.clip(tmp, info["min"], info["max"])
+            else:
+                invalid_ids = list(
+                    np.where((tmp < info["min"]) & (tmp > info["max"]))[0]
+                )
 
-            ret = result
+            ret = tmp
 
         #### skew-norm 컬럼 역변환
         else:
@@ -488,9 +504,13 @@ def decode_column(
                     # not modal (skewed-normal)
                     result[idx] = u[idx] * 4 * _std + _mean
 
-            for idx, val in enumerate(result):
-                if (val < info["min"]) | (val > info["max"]):
-                    invalid_ids.append(idx)
+            tmp = result
+            if minmax_clip:
+                tmp = np.clip(tmp, info["min"], info["max"])
+            else:
+                invalid_ids = list(
+                    np.where((tmp < info["min"]) & (tmp > info["max"]))[0]
+                )
 
             ret = result
 
