@@ -73,8 +73,11 @@ class CTABGAN:
 
         self.is_fit_ = False
 
-    def pps(self):
-        """본격적인 GAN 모델 학습에 앞서 입력 데이터의 인코딩에 사용되는 DataPrep, DataTransformer 를 적합 시키고 그 객체를 준비"""
+    def pps(self) -> pd.DataFrame:
+        """본격적인 GAN 모델 학습에 앞서 입력 데이터의 인코딩에 사용되는 DataPrep, DataTransformer 를 적합 시키고 그 객체를 준비
+        Returns:
+            pd.DataFrame: data_prep 이후 데이터프레임. df_prep = self.data_prep.prep(self.raw_df)
+        """
         self.logger.info("[CTABGAN]: build data preprocessor start")
         # DataPrep: 데이터 전처리 (오래 걸리는 작업은 아님)
         #   - missing value 처리
@@ -82,7 +85,6 @@ class CTABGAN:
         #   - log 변환
         #   - label encoding
         self.data_prep = DataPrep(
-            self.raw_df,
             self.categorical_columns,
             self.log_columns,
             self.mixed_columns,
@@ -92,6 +94,7 @@ class CTABGAN:
             self.integer_columns,
             self.problem_type,
         )
+        df_prep = self.data_prep.prep(self.raw_df)
         self.logger.info("[CTABGAN]: build data preprocessor end")
 
         # set data transformer
@@ -104,14 +107,16 @@ class CTABGAN:
                 skew_norm_list=self.data_prep.column_types["skewed"],
                 non_categorical_list=self.data_prep.column_types["non_categorical"],
             )
-            self.transformer.fit(train_data=self.data_prep.df)
+            self.transformer.fit(train_data=df_prep)
             self.logger.info("[CTABGAN]: fit data transformer end")
         else:
             self.logger.info("[CTABGAN]: use already fitted transformer")
+        return df_prep
 
     def fit(
         self,
         *,
+        df_prep: pd.DataFrame = None,
         encoded_data: np.ndarray = None,
         n_jobs: Union[float, int] = None,
         wandb_exp_name: str = None,
@@ -143,15 +148,16 @@ class CTABGAN:
         target_index = None
         if self.problem_type is not None:  # ex) {"Classification": "income"}
             pkind = list(self.problem_type.keys())[0]  # 일단은 맨 처음것만 사용중
-            target_index = self.data_prep.df.columns.get_loc(
+            target_index = self.data_prep.columns.get_loc(
                 self.problem_type[pkind]
             )  # data_prep 에서 target_col 맨 마지막으로 밀었음. lsw: 굳이 밀어야 하나?
 
         # 데이터 전처리(인코딩)하는 부분 (pps -> encoded)
         if encoded_data is None:
-            encoded_data = self.transformer.transform(
-                self.data_prep.df.values, n_jobs=n_jobs
-            )
+            assert isinstance(
+                df_prep, pd.DataFrame
+            ), "encoded_data 가 None 면 반드시 df_prep 을 입력해야 합니다."
+            encoded_data = self.transformer.transform(df_prep.values, n_jobs=n_jobs)
         else:
             self.logger.info("[CTABGAN]: use input encoded data")
 

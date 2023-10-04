@@ -9,7 +9,6 @@ from sklearn import preprocessing
 class DataPrep(object):
     def __init__(
         self,
-        raw_df: pd.DataFrame,
         categorical: list,
         log: list,
         mixed: dict,
@@ -39,8 +38,15 @@ class DataPrep(object):
         self.column_types["non_categorical"] = []
         self.lower_bounds = {}
         self.label_encoder_list = []
+        self.ptype = ptype
         self.logger = logging.getLogger()
+        super().__init__()
 
+    def prep(
+        self,
+        raw_df: pd.DataFrame,
+    ) -> pd.DataFrame:
+        ptype = self.ptype
         if ptype is not None:
             target_col = list(ptype.values())[0]  # ptype - {"Classification": "income"}
             if target_col is not None:
@@ -141,7 +147,7 @@ class DataPrep(object):
                 self.column_types["skewed"].append(column_index)
 
         self.columns = df.columns
-        super().__init__()
+        return df
 
     def inverse_prep(self, data, eps=1):
         df_sample = pd.DataFrame(data, columns=self.columns)
