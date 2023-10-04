@@ -5,7 +5,7 @@ Generative model training algorithm based on the CTABGANSynthesiser
 import pandas as pd
 import numpy as np
 import time
-from typing import Union
+from typing import Union, Optional
 from tqdm.auto import tqdm
 from model.pipeline.data_preparation import DataPrep
 from model.synthesizer.ctabgan_synthesizer import CTABGANSynthesizer, Cond
@@ -31,6 +31,7 @@ class CTABGAN:
         integer_columns: list = None,
         problem_type: dict = None,  # {"Classification": "income"} 포맷으로 입력
         transformer: DataTransformer = None,
+        data_prep: DataPrep = None,
         project: str = "synthe",  # wandb config
     ):
         self.__name__ = "CTABGAN"
@@ -58,6 +59,7 @@ class CTABGAN:
         self.transformer = (
             transformer  # transformer 의 경우 VGM 학습에 오랜 시간이 걸리므로 저장 후 재사용 가능토록 함.
         )
+        self.data_prep = data_prep  # data_prep 도 재사용
         self.categorical_columns = categorical_columns
         self.log_columns = log_columns
         self.mixed_columns = mixed_columns
@@ -74,32 +76,37 @@ class CTABGAN:
     def _prep(
         self,
         raw_df: pd.DataFrame,
-    ) -> pd.DataFrame:
-        """본격적인 GAN 모델 학습에 앞서 입력 데이터의 인코딩에 사용되는 DataTransformer 를 적합 시키고 그 객체를 준비
+    ) -> Optional[pd.DataFrame]:
+        """본격적인 GAN 모델 학습에 앞서 입력 데이터의 인코딩에 사용되는 DataPrep 를 적합 시키고 그 객체를 준비
         Returns:
-            pd.DataFrame: data_prep 이후 데이터프레임. df_prep = self.data_prep.prep(raw_df)
+            Optional[pd.DataFrame]: data_prep 이후 데이터프레임. df_prep = self.data_prep.prep(raw_df)
         """
-        self.logger.info("[CTABGAN]: build data preprocessor start")
-        # DataPrep: 데이터 전처리 (오래 걸리는 작업은 아님)
+        # DataPrep: 데이터 전처리 (encoder 만큼 오래 걸리는 작업은 아님)
         #   - missing value 처리
         #   - mixed column modal 값 처리
         #   - log 변환
         #   - label encoding
-        self.data_prep = DataPrep(
-            self.categorical_columns,
-            self.log_columns,
-            self.mixed_columns,
-            self.general_columns,
-            self.skewed_columns,
-            self.non_categorical_columns,
-            self.integer_columns,
-            self.problem_type,
-        )
-        df_prep = self.data_prep.prep(raw_df)
-        self.logger.info("[CTABGAN]: build data preprocessor end")
-        return df_prep
+        if self.data_prep is None or not self.data_prep.is_fit_:
+            self.logger.info("[CTABGAN]: fit data_prep start")
+            self.data_prep = DataPrep(
+                self.categorical_columns,
+                self.log_columns,
+                self.mixed_columns,
+                self.general_columns,
+                self.skewed_columns,
+                self.non_categorical_columns,
+                self.integer_columns,
+                self.problem_type,
+            )
+            df_prep = self.data_prep.prep(raw_df)
+            self.logger.info("[CTABGAN]: fit data_prep end")
+            return df_prep
+        else:
+            self.logger.info("[CTABGAN]: use already fitted data_prep")
+            return None
 
     def _fit_encoder(self, df_prep=pd.DataFrame):
+        """본격적인 GAN 모델 학습에 앞서 입력 데이터의 인코딩에 사용되는 DataTransformer 를 적합 시키고 그 객체를 준비"""
         # set data transformer
         if self.transformer is None or not self.transformer.is_fit_:
             self.logger.info("[CTABGAN]: fit data transformer start")
@@ -115,15 +122,15 @@ class CTABGAN:
         else:
             self.logger.info("[CTABGAN]: use already fitted transformer")
 
-    def pps(
-        self,
-        raw_df: pd.DataFrame,
-    ):
-        """본격적인 GAN 모델 학습에 앞서 입력 데이터의 인코딩에 사용되는 DataPrep, DataTransformer 를 적합 시키고 그 객체를 준비"""
-        # data_prep 학습
-        df_prep = self._prep(raw_df)
-        # data_transformer 학습
+    def pps(self, raw_df: pd.DataFrame) -> Optional[pd.DataFrame]:
+        """본격적인 GAN 모델 학습에 앞서 입력 데이터의 인코딩에 사용되는 DataPrep, DataTransformer 를 적합 시키고 그 객체를 준비
+        df_prep은 encoder를 학습하고 encoded 를 준비하기 위한 임시 중간 데이터. 처음부터 fitting 하는 경우만 활용하고, 저장된 모델을 불러와 재사용할 시에는 불필요
+        """
+        # data_prep 학습/재사용. 재사용시에는 df_prep가 None 값을 가짐
+        df_prep: Optional[pd.DataFrame] = self._prep(raw_df)
+        # data_transformer 학습/재사용
         self._fit_encoder(df_prep)
+        return df_prep
 
     def fit(
         self,
