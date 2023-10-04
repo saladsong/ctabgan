@@ -1,45 +1,8 @@
 import math
-import os
-from tempfile import TemporaryDirectory
-from typing import Tuple
-
 import torch
 from torch import nn, Tensor
 import torch.nn.functional as F
 from torch.nn import TransformerEncoder, TransformerEncoderLayer
-from torch.utils.data import dataset
-
-# class ForeseeNN(Module):
-#     def __init__(
-#         self, input_dim: int, output_channels: int = 6, dropout_prob: float = 0.5
-#     ):
-#         """첫달 컨디션 벡터를 6개월 것으로 늘리는 네트워크
-#         월별 변동 관련 로스 추가 필요(ex. sd, 월별 변동률 등) -> generator loss는 6개월 모두 반영 가능
-#         Args:
-#             input_dim: 컨디션 벡터 길이
-#             output_channels: 늘릴 개월 수
-#         """
-#         super(ForeseeNN, self).__init__()
-#         self.input_dim = input_dim
-#         self.output_channels = output_channels
-
-#         # Define the model layers using Sequential
-#         self.model = Sequential(
-#             Linear(input_dim, input_dim),
-#             ReLU(),
-#             Dropout(dropout_prob),
-#             Linear(input_dim, input_dim),
-#             ReLU(),
-#             Dropout(dropout_prob),
-#             Linear(input_dim, output_channels * input_dim),
-#         )
-
-#     def forward(self, x):
-#         x = self.model(x)
-
-#         # Reshape the output to the desired shape
-#         x = x.view(-1, self.output_channels, self.input_dim)
-#         return x
 
 
 class PositionalEncoding(nn.Module):
@@ -65,8 +28,7 @@ class PositionalEncoding(nn.Module):
         return self.dropout(x)
 
 
-# class TransformerModel(nn.Module):
-class ForeseeNN(nn.Module):
+class TransformerModel(nn.Module):
     def __init__(
         self,
         # ntoken: int,
@@ -119,7 +81,7 @@ def generate_square_subsequent_mask(sz: int) -> Tensor:
 
 def foresee(
     input: torch.Tensor,
-    fsn: ForeseeNN,
+    trsfm: TransformerModel,
     n_month: int,
     train: bool = False,
     optimizerF: torch.optim.Optimizer = None,
@@ -135,7 +97,7 @@ def foresee(
         data = input.permute(1, 0, 2)  # (S, B, encode)
         output = [data]
         for i in range(n_month - 1):
-            output.append(fsn(torch.concat(output), None)[-1].unsqueeze(0))
+            output.append(trsfm(torch.concat(output), None)[-1].unsqueeze(0))
 
         # (S(6), B, encode) -> (B, S(6), encode)
         ret = torch.concat(output).permute(1, 0, 2)
@@ -143,11 +105,11 @@ def foresee(
 
     if train:
         assert optimizerF is not None
-        fsn.train()  # 학습 모드 시작
+        trsfm.train()  # 학습 모드 시작
         optimizerF.zero_grad()
         ret = _run(input)
     else:
-        fsn.eval()
+        trsfm.eval()
         with torch.no_grad():
             ret = _run(input)
     return ret

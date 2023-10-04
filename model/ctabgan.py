@@ -200,6 +200,7 @@ class CTABGAN:
         n_jobs: Union[float, int] = None,
         resample_invalid: bool = True,
         times_resample: int = 10,  # 리샘플링 무한정 하지 않으려고
+        minmax_clip: bool = True,
     ):
         assert self.is_fit_, "must fit the model first!!"
 
@@ -215,7 +216,7 @@ class CTABGAN:
         sample = sample.transpose(1, 0, 2).reshape(-1, len_encoded)  # (n*M, #encode)
         # inverse transform by DataEncoder
         result, invalid_ids = transformer.inverse_transform(
-            sample, n_jobs=n_jobs
+            sample, n_jobs=n_jobs, minmax_clip=minmax_clip
         )  # (n*M, n_col)
         self.logger.info(
             f"[CTABGAN]: sythesized data has {len(invalid_ids)}/{len(result)} invalid rows."

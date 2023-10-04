@@ -895,7 +895,11 @@ class DataEncoder:
         return np.concatenate(values, axis=1)
 
     def inverse_transform(
-        self, data: np.ndarray, *, n_jobs: Union[float, int] = None
+        self,
+        data: np.ndarray,
+        *,
+        n_jobs: Union[float, int] = None,
+        minmax_clip: bool = True,
     ) -> Tuple[np.ndarray, np.ndarray]:
         """decode data row"""
         self.logger.info("[DataEncoder]: data inverse transformation(decoding) end")
@@ -909,14 +913,16 @@ class DataEncoder:
                 n_jobs = min(cpu_count(), n_jobs)
             else:
                 raise Exception("n_jobs must be 0~1 float or int > 0")
-            ret = self._parallel_inverse_transform(data, n_jobs)
+            ret = self._parallel_inverse_transform(data, n_jobs, minmax_clip)
         else:
             self.logger.info("[DataEncoder]: inverse transform sequencely")
-            ret = self._inverse_transform(data)
+            ret = self._inverse_transform(data, minmax_clip)
         self.logger.info("[DataEncoder]: data inverse transformation(decoding) end")
         return ret
 
-    def _inverse_transform(self, data: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+    def _inverse_transform(
+        self, data: np.ndarray, minmax_clip: bool
+    ) -> Tuple[np.ndarray, np.ndarray]:
         """generated data 를 원본 데이터 형태로 decode"""
         values = []
         invalid_ids_merged = []  # fake 를 decode 해보니 컬럼 조건(min, max) 에 위배되는 경우
@@ -925,7 +931,7 @@ class DataEncoder:
             assert i == id_
             st, end = info["st"], info["end"]
             arr = data[:, st:end]
-            decoded, _invalid_ids = decode_column(self, arr, info)
+            decoded, _invalid_ids = decode_column(self, arr, info, minmax_clip)
             values.append(decoded)  # decoded (N,) 1d-array
             invalid_ids_merged += _invalid_ids
 
@@ -937,7 +943,7 @@ class DataEncoder:
         # return values[valid_ids], len(invalid_ids_merged)
 
     def _parallel_inverse_transform(
-        self, data: np.ndarray, n_jobs: int
+        self, data: np.ndarray, n_jobs: int, minmax_clip: bool
     ) -> Tuple[np.ndarray, np.ndarray]:
         """generated data 를 원본 데이터 형태로 parallel decode"""
         # queue = Queue()
@@ -963,7 +969,7 @@ class DataEncoder:
                         results.append(
                             pool.apply_async(
                                 decode_column,
-                                args=(self, arr, info),
+                                args=(self, arr, info, minmax_clip),
                                 callback=callback,
                             )
                         )

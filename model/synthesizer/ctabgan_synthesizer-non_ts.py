@@ -29,8 +29,8 @@ import logging
 import wandb
 import os
 from typing import List, Tuple, Union
-from model.synthesizer.foreseenn import (
-    ForeseeNN,
+from model.synthesizer.transformer import (
+    TransformerModel,
     generate_square_subsequent_mask,
     foresee,
 )
@@ -753,7 +753,7 @@ class CTABGANSynthesizer:
         # nlayers = 5  # ``nn.TransformerEncoder`` 내부의 nn.TransformerEncoderLayer 개수
         # nhead = 4  # ``nn.MultiheadAttention`` 의 헤드 개수
         # dropout = 0.2  # 드랍아웃(dropout) 확률
-        # self.fsn = ForeseeNN(len_encoded, emsize, nhead, d_hid, nlayers, dropout).to(
+        # self.trsfm = TransformerModel(len_encoded, emsize, nhead, d_hid, nlayers, dropout).to(
         #     self.device
         # )
 
@@ -768,7 +768,7 @@ class CTABGANSynthesizer:
         optimizerG = Adam(self.generator.parameters(), **optimizer_params)
         optimizerD = Adam(self.discriminator.parameters(), **optimizer_params)
         # optimizerF = Adam(
-        #     self.fsn.parameters(),
+        #     self.trsfm.parameters(),
         #     lr=self.lr_f,
         #     betas=self.betas,
         #     weight_decay=self.weight_decay,
@@ -842,7 +842,7 @@ class CTABGANSynthesizer:
                     condvec = torch.from_numpy(condvec).to(self.device)
                     mask = torch.from_numpy(mask).to(self.device)
                     # 컨디션 벡터 차원늘리기: (B, n_opt) -> (B, n_month, n_opt) -> (B, n_month * n_opt)
-                    # condvec = self.fsn(condvec).view(self.batch_size, -1)
+                    # condvec = self.trsfm(condvec).view(self.batch_size, -1)
 
                     noisez = torch.cat([noisez, condvec], dim=1)
                     noisez = noisez.view(
@@ -871,7 +871,7 @@ class CTABGANSynthesizer:
                     fake_cat = fakeact
                     # fake_cat = foresee(
                     #     fakeact,
-                    #     self.fsn,
+                    #     self.trsfm,
                     #     self.n_month,
                     #     train=self.train_foresee_all,
                     #     optimizerF=optimizerF,
@@ -903,17 +903,17 @@ class CTABGANSynthesizer:
 
                     # # foreseeNN 학습
                     # # discriminator 학습때만 같이 학습, generator 때는 생성만 (첫월->6개월)
-                    # self.fsn.train()  # 학습 모드 시작
+                    # self.trsfm.train()  # 학습 모드 시작
                     # if not self.train_foresee_all:
                     #     # train_foresee_all 이 True면 위에서 zero_grad 하므로 여기서 화면 안됨
                     #     optimizerF.zero_grad()
                     # src_mask = generate_square_subsequent_mask(seq_len).to(self.device)
                     # # input: real  # (B, M(S), encode) -> (S, B, encode)
                     # data = real.permute(1, 0, 2)  # (S, B, encode)
-                    # output = self.fsn(data, src_mask)
+                    # output = self.trsfm(data, src_mask)
                     # loss_f = ((output[:-1] - data[1:]) ** 2).mean()  # mse loss
                     # loss_f.backward()
-                    # torch.nn.utils.clip_grad_norm_(self.fsn.parameters(), 0.5)
+                    # torch.nn.utils.clip_grad_norm_(self.trsfm.parameters(), 0.5)
 
                     # accumulation_steps 마다 update
                     if (i_ci + 1) % self.accumulation_steps == 0:
@@ -950,7 +950,7 @@ class CTABGANSynthesizer:
                 fake_cat = fakeact
                 # fake_cat = foresee(
                 #     fakeact,
-                #     self.fsn,
+                #     self.trsfm,
                 #     self.n_month,
                 #     train=self.train_foresee_all,
                 #     optimizerF=optimizerF,
@@ -1038,7 +1038,7 @@ class CTABGANSynthesizer:
                     fakeact = apply_activate(faket, encoder.output_info)
                     # fakeact = foresee(
                     #     fakeact,
-                    #     self.fsn,
+                    #     self.trsfm,
                     #     self.n_month,
                     #     train=self.train_foresee_all,
                     #     optimizerF=optimizerF,
@@ -1146,7 +1146,7 @@ class CTABGANSynthesizer:
             faket = self.Gtransformer.inverse_transform(fake)
             fakeact = apply_activate(faket, output_info)  # (B, M, #encode)
             fake_cat = fakeact
-            # fake_cat = foresee(fakeact, self.fsn, self.n_month)  # foreseeNN 예측
+            # fake_cat = foresee(fakeact, self.trsfm, self.n_month)  # foreseeNN 예측
 
             data.append(
                 fake_cat.detach()
