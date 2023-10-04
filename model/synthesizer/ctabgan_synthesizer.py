@@ -35,8 +35,9 @@ from model.synthesizer.foreseenn import (
     foresee,
 )
 from model.synthesizer.new_generator import NewGenerator, NewDiscriminator
-from model.synthesizer.neo_networks import NeoDiscriminator, NeoGenerator
-from model.synthesizer.eval import get_jsd, get_cdiff_loss
+
+# from model.synthesizer.neo_networks import NeoDiscriminator, NeoGenerator
+# from model.synthesizer.eval import get_jsd, get_cdiff_loss
 
 
 class Classifier(Module):
@@ -957,27 +958,29 @@ class CTABGANSynthesizer:
                     loss_f_default = ((f_fake_cat - f_real_cat) ** 2).mean()  # mse loss
 
                     # foreseeNN add jsd loss
-                    f_jsd_list = []
-                    for i in range(f_fake_cat.shape[1]):  # loop monthly
-                        f_jsd_list.append(
-                            get_jsd(
-                                f_fake_cat[:, i],
-                                dists=self.dists,
-                                m=i + 1,
-                                n=self.n_jsd_cols,
-                            )
-                        )
-                    loss_f_jsd = torch.stack(f_jsd_list).mean()
+                    loss_f_jsd = 0
+                    # f_jsd_list = []
+                    # for i in range(f_fake_cat.shape[1]):  # loop monthly
+                    #     f_jsd_list.append(
+                    #         get_jsd(
+                    #             f_fake_cat[:, i],
+                    #             dists=self.dists,
+                    #             m=i + 1,
+                    #             n=self.n_jsd_cols,
+                    #         )
+                    #     )
+                    # loss_f_jsd = torch.stack(f_jsd_list).mean()
 
                     # foreseeNN add cdiff_loss
                     # 여기 f_fake_cat은 6개월 아니고 첫달 제외한 5개월임 주의!!
                     #   get_cdiff_loss 는 6개월 기준으로 인덱싱되어있으니 임시로 real data의 첫달을 맨 앞에 붙임
-                    f_fake_cat_tmp6 = torch.concat(
-                        [f_real_cat[:, [0]], f_fake_cat], dim=1
-                    )  # (B, M, #encoded)
-                    loss_f_cdiff = get_cdiff_loss(
-                        f_fake_cat_tmp6, corrs=self.corrs, n=self.n_cdiff_cols
-                    )
+                    loss_f_cdiff = 0
+                    # f_fake_cat_tmp6 = torch.concat(
+                    #     [f_real_cat[:, [0]], f_fake_cat], dim=1
+                    # )  # (B, M, #encoded)
+                    # loss_f_cdiff = get_cdiff_loss(
+                    #     f_fake_cat_tmp6, corrs=self.corrs, n=self.n_cdiff_cols
+                    # )
 
                     if self.epoch_f_jsd_start < 0 or epoch < self.epoch_f_jsd_start:
                         loss_f = loss_f_default
@@ -1064,20 +1067,22 @@ class CTABGANSynthesizer:
                 ### for generator (lsw 변경)
 
                 # lsw: add jsd
-                jsd_list = []
-                assert fake_cat.shape == real_cat.shape  # (B, M, #encoded)
-                for i in range(fake_cat.shape[1]):  # loop monthly
-                    jsd_list.append(
-                        get_jsd(
-                            fake_cat[:, i], dists=self.dists, m=i, n=self.n_jsd_cols
-                        )
-                    )
-                loss_g_jsd = torch.stack(jsd_list).mean()
+                loss_g_jsd = 0
+                # jsd_list = []
+                # assert fake_cat.shape == real_cat.shape  # (B, M, #encoded)
+                # for i in range(fake_cat.shape[1]):  # loop monthly
+                #     jsd_list.append(
+                #         get_jsd(
+                #             fake_cat[:, i], dists=self.dists, m=i, n=self.n_jsd_cols
+                #         )
+                #     )
+                # loss_g_jsd = torch.stack(jsd_list).mean()
 
                 # lsw: add cdiff_loss
-                loss_g_cdiff = get_cdiff_loss(
-                    fake_cat, corrs=self.corrs, n=self.n_cdiff_cols
-                )
+                loss_g_cdiff = 0
+                # loss_g_cdiff = get_cdiff_loss(
+                #     fake_cat, corrs=self.corrs, n=self.n_cdiff_cols
+                # )
 
                 loss_mean = torch.norm(
                     torch.mean(fake_cat, dim=0) - torch.mean(real, dim=0),
