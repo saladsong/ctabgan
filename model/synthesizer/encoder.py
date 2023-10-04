@@ -755,7 +755,7 @@ class DataEncoder:
 
                 # mixed skewed-normal 인 경우: skew-norm
                 elif id_ in self.skewed_columns:
-                    print(current_arr.shape)
+                    # print(current_arr.shape)
                     _alpha1, _loc1, _scale1 = skewnorm.fit(current_arr)
                     _mean1, _std1 = skewnorm.mean(
                         _alpha1, _loc1, _scale1
@@ -770,7 +770,7 @@ class DataEncoder:
 
                     filter_arr = ~np.isin(current_arr, info["modal"])
                     f_arr = current_arr[filter_arr]
-                    print(f_arr.shape)
+                    # print(f_arr.shape)
                     _alpha2, _loc2, _scale2 = skewnorm.fit(f_arr)
                     _mean2, _std2 = skewnorm.mean(
                         _alpha2, _loc2, _scale2
