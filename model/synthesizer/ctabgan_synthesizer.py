@@ -23,7 +23,7 @@ from torch.nn import (
 )
 
 # from model.privacy_utils.rdp_accountant import compute_rdp, get_privacy_spent
-from model.synthesizer.transformer import ImageTransformer, DataTransformer
+from model.synthesizer.encoder import ImageTransformer, DataEncoder
 from tqdm.auto import tqdm
 import logging
 import wandb
@@ -37,7 +37,7 @@ from model.synthesizer.foreseenn import (
 from model.synthesizer.new_generator import NewGenerator, NewDiscriminator
 
 # from model.synthesizer.neo_networks import NeoDiscriminator, NeoGenerator
-# from model.synthesizer.eval import get_jsd, get_cdiff_loss
+# from model.synthesizer.other_loss import get_jsd, get_cdiff_loss
 
 
 class Classifier(Module):
@@ -92,7 +92,7 @@ def apply_activate(data: torch.Tensor, output_info: list) -> torch.Tensor:
     CNN 통과시 정사각 모양 만드느라 zero-padding 넣어준 것도 여기서 잘라냄
     Args:
         data: (B, M, gside^2) shape tensor
-        output_info: DataTransformer.output_info
+        output_info: DataEncoder.output_info
     Returns:
         torch.Tensor: (B, M, #encode)
     """
@@ -195,7 +195,7 @@ class Cond(object):
                 orig (66590, 6097)
                 reshape to (6, 11065, 6097) // (#month, #cust, #encode_col)
                 transpose to (11065, 6, 6097) // (#cust, #month, #encode_col) = (N, M, encode_col)
-            output_info: DataTransformer.output_info // len(output_info) == n_col
+            output_info: DataEncoder.output_info // len(output_info) == n_col
         """
         # self.model = []
         # st = 0
@@ -298,7 +298,7 @@ def cond_loss(data, output_info, condvec, mask) -> torch.Tensor:
     """generator loss 계산
     Args:
         data: generated encoded vector + zero pad  (B, gside^2)
-        output_info: DataTransformer 내의 alpha, beta, gamma 정보 담긴 리스트
+        output_info: DataEncoder 내의 alpha, beta, gamma 정보 담긴 리스트
         condvec: given cond vector. 1개만 1이고 나머지는 0  (B, n_opt)
         mask: mask (B, n_feature)
     Returns:
@@ -339,7 +339,7 @@ class Sampler(object):
                 orig (66590, 6097)
                 reshape to (6, 11065, 6097) // (#month, #cust, #encode_col)
                 transpose to (11065, 6, 6097) // (#cust, #month, #encode_col) = (N, M, encode_col)
-            output_info: DataTransformer.output_info // len(output_info) == n_col
+            output_info: DataEncoder.output_info // len(output_info) == n_col
         """
         super(Sampler, self).__init__()
         self.data = data
@@ -701,7 +701,7 @@ class CTABGANSynthesizer:
         self,
         *,
         encoded_data: np.ndarray,
-        data_transformer: DataTransformer,
+        encoder: DataEncoder,
         target_index: int = None,
     ):
         """GAN 모델 학습
@@ -711,19 +711,19 @@ class CTABGANSynthesizer:
 
         Args:
             encoded_data: 학습할 인코딩 데이터
-            data_transformer: 입력 데이터 인코딩에 사용한 DataTransformer
+            encoder: 입력 데이터 인코딩에 사용한 DataEncoder
             target_index: auxiliary classifier 타겟 컬럼 인덱스
         """
         # 데이터 차원 정보
         n_month = encoded_data.shape[1]
         self.n_month = n_month
         len_encoded = encoded_data.shape[2]
-        assert data_transformer.output_dim == len_encoded
+        assert encoder.output_dim == len_encoded
         # 데이터 샘플링 객체
-        data_sampler = Sampler(encoded_data, data_transformer.output_info)
-        data_dim = data_transformer.output_dim  # 전처리 완료된 데이터 차원 수
+        data_sampler = Sampler(encoded_data, encoder.output_info)
+        data_dim = encoder.output_dim  # 전처리 완료된 데이터 차원 수
         # 컨디션 벡터 생성기
-        self.cond_generator = Cond(encoded_data, data_transformer.output_info)
+        self.cond_generator = Cond(encoded_data, encoder.output_info)
         n_opt = self.cond_generator.n_opt
 
         # 컬럼 수 많아지는 경우 여기 늘려야함
@@ -821,7 +821,7 @@ class CTABGANSynthesizer:
         optimizerC = None
         if target_index is not None:
             tcol_idx_st_ed_tuple = get_tcol_idx_st_ed_tuple(
-                target_index, data_transformer.output_info
+                target_index, encoder.output_info
             )
             self.classifier = Classifier(
                 data_dim, self.class_dim, tcol_idx_st_ed_tuple
@@ -902,7 +902,7 @@ class CTABGANSynthesizer:
 
                     fake = self.generator(noisez)
                     faket = self.Gtransformer.inverse_transform(fake)
-                    fakeact = apply_activate(faket, data_transformer.output_info)
+                    fakeact = apply_activate(faket, encoder.output_info)
 
                     # mmmm
                     # fake_cat = torch.cat([fakeact, condvec], dim=1)
@@ -1017,7 +1017,7 @@ class CTABGANSynthesizer:
 
                 fake = self.generator(noisez)
                 faket = self.Gtransformer.inverse_transform(fake)
-                fakeact = apply_activate(faket, data_transformer.output_info)  # encoded
+                fakeact = apply_activate(faket, encoder.output_info)  # encoded
 
                 # discriminator에 입력위해 encoded + condvec  concat
                 # mmmm
@@ -1037,9 +1037,7 @@ class CTABGANSynthesizer:
 
                 # loss_g_gen (cross_entropy)
                 # 왜 activation 전 값을 넣지??? -> logit을 입력으로 받음, 함수 내부에서 softmax 자동 계산
-                loss_g_gen = cond_loss(
-                    faket, data_transformer.output_info, condvec, mask
-                )
+                loss_g_gen = cond_loss(faket, encoder.output_info, condvec, mask)
 
                 # # lsw: real_cat_d 얘는 위의 discrminator것 재활용 하네?
                 # _, info_real = self.discriminator(real_cat_d)
@@ -1142,7 +1140,7 @@ class CTABGANSynthesizer:
                     #     -> 빼면 안됨! 앞에서 G 트레이닝시에 conputational graph를 소비했기 때문에
                     fake = self.generator(noisez)
                     faket = self.Gtransformer.inverse_transform(fake)
-                    fakeact = apply_activate(faket, data_transformer.output_info)
+                    fakeact = apply_activate(faket, encoder.output_info)
 
                     fakeact = foresee(
                         fakeact,
@@ -1227,12 +1225,12 @@ class CTABGANSynthesizer:
     def sample(
         self,
         n: int,
-        data_transformer: DataTransformer,
+        encoder: DataEncoder,
     ) -> np.ndarray:
         """sample encode tensor
         Args:
             n: sample number
-            data_transformer: DataTransformer
+            encoder: DataEncoder
         Returns:
             np.ndarray: (n, M, #encode)
         """
@@ -1240,7 +1238,7 @@ class CTABGANSynthesizer:
         self.generator.eval()
         n_opt = self.cond_generator.n_opt
 
-        output_info = data_transformer.output_info
+        output_info = encoder.output_info
         steps = n // self.batch_size + 1
 
         data = []

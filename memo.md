@@ -66,6 +66,7 @@ pyreverse -o png model
   - grad nan 튀는거 해결하기 [x]
 - positive 컬럼 처리하기
 - dataprep 저장 로드 가능케하기 [x]
+- min-max 범위 벗어나는 것 클리핑 [x]
 
 트랜스포머에 jsd, cdiff 같이 학습하는거는 계속 문제를 일으키네 ...
 

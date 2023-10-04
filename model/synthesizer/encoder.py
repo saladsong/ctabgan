@@ -15,7 +15,7 @@ RANDOM_SEED = 777
 
 
 def encode_column(
-    transformer: "DataTransformer",
+    encoder: "DataEncoder",
     arr: np.ndarray,
     info: dict,
     ispositive=False,
@@ -29,16 +29,14 @@ def encode_column(
 
     if info["type"] == "continuous":
         # MSN 적용 대상 컬럼인 경우: get alpha_i, beta_i
-        if (id_ not in transformer.general_columns) & (
-            id_ not in transformer.skewed_columns
-        ):
+        if (id_ not in encoder.general_columns) & (id_ not in encoder.skewed_columns):
             arr = arr.reshape([-1, 1])
-            means = transformer.model[id_].means_.reshape((1, transformer.n_clusters))
-            stds = np.sqrt(transformer.model[id_].covariances_).reshape(
-                (1, transformer.n_clusters)
+            means = encoder.model[id_].means_.reshape((1, encoder.n_clusters))
+            stds = np.sqrt(encoder.model[id_].covariances_).reshape(
+                (1, encoder.n_clusters)
             )
             # features: 각 mode 별 정규화 (alpha_i candidates)
-            features = np.empty(shape=(len(arr), transformer.n_clusters))
+            features = np.empty(shape=(len(arr), encoder.n_clusters))
             if ispositive is True:
                 if id_ in positive_list:
                     features = np.abs(arr - means) / (
@@ -47,13 +45,13 @@ def encode_column(
             else:
                 features = (arr - means) / (4 * stds)
 
-            probs = transformer.model[id_].predict_proba(arr.reshape([-1, 1]))
-            n_opts = sum(transformer.valid_mode_flags[id_])  # n_opts: 해당 컬럼의 유효 mode 개수
+            probs = encoder.model[id_].predict_proba(arr.reshape([-1, 1]))
+            n_opts = sum(encoder.valid_mode_flags[id_])  # n_opts: 해당 컬럼의 유효 mode 개수
             features = features[
-                :, transformer.valid_mode_flags[id_]
+                :, encoder.valid_mode_flags[id_]
             ]  # features: 유효 mode 의 alpha_i 만 필터링 (N * #valid_mode)
             probs = probs[
-                :, transformer.valid_mode_flags[id_]
+                :, encoder.valid_mode_flags[id_]
             ]  # probs: 유효 mode 의 확률만 필터링 (N * #valid_mode)
 
             # 해당 확률 기반 최적 mode 선택
@@ -94,11 +92,11 @@ def encode_column(
             ]  # alpha_i (N * 1), beta_i (N * #valid_mode)
 
         # skew-norm 적용 컬럼인 경우
-        elif id_ not in transformer.general_columns:
+        elif id_ not in encoder.general_columns:
             order = None
-            _mean = transformer.model[id_]["mean"]
-            _std = transformer.model[id_]["std"]
-            _alpha = transformer.model[id_]["alpha"]
+            _mean = encoder.model[id_]["mean"]
+            _std = encoder.model[id_]["std"]
+            _alpha = encoder.model[id_]["alpha"]
 
             if ispositive is True:
                 if id_ in positive_list:
@@ -115,7 +113,7 @@ def encode_column(
         else:
             order = None
 
-            if id_ in transformer.non_categorical_columns:
+            if id_ in encoder.non_categorical_columns:
                 info["min"] = -1e-3
                 info["max"] = info["max"] + 1e-3
 
@@ -128,9 +126,9 @@ def encode_column(
 
     # MSN 적용 대상 mixed 컬럼인 경우: get alpha_i, beta_i
     elif info["type"] == "mixed":
-        if id_ not in transformer.skewed_columns:
-            means_0 = transformer.model[id_][0].means_.reshape([-1])
-            stds_0 = np.sqrt(transformer.model[id_][0].covariances_).reshape([-1])
+        if id_ not in encoder.skewed_columns:
+            means_0 = encoder.model[id_][0].means_.reshape([-1])
+            stds_0 = np.sqrt(encoder.model[id_][0].covariances_).reshape([-1])
 
             zero_std_list = []
             means_needed = []
@@ -169,23 +167,21 @@ def encode_column(
             filter_arr = info["filter_arr"]
             arr = arr[filter_arr]
 
-            means = transformer.model[id_][1].means_.reshape(
-                (1, transformer.n_clusters)
+            means = encoder.model[id_][1].means_.reshape((1, encoder.n_clusters))
+            stds = np.sqrt(encoder.model[id_][1].covariances_).reshape(
+                (1, encoder.n_clusters)
             )
-            stds = np.sqrt(transformer.model[id_][1].covariances_).reshape(
-                (1, transformer.n_clusters)
-            )
-            features = np.empty(shape=(len(arr), transformer.n_clusters))
+            features = np.empty(shape=(len(arr), encoder.n_clusters))
             if ispositive is True:
                 if id_ in positive_list:
                     features = np.abs(arr - means) / (4 * stds)
             else:
                 features = (arr - means) / (4 * stds)
 
-            probs = transformer.model[id_][1].predict_proba(arr.reshape([-1, 1]))
-            n_opts = sum(transformer.valid_mode_flags[id_])
-            features = features[:, transformer.valid_mode_flags[id_]]
-            probs = probs[:, transformer.valid_mode_flags[id_]]
+            probs = encoder.model[id_][1].predict_proba(arr.reshape([-1, 1]))
+            n_opts = sum(encoder.valid_mode_flags[id_])
+            features = features[:, encoder.valid_mode_flags[id_]]
+            probs = probs[:, encoder.valid_mode_flags[id_]]
 
             opt_sel = np.zeros(len(arr), dtype="int")
             for i in range(len(arr)):
@@ -246,8 +242,8 @@ def encode_column(
         #### mixed + skewed (single-mode 가정) 인 경우
         else:
             order = None
-            _mean1 = transformer.model[id_][0]["mean"]
-            _std1 = transformer.model[id_][0]["std"]
+            _mean1 = encoder.model[id_][0]["mean"]
+            _std1 = encoder.model[id_][0]["std"]
 
             # mode 별 normalized alpha_i 를 저장  means_needed / stds_needed -> 각 modal 별 mean,std
             mode_vals = []
@@ -265,8 +261,8 @@ def encode_column(
             filter_arr = info["filter_arr"]
             arr = arr[filter_arr]
 
-            _mean2 = transformer.model[id_][1]["mean"]
-            _std2 = transformer.model[id_][1]["std"]
+            _mean2 = encoder.model[id_][1]["mean"]
+            _std2 = encoder.model[id_][1]["std"]
             features = np.empty(shape=(len(arr), 1))
             if ispositive is True:
                 if id_ in positive_list:
@@ -322,7 +318,7 @@ def encode_column(
 
 
 def decode_column(
-    transformer: "DataTransformer",
+    encoder: "DataEncoder",
     arr: np.ndarray,
     info: dict,
     minmax_clip: bool = True,
@@ -333,15 +329,13 @@ def decode_column(
     arr = arr.astype(np.float64)
     len_data = len(arr)
     id_ = info["idx"]
-    from_non_categorical_columns = id_ in transformer.non_categorical_columns
-    order = transformer.ordering[id_]
+    from_non_categorical_columns = id_ in encoder.non_categorical_columns
+    order = encoder.ordering[id_]
     invalid_ids = []  # fake 를 decode 해보니 컬럼 조건(min, max) 에 위배되는 경우
     ret = None
     if info["type"] == "continuous":
         # MSN 역변환
-        if (id_ not in transformer.general_columns) & (
-            id_ not in transformer.skewed_columns
-        ):
+        if (id_ not in encoder.general_columns) & (id_ not in encoder.skewed_columns):
             u = arr[:, 0]  # alphas
             v = arr[:, 1:]  # betas
             v_re_ordered = np.zeros_like(v)
@@ -352,11 +346,11 @@ def decode_column(
             v = v_re_ordered
 
             u = np.clip(u, -1, 1)
-            v_t = np.ones((len_data, transformer.n_clusters)) * -100
-            v_t[:, transformer.valid_mode_flags[id_]] = v
+            v_t = np.ones((len_data, encoder.n_clusters)) * -100
+            v_t[:, encoder.valid_mode_flags[id_]] = v
             v = v_t
-            means = transformer.model[id_].means_.reshape([-1])
-            stds = np.sqrt(transformer.model[id_].covariances_).reshape([-1])
+            means = encoder.model[id_].means_.reshape([-1])
+            stds = np.sqrt(encoder.model[id_].covariances_).reshape([-1])
             p_argmax = np.argmax(v, axis=1)
             std_t = stds[p_argmax]
             mean_t = means[p_argmax]
@@ -377,12 +371,12 @@ def decode_column(
             ret = tmp
 
         #### skew-norm 컬럼 역변환
-        elif id_ not in transformer.general_columns:
+        elif id_ not in encoder.general_columns:
             u = arr[:, 0]  # alphas
             u = np.clip(u, -1, 1)
 
-            _mean = transformer.model[id_]["mean"]
-            _std = transformer.model[id_]["std"]
+            _mean = encoder.model[id_]["mean"]
+            _std = encoder.model[id_]["std"]
             tmp = u * 4 * _std + _mean
 
             # non-cate 값들은 뒤의 label decoding 에러 막기위해 일단 min,max 클리핑 적용
@@ -421,7 +415,7 @@ def decode_column(
 
     # mixed MSN 역변환
     elif info["type"] == "mixed":
-        if id_ not in transformer.skewed_columns:
+        if id_ not in encoder.skewed_columns:
             u = arr[:, 0]  # alphas
             full_v = arr[:, 1:]  # betas
             full_v_re_ordered = np.zeros_like(full_v)
@@ -432,17 +426,15 @@ def decode_column(
             full_v = full_v_re_ordered
 
             mixed_v = full_v[:, : len(info["modal"])]  # modal 부분 beta
-            v = full_v[
-                :, -np.sum(transformer.valid_mode_flags[id_]) :
-            ]  # modal 제외 부분 beta
+            v = full_v[:, -np.sum(encoder.valid_mode_flags[id_]) :]  # modal 제외 부분 beta
 
             u = np.clip(u, -1, 1)
-            v_t = np.ones((len_data, transformer.n_clusters)) * -100
-            v_t[:, transformer.valid_mode_flags[id_]] = v
+            v_t = np.ones((len_data, encoder.n_clusters)) * -100
+            v_t[:, encoder.valid_mode_flags[id_]] = v
             v = np.concatenate([mixed_v, v_t], axis=1)
 
-            means = transformer.model[id_][1].means_.reshape([-1])
-            stds = np.sqrt(transformer.model[id_][1].covariances_).reshape([-1])
+            means = encoder.model[id_][1].means_.reshape([-1])
+            stds = np.sqrt(encoder.model[id_][1].covariances_).reshape([-1])
             p_argmax = np.argmax(v, axis=1)
 
             result = np.zeros_like(u)
@@ -484,12 +476,12 @@ def decode_column(
 
             u = np.clip(u, -1, 1)
             # v_t = np.ones((len_data, 1)) * -100
-            # v_t[:, transformer.valid_mode_flags[id_]] = v
+            # v_t[:, encoder.valid_mode_flags[id_]] = v
             # v = np.concatenate([mixed_v, v_t], axis=1)
             v = np.concatenate([mixed_v, v], axis=1)
 
-            _mean = transformer.model[id_][1]["mean"]
-            _std = transformer.model[id_][1]["std"]
+            _mean = encoder.model[id_][1]["mean"]
+            _std = encoder.model[id_][1]["std"]
             p_argmax = np.argmax(v, axis=1)
 
             result = np.zeros_like(u)
@@ -523,7 +515,7 @@ def decode_column(
     return ret, invalid_ids
 
 
-class DataTransformer:
+class DataEncoder:
     def __init__(
         self,
         categorical_list: list = None,
@@ -559,7 +551,7 @@ class DataTransformer:
 
     def get_metadata(self, df: pd.DataFrame) -> List[dict]:
         meta = []
-        self.logger.info("[DataTransformer]: get metadata ...")
+        self.logger.info("[DataEncoder]: get metadata ...")
         for index in tqdm(range(df.shape[1])):
             column = df.iloc[:, index]
             colname = df.columns[index]
@@ -622,7 +614,7 @@ class DataTransformer:
         self.output_dim = 0  # 데이터 인코딩 후 차원
         self.valid_mode_flags = []  # 컬럼별 MSN 모드별 유효여부 저장 영역 List[bool]
 
-        self.logger.info("[DataTransformer]: fitting start ...")
+        self.logger.info("[DataEncoder]: fitting start ...")
         st = 0  # encoding 후 인덱스 추적용
         for id_, info in enumerate(tqdm(self.meta)):
             train_columns = train_data.columns
@@ -818,7 +810,7 @@ class DataTransformer:
 
         self.model = model  # VGM Model 저장 영역
         self.is_fit_ = True
-        self.logger.info("[DataTransformer]: fitting end ...")
+        self.logger.info("[DataEncoder]: fitting end ...")
 
     def transform(
         self,
@@ -829,11 +821,11 @@ class DataTransformer:
         n_jobs: Union[float, int] = None,
     ) -> np.array:
         """encode data row"""
-        self.logger.info("[DataTransformer]: data transformation(encoding) start")
+        self.logger.info("[DataEncoder]: data transformation(encoding) start")
 
         self.ordering = {}  # 높은 확률 모드 순으로 리오더링 하기 위해 활용, 매 transform 마다 초기화
         if n_jobs is not None:
-            self.logger.info("[DataTransformer]: transform parallely")
+            self.logger.info("[DataEncoder]: transform parallely")
             if n_jobs <= 0:
                 n_jobs = 0.9
             if isinstance(n_jobs, float):
@@ -844,9 +836,9 @@ class DataTransformer:
                 raise Exception("n_jobs must be 0~1 float or int > 0")
             ret = self._parallel_transform(data, n_jobs, ispositive, positive_list)
         else:
-            self.logger.info("[DataTransformer]: transform sequencely")
+            self.logger.info("[DataEncoder]: transform sequencely")
             ret = self._transform(data, ispositive, positive_list)
-        self.logger.info("[DataTransformer]: data transformation(encoding) end")
+        self.logger.info("[DataEncoder]: data transformation(encoding) end")
         return ret
 
     def _transform(
@@ -906,9 +898,9 @@ class DataTransformer:
         self, data: np.ndarray, *, n_jobs: Union[float, int] = None
     ) -> Tuple[np.ndarray, np.ndarray]:
         """decode data row"""
-        self.logger.info("[DataTransformer]: data inverse transformation(decoding) end")
+        self.logger.info("[DataEncoder]: data inverse transformation(decoding) end")
         if n_jobs is not None:
-            self.logger.info("[DataTransformer]: inverse transform parallely")
+            self.logger.info("[DataEncoder]: inverse transform parallely")
             if n_jobs <= 0:
                 n_jobs = 0.9
             if isinstance(n_jobs, float):
@@ -919,9 +911,9 @@ class DataTransformer:
                 raise Exception("n_jobs must be 0~1 float or int > 0")
             ret = self._parallel_inverse_transform(data, n_jobs)
         else:
-            self.logger.info("[DataTransformer]: inverse transform sequencely")
+            self.logger.info("[DataEncoder]: inverse transform sequencely")
             ret = self._inverse_transform(data)
-        self.logger.info("[DataTransformer]: data inverse transformation(decoding) end")
+        self.logger.info("[DataEncoder]: data inverse transformation(decoding) end")
         return ret
 
     def _inverse_transform(self, data: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
@@ -995,13 +987,13 @@ class DataTransformer:
 
         with open(mpath, "wb") as f:
             pickle.dump(self, f)
-            self.logger.info(f"[DataTransformer]: Model saved at {mpath}")
+            self.logger.info(f"[DataEncoder]: Model saved at {mpath}")
         return
 
     @staticmethod
-    def load(mpath: str) -> "DataTransformer":
+    def load(mpath: str) -> "DataEncoder":
         if not os.path.exists(mpath):
-            raise FileNotFoundError(f"[DataTransformer]: Model not exists at {mpath}")
+            raise FileNotFoundError(f"[DataEncoder]: Model not exists at {mpath}")
         with open(mpath, "rb") as f:
             loaded_model = pickle.load(f)
         return loaded_model

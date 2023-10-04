@@ -9,7 +9,7 @@ from typing import Union, Optional
 from tqdm.auto import tqdm
 from model.pipeline.data_preparation import DataPrep
 from model.synthesizer.ctabgan_synthesizer import CTABGANSynthesizer, Cond
-from model.synthesizer.transformer import DataTransformer, ImageTransformer
+from model.synthesizer.encoder import DataEncoder, ImageTransformer
 
 import warnings
 import logging
@@ -30,7 +30,7 @@ class CTABGAN:
         non_categorical_columns: list = None,  # categorical 중 one-hot 안하고 MSN 적용할 컬럼들...  lsw: 헷갈림. 이름 변경필요
         integer_columns: list = None,
         problem_type: dict = None,  # {"Classification": "income"} 포맷으로 입력
-        transformer: DataTransformer = None,
+        transformer: DataEncoder = None,
         data_prep: DataPrep = None,
         project: str = "synthe",  # wandb config
     ):
@@ -106,11 +106,11 @@ class CTABGAN:
             return None
 
     def _fit_encoder(self, df_prep=pd.DataFrame):
-        """본격적인 GAN 모델 학습에 앞서 입력 데이터의 인코딩에 사용되는 DataTransformer 를 적합 시키고 그 객체를 준비"""
+        """본격적인 GAN 모델 학습에 앞서 입력 데이터의 인코딩에 사용되는 DataEncoder 를 적합 시키고 그 객체를 준비"""
         # set data transformer
         if self.transformer is None or not self.transformer.is_fit_:
             self.logger.info("[CTABGAN]: fit data transformer start")
-            self.transformer = DataTransformer(
+            self.transformer = DataEncoder(
                 categorical_list=self.data_prep.column_types["categorical"],
                 mixed_dict=self.data_prep.column_types["mixed"],
                 general_list=self.data_prep.column_types["general"],
@@ -123,7 +123,7 @@ class CTABGAN:
             self.logger.info("[CTABGAN]: use already fitted transformer")
 
     def pps(self, raw_df: pd.DataFrame) -> Optional[pd.DataFrame]:
-        """본격적인 GAN 모델 학습에 앞서 입력 데이터의 인코딩에 사용되는 DataPrep, DataTransformer 를 적합 시키고 그 객체를 준비
+        """본격적인 GAN 모델 학습에 앞서 입력 데이터의 인코딩에 사용되는 DataPrep, DataEncoder 를 적합 시키고 그 객체를 준비
         df_prep은 encoder를 학습하고 encoded 를 준비하기 위한 임시 중간 데이터. 처음부터 fitting 하는 경우만 활용하고, 저장된 모델을 불러와 재사용할 시에는 불필요
         """
         # data_prep 학습/재사용. 재사용시에는 df_prep가 None 값을 가짐
@@ -195,7 +195,7 @@ class CTABGAN:
     def generate_samples(
         self,
         n: int,
-        transformer: DataTransformer = None,
+        transformer: DataEncoder = None,
         *,
         n_jobs: Union[float, int] = None,
         resample_invalid: bool = True,
@@ -203,7 +203,7 @@ class CTABGAN:
     ):
         assert self.is_fit_, "must fit the model first!!"
 
-        if isinstance(transformer, DataTransformer):
+        if isinstance(transformer, DataEncoder):
             assert transformer.is_fit_, "you must use fitted data_transformer!!"
         else:
             transformer = self.transformer
@@ -213,7 +213,7 @@ class CTABGAN:
         sample = self.synthesizer.sample(n, transformer)  # (n, M, #encode)
         # inverse_transform전에 월별로 정렬 후 3lank 텐서를 2lank 로 변환
         sample = sample.transpose(1, 0, 2).reshape(-1, len_encoded)  # (n*M, #encode)
-        # inverse transform by DataTransformer
+        # inverse transform by DataEncoder
         result, invalid_ids = transformer.inverse_transform(
             sample, n_jobs=n_jobs
         )  # (n*M, n_col)

@@ -13,7 +13,7 @@ RANDOM_SEED = 777
 
 
 def encode_column(
-    transformer: "DataTransformer",
+    transformer: "DataEncoder",
     arr: np.ndarray,
     info: dict,
     ispositive=False,
@@ -229,7 +229,7 @@ def encode_column(
 
 
 def decode_column(
-    transformer: "DataTransformer", arr: np.ndarray, info: dict
+    transformer: "DataEncoder", arr: np.ndarray, info: dict
 ) -> Tuple[np.ndarray, list]:
     """decode single column"""
     np.random.seed(RANDOM_SEED)  # 병렬처리시 반드시 여기에 정의되어야 함.... 약간 모호하나 보수적으로
@@ -343,7 +343,7 @@ def decode_column(
     return ret, invalid_ids
 
 
-class DataTransformer:
+class DataEncoder:
     def __init__(
         self,
         categorical_list: list = None,
@@ -375,7 +375,7 @@ class DataTransformer:
 
     def get_metadata(self, df: pd.DataFrame) -> List[dict]:
         meta = []
-        self.logger.info("[DataTransformer]: get metadata ...")
+        self.logger.info("[DataEncoder]: get metadata ...")
         for index in tqdm(range(df.shape[1])):
             column = df.iloc[:, index]
             colname = df.columns[index]
@@ -439,7 +439,7 @@ class DataTransformer:
         self.valid_mode_flags = []  # 컬럼별 MSN 모드별 유효여부 저장 영역 List[bool]
         self.filter_arr = []
 
-        self.logger.info("[DataTransformer]: fitting start ...")
+        self.logger.info("[DataEncoder]: fitting start ...")
         st = 0  # encoding 후 인덱스 추적용
         for id_, info in enumerate(tqdm(self.meta)):
             train_columns = train_data.columns
@@ -555,7 +555,7 @@ class DataTransformer:
 
         self.model = model  # VGM Model 저장 영역
         self.is_fit_ = True
-        self.logger.info("[DataTransformer]: fitting end ...")
+        self.logger.info("[DataEncoder]: fitting end ...")
 
     def transform(
         self,
@@ -566,11 +566,11 @@ class DataTransformer:
         n_jobs: Union[float, int] = None,
     ) -> np.array:
         """encode data row"""
-        self.logger.info("[DataTransformer]: data transformation(encoding) start")
+        self.logger.info("[DataEncoder]: data transformation(encoding) start")
 
         self.ordering = {}  # 높은 확률 모드 순으로 리오더링 하기 위해 활용, 매 transform 마다 초기화
         if n_jobs is not None:
-            self.logger.info("[DataTransformer]: transform parallely")
+            self.logger.info("[DataEncoder]: transform parallely")
             if n_jobs <= 0:
                 n_jobs = 0.9
             if isinstance(n_jobs, float):
@@ -581,9 +581,9 @@ class DataTransformer:
                 raise Exception("n_jobs must be 0~1 float or int > 0")
             ret = self._parallel_transform(data, n_jobs, ispositive, positive_list)
         else:
-            self.logger.info("[DataTransformer]: transform sequencely")
+            self.logger.info("[DataEncoder]: transform sequencely")
             ret = self._transform(data, ispositive, positive_list)
-        self.logger.info("[DataTransformer]: data transformation(encoding) end")
+        self.logger.info("[DataEncoder]: data transformation(encoding) end")
         return ret
 
     def _transform(
@@ -643,9 +643,9 @@ class DataTransformer:
         self, data: np.ndarray, *, n_jobs: Union[float, int] = None
     ) -> Tuple[np.ndarray, np.ndarray]:
         """decode data row"""
-        self.logger.info("[DataTransformer]: data inverse transformation(decoding) end")
+        self.logger.info("[DataEncoder]: data inverse transformation(decoding) end")
         if n_jobs is not None:
-            self.logger.info("[DataTransformer]: inverse transform parallely")
+            self.logger.info("[DataEncoder]: inverse transform parallely")
             if n_jobs <= 0:
                 n_jobs = 0.9
             if isinstance(n_jobs, float):
@@ -656,9 +656,9 @@ class DataTransformer:
                 raise Exception("n_jobs must be 0~1 float or int > 0")
             ret = self._parallel_inverse_transform(data, n_jobs)
         else:
-            self.logger.info("[DataTransformer]: inverse transform sequencely")
+            self.logger.info("[DataEncoder]: inverse transform sequencely")
             ret = self._inverse_transform(data)
-        self.logger.info("[DataTransformer]: data inverse transformation(decoding) end")
+        self.logger.info("[DataEncoder]: data inverse transformation(decoding) end")
         return ret
 
     def _inverse_transform(self, data: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
@@ -732,13 +732,13 @@ class DataTransformer:
 
         with open(mpath, "wb") as f:
             pickle.dump(self, f)
-            self.logger.info(f"[DataTransformer]: Model saved at {mpath}")
+            self.logger.info(f"[DataEncoder]: Model saved at {mpath}")
         return
 
     @staticmethod
-    def load(mpath: str) -> "DataTransformer":
+    def load(mpath: str) -> "DataEncoder":
         if not os.path.exists(mpath):
-            raise FileNotFoundError(f"[DataTransformer]: Model not exists at {mpath}")
+            raise FileNotFoundError(f"[DataEncoder]: Model not exists at {mpath}")
         with open(mpath, "rb") as f:
             loaded_model = pickle.load(f)
         return loaded_model
