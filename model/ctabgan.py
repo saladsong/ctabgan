@@ -30,7 +30,7 @@ class CTABGAN:
         non_categorical_columns: list = None,  # categorical 중 one-hot 안하고 MSN 적용할 컬럼들...  lsw: 헷갈림. 이름 변경필요
         integer_columns: list = None,
         problem_type: dict = None,  # {"Classification": "income"} 포맷으로 입력
-        transformer: DataEncoder = None,
+        encoder: DataEncoder = None,
         data_prep: DataPrep = None,
         project: str = "synthe",  # wandb config
     ):
@@ -56,9 +56,7 @@ class CTABGAN:
         # for logger
         self.logger = logging.getLogger()
 
-        self.transformer = (
-            transformer  # transformer 의 경우 VGM 학습에 오랜 시간이 걸리므로 저장 후 재사용 가능토록 함.
-        )
+        self.encoder = encoder  # encoder 의 경우 VGM 학습에 오랜 시간이 걸리므로 저장 후 재사용 가능토록 함.
         self.data_prep = data_prep  # data_prep 도 재사용
         self.categorical_columns = categorical_columns
         self.log_columns = log_columns
@@ -107,20 +105,20 @@ class CTABGAN:
 
     def _fit_encoder(self, df_prep=pd.DataFrame):
         """본격적인 GAN 모델 학습에 앞서 입력 데이터의 인코딩에 사용되는 DataEncoder 를 적합 시키고 그 객체를 준비"""
-        # set data transformer
-        if self.transformer is None or not self.transformer.is_fit_:
-            self.logger.info("[CTABGAN]: fit data transformer start")
-            self.transformer = DataEncoder(
+        # set data encoder
+        if self.encoder is None or not self.encoder.is_fit_:
+            self.logger.info("[CTABGAN]: fit data encoder start")
+            self.encoder = DataEncoder(
                 categorical_list=self.data_prep.column_types["categorical"],
                 mixed_dict=self.data_prep.column_types["mixed"],
                 general_list=self.data_prep.column_types["general"],
                 skew_norm_list=self.data_prep.column_types["skewed"],
                 non_categorical_list=self.data_prep.column_types["non_categorical"],
             )
-            self.transformer.fit(train_data=df_prep)
-            self.logger.info("[CTABGAN]: fit data transformer end")
+            self.encoder.fit(train_data=df_prep)
+            self.logger.info("[CTABGAN]: fit data encoder end")
         else:
-            self.logger.info("[CTABGAN]: use already fitted transformer")
+            self.logger.info("[CTABGAN]: use already fitted encoder")
 
     def pps(self, raw_df: pd.DataFrame) -> Optional[pd.DataFrame]:
         """본격적인 GAN 모델 학습에 앞서 입력 데이터의 인코딩에 사용되는 DataPrep, DataEncoder 를 적합 시키고 그 객체를 준비
@@ -128,7 +126,7 @@ class CTABGAN:
         """
         # data_prep 학습/재사용. 재사용시에는 df_prep가 None 값을 가짐
         df_prep: Optional[pd.DataFrame] = self._prep(raw_df)
-        # data_transformer 학습/재사용
+        # encoder 학습/재사용
         self._fit_encoder(df_prep)
         return df_prep
 
@@ -176,13 +174,13 @@ class CTABGAN:
             assert isinstance(
                 df_prep, pd.DataFrame
             ), "encoded_data 가 None 면 반드시 df_prep 을 입력해야 합니다."
-            encoded_data = self.transformer.transform(df_prep.values, n_jobs=n_jobs)
+            encoded_data = self.encoder.transform(df_prep.values, n_jobs=n_jobs)
         else:
             self.logger.info("[CTABGAN]: use input encoded data")
 
         self.synthesizer.fit(
             encoded_data=encoded_data,
-            data_transformer=self.transformer,
+            encoder=self.encoder,
             target_index=target_index,
         )
         self.logger.info("[CTABGAN]: fit synthesizer end")
@@ -195,7 +193,7 @@ class CTABGAN:
     def generate_samples(
         self,
         n: int,
-        transformer: DataEncoder = None,
+        encoder: DataEncoder = None,
         *,
         n_jobs: Union[float, int] = None,
         resample_invalid: bool = True,
@@ -204,18 +202,18 @@ class CTABGAN:
     ):
         assert self.is_fit_, "must fit the model first!!"
 
-        if isinstance(transformer, DataEncoder):
-            assert transformer.is_fit_, "you must use fitted data_transformer!!"
+        if isinstance(encoder, DataEncoder):
+            assert encoder.is_fit_, "you must use fitted encoder!!"
         else:
-            transformer = self.transformer
-        len_encoded = transformer.output_dim
+            encoder = self.encoder
+        len_encoded = encoder.output_dim
 
         # smaple encode data
-        sample = self.synthesizer.sample(n, transformer)  # (n, M, #encode)
+        sample = self.synthesizer.sample(n, encoder)  # (n, M, #encode)
         # inverse_transform전에 월별로 정렬 후 3lank 텐서를 2lank 로 변환
         sample = sample.transpose(1, 0, 2).reshape(-1, len_encoded)  # (n*M, #encode)
         # inverse transform by DataEncoder
-        result, invalid_ids = transformer.inverse_transform(
+        result, invalid_ids = encoder.inverse_transform(
             sample, n_jobs=n_jobs, minmax_clip=minmax_clip
         )  # (n*M, n_col)
         self.logger.info(
@@ -238,13 +236,13 @@ class CTABGAN:
                 self.logger.info("[CTABGAN]: generate raw encode vectors start")
                 # resample invalid data
                 data_resample = self.synthesizer.sample(
-                    num_for_resample, transformer
+                    num_for_resample, encoder
                 )  # (n, M, #encode)
                 # inverse_transform전에 월별로 정렬 후 3lank 텐서를 2lank 로 변환
                 data_resample = data_resample.transpose(1, 0, 2).reshape(
                     -1, len_encoded
                 )  # (n*M, #encode)
-                new_result, invalid_ids = transformer.inverse_transform(
+                new_result, invalid_ids = encoder.inverse_transform(
                     data_resample,
                     n_jobs=n_jobs,
                 )  # (n*M, n_col)
@@ -289,12 +287,8 @@ class CTABGAN:
         )
 
         # 컨디션 벡터 생성기 빌드
-        data_transformer = self.transformer
-        assert data_transformer.is_fit_, "transformer should already be fitted!"
+        encoder = self.encoder
+        assert encoder.is_fit_, "encoder should already be fitted!"
         if encoded_data is None:
-            encoded_data = data_transformer.transform(
-                self.data_prep.df.values, n_jobs=n_jobs
-            )
-        self.synthesizer.cond_generator = Cond(
-            encoded_data, data_transformer.output_info
-        )
+            encoded_data = encoder.transform(self.data_prep.df.values, n_jobs=n_jobs)
+        self.synthesizer.cond_generator = Cond(encoded_data, encoder.output_info)
