@@ -3025,7 +3025,7 @@ seq_constraints = [
     # 3.승인.매출 테이블 컬럼 Formula
     # M07
     {
-        "columns": ["M07_RP건수_B0M", "M07_RP후경과월"],
+        "columns": ["M07_RP건수_B0M"],
         "output": "M07_RP후경과월",
         "fname": "cfs_03_0262",
         "type": "formula",
@@ -3033,7 +3033,7 @@ seq_constraints = [
                       ELSE M07_RP후경과월 = M07_RP후경과월.clip(1,6)""",
     },
     {
-        "columns": ["M07_RP건수_통신_B0M", "M07_RP후경과월_통신"],
+        "columns": ["M07_RP건수_통신_B0M"],
         "output": "M07_RP후경과월_통신",
         "fname": "cfs_03_0263",
         "type": "formula",
@@ -3041,7 +3041,7 @@ seq_constraints = [
                       ELSE M07_RP후경과월_통신 = M07_RP후경과월_통신.clip(1,6)""",
     },
     {
-        "columns": ["M07_RP건수_아파트_B0M", "M07_RP후경과월_아파트"],
+        "columns": ["M07_RP건수_아파트_B0M"],
         "output": "M07_RP후경과월_아파트",
         "fname": "cfs_03_0264",
         "type": "formula",
@@ -3049,7 +3049,7 @@ seq_constraints = [
                       ELSE M07_RP후경과월_아파트 = M07_RP후경과월_아파트.clip(1,6)""",
     },
     {
-        "columns": ["M07_RP건수_제휴사서비스직접판매_B0M", "M07_RP후경과월_제휴사서비스직접판매"],
+        "columns": ["M07_RP건수_제휴사서비스직접판매_B0M"],
         "output": "M07_RP후경과월_제휴사서비스직접판매",
         "fname": "cfs_03_0265",
         "type": "formula",
@@ -3057,7 +3057,7 @@ seq_constraints = [
                       ELSE M07_RP후경과월_제휴사서비스직접판매 = M07_RP후경과월_제휴사서비스직접판매.clip(1,6)""",
     },
     {
-        "columns": ["M07_RP건수_렌탈_B0M", "M07_RP후경과월_렌탈"],
+        "columns": ["M07_RP건수_렌탈_B0M"],
         "output": "M07_RP후경과월_렌탈",
         "fname": "cfs_03_0266",
         "type": "formula",
@@ -3065,7 +3065,7 @@ seq_constraints = [
                       ELSE M07_RP후경과월_렌탈 = M07_RP후경과월_렌탈.clip(1,6)""",
     },
     {
-        "columns": ["M07_RP건수_가스_B0M", "M07_RP후경과월_가스"],
+        "columns": ["M07_RP건수_가스_B0M"],
         "output": "M07_RP후경과월_가스",
         "fname": "cfs_03_0267",
         "type": "formula",
@@ -3073,7 +3073,7 @@ seq_constraints = [
                       ELSE M07_RP후경과월_가스 = M07_RP후경과월_가스.clip(1,6)""",
     },
     {
-        "columns": ["M07_RP건수_전기_B0M", "M07_RP후경과월_전기"],
+        "columns": ["M07_RP건수_전기_B0M"],
         "output": "M07_RP후경과월_전기",
         "fname": "cfs_03_0268",
         "type": "formula",
@@ -3081,7 +3081,7 @@ seq_constraints = [
                       ELSE M07_RP후경과월_전기 = M07_RP후경과월_전기.clip(1,6)""",
     },
     {
-        "columns": ["M07_RP건수_보험_B0M", "M07_RP후경과월_보험"],
+        "columns": ["M07_RP건수_보험_B0M"],
         "output": "M07_RP후경과월_보험",
         "fname": "cfs_03_0269",
         "type": "formula",
@@ -3089,7 +3089,7 @@ seq_constraints = [
                       ELSE M07_RP후경과월_보험 = M07_RP후경과월_보험.clip(1,6)""",
     },
     {
-        "columns": ["M07_RP건수_학습비_B0M", "M07_RP후경과월_학습비"],
+        "columns": ["M07_RP건수_학습비_B0M"],
         "output": "M07_RP후경과월_학습비",
         "fname": "cfs_03_0270",
         "type": "formula",
@@ -3097,7 +3097,7 @@ seq_constraints = [
                       ELSE M07_RP후경과월_학습비 = M07_RP후경과월_학습비.clip(1,6)""",
     },
     {
-        "columns": ["M07_RP건수_유선방송_B0M", "M07_RP후경과월_유선방송"],
+        "columns": ["M07_RP건수_유선방송_B0M"],
         "output": "M07_RP후경과월_유선방송",
         "fname": "cfs_03_0271",
         "type": "formula",
@@ -3105,7 +3105,7 @@ seq_constraints = [
                       ELSE M07_RP후경과월_유선방송 = M07_RP후경과월_유선방송.clip(1,6)""",
     },
     {
-        "columns": ["M07_RP건수_건강_B0M", "M07_RP후경과월_건강"],
+        "columns": ["M07_RP건수_건강_B0M"],
         "output": "M07_RP후경과월_건강",
         "fname": "cfs_03_0272",
         "type": "formula",
@@ -3113,7 +3113,7 @@ seq_constraints = [
                       ELSE M07_RP후경과월_건강 = M07_RP후경과월_건강.clip(1,6)""",
     },
     {
-        "columns": ["M07_RP건수_교통_B0M", "M07_RP후경과월_교통"],
+        "columns": ["M07_RP건수_교통_B0M"],
         "output": "M07_RP후경과월_교통",
         "fname": "cfs_03_0273",
         "type": "formula",
