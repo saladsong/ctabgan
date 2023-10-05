@@ -241,21 +241,41 @@ def encode_column(
 
         #### mixed + skewed (single-mode 가정) 인 경우
         else:
-            order = None
-            _mean1 = encoder.model[id_][0]["mean"]
-            _std1 = encoder.model[id_][0]["std"]
+            means_1 = encoder.model[id_][0].means_.reshape([-1])
+            stds_1 = np.sqrt(encoder.model[id_][0].covariances_).reshape([-1])
 
-            # mode 별 normalized alpha_i 를 저장  means_needed / stds_needed -> 각 modal 별 mean,std
-            mode_vals = []
-            for mdl in info["modal"]:
-                if mdl != -9999999:
-                    this_val = np.abs(mdl - _mean1) / (4 * _std1)
-                    mode_vals.append(this_val)
+            zero_std_list = []
+            means_needed = []
+            stds_needed = []
+
+            # -9999999 외의 modal 값에 대한 mean, sqrt 계산 (normalize 에 활용)
+            # m1 모델의 10개 mode 중, modal 값과 mean 값이 가장 가까운 mode 의 mean, sqrt 를 취함
+            for mode in info["modal"]:
+                if mode != -9999999:
+                    dist = []
+                    for idx, val in enumerate(list(means_1.flatten())):
+                        dist.append(abs(mode - val))
+                    index_min = np.argmin(np.array(dist))
+                    zero_std_list.append(index_min)
                 else:
-                    mode_vals.append(0)
+                    continue
 
-            # modal 이 아닌 continuous 값의 mode 에 대한 alpha_i, beta_i 계산
-            # gm2 모델의 mean, std 활용
+            for idx in zero_std_list:
+                means_needed.append(means_1[idx])
+                stds_needed.append(stds_1[idx])
+
+            # mode 별 normalized alpha_i 를 저장
+            mode_vals = []
+            # lsw: 이 코드는 -9999999 가 info["modal"]의 맨 마지막에 추가되므로 가능한 것임 - 안좋은 코드
+            # peak 값에 대한 alpha_i 계산
+            for i, j, k in zip(info["modal"], means_needed, stds_needed):
+                this_val = np.abs(i - j) / (4 * k)
+                mode_vals.append(this_val)
+            if -9999999 in info["modal"]:
+                mode_vals.append(0)
+
+            # peak 아닌 continuous 값의 mode 에 대한 alpha_i, beta_i 계산 (skew-norm 가정)
+            # m2 모델의 mean, std 활용
             arr_orig = arr.copy()  # 뒤에서 재사용되므로 복사 필요
             arr = arr.reshape([-1, 1])
             filter_arr = info["filter_arr"]
@@ -272,7 +292,7 @@ def encode_column(
             features = np.clip(features, -0.99, 0.99)
 
             # modal 값 포함 전체 mode 에 대한 최종 concat vector (final) 생성
-            # final shape: (n * (1 for alpha_i + one-hot for modal + 1 for single mode))
+            # final shape: (n * (1 for alpha_i + one-hot for peaks + 1 for single mode))
             temp_probs_onehot = np.zeros([len(arr), len(info["modal"]) + 1])
             # modal 외 single-mode 가정하므로 one-hot 대신 1-dim 만 추가
             final = np.zeros([len_data, 1 + len(info["modal"]) + 1])
@@ -460,7 +480,7 @@ def decode_column(
 
             ret = tmp
 
-        #### skew-norm 컬럼 역변환
+        #### mixed-skew 컬럼 역변환
         else:
             u = arr[:, 0]  # alphas
             full_v = arr[:, 1:]  # betas (dim: #modal + 1)
@@ -471,8 +491,8 @@ def decode_column(
 
             full_v = full_v_re_ordered
 
-            mixed_v = full_v[:, : len(info["modal"])]  # modal 부분 beta
-            v = full_v[:, -1].reshape([-1, 1])  # modal 제외 부분 (single-mode) beta
+            mixed_v = full_v[:, : len(info["modal"])]  # peak 부분 beta
+            v = full_v[:, -1].reshape([-1, 1])  # peak 제외 부분 (single-mode) beta
 
             u = np.clip(u, -1, 1)
             # v_t = np.ones((len_data, 1)) * -100
@@ -488,12 +508,12 @@ def decode_column(
 
             for idx in range(len_data):
                 if p_argmax[idx] < len(info["modal"]):
-                    argmax_value = p_argmax[idx]  # modal 에 해당
+                    argmax_value = p_argmax[idx]  # peak 에 해당
                     result[idx] = float(
                         list(map(info["modal"].__getitem__, [argmax_value]))[0]
                     )
                 else:
-                    # not modal (skewed-normal)
+                    # not a peak (skewed-normal)
                     result[idx] = u[idx] * 4 * _std + _mean
 
             tmp = result
@@ -666,24 +686,33 @@ class DataEncoder:
 
                 # single-mode skewed-normal 인 경우: skew-norm
                 elif id_ not in self.general_columns:
-                    _alpha, _loc, _scale = skewnorm.fit(
-                        current_arr
-                    )  # current_arr.reshape([-1, 1])
-                    _mean, _std = skewnorm.mean(_alpha, _loc, _scale), skewnorm.std(
-                        _alpha, _loc, _scale
-                    )
-                    sn = {
-                        "mean": _mean,
-                        "std": _std,
-                        "alpha": _alpha,
-                        "loc": _loc,
-                        "scale": _scale,
-                    }
+                    try:
+                        _alpha, _loc, _scale = skewnorm.fit(
+                            current_arr
+                        )  # current_arr.reshape([-1, 1])
+                        _mean, _std = skewnorm.mean(_alpha, _loc, _scale), skewnorm.std(
+                            _alpha, _loc, _scale
+                        )
+                        sn = {
+                            "mean": _mean,
+                            "std": _std,
+                            "alpha": _alpha,
+                            "loc": _loc,
+                            "scale": _scale,
+                        }
+                        _ctype = "skew"
+                    except Exception as e:
+                        self.logger.info("skew-norm turned out to be GT...")
+                        sn = None
+                        _ctype = "gt"
+                        # skewed-column 에서 제외, general_columns 에 추가
+                        self.skewed_columns.remove(id_)
+                        self.general_columns.append(id_)
 
                     model.append(sn)
                     self.valid_mode_flags.append(None)
                     self.output_info += [
-                        (1, "tanh", colname, "skew"),  # for alpha_i (N * 1)
+                        (1, "tanh", colname, _ctype),  # for alpha_i (N * 1)
                     ]
                     st_delta = 1
                     self.output_dim += st_delta
@@ -696,7 +725,6 @@ class DataEncoder:
                     self.valid_mode_flags.append(None)
                     self.output_info += [
                         (1, "tanh", colname, "gt"),
-                        # (1, "tanh", colname)  # for skewness alpha
                     ]  # for alpha_i // gt는 beta_i 불필요
                     st_delta = 1
                     self.output_dim += st_delta
@@ -730,6 +758,7 @@ class DataEncoder:
                     # modal값이 아닌 데이터 샘플만 필터링 (T/F indicating)
                     #  -> mixed 애서 continuous 부분만
                     filter_arr = ~np.isin(current_arr, info["modal"])
+                    # print("vgm", filter_arr.sum(), (~filter_arr).sum())
 
                     gm2.fit(current_arr[filter_arr].reshape([-1, 1]))
                     info["filter_arr"] = filter_arr
@@ -754,44 +783,67 @@ class DataEncoder:
 
                 # mixed skewed-normal 인 경우: skew-norm
                 elif id_ in self.skewed_columns:
-                    # print(current_arr.shape)
-                    _alpha1, _loc1, _scale1 = skewnorm.fit(current_arr)
-                    _mean1, _std1 = skewnorm.mean(
-                        _alpha1, _loc1, _scale1
-                    ), skewnorm.std(_alpha1, _loc1, _scale1)
-                    sn1 = {
-                        "mean": _mean1,
-                        "std": _std1,
-                        "alpha": _alpha1,
-                        "loc": _loc1,
-                        "scale": _scale1,
-                    }
+                    # peak(범주/Nan/null...) 포함 피팅
+                    m1 = BayesianGaussianMixture(
+                        n_components=self.n_clusters,
+                        weight_concentration_prior_type="dirichlet_process",
+                        weight_concentration_prior=0.001,
+                        max_iter=100,
+                        n_init=1,
+                        random_state=RANDOM_SEED,
+                    )
+                    m1.fit(current_arr.reshape([-1, 1]))
 
+                    # peak 제외하고 피팅
                     filter_arr = ~np.isin(current_arr, info["modal"])
                     f_arr = current_arr[filter_arr]
-                    # print(f_arr.shape)
-                    _alpha2, _loc2, _scale2 = skewnorm.fit(f_arr)
-                    _mean2, _std2 = skewnorm.mean(
-                        _alpha2, _loc2, _scale2
-                    ), skewnorm.std(_alpha2, _loc2, _scale2)
-                    sn2 = {
-                        "mean": _mean2,
-                        "std": _std2,
-                        "alpha": _alpha2,
-                        "loc": _loc2,
-                        "scale": _scale2,
-                    }
+                    # print("skew", filter_arr.sum(), (~filter_arr).sum())
+
+                    try:
+                        _alpha, _loc, _scale = skewnorm.fit(f_arr)
+                        _mean, _std = skewnorm.mean(_alpha, _loc, _scale), skewnorm.std(
+                            _alpha, _loc, _scale
+                        )
+                        m2 = {
+                            "mean": _mean,
+                            "std": _std,
+                            "alpha": _alpha,
+                            "loc": _loc,
+                            "scale": _scale,
+                        }
+                        comp = [1]  # single-mode
+
+                    except Exception as e:
+                        self.logger.info("skew-norm turned out to be VGM...")
+                        m2 = BayesianGaussianMixture(
+                            n_components=self.n_clusters,
+                            weight_concentration_prior_type="dirichlet_process",
+                            weight_concentration_prior=0.001,
+                            max_iter=100,
+                            n_init=1,
+                            random_state=RANDOM_SEED,
+                        )
+                        m2.fit(f_arr.reshape([-1, 1]))
+                        comp = (
+                            m2.weights_ > self.eps
+                        )  # weight 가 epsilon 보다 크고 데이터 상 존재하는 mode(comp) 만 True
+
+                        # skewed-column 에서 제외
+                        self.skewed_columns.remove(id_)
 
                     info["filter_arr"] = filter_arr
-                    model.append((sn1, sn2))
-                    self.valid_mode_flags.append([1])  # single-mode -> None?
+                    model.append((m1, m2))
+                    self.valid_mode_flags.append(comp)
 
                     self.output_info += [
                         (1, "tanh", colname, "mixed_skew"),  # for alpha_i
-                        # (1, "tanh", colname),  # for skewness alpha
-                        (1 + len(info["modal"]), "softmax", colname),  # for beta_i
+                        (
+                            np.sum(comp) + len(info["modal"]),
+                            "softmax",
+                            colname,
+                        ),  # for beta_i
                     ]
-                    st_delta = 1 + (1 + len(info["modal"]))
+                    st_delta = 1 + np.sum(comp) + len(info["modal"])
                     self.output_dim += st_delta
                     info.update({"st": st, "end": st + st_delta})
                     st += st_delta
