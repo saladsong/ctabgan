@@ -687,6 +687,8 @@ class DataEncoder:
                 # single-mode skewed-normal 인 경우: skew-norm
                 elif id_ not in self.general_columns:
                     try:
+                        # if np.random.rand(1)[0] < 0.3:
+                        #     raise Exception("lsw error")
                         _alpha, _loc, _scale = skewnorm.fit(
                             current_arr
                         )  # current_arr.reshape([-1, 1])
@@ -702,7 +704,9 @@ class DataEncoder:
                         }
                         _ctype = "skew"
                     except Exception as e:
-                        self.logger.info("skew-norm turned out to be GT...")
+                        self.logger.info(
+                            f"col id({id_}) skew-norm turned out to be GT..."
+                        )
                         sn = None
                         _ctype = "gt"
                         # skewed-column 에서 제외, general_columns 에 추가
@@ -800,6 +804,8 @@ class DataEncoder:
                     # print("skew", filter_arr.sum(), (~filter_arr).sum())
 
                     try:
+                        # if np.random.rand(1)[0] < 0.3:
+                        #     raise Exception("lsw error")
                         _alpha, _loc, _scale = skewnorm.fit(f_arr)
                         _mean, _std = skewnorm.mean(_alpha, _loc, _scale), skewnorm.std(
                             _alpha, _loc, _scale
@@ -814,7 +820,9 @@ class DataEncoder:
                         comp = [1]  # single-mode
 
                     except Exception as e:
-                        self.logger.info("skew-norm turned out to be VGM...")
+                        self.logger.info(
+                            f"col id({id_}) skew-norm turned out to be VGM..."
+                        )
                         m2 = BayesianGaussianMixture(
                             n_components=self.n_clusters,
                             weight_concentration_prior_type="dirichlet_process",
