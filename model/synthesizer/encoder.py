@@ -741,7 +741,6 @@ class DataEncoder:
 
                     self.output_info += [
                         (1, "tanh", colname, "msn"),  # for alpha_i
-                        # (1, "tanh", colname),  # for skewness alpha
                         (
                             np.sum(comp) + len(info["modal"]),
                             "softmax",

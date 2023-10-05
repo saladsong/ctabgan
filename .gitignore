@@ -11,3 +11,5 @@ model-testing-web
 tta
 evaluation
 */**/.DS_Store
+/script
+/sjy
