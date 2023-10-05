@@ -39,6 +39,11 @@ def constraint_udf(func):
     return wrapper
 
 
+def isNaN(val):
+    # NaN 검증용
+    return val != val
+
+
 constraints = [
     # 1.회원 테이블 컬럼 Constraints
     {
@@ -292,6 +297,13 @@ constraints = [
         "type": "formula",
         "content": "기타면제카드수_B0M = 0",
     },
+    {
+        "columns": ["기준년월", "최종카드발급일자"],
+        "output": "최종카드발급경과월",
+        "fname": "cf_01_0133",
+        "type": "formula",
+        "content": "최종카드발급경과월 = MONTHS_BETWEEN(LAST_DAY(기준년월), 최종카드발급일자)",
+    },
 
     # 2.신용 테이블 컬럼 Constraints
     {
@@ -419,6 +431,12 @@ constraints = [
         "fname": "cc_02_0021",
         "type": "constraint",
         "content": "IF 시장연체상환여부_R3M == '1' THEN 시장연체상환여부_R6M = '1'",
+    },
+    {
+        "columns": ["한도요청거절건수", "한도심사요청건수"],
+        "fname": "cc_02_0022",
+        "type": "constraint",
+        "content": "한도요청거절건수 <= 한도심사요청건수",
     },
 
 
@@ -568,6 +586,24 @@ constraints = [
         "type": "constraint",
         "content": "혜택수혜금액 <= 혜택수혜금액_R3M",
     },
+    {
+        "columns": ["상환개월수_결제일_R3M", "상환개월수_결제일_R6M", "상환개월수_결제일_R12M"],
+        "fname": "cc_04_0019",
+        "type": "constraint",
+        "content": "상환개월수_결제일_R3M <= 상환개월수_결제일_R6M <= 상환개월수_결제일_R12M",
+    },
+    {
+        "columns": ["선결제건수_R3M", "선결제건수_R6M", "선결제건수_R12M"],
+        "fname": "cc_04_0020",
+        "type": "constraint",
+        "content": "선결제건수_R3M <= 선결제건수_R6M <= 선결제건수_R12M",
+    },
+    {
+        "columns": ["연체건수_R3M", "연체건수_R6M", "연체건수_R12M"],
+        "fname": "cc_04_0021",
+        "type": "constraint",
+        "content": "연체건수_R3M <= 연체건수_R6M <= 연체건수_R12M",
+    },
 
     # 4.청구 테이블 컬럼 Formula
     {
@@ -587,6 +623,13 @@ constraints = [
                       ELIF 구분코드 IN ('H') THEN 05.당사멤버십, ELIF 구분코드 IN ('T') THEN 07.기타,
                       ELIF 구분코드 IN ('0') THEN 99.미수령
                    """,
+    },
+    {
+        "columns": ["청구금액_B0"],
+        "output": "청구서발송여부_B0",
+        "fname": "cf_04_0012",
+        "type": "formula",
+        "content": "IF 청구금액_B0 > 0 THEN 청구서발송여부_B0 = '1' ELSE '0'",
     },
     {
         "columns": ["포인트_포인트_건별_R3M", "포인트_포인트_월적립_R3M"],
@@ -671,28 +714,100 @@ constraints = [
         "content": "RV_최대잔액_R3M >= RV_평균잔액_R3M",
     },
     {
-        "columns": ["잔액_신판최대한도소진율_r3m", "잔액_신판평균한도소진율_r3m"],
-        "fname": "cc_05_0012",
+        "columns": ["RV잔액이월횟수_R3M", "RV잔액이월횟수_R6M", "RV잔액이월횟수_R12M"],
+        "fname": "cc_05_0016",
         "type": "constraint",
-        "content": "잔액_신판최대한도소진율_r3m >= 잔액_신판평균한도소진율_r3m",
+        "content": "RV잔액이월횟수_R3M <= RV잔액이월횟수_R6M <= RV잔액이월횟수_R12M",
     },
     {
-        "columns": ["잔액_신판최대한도소진율_r6m", "잔액_신판평균한도소진율_r6m"],
-        "fname": "cc_05_0013",
+        "columns": ["잔액_할부_해외_B0M", "잔액_할부_B0M"],
+        "fname": "cc_05_0017",
         "type": "constraint",
-        "content": "잔액_신판최대한도소진율_r6m >= 잔액_신판평균한도소진율_r6m",
+        "content": "잔액_할부_해외_B0M <= 잔액_할부_B0M",
     },
     {
-        "columns": ["잔액_신판ca최대한도소진율_r3m", "잔액_신판ca평균한도소진율_r3m"],
-        "fname": "cc_05_0014",
+        "columns": ["연체잔액_일시불_B0M", "연체잔액_일시불_해외_B0M"],
+        "fname": "cc_05_0018",
         "type": "constraint",
-        "content": "잔액_신판ca최대한도소진율_r3m >= 잔액_신판ca평균한도소진율_r3m",
+        "content": "연체잔액_일시불_B0M <= 연체잔액_일시불_해외_B0M",
     },
     {
-        "columns": ["잔액_신판ca최대한도소진율_r6m", "잔액_신판ca평균한도소진율_r6m"],
-        "fname": "cc_05_0015",
+        "columns": ["연체잔액_일시불_해외_B0M", "연체잔액_RV일시불_해외_B0M"],
+        "fname": "cc_05_0019",
         "type": "constraint",
-        "content": "잔액_신판ca최대한도소진율_r6m >= 잔액_신판ca평균한도소진율_r6m",
+        "content": "연체잔액_일시불_해외_B0M <= 연체잔액_RV일시불_해외_B0M",
+    },
+    {
+        "columns": ["연체잔액_RV일시불_B0M", "연체잔액_일시불_B0M"],
+        "fname": "cc_05_0020",
+        "type": "constraint",
+        "content": "연체잔액_RV일시불_B0M <= 연체잔액_일시불_B0M",
+    },
+    {
+        "columns": ["연체잔액_RV일시불_해외_B0M", "연체잔액_RV일시불_B0M"],
+        "fname": "cc_05_0021",
+        "type": "constraint",
+        "content": "연체잔액_RV일시불_해외_B0M <= 연체잔액_RV일시불_B0M",
+    },
+    {
+        "columns": ["연체잔액_할부_해외_B0M", "연체잔액_할부_B0M"],
+        "fname": "cc_05_0022",
+        "type": "constraint",
+        "content": "연체잔액_할부_해외_B0M <= 연체잔액_할부_B0M",
+    },
+    {
+        "columns": ["연체잔액_CA_해외_B0M", "연체잔액_CA_B0M"],
+        "fname": "cc_05_0023",
+        "type": "constraint",
+        "content": "연체잔액_CA_해외_B0M <= 연체잔액_CA_B0M",
+    },
+    {
+        "columns": ["평잔_일시불_해외_3M", "평잔_일시불_3M"],
+        "fname": "cc_05_0024",
+        "type": "constraint",
+        "content": "평잔_일시불_해외_3M <= 평잔_일시불_3M",
+    },
+    {
+        "columns": ["평잔_RV일시불_해외_3M", "평잔_RV일시불_3M"],
+        "fname": "cc_05_0025",
+        "type": "constraint",
+        "content": "평잔_RV일시불_해외_3M <= 평잔_RV일시불_3M",
+    },
+    {
+        "columns": ["평잔_할부_해외_3M", "평잔_할부_3M"],
+        "fname": "cc_05_0026",
+        "type": "constraint",
+        "content": "평잔_할부_해외_3M <= 평잔_할부_3M",
+    },
+    {
+        "columns": ["평잔_CA_해외_3M", "평잔_CA_3M"],
+        "fname": "cc_05_0027",
+        "type": "constraint",
+        "content": "평잔_CA_해외_3M <= 평잔_CA_3M",
+    },
+    {
+        "columns": ["평잔_일시불_해외_6M", "평잔_일시불_6M"],
+        "fname": "cc_05_0028",
+        "type": "constraint",
+        "content": "평잔_일시불_해외_6M <= 평잔_일시불_6M",
+    },
+    {
+        "columns": ["평잔_RV일시불_해외_6M", "평잔_RV일시불_6M"],
+        "fname": "cc_05_0029",
+        "type": "constraint",
+        "content": "평잔_RV일시불_해외_6M <= 평잔_RV일시불_6M",
+    },
+    {
+        "columns": ["평잔_할부_해외_6M", "평잔_할부_6M"],
+        "fname": "cc_05_0030",
+        "type": "constraint",
+        "content": "평잔_할부_해외_6M <= 평잔_할부_6M",
+    },
+    {
+        "columns": ["평잔_CA_해외_6M", "평잔_CA_6M"],
+        "fname": "cc_05_0031",
+        "type": "constraint",
+        "content": "평잔_CA_해외_6M <= 평잔_CA_6M",
     },
 
     # 5.잔액 테이블 컬럼 Formula
@@ -712,6 +827,16 @@ constraints = [
     },
     {
         "columns": [
+            "잔액_할부_유이자_B0M",
+            "잔액_할부_무이자_B0M",
+        ],
+        "output": "잔액_할부_B0M",
+        "fname": "cf_05_0008",
+        "type": "formula",
+        "content": "잔액_할부_B0M = SUM(잔액_할부_유이자_B0M, 잔액_할부_무이자_B0M)",
+    },
+    {
+        "columns": [
             "연체잔액_일시불_B0M",
             "연체잔액_할부_B0M",
             "연체잔액_현금서비스_B0M",
@@ -724,7 +849,7 @@ constraints = [
         "content": "연체잔액_B0M = SUM(연체잔액_일시불_B0M, 할부, 현금서비스, 카드론, 대환론)",
     },
 
-    # 6.채널활동 테이블 컬럼 Constraint
+    # 6.채널활동 테이블 컬럼 Constraints
     {
         "columns": ["인입횟수_ARS_B0M", "인입횟수_ARS_R6M"],
         "fname": "cc_06_0001",
@@ -1109,6 +1234,24 @@ constraints = [
         "type": "constraint",
         "content": "상담건수_B0M >= SUM(IB상담건수_VOC_B0M, IB상담건수_금감원_B0M)",
     },
+    {
+        "columns": ["홈페이지_금융건수_R3M", "홈페이지_금융건수_R6M"],
+        "fname": "cc_06_0065",
+        "type": "constraint",
+        "content": "홈페이지_금융건수_R3M <= 홈페이지_금융건수_R6M",
+    },
+    {
+        "columns": ["홈페이지_선결제건수_R3M", "홈페이지_선결제건수_R6M"],
+        "fname": "cc_06_0066",
+        "type": "constraint",
+        "content": "홈페이지_선결제건수_R3M <= 홈페이지_선결제건수_R6M",
+    },
+    {
+        "columns": ["상담건수_B0M", "상담건수_R6M"],
+        "fname": "cc_06_0067",
+        "type": "constraint",
+        "content": "상담건수_B0M <= 상담건수_R6M",
+    },
 
     # 6.채널활동 테이블 컬럼 Formula
     {
@@ -1328,6 +1471,12 @@ constraints = [
         "type": "constraint",
         "content": "컨택건수_FDS_B0M <= 컨택건수_FDS_R6M",
     },
+    {
+        "columns": ["캠페인접촉건수_R12M", "캠페인접촉일수_R12M"],
+        "fname": "cc_07_0031",
+        "type": "constraint",
+        "content": "캠페인접촉건수_R12M >= 캠페인접촉일수_R12M",
+    },
 
     # 7.마케팅 테이블 컬럼 Formula
     {
@@ -1427,6 +1576,162 @@ constraints = [
         "fname": "cf_07_0060",
         "type": "formula",
         "content": "컨택건수_리볼빙_당사앱_R6M = 0",
+    },
+
+    # 8.성과 테이블 컬럼 Constraints
+    {
+        "columns": ["증감율_이용건수_신판_전월", "증감율_이용건수_CA_전월", "증감율_이용건수_신용_전월"],
+        "fname": "cc_08_0001",
+        "type": "constraint",
+        "content": """min(증감율_이용건수_신판_전월, 증감율_이용건수_CA_전월) <= 증감율_이용건수_신용_전월
+                      <= max(증감율_이용건수_신판_전월, 증감율_이용건수_CA_전월)""",
+    },
+    {
+        "columns": ["증감율_이용건수_일시불_전월", "증감율_이용건수_할부_전월", "증감율_이용건수_신판_전월"],
+        "fname": "cc_08_0002",
+        "type": "constraint",
+        "content": """min(증감율_이용건수_일시불_전월, 증감율_이용건수_할부_전월) <= 증감율_이용건수_신판_전월
+                      <= max(증감율_이용건수_일시불_전월, 증감율_이용건수_할부_전월)""",
+    },
+    {
+        "columns": ["증감율_이용금액_신판_전월", "증감율_이용금액_CA_전월", "증감율_이용금액_신용_전월"],
+        "fname": "cc_08_0003",
+        "type": "constraint",
+        "content": """min(증감율_이용금액_신판_전월, 증감율_이용금액_CA_전월) <= 증감율_이용금액_신용_전월
+                      <= max(증감율_이용금액_신판_전월, 증감율_이용금액_CA_전월)""",
+    },
+    {
+        "columns": ["증감율_이용금액_일시불_전월", "증감율_이용금액_할부_전월", "증감율_이용금액_신판_전월"],
+        "fname": "cc_08_0004",
+        "type": "constraint",
+        "content": """min(증감율_이용금액_일시불_전월, 증감율_이용금액_할부_전월) <= 증감율_이용금액_신판_전월
+                      <= max(증감율_이용금액_일시불_전월, 증감율_이용금액_할부_전월)""",
+    },
+    {
+        "columns": ["증감율_이용건수_신판_분기", "증감율_이용건수_CA_분기", "증감율_이용건수_신용_분기"],
+        "fname": "cc_08_0005",
+        "type": "constraint",
+        "content": """min(증감율_이용건수_신판_분기, 증감율_이용건수_CA_분기) <= 증감율_이용건수_신용_분기
+                      <= max(증감율_이용건수_신판_분기, 증감율_이용건수_CA_분기)""",
+    },
+    {
+        "columns": ["증감율_이용건수_일시불_분기", "증감율_이용건수_할부_분기", "증감율_이용건수_신판_분기"],
+        "fname": "cc_08_0006",
+        "type": "constraint",
+        "content": """min(증감율_이용건수_일시불_분기, 증감율_이용건수_할부_분기) <= 증감율_이용건수_신판_분기
+                      <= max(증감율_이용건수_일시불_분기, 증감율_이용건수_할부_분기)""",
+    },
+    {
+        "columns": ["증감율_이용금액_신판_분기", "증감율_이용금액_CA_분기", "증감율_이용금액_신용_분기"],
+        "fname": "cc_08_0007",
+        "type": "constraint",
+        "content": """min(증감율_이용금액_신판_분기, 증감율_이용금액_CA_분기) <= 증감율_이용금액_신용_분기
+                      <= max(증감율_이용금액_신판_분기, 증감율_이용금액_CA_분기)""",
+    },
+    {
+        "columns": ["증감율_이용금액_일시불_분기", "증감율_이용금액_할부_분기", "증감율_이용금액_신판_분기"],
+        "fname": "cc_08_0008",
+        "type": "constraint",
+        "content": """min(증감율_이용금액_일시불_분기, 증감율_이용금액_할부_분기) <= 증감율_이용금액_신판_분기
+                      <= max(증감율_이용금액_일시불_분기, 증감율_이용금액_할부_분기)""",
+    },
+    {
+        "columns": ["잔액_신판최대한도소진율_r3m", "잔액_신판평균한도소진율_r3m"],
+        "fname": "cc_08_0009",
+        "type": "constraint",
+        "content": "잔액_신판최대한도소진율_r3m >= 잔액_신판평균한도소진율_r3m",
+    },
+    {
+        "columns": ["잔액_신판최대한도소진율_r6m", "잔액_신판평균한도소진율_r6m"],
+        "fname": "cc_08_0010",
+        "type": "constraint",
+        "content": "잔액_신판최대한도소진율_r6m >= 잔액_신판평균한도소진율_r6m",
+    },
+    {
+        "columns": ["잔액_신판ca최대한도소진율_r3m", "잔액_신판ca평균한도소진율_r3m"],
+        "fname": "cc_08_0011",
+        "type": "constraint",
+        "content": "잔액_신판ca최대한도소진율_r3m >= 잔액_신판ca평균한도소진율_r3m",
+    },
+    {
+        "columns": ["잔액_신판ca최대한도소진율_r6m", "잔액_신판ca평균한도소진율_r6m"],
+        "fname": "cc_08_0012",
+        "type": "constraint",
+        "content": "잔액_신판ca최대한도소진율_r6m >= 잔액_신판ca평균한도소진율_r6m",
+    },
+
+    # 8.성과 테이블 컬럼 Formula
+    {
+        "columns": ["증감율_이용건수_CA_전월", "증감율_이용건수_신판_전월", "증감율_이용건수_신용_전월"],
+        "output": "증감율_이용건수_신용_전월",
+        "fname": "cf_08_0005",
+        "type": "formula",
+        "content": """IF 증감율_이용건수_CA_전월 == 0 THEN 증감율_이용건수_신용_전월 = 증감율_이용건수_신판_전월
+                       ELIF 증감율_이용건수_신판_전월 == 0 THEN 증감율_이용건수_신용_전월 = 증감율_이용건수_CA_전월
+                       ELSE PASS""",
+    },
+    {
+        "columns": ["증감율_이용건수_할부_전월", "증감율_이용건수_일시불_전월", "증감율_이용건수_신판_전월"],
+        "output": "증감율_이용건수_신판_전월",
+        "fname": "cf_08_0006",
+        "type": "formula",
+        "content": """IF 증감율_이용건수_할부_전월 == 0 THEN 증감율_이용건수_신판_전월 = 증감율_이용건수_일시불_전월
+                      ELIF 증감율_이용건수_일시불_전월 == 0 THEN 증감율_이용건수_신판_전월 = 증감율_이용건수_할부_전월
+                      ELSE PASS""",
+    },
+    {
+        "columns": ["증감율_이용금액_CA_전월", "증감율_이용금액_신판_전월", "증감율_이용금액_신용_전월"],
+        "output": "증감율_이용금액_신용_전월",
+        "fname": "cf_08_0012",
+        "type": "formula",
+        "content": """IF 증감율_이용금액_CA_전월 == 0 THEN 증감율_이용금액_신용_전월 = 증감율_이용금액_신판_전월
+                       ELIF 증감율_이용금액_신판_전월 == 0 THEN 증감율_이용금액_신용_전월 = 증감율_이용금액_CA_전월
+                       ELSE PASS""",
+    },
+    {
+        "columns": ["증감율_이용금액_할부_전월", "증감율_이용금액_일시불_전월", "증감율_이용금액_신판_전월"],
+        "output": "증감율_이용금액_신판_전월",
+        "fname": "cf_08_0013",
+        "type": "formula",
+        "content": """IF 증감율_이용금액_할부_전월 == 0 THEN 증감율_이용금액_신판_전월 = 증감율_이용금액_일시불_전월
+                      ELIF 증감율_이용금액_일시불_전월 == 0 THEN 증감율_이용금액_신판_전월 = 증감율_이용금액_할부_전월
+                      ELSE PASS""",
+    },
+    {
+        "columns": ["증감율_이용건수_CA_분기", "증감율_이용건수_신판_분기", "증감율_이용건수_신용_분기"],
+        "output": "증감율_이용건수_신용_분기",
+        "fname": "cf_08_0033",
+        "type": "formula",
+        "content": """IF 증감율_이용건수_CA_분기 == 0 THEN 증감율_이용건수_신용_분기 = 증감율_이용건수_신판_분기
+                       ELIF 증감율_이용건수_신판_분기 == 0 THEN 증감율_이용건수_신용_분기 = 증감율_이용건수_CA_분기
+                       ELSE PASS""",
+    },
+    {
+        "columns": ["증감율_이용건수_할부_분기", "증감율_이용건수_일시불_분기", "증감율_이용건수_신판_분기"],
+        "output": "증감율_이용건수_신판_분기",
+        "fname": "cf_08_0034",
+        "type": "formula",
+        "content": """IF 증감율_이용건수_할부_분기 == 0 THEN 증감율_이용건수_신판_분기 = 증감율_이용건수_일시불_분기
+                      ELIF 증감율_이용건수_일시불_분기 == 0 THEN 증감율_이용건수_신판_분기 = 증감율_이용건수_할부_분기
+                      ELSE PASS""",
+    },
+    {
+        "columns": ["증감율_이용금액_CA_분기", "증감율_이용금액_신판_분기", "증감율_이용금액_신용_분기"],
+        "output": "증감율_이용금액_신용_분기",
+        "fname": "cf_08_0040",
+        "type": "formula",
+        "content": """IF 증감율_이용금액_CA_분기 == 0 THEN 증감율_이용금액_신용_분기 = 증감율_이용금액_신판_분기
+                       ELIF 증감율_이용금액_신판_분기 == 0 THEN 증감율_이용금액_신용_분기 = 증감율_이용금액_CA_분기
+                       ELSE PASS""",
+    },
+    {
+        "columns": ["증감율_이용금액_할부_분기", "증감율_이용금액_일시불_분기", "증감율_이용금액_신판_분기"],
+        "output": "증감율_이용금액_신판_분기",
+        "fname": "cf_08_0041",
+        "type": "formula",
+        "content": """IF 증감율_이용금액_할부_분기 == 0 THEN 증감율_이용금액_신판_분기 = 증감율_이용금액_일시불_분기
+                      ELIF 증감율_이용금액_일시불_분기 == 0 THEN 증감율_이용금액_신판_분기 = 증감율_이용금액_할부_분기
+                      ELSE PASS""",
     },
 
     # 3.승인.매출 테이블 컬럼 Constraint
@@ -2051,6 +2356,26 @@ constraints = [
         "content": "IF RP건수_B0M >0: RP금액_B0M >0",
     },
     {
+        "columns": [
+            "RP건수_통신_B0M",
+            "RP건수_아파트_B0M",
+            "RP건수_제휴사서비스직접판매_B0M",
+            "RP건수_렌탈_B0M",
+            "RP건수_가스_B0M",
+            "RP건수_전기_B0M",
+            "RP건수_보험_B0M",
+            "RP건수_학습비_B0M",
+            "RP건수_유선방송_B0M",
+            "RP건수_건강_B0M",
+            "RP건수_교통_B0M",
+            "RP유형건수_B0M",
+            "RP건수_B0M"
+        ],
+        "fname": "cc_03_0148",
+        "type": "constraint",
+        "content": "SUM(IF RP건수_*_B0M > 0 THEN 1 ELSE 0) <= RP유형건수_B0M <= RP건수_B0M",
+    },
+    {
         "columns": ["RP건수_통신_B0M", "RP후경과월_통신"],
         "fname": "cc_03_0087",
         "type": "constraint",
@@ -2566,13 +2891,13 @@ constraints = [
         "type": "formula",
         "content": "이용금액_할부_B0M = 이용금액_할부_유이자_B0M + 이용금액_할부_무이자_B0M + 이용금액_부분무이자_B0M",
     },
-    # {
-    #     "columns": ["이용후경과월_신판", "이용후경과월_CA"],
-    #     "output": "이용후경과월_신용",
-    #     "fname": "cf_03_0033",
-    #     "type": "formula",
-    #     "content": "이용후경과월_신용 = MIN(이용후경과월_신판, 이용후경과월_CA)",
-    # },
+    {
+        "columns": ["이용후경과월_신판", "이용후경과월_CA"],
+        "output": "이용후경과월_신용",
+        "fname": "cf_03_0033",
+        "type": "formula",
+        "content": "이용후경과월_신용 = MIN(이용후경과월_신판, 이용후경과월_CA)",
+    },
     {
         "columns": [
             "이용후경과월_일시불",
@@ -4108,6 +4433,29 @@ def cf_01_0092(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
 
 
 @constraint_udf
+def cf_01_0133(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+    """
+    formula:
+        최종카드발급경과월 = MONTHS_BETWEEN(LAST_DAY(기준년월), 최종카드발급일자)
+    """
+    dd = df[["기준년월", "최종카드발급일자"]]
+    tmp_res = dd.apply(
+        lambda x: relativedelta(
+            datetime(year=int(x[0][:4]), month=int(x[0][4:6]), day=1)
+            + relativedelta(months=1, days=-1),
+            datetime.strptime(x[1], "%Y%m%d"),
+        )
+        if (not pd.isna(x[1])) * (x[1] != "10101")
+        else 999,
+        axis=1,
+    )
+    res = tmp_res.apply(lambda x: 12 if x == 999 else x.years * 12 + x.months)
+
+    c = df["최종카드발급경과월"]
+    return c == res
+
+
+@constraint_udf
 def cc_02_0001(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     """
     formula:
@@ -4324,6 +4672,16 @@ def cc_02_0021(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     dd = df[["시장연체상환여부_R3M", "시장연체상환여부_R6M"]]
     ret = dd.apply(lambda x: x[1] == '1' if x[0] == '1' else True, axis=1)
     return ret
+
+
+@constraint_udf
+def cc_02_0022(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+       한도요청거절건수 <= 한도심사요청건수
+    """
+    c1, c2 = df["한도요청거절건수"], df["한도심사요청건수"]
+    return c1 <= c2
 
 
 @constraint_udf
@@ -4581,6 +4939,36 @@ def cc_04_0018(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
 
 
 @constraint_udf
+def cc_04_0019(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        상환개월수_결제일_R3M <= 상환개월수_결제일_R6M <= 상환개월수_결제일_R12M
+    """
+    c1, c2, c3 = df["상환개월수_결제일_R3M"], df["상환개월수_결제일_R6M"], df["상환개월수_결제일_R12M"]
+    return (c1 <= c2) * (c2 <= c3)
+
+
+@constraint_udf
+def cc_04_0020(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        선결제건수_R3M <= 선결제건수_R6M <= 선결제건수_R12M
+    """
+    c1, c2, c3 = df["선결제건수_R3M"], df["선결제건수_R6M"], df["선결제건수_R12M"]
+    return (c1 <= c2) * (c2 <= c3)
+
+
+@constraint_udf
+def cc_04_0021(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        연체건수_R3M <= 연체건수_R6M <= 연체건수_R12M
+    """
+    c1, c2, c3 = df["연체건수_R3M"], df["연체건수_R6M"], df["연체건수_R12M"]
+    return (c1 <= c2) * (c2 <= c3)
+
+
+@constraint_udf
 def cf_04_0008(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     """
     formula:
@@ -4618,6 +5006,19 @@ def cf_04_0011(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     res = list(map(lambda x: code_map[x], c1))
 
     c = df["청구서수령방법"]
+    return c == res
+
+
+@constraint_udf
+def cf_04_0012(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
+    """
+    formula:
+        IF 청구금액_B0 > 0 THEN 청구서발송여부_B0 = '1' ELSE '0'
+    """
+    dd = df[["청구금액_B0"]]
+    res = dd.apply(lambda x: "1" if x[0] > 0 else "0", axis=1)
+
+    c = df["청구서발송여부_B0"]
     return c == res
 
 
@@ -4767,43 +5168,163 @@ def cc_05_0011(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
 
 
 @constraint_udf
-def cc_05_0012(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+def cc_05_0016(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     """
     Constraint:
-        잔액_신판최대한도소진율_r3m >= 잔액_신판평균한도소진율_r3m
+        RV잔액이월횟수_R3M <= RV잔액이월횟수_R6M <= RV잔액이월횟수_R12M
     """
-    c1, c2 = df["잔액_신판최대한도소진율_r3m"], df["잔액_신판평균한도소진율_r3m"]
-    return c1 >= c2
+    c1, c2, c3 = df["RV잔액이월횟수_R3M"], df["RV잔액이월횟수_R6M"], df["RV잔액이월횟수_R12M"]
+    return (c1 <= c2) & (c2 <= c3)
 
 
 @constraint_udf
-def cc_05_0013(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+def cc_05_0017(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     """
     Constraint:
-        잔액_신판최대한도소진율_r6m >= 잔액_신판평균한도소진율_r6m
+        잔액_할부_해외_B0M <= 잔액_할부_B0M
     """
-    c1, c2 = df["잔액_신판최대한도소진율_r6m"], df["잔액_신판평균한도소진율_r6m"]
-    return c1 >= c2
+    c1, c2 = df["잔액_할부_해외_B0M"], df["잔액_할부_B0M"]
+    return c1 <= c2
 
 
 @constraint_udf
-def cc_05_0014(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+def cc_05_0018(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     """
     Constraint:
-        잔액_신판ca최대한도소진율_r3m >= 잔액_신판ca평균한도소진율_r3m
+        연체잔액_일시불_B0M <= 연체잔액_일시불_해외_B0M
     """
-    c1, c2 = df["잔액_신판ca최대한도소진율_r3m"], df["잔액_신판ca평균한도소진율_r3m"]
-    return c1 >= c2
+    c1, c2 = df["연체잔액_일시불_B0M"], df["연체잔액_일시불_해외_B0M"]
+    return c1 <= c2
 
 
 @constraint_udf
-def cc_05_0015(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+def cc_05_0019(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     """
     Constraint:
-        잔액_신판ca최대한도소진율_r6m >= 잔액_신판ca평균한도소진율_r6m
+        연체잔액_일시불_해외_B0M <= 연체잔액_RV일시불_해외_B0M
     """
-    c1, c2 = df["잔액_신판ca최대한도소진율_r6m"], df["잔액_신판ca평균한도소진율_r6m"]
-    return c1 >= c2
+    c1, c2 = df["연체잔액_일시불_해외_B0M"], df["연체잔액_RV일시불_해외_B0M"]
+    return c1 <= c2
+
+
+@constraint_udf
+def cc_05_0020(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        연체잔액_RV일시불_B0M <= 연체잔액_일시불_B0M
+    """
+    c1, c2 = df["연체잔액_RV일시불_B0M"], df["연체잔액_일시불_B0M"]
+    return c1 <= c2
+
+
+@constraint_udf
+def cc_05_0021(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        연체잔액_RV일시불_해외_B0M <= 연체잔액_RV일시불_B0M
+    """
+    c1, c2 = df["연체잔액_RV일시불_해외_B0M"], df["연체잔액_RV일시불_B0M"]
+    return c1 <= c2
+
+
+@constraint_udf
+def cc_05_0022(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        연체잔액_할부_해외_B0M <= 연체잔액_할부_B0M
+    """
+    c1, c2 = df["연체잔액_할부_해외_B0M"], df["연체잔액_할부_B0M"]
+    return c1 <= c2
+
+
+@constraint_udf
+def cc_05_0023(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        연체잔액_CA_해외_B0M <= 연체잔액_CA_B0M
+    """
+    c1, c2 = df["연체잔액_CA_해외_B0M"], df["연체잔액_CA_B0M"]
+    return c1 <= c2
+
+
+@constraint_udf
+def cc_05_0024(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        평잔_일시불_해외_3M <= 평잔_일시불_3M
+    """
+    c1, c2 = df["평잔_일시불_해외_3M"], df["평잔_일시불_3M"]
+    return c1 <= c2
+
+
+@constraint_udf
+def cc_05_0025(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        평잔_RV일시불_해외_3M <= 평잔_RV일시불_3M
+    """
+    c1, c2 = df["평잔_RV일시불_해외_3M"], df["평잔_RV일시불_3M"]
+    return c1 <= c2
+
+
+@constraint_udf
+def cc_05_0026(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        평잔_할부_해외_3M <= 평잔_할부_3M
+    """
+    c1, c2 = df["평잔_할부_해외_3M"], df["평잔_할부_3M"]
+    return c1 <= c2
+
+
+@constraint_udf
+def cc_05_0027(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        평잔_CA_해외_3M <= 평잔_CA_3M
+    """
+    c1, c2 = df["평잔_CA_해외_3M"], df["평잔_CA_3M"]
+    return c1 <= c2
+
+
+@constraint_udf
+def cc_05_0028(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        평잔_일시불_해외_6M <= 평잔_일시불_6M
+    """
+    c1, c2 = df["평잔_일시불_해외_6M"], df["평잔_일시불_6M"]
+    return c1 <= c2
+
+
+@constraint_udf
+def cc_05_0029(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        평잔_RV일시불_해외_6M <= 평잔_RV일시불_6M
+    """
+    c1, c2 = df["평잔_RV일시불_해외_6M"], df["평잔_RV일시불_6M"]
+    return c1 <= c2
+
+
+@constraint_udf
+def cc_05_0030(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        평잔_할부_해외_6M <= 평잔_할부_6M
+    """
+    c1, c2 = df["평잔_할부_해외_6M"], df["평잔_할부_6M"]
+    return c1 <= c2
+
+
+@constraint_udf
+def cc_05_0031(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        평잔_CA_해외_6M <= 평잔_CA_6M
+    """
+    c1, c2 = df["평잔_CA_해외_6M"], df["평잔_CA_6M"]
+    return c1 <= c2
 
 
 @constraint_udf
@@ -4817,6 +5338,19 @@ def cf_05_0006(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     res = c1 + c2 + c3 + c4 + c5 + c6
 
     c = df["잔액_B0M"]
+    return c == res
+
+
+@constraint_udf
+def cf_05_0008(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+    """
+    formula:
+        잔액_할부_B0M = SUM(잔액_할부_유이자_B0M, 잔액_할부_무이자_B0M)
+    """
+    c1, c2 = df["잔액_할부_유이자_B0M"], df["잔액_할부_무이자_B0M"]
+    res = c1 + c2
+
+    c = df["잔액_할부_B0M"]
     return c == res
 
 
@@ -5487,6 +6021,36 @@ def cc_06_0063(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
 
 
 @constraint_udf
+def cc_06_0065(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        홈페이지_금융건수_R3M <= 홈페이지_금융건수_R6M
+    """
+    c1, c2 = df["홈페이지_금융건수_R3M"], df["홈페이지_금융건수_R6M"]
+    return c1 <= c2
+
+
+@constraint_udf
+def cc_06_0066(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        홈페이지_선결제건수_R3M <= 홈페이지_선결제건수_R6M
+    """
+    c1, c2 = df["홈페이지_선결제건수_R3M"], df["홈페이지_선결제건수_R6M"]
+    return c1 <= c2
+
+
+@constraint_udf
+def cc_06_0067(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        상담건수_B0M <= 상담건수_R6M
+    """
+    c1, c2 = df["상담건수_B0M"], df["상담건수_R6M"]
+    return c1 <= c2
+
+
+@constraint_udf
 def cf_06_0066(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     """
     formula:
@@ -5852,6 +6416,16 @@ def cc_07_0030(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
 
 
 @constraint_udf
+def cc_07_0031(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        캠페인접촉건수_R12M >= 캠페인접촉일수_R12M
+    """
+    c1, c2 = df["캠페인접촉건수_R12M"], df["캠페인접촉일수_R12M"]
+    return c1 >= c2
+
+
+@constraint_udf
 def cf_07_0019(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     """
     formula:
@@ -6030,6 +6604,278 @@ def cf_07_0060(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     res = pd.Series([0] * len(c1))
 
     c = df["컨택건수_리볼빙_당사앱_R6M"]
+    return c == res
+
+
+@constraint_udf
+def cc_08_0001(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        min(증감율_이용건수_신판_전월, 증감율_이용건수_CA_전월) <= 증감율_이용건수_신용_전월
+        <= max(증감율_이용건수_신판_전월, 증감율_이용건수_CA_전월)
+    """
+    dd = df[["증감율_이용건수_신판_전월", "증감율_이용건수_CA_전월"]]
+    _min, _max = dd.min(axis=1), dd.max(axis=1)
+
+    c = df["증감율_이용건수_신용_전월"]
+    return (_min <= c) & (c <= _max)
+
+
+@constraint_udf
+def cc_08_0002(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        min(증감율_이용건수_일시불_전월, 증감율_이용건수_할부_전월) <= 증감율_이용건수_신판_전월
+        <= max(증감율_이용건수_일시불_전월, 증감율_이용건수_할부_전월)
+    """
+    dd = df[["증감율_이용건수_일시불_전월", "증감율_이용건수_할부_전월"]]
+    _min, _max = dd.min(axis=1), dd.max(axis=1)
+
+    c = df["증감율_이용건수_신판_전월"]
+    return (_min <= c) & (c <= _max)
+
+
+@constraint_udf
+def cc_08_0003(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        min(증감율_이용금액_신판_전월, 증감율_이용금액_CA_전월) <= 증감율_이용금액_신용_전월
+        <= max(증감율_이용금액_신판_전월, 증감율_이용금액_CA_전월)
+    """
+    dd = df[["증감율_이용금액_신판_전월", "증감율_이용금액_CA_전월"]]
+    _min, _max = dd.min(axis=1), dd.max(axis=1)
+
+    c = df["증감율_이용금액_신용_전월"]
+    return (_min <= c) & (c <= _max)
+
+
+@constraint_udf
+def cc_08_0004(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        min(증감율_이용금액_일시불_전월, 증감율_이용금액_할부_전월) <= 증감율_이용금액_신판_전월
+        <= max(증감율_이용금액_일시불_전월, 증감율_이용금액_할부_전월)
+    """
+    dd = df[["증감율_이용금액_일시불_전월", "증감율_이용금액_할부_전월"]]
+    _min, _max = dd.min(axis=1), dd.max(axis=1)
+
+    c = df["증감율_이용금액_신판_전월"]
+    return (_min <= c) & (c <= _max)
+
+
+@constraint_udf
+def cc_08_0005(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        min(증감율_이용건수_신판_분기, 증감율_이용건수_CA_분기) <= 증감율_이용건수_신용_분기
+        <= max(증감율_이용건수_신판_분기, 증감율_이용건수_CA_분기)
+    """
+    dd = df[["증감율_이용건수_신판_분기", "증감율_이용건수_CA_분기"]]
+    _min, _max = dd.min(axis=1), dd.max(axis=1)
+
+    c = df["증감율_이용건수_신용_분기"]
+    return (_min <= c) & (c <= _max)
+
+
+@constraint_udf
+def cc_08_0006(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        min(증감율_이용건수_일시불_분기, 증감율_이용건수_할부_분기) <= 증감율_이용건수_신판_분기
+        <= max(증감율_이용건수_일시불_분기, 증감율_이용건수_할부_분기)
+    """
+    dd = df[["증감율_이용건수_일시불_분기", "증감율_이용건수_할부_분기"]]
+    _min, _max = dd.min(axis=1), dd.max(axis=1)
+
+    c = df["증감율_이용건수_신판_분기"]
+    return (_min <= c) & (c <= _max)
+
+
+@constraint_udf
+def cc_08_0007(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        min(증감율_이용금액_신판_분기, 증감율_이용금액_CA_분기) <= 증감율_이용금액_신용_분기
+        <= max(증감율_이용금액_신판_분기, 증감율_이용금액_CA_분기)
+    """
+    dd = df[["증감율_이용금액_신판_분기", "증감율_이용금액_CA_분기"]]
+    _min, _max = dd.min(axis=1), dd.max(axis=1)
+
+    c = df["증감율_이용금액_신용_분기"]
+    return (_min <= c) & (c <= _max)
+
+
+@constraint_udf
+def cc_08_0008(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        min(증감율_이용금액_일시불_분기, 증감율_이용금액_할부_분기) <= 증감율_이용금액_신판_분기
+        <= max(증감율_이용금액_일시불_분기, 증감율_이용금액_할부_분기)
+    """
+    dd = df[["증감율_이용금액_일시불_분기", "증감율_이용금액_할부_분기"]]
+    _min, _max = dd.min(axis=1), dd.max(axis=1)
+
+    c = df["증감율_이용금액_신판_분기"]
+    return (_min <= c) & (c <= _max)
+
+
+@constraint_udf
+def cc_08_0009(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        잔액_신판최대한도소진율_r3m >= 잔액_신판평균한도소진율_r3m
+    """
+    c1, c2 = df["잔액_신판최대한도소진율_r3m"], df["잔액_신판평균한도소진율_r3m"]
+    return c1 >= c2
+
+
+@constraint_udf
+def cc_08_0010(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        잔액_신판최대한도소진율_r6m >= 잔액_신판평균한도소진율_r6m
+    """
+    c1, c2 = df["잔액_신판최대한도소진율_r6m"], df["잔액_신판평균한도소진율_r6m"]
+    return c1 >= c2
+
+
+@constraint_udf
+def cc_08_0011(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        잔액_신판ca최대한도소진율_r3m >= 잔액_신판ca평균한도소진율_r3m
+    """
+    c1, c2 = df["잔액_신판ca최대한도소진율_r3m"], df["잔액_신판ca평균한도소진율_r3m"]
+    return c1 >= c2
+
+
+@constraint_udf
+def cc_08_0012(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    Constraint:
+        잔액_신판ca최대한도소진율_r6m >= 잔액_신판ca평균한도소진율_r6m
+    """
+    c1, c2 = df["잔액_신판ca최대한도소진율_r6m"], df["잔액_신판ca평균한도소진율_r6m"]
+    return c1 >= c2
+
+
+@constraint_udf
+def cf_08_0005(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF 증감율_이용건수_CA_전월 == 0 THEN 증감율_이용건수_신용_전월 = 증감율_이용건수_신판_전월
+        ELIF 증감율_이용건수_신판_전월 == 0 THEN 증감율_이용건수_신용_전월 = 증감율_이용건수_CA_전월
+        ELSE PASS
+    """
+    dd = df[["증감율_이용건수_CA_전월", "증감율_이용건수_신판_전월", "증감율_이용건수_신용_전월"]]
+    res = dd.apply(lambda x: x[1] if x[0] == 0 else (x[0] if x[1] == 0 else x[2]), axis=1)
+
+    c = df["증감율_이용건수_신용_전월"]
+    return c == res
+
+
+@constraint_udf
+def cf_08_0006(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF 증감율_이용건수_할부_전월 == 0 THEN 증감율_이용건수_신판_전월 = 증감율_이용건수_일시불_전월
+        ELIF 증감율_이용건수_일시불_전월 == 0 THEN 증감율_이용건수_신판_전월 = 증감율_이용건수_할부_전월
+        ELSE PASS
+    """
+    dd = df[["증감율_이용건수_할부_전월", "증감율_이용건수_일시불_전월", "증감율_이용건수_신판_전월"]]
+    res = dd.apply(lambda x: x[1] if x[0] == 0 else (x[0] if x[1] == 0 else x[2]), axis=1)
+
+    c = df["증감율_이용건수_신판_전월"]
+    return c == res
+
+
+@constraint_udf
+def cf_08_0012(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF 증감율_이용금액_CA_전월 == 0 THEN 증감율_이용금액_신용_전월 = 증감율_이용금액_신판_전월
+        ELIF 증감율_이용금액_신판_전월 == 0 THEN 증감율_이용금액_신용_전월 = 증감율_이용금액_CA_전월
+        ELSE PASS
+    """
+    dd = df[["증감율_이용금액_CA_전월", "증감율_이용금액_신판_전월", "증감율_이용금액_신용_전월"]]
+    res = dd.apply(lambda x: x[1] if x[0] == 0 else (x[0] if x[1] == 0 else x[2]), axis=1)
+
+    c = df["증감율_이용금액_신용_전월"]
+    return c == res
+
+
+@constraint_udf
+def cf_08_0013(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF 증감율_이용금액_할부_전월 == 0 THEN 증감율_이용금액_신판_전월 = 증감율_이용금액_일시불_전월
+        ELIF 증감율_이용금액_일시불_전월 == 0 THEN 증감율_이용금액_신판_전월 = 증감율_이용금액_할부_전월
+        ELSE PASS
+    """
+    dd = df[["증감율_이용금액_할부_전월", "증감율_이용금액_일시불_전월", "증감율_이용금액_신판_전월"]]
+    res = dd.apply(lambda x: x[1] if x[0] == 0 else (x[0] if x[1] == 0 else x[2]), axis=1)
+
+    c = df["증감율_이용금액_신판_전월"]
+    return c == res
+
+
+@constraint_udf
+def cf_08_0033(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF 증감율_이용건수_CA_분기 == 0 THEN 증감율_이용건수_신용_분기 = 증감율_이용건수_신판_분기
+        ELIF 증감율_이용건수_신판_분기 == 0 THEN 증감율_이용건수_신용_분기 = 증감율_이용건수_CA_분기
+        ELSE PASS
+    """
+    dd = df[["증감율_이용건수_CA_분기", "증감율_이용건수_신판_분기", "증감율_이용건수_신용_분기"]]
+    res = dd.apply(lambda x: x[1] if x[0] == 0 else (x[0] if x[1] == 0 else x[2]), axis=1)
+
+    c = df["증감율_이용건수_신용_분기"]
+    return c == res
+
+
+@constraint_udf
+def cf_08_0034(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF 증감율_이용건수_할부_분기 == 0 THEN 증감율_이용건수_신판_분기 = 증감율_이용건수_일시불_분기
+        ELIF 증감율_이용건수_일시불_분기 == 0 THEN 증감율_이용건수_신판_분기 = 증감율_이용건수_할부_분기
+        ELSE PASS
+    """
+    dd = df[["증감율_이용건수_할부_분기", "증감율_이용건수_일시불_분기", "증감율_이용건수_신판_분기"]]
+    res = dd.apply(lambda x: x[1] if x[0] == 0 else (x[0] if x[1] == 0 else x[2]), axis=1)
+
+    c = df["증감율_이용건수_신판_분기"]
+    return c == res
+
+
+@constraint_udf
+def cf_08_0040(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF 증감율_이용금액_CA_분기 == 0 THEN 증감율_이용금액_신용_분기 = 증감율_이용금액_신판_분기
+        ELIF 증감율_이용금액_신판_분기 == 0 THEN 증감율_이용금액_신용_분기 = 증감율_이용금액_CA_분기
+        ELSE PASS
+    """
+    dd = df[["증감율_이용금액_CA_분기", "증감율_이용금액_신판_분기", "증감율_이용금액_신용_분기"]]
+    res = dd.apply(lambda x: x[1] if x[0] == 0 else (x[0] if x[1] == 0 else x[2]), axis=1)
+
+    c = df["증감율_이용금액_신용_분기"]
+    return c == res
+
+
+@constraint_udf
+def cf_08_0041(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        IF 증감율_이용금액_할부_분기 == 0 THEN 증감율_이용금액_신판_분기 = 증감율_이용금액_일시불_분기
+        ELIF 증감율_이용금액_일시불_분기 == 0 THEN 증감율_이용금액_신판_분기 = 증감율_이용금액_할부_분기
+        ELSE PASS
+    """
+    dd = df[["증감율_이용금액_할부_분기", "증감율_이용금액_일시불_분기", "증감율_이용금액_신판_분기"]]
+    res = dd.apply(lambda x: x[1] if x[0] == 0 else (x[0] if x[1] == 0 else x[2]), axis=1)
+
+    c = df["증감율_이용금액_신판_분기"]
     return c == res
 
 
@@ -7072,7 +7918,7 @@ def cc_03_0089(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     Constraint:
        IF RP건수_제휴사서비스직접판매_B0M > 0: RP후경과월_제휴사서비스직접판매 = 0 ELSE RP후경과월_제휴사서비스직접판매 >0
     """
-    dd = df[["RP후경과월_제휴사서비스직접판매", "RP후경과월_제휴사서비스직접판매"]]
+    dd = df[["RP건수_제휴사서비스직접판매_B0M", "RP후경과월_제휴사서비스직접판매"]]
     ret = dd.apply(lambda x: x[1] == 0 if x[0] > 0 else x[1] > 0, axis=1)
     return ret
 
@@ -7971,17 +8817,17 @@ def cf_03_0026(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     return c == res
 
 
-# @constraint_udf
-# def cf_03_0033(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
-#     """
-#     formula:
-#         이용후경과월_신용 = MIN(이용후경과월_신판, 이용후경과월_CA)
-#     """
-#     dd = df[["이용후경과월_신판", "이용후경과월_CA"]]
-#     res = dd.min(axis=1).astype(int)
+@constraint_udf
+def cf_03_0033(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        이용후경과월_신용 = MIN(이용후경과월_신판, 이용후경과월_CA)
+    """
+    dd = df[["이용후경과월_신판", "이용후경과월_CA"]]
+    res = dd.min(axis=1).astype(int)
 
-#     c = df["이용후경과월_신용"]
-#     return c == res
+    c = df["이용후경과월_신용"]
+    return c == res
 
 
 @constraint_udf
@@ -8622,12 +9468,15 @@ def cf_03_0202(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
         8: "일상생활",
         9: "해외",
     }
-    res = dd.apply(
+    tmp_res = dd.apply(
         lambda x: np.where(x[:-1] == x[-1])[0][0] if x[-1] > 0 else "nan", axis=1
     ).replace(code_map)
 
-    c = df["_1순위업종"]
-    return c == res
+    res_df = tmp_res.to_frame()
+    res_df.columns = ['res']
+    res_df['y'] = df["_1순위업종"]
+    res = res_df.apply(lambda x: isNaN(x[1]) if x[0] == 'nan' else x[0] == x[1], axis=1)
+    return res
 
 
 @constraint_udf
@@ -8692,12 +9541,15 @@ def cf_03_0204(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
         8: "일상생활",
         9: "해외",
     }
-    res = dd.apply(
+    tmp_res = dd.apply(
         lambda x: np.argsort(x[:-1])[-3] if x[-1] else "nan", axis=1
     ).replace(code_map)
 
-    c = df["_3순위업종"]
-    return c == res
+    res_df = tmp_res.to_frame()
+    res_df.columns = ['res']
+    res_df['y'] = df["_3순위업종"]
+    res = res_df.apply(lambda x: isNaN(x[1]) if x[0] == 'nan' else x[0] == x[1], axis=1)
+    return res
 
 
 @constraint_udf
@@ -8759,12 +9611,15 @@ def cf_03_0206(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
         6: "온라인",
         7: "쇼핑기타",
     }
-    res = dd.apply(
+    tmp_res = dd.apply(
         lambda x: np.where(x[:-1] == x[-1])[0][0] if x[-1] > 0 else "nan", axis=1
     ).replace(code_map)
 
-    c = df["_1순위쇼핑업종"]
-    return c == res
+    res_df = tmp_res.to_frame()
+    res_df.columns = ['res']
+    res_df['y'] = df["_1순위쇼핑업종"]
+    res = res_df.apply(lambda x: isNaN(x[1]) if x[0] == 'nan' else x[0] == x[1], axis=1)
+    return res
 
 
 @constraint_udf
@@ -8823,12 +9678,15 @@ def cf_03_0208(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
         6: "온라인",
         7: "쇼핑기타",
     }
-    res = dd.apply(
+    tmp_res = dd.apply(
         lambda x: np.argsort(x[:-1])[-3] if x[-1] else "nan", axis=1
     ).replace(code_map)
 
-    c = df["_3순위쇼핑업종"]
-    return c == res
+    res_df = tmp_res.to_frame()
+    res_df.columns = ['res']
+    res_df['y'] = df["_3순위쇼핑업종"]
+    res = res_df.apply(lambda x: isNaN(x[1]) if x[0] == "nan" else x[0] == x[1], axis=1)
+    return res
 
 
 @constraint_udf
@@ -8877,12 +9735,15 @@ def cf_03_0210(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     dd["_max"] = dd.max(axis=1).astype(int)
 
     code_map = {0: "주유", 1: "정비", 2: "통행료", 3: "버스지하철", 4: "택시", 5: "철도버스"}
-    res = dd.apply(
+    tmp_res = dd.apply(
         lambda x: np.where(x[:-1] == x[-1])[0][0] if x[-1] > 0 else "nan", axis=1
     ).replace(code_map)
 
-    c = df["_1순위교통업종"]
-    return c == res
+    res_df = tmp_res.to_frame()
+    res_df.columns = ['res']
+    res_df['y'] = df["_1순위교통업종"]
+    res = res_df.apply(lambda x: isNaN(x[1]) if x[0] == "nan" else x[0] == x[1], axis=1)
+    return res
 
 
 @constraint_udf
@@ -8928,12 +9789,15 @@ def cf_03_0212(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     dd["is_valid"] = dd.apply(lambda x: sum(x > 0) > 2, axis=1)
 
     code_map = {0: "주유", 1: "정비", 2: "통행료", 3: "버스지하철", 4: "택시", 5: "철도버스"}
-    res = dd.apply(
+    tmp_res = dd.apply(
         lambda x: np.argsort(x[:-1])[-3] if x[-1] else "nan", axis=1
     ).replace(code_map)
 
-    c = df["_3순위교통업종"]
-    return c == res
+    res_df = tmp_res.to_frame()
+    res_df.columns = ['res']
+    res_df['y'] = df["_3순위교통업종"]
+    res = res_df.apply(lambda x: isNaN(x[1]) if x[0] == "nan" else x[0] == x[1], axis=1)
+    return res
 
 
 @constraint_udf
@@ -8991,12 +9855,15 @@ def cf_03_0214(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
         6: "항공",
         7: "여유기타",
     }
-    res = dd.apply(
+    tmp_res = dd.apply(
         lambda x: np.where(x[:-1] == x[-1])[0][0] if x[-1] > 0 else "nan", axis=1
     ).replace(code_map)
 
-    c = df["_1순위여유업종"]
-    return c == res
+    res_df = tmp_res.to_frame()
+    res_df.columns = ['res']
+    res_df['y'] = df["_1순위여유업종"]
+    res = res_df.apply(lambda x: isNaN(x[1]) if x[0] == "nan" else x[0] == x[1], axis=1)
+    return res
 
 
 @constraint_udf
@@ -9055,12 +9922,15 @@ def cf_03_0216(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
         6: "항공",
         7: "여유기타",
     }
-    res = dd.apply(
+    tmp_res = dd.apply(
         lambda x: np.argsort(x[:-1])[-3] if x[-1] else "nan", axis=1
     ).replace(code_map)
 
-    c = df["_3순위여유업종"]
-    return c == res
+    res_df = tmp_res.to_frame()
+    res_df.columns = ['res']
+    res_df['y'] = df["_3순위여유업종"]
+    res = res_df.apply(lambda x: isNaN(x[1]) if x[0] == "nan" else x[0] == x[1], axis=1)
+    return res
 
 
 @constraint_udf
@@ -9115,18 +9985,21 @@ def cf_03_0218(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
         0: "통신비",
         1: "관리비",
         2: "렌탈료",
-        3: "가스전기료",
+        3: "가스/전기료",
         4: "보험료",
-        5: "유선방송",
-        6: "건강연금",
+        5: "유선료",
+        6: "건강/연금",
         7: "납부기타",
     }
-    res = dd.apply(
+    tmp_res = dd.apply(
         lambda x: np.where(x[:-1] == x[-1])[0][0] if x[-1] > 0 else "nan", axis=1
     ).replace(code_map)
 
-    c = df["_1순위납부업종"]
-    return c == res
+    res_df = tmp_res.to_frame()
+    res_df.columns = ['res']
+    res_df['y'] = df["_1순위납부업종"]
+    res = res_df.apply(lambda x: isNaN(x[1]) if x[0] == "nan" else x[0] == x[1], axis=1)
+    return res
 
 
 @constraint_udf
@@ -9179,18 +10052,21 @@ def cf_03_0220(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
         0: "통신비",
         1: "관리비",
         2: "렌탈료",
-        3: "가스전기료",
+        3: "가스/전기료",
         4: "보험료",
-        5: "유선방송",
-        6: "건강연금",
+        5: "유선료",
+        6: "건강/연금",
         7: "납부기타",
     }
-    res = dd.apply(
+    tmp_res = dd.apply(
         lambda x: np.argsort(x[:-1])[-3] if x[-1] else "nan", axis=1
     ).replace(code_map)
 
-    c = df["_3순위납부업종"]
-    return c == res
+    res_df = tmp_res.to_frame()
+    res_df.columns = ['res']
+    res_df['y'] = df["_3순위납부업종"]
+    res = res_df.apply(lambda x: isNaN(x[1]) if x[0] == "nan" else x[0] == x[1], axis=1)
+    return res
 
 
 @constraint_udf
@@ -9434,7 +10310,8 @@ def cf_03_0289(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
         최종카드론_대출일자 == 최종이용일자_카드론
     """
     dd = df[["최종카드론_대출일자", "최종이용일자_카드론"]]
-    res = dd.apply(lambda x: x[0] == x[1], axis=1)
+    res = dd.apply(lambda x: x[0] == x[1] if (not isNaN(x[1])) & (not x[1] == '10101')
+                   else isNaN(x[0]), axis=1)
     return res
 
 
@@ -9761,12 +10638,15 @@ def cf_03_0425(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
         8: "일상생활",
         9: "해외",
     }
-    res = dd.apply(
+    tmp_res = dd.apply(
         lambda x: np.argsort(x[:-1])[-2] if x[-1] else "nan", axis=1
     ).replace(code_map)
 
-    c = df["_2순위업종"]
-    return c == res
+    res_df = tmp_res.to_frame()
+    res_df.columns = ['res']
+    res_df['y'] = df["_2순위업종"]
+    res = res_df.apply(lambda x: isNaN(x[1]) if x[0] == "nan" else x[0] == x[1], axis=1)
+    return res
 
 
 @constraint_udf
@@ -9830,12 +10710,15 @@ def cf_03_0427(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
         6: "온라인",
         7: "쇼핑기타",
     }
-    res = dd.apply(
+    tmp_res = dd.apply(
         lambda x: np.argsort(x[:-1])[-2] if x[-1] else "nan", axis=1
     ).replace(code_map)
 
-    c = df["_2순위쇼핑업종"]
-    return c == res
+    res_df = tmp_res.to_frame()
+    res_df.columns = ['res']
+    res_df['y'] = df["_2순위쇼핑업종"]
+    res = res_df.apply(lambda x: isNaN(x[1]) if x[0] == "nan" else x[0] == x[1], axis=1)
+    return res
 
 
 @constraint_udf
@@ -9886,12 +10769,15 @@ def cf_03_0429(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     dd["is_valid"] = dd.apply(lambda x: sum(x > 0) > 1, axis=1)
 
     code_map = {0: "주유", 1: "정비", 2: "통행료", 3: "버스지하철", 4: "택시", 5: "철도버스"}
-    res = dd.apply(
+    tmp_res = dd.apply(
         lambda x: np.argsort(x[:-1])[-2] if x[-1] else "nan", axis=1
     ).replace(code_map)
 
-    c = df["_2순위교통업종"]
-    return c == res
+    res_df = tmp_res.to_frame()
+    res_df.columns = ['res']
+    res_df['y'] = df["_2순위교통업종"]
+    res = res_df.apply(lambda x: isNaN(x[1]) if x[0] == "nan" else x[0] == x[1], axis=1)
+    return res
 
 
 @constraint_udf
@@ -9951,12 +10837,15 @@ def cf_03_0431(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
         6: "항공",
         7: "여유기타",
     }
-    res = dd.apply(
+    tmp_res = dd.apply(
         lambda x: np.argsort(x[:-1])[-2] if x[-1] else "nan", axis=1
     ).replace(code_map)
 
-    c = df["_2순위여유업종"]
-    return c == res
+    res_df = tmp_res.to_frame()
+    res_df.columns = ['res']
+    res_df['y'] = df["_2순위여유업종"]
+    res = res_df.apply(lambda x: isNaN(x[1]) if x[0] == "nan" else x[0] == x[1], axis=1)
+    return res
 
 
 @constraint_udf
@@ -10013,18 +10902,21 @@ def cf_03_0433(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
         0: "통신비",
         1: "관리비",
         2: "렌탈료",
-        3: "가스전기료",
+        3: "가스/전기료",
         4: "보험료",
-        5: "유선방송",
-        6: "건강연금",
+        5: "유선료",
+        6: "건강/연금",
         7: "납부기타",
     }
-    res = dd.apply(
+    tmp_res = dd.apply(
         lambda x: np.argsort(x[:-1])[-2] if x[-1] else "nan", axis=1
     ).replace(code_map)
 
-    c = df["_2순위납부업종"]
-    return c == res
+    res_df = tmp_res.to_frame()
+    res_df.columns = ['res']
+    res_df['y'] = df["_2순위납부업종"]
+    res = res_df.apply(lambda x: isNaN(x[1]) if x[0] == "nan" else x[0] == x[1], axis=1)
+    return res
 
 
 @constraint_udf
