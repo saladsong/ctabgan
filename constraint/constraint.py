@@ -232,7 +232,6 @@ constraints = [
         "type": "constraint",
         "content": "소지카드수_이용가능_신용 <= 소지카드수_유효_신용",
     },
-
     # 1.회원 테이블 컬럼 Formula
     {
         "columns": ["기준년월", "입회일자_신용"],
@@ -304,7 +303,6 @@ constraints = [
         "type": "formula",
         "content": "최종카드발급경과월 = MONTHS_BETWEEN(LAST_DAY(기준년월), 최종카드발급일자)",
     },
-
     # 2.신용 테이블 컬럼 Constraints
     {
         "columns": ["CA한도금액", "카드이용한도금액"],
@@ -438,8 +436,6 @@ constraints = [
         "type": "constraint",
         "content": "한도요청거절건수 <= 한도심사요청건수",
     },
-
-
     # 2.신용 테이블 컬럼 Formula
     {
         "columns": ["이용거절여부_카드론"],
@@ -476,7 +472,6 @@ constraints = [
     #     "type": "formula",
     #     "content": "rv최초시작후경과일 = DATEDIFF(LAST_DAY(기준년월), rv최초시작일자)",
     # },
-
     # 4.청구 테이블 컬럼 Constraints
     {
         "columns": ["청구서발송여부_B0", "청구서발송여부_R3M"],
@@ -604,7 +599,6 @@ constraints = [
         "type": "constraint",
         "content": "연체건수_R3M <= 연체건수_R6M <= 연체건수_R12M",
     },
-
     # 4.청구 테이블 컬럼 Formula
     {
         "columns": ["기준년월"],
@@ -645,7 +639,6 @@ constraints = [
         "type": "formula",
         "content": "마일_적립포인트_R3M = 포인트_마일리지_건별_R3M + 포인트_마일리지_월적립_R3M",
     },
-
     # 5.잔액 테이블 컬럼 Constraints
     {
         "columns": ["잔액_B0M", "카드이용한도금액"],
@@ -809,7 +802,6 @@ constraints = [
         "type": "constraint",
         "content": "평잔_CA_해외_6M <= 평잔_CA_6M",
     },
-
     # 5.잔액 테이블 컬럼 Formula
     {
         "columns": [
@@ -848,7 +840,6 @@ constraints = [
         "type": "formula",
         "content": "연체잔액_B0M = SUM(연체잔액_일시불_B0M, 할부, 현금서비스, 카드론, 대환론)",
     },
-
     # 6.채널활동 테이블 컬럼 Constraints
     {
         "columns": ["인입횟수_ARS_B0M", "인입횟수_ARS_R6M"],
@@ -1252,7 +1243,6 @@ constraints = [
         "type": "constraint",
         "content": "상담건수_B0M <= 상담건수_R6M",
     },
-
     # 6.채널활동 테이블 컬럼 Formula
     {
         "columns": ["IB상담건수_VOC민원_B0M", "IB상담건수_VOC불만_B0M"],
@@ -1289,7 +1279,6 @@ constraints = [
         "type": "formula",
         "content": "당사PAY_방문월수_R6M = 0",
     },
-
     # 7.마케팅 테이블 컬럼 Constraint
     {
         "columns": ["컨택건수_카드론_TM_B0M", "컨택건수_카드론_TM_R6M"],
@@ -1477,7 +1466,6 @@ constraints = [
         "type": "constraint",
         "content": "캠페인접촉건수_R12M >= 캠페인접촉일수_R12M",
     },
-
     # 7.마케팅 테이블 컬럼 Formula
     {
         "columns": ["기준년월"],
@@ -1577,7 +1565,6 @@ constraints = [
         "type": "formula",
         "content": "컨택건수_리볼빙_당사앱_R6M = 0",
     },
-
     # 8.성과 테이블 컬럼 Constraints
     {
         "columns": ["증감율_이용건수_신판_전월", "증감율_이용건수_CA_전월", "증감율_이용건수_신용_전월"],
@@ -1659,7 +1646,6 @@ constraints = [
         "type": "constraint",
         "content": "잔액_신판ca최대한도소진율_r6m >= 잔액_신판ca평균한도소진율_r6m",
     },
-
     # 8.성과 테이블 컬럼 Formula
     {
         "columns": ["증감율_이용건수_CA_전월", "증감율_이용건수_신판_전월", "증감율_이용건수_신용_전월"],
@@ -1733,7 +1719,6 @@ constraints = [
                       ELIF 증감율_이용금액_일시불_분기 == 0 THEN 증감율_이용금액_신판_분기 = 증감율_이용금액_할부_분기
                       ELSE PASS""",
     },
-
     # 3.승인.매출 테이블 컬럼 Constraint
     {
         "columns": ["기준년월", "최종이용일자_할부", "이용후경과월_할부"],
@@ -2369,7 +2354,7 @@ constraints = [
             "RP건수_건강_B0M",
             "RP건수_교통_B0M",
             "RP유형건수_B0M",
-            "RP건수_B0M"
+            "RP건수_B0M",
         ],
         "fname": "cc_03_0148",
         "type": "constraint",
@@ -2833,7 +2818,6 @@ constraints = [
         "type": "constraint",
         "content": "승인거절건수_기타_B0M <= 승인거절건수_기타_R3M",
     },
-
     # 3.승인.매출 테이블 컬럼 Formula
     {
         "columns": ["최종이용일자_신판", "최종이용일자_CA", "최종이용일자_카드론"],
@@ -3944,14 +3928,24 @@ constraints = [
         "content": "_2순위납부업종_이용금액 = 2nd(납부_통신비이용금액, 관리비, 렌탈료, 가스전기료, 보험료, 유선방송, 건강연금, 기타)",
     },
     {
-        "columns": ["승인거절건수_한도초과_B0M", "승인거절건수_BL_B0M", "승인거절건수_입력오류_B0M", "승인거절건수_기타_B0M"],
+        "columns": [
+            "승인거절건수_한도초과_B0M",
+            "승인거절건수_BL_B0M",
+            "승인거절건수_입력오류_B0M",
+            "승인거절건수_기타_B0M",
+        ],
         "output": "승인거절건수_B0M",
         "fname": "cf_03_0462",
         "type": "formula",
         "content": "승인거절건수_B0M = SUM(승인거절건수_한도초과_B0M, BL_B0M, 입력오류_B0M, 기타_B0M)",
     },
     {
-        "columns": ["승인거절건수_한도초과_R3M", "승인거절건수_BL_R3M", "승인거절건수_입력오류_R3M", "승인거절건수_기타_R3M"],
+        "columns": [
+            "승인거절건수_한도초과_R3M",
+            "승인거절건수_BL_R3M",
+            "승인거절건수_입력오류_R3M",
+            "승인거절건수_기타_R3M",
+        ],
         "output": "승인거절건수_R3M",
         "fname": "cf_03_0467",
         "type": "formula",
@@ -4659,7 +4653,7 @@ def cc_02_0020(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
         IF 시장단기연체여부_R3M == '1' THEN 시장단기연체여부_R6M = '1'
     """
     dd = df[["시장단기연체여부_R3M", "시장단기연체여부_R6M"]]
-    ret = dd.apply(lambda x: x[1] == '1' if x[0] == '1' else True, axis=1)
+    ret = dd.apply(lambda x: x[1] == "1" if x[0] == "1" else True, axis=1)
     return ret
 
 
@@ -4670,7 +4664,7 @@ def cc_02_0021(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
         IF 시장연체상환여부_R3M == '1' THEN 시장연체상환여부_R6M = '1'
     """
     dd = df[["시장연체상환여부_R3M", "시장연체상환여부_R6M"]]
-    ret = dd.apply(lambda x: x[1] == '1' if x[0] == '1' else True, axis=1)
+    ret = dd.apply(lambda x: x[1] == "1" if x[0] == "1" else True, axis=1)
     return ret
 
 
@@ -4691,7 +4685,7 @@ def cf_02_0030(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
         IF 이용거절여부_카드론=='1' THEN 카드론동의여부='N' ELSE 카드론동의여부='Y'
     """
     dd = df[["이용거절여부_카드론"]]
-    res = dd.apply(lambda x: "N" if x[0] == '1' else "Y", axis=1)
+    res = dd.apply(lambda x: "N" if x[0] == "1" else "Y", axis=1)
 
     c = df["카드론동의여부"]
     return c == res
@@ -4975,7 +4969,7 @@ def cf_04_0008(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
         대표결제방법코드 = 2
     """
     c1 = df["기준년월"]
-    res = pd.Series(['2'] * len(c1))
+    res = pd.Series(["2"] * len(c1))
 
     c = df["대표결제방법코드"]
     return c == res
@@ -6768,7 +6762,9 @@ def cf_08_0005(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
         ELSE PASS
     """
     dd = df[["증감율_이용건수_CA_전월", "증감율_이용건수_신판_전월", "증감율_이용건수_신용_전월"]]
-    res = dd.apply(lambda x: x[1] if x[0] == 0 else (x[0] if x[1] == 0 else x[2]), axis=1)
+    res = dd.apply(
+        lambda x: x[1] if x[0] == 0 else (x[0] if x[1] == 0 else x[2]), axis=1
+    )
 
     c = df["증감율_이용건수_신용_전월"]
     return c == res
@@ -6783,7 +6779,9 @@ def cf_08_0006(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
         ELSE PASS
     """
     dd = df[["증감율_이용건수_할부_전월", "증감율_이용건수_일시불_전월", "증감율_이용건수_신판_전월"]]
-    res = dd.apply(lambda x: x[1] if x[0] == 0 else (x[0] if x[1] == 0 else x[2]), axis=1)
+    res = dd.apply(
+        lambda x: x[1] if x[0] == 0 else (x[0] if x[1] == 0 else x[2]), axis=1
+    )
 
     c = df["증감율_이용건수_신판_전월"]
     return c == res
@@ -6798,7 +6796,9 @@ def cf_08_0012(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
         ELSE PASS
     """
     dd = df[["증감율_이용금액_CA_전월", "증감율_이용금액_신판_전월", "증감율_이용금액_신용_전월"]]
-    res = dd.apply(lambda x: x[1] if x[0] == 0 else (x[0] if x[1] == 0 else x[2]), axis=1)
+    res = dd.apply(
+        lambda x: x[1] if x[0] == 0 else (x[0] if x[1] == 0 else x[2]), axis=1
+    )
 
     c = df["증감율_이용금액_신용_전월"]
     return c == res
@@ -6813,7 +6813,9 @@ def cf_08_0013(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
         ELSE PASS
     """
     dd = df[["증감율_이용금액_할부_전월", "증감율_이용금액_일시불_전월", "증감율_이용금액_신판_전월"]]
-    res = dd.apply(lambda x: x[1] if x[0] == 0 else (x[0] if x[1] == 0 else x[2]), axis=1)
+    res = dd.apply(
+        lambda x: x[1] if x[0] == 0 else (x[0] if x[1] == 0 else x[2]), axis=1
+    )
 
     c = df["증감율_이용금액_신판_전월"]
     return c == res
@@ -6828,7 +6830,9 @@ def cf_08_0033(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
         ELSE PASS
     """
     dd = df[["증감율_이용건수_CA_분기", "증감율_이용건수_신판_분기", "증감율_이용건수_신용_분기"]]
-    res = dd.apply(lambda x: x[1] if x[0] == 0 else (x[0] if x[1] == 0 else x[2]), axis=1)
+    res = dd.apply(
+        lambda x: x[1] if x[0] == 0 else (x[0] if x[1] == 0 else x[2]), axis=1
+    )
 
     c = df["증감율_이용건수_신용_분기"]
     return c == res
@@ -6843,7 +6847,9 @@ def cf_08_0034(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
         ELSE PASS
     """
     dd = df[["증감율_이용건수_할부_분기", "증감율_이용건수_일시불_분기", "증감율_이용건수_신판_분기"]]
-    res = dd.apply(lambda x: x[1] if x[0] == 0 else (x[0] if x[1] == 0 else x[2]), axis=1)
+    res = dd.apply(
+        lambda x: x[1] if x[0] == 0 else (x[0] if x[1] == 0 else x[2]), axis=1
+    )
 
     c = df["증감율_이용건수_신판_분기"]
     return c == res
@@ -6858,7 +6864,9 @@ def cf_08_0040(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
         ELSE PASS
     """
     dd = df[["증감율_이용금액_CA_분기", "증감율_이용금액_신판_분기", "증감율_이용금액_신용_분기"]]
-    res = dd.apply(lambda x: x[1] if x[0] == 0 else (x[0] if x[1] == 0 else x[2]), axis=1)
+    res = dd.apply(
+        lambda x: x[1] if x[0] == 0 else (x[0] if x[1] == 0 else x[2]), axis=1
+    )
 
     c = df["증감율_이용금액_신용_분기"]
     return c == res
@@ -6873,7 +6881,9 @@ def cf_08_0041(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
         ELSE PASS
     """
     dd = df[["증감율_이용금액_할부_분기", "증감율_이용금액_일시불_분기", "증감율_이용금액_신판_분기"]]
-    res = dd.apply(lambda x: x[1] if x[0] == 0 else (x[0] if x[1] == 0 else x[2]), axis=1)
+    res = dd.apply(
+        lambda x: x[1] if x[0] == 0 else (x[0] if x[1] == 0 else x[2]), axis=1
+    )
 
     c = df["증감율_이용금액_신판_분기"]
     return c == res
@@ -9473,9 +9483,9 @@ def cf_03_0202(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     ).replace(code_map)
 
     res_df = tmp_res.to_frame()
-    res_df.columns = ['res']
-    res_df['y'] = df["_1순위업종"]
-    res = res_df.apply(lambda x: isNaN(x[1]) if x[0] == 'nan' else x[0] == x[1], axis=1)
+    res_df.columns = ["res"]
+    res_df["y"] = df["_1순위업종"]
+    res = res_df.apply(lambda x: isNaN(x[1]) if x[0] == "nan" else x[0] == x[1], axis=1)
     return res
 
 
@@ -9546,9 +9556,9 @@ def cf_03_0204(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     ).replace(code_map)
 
     res_df = tmp_res.to_frame()
-    res_df.columns = ['res']
-    res_df['y'] = df["_3순위업종"]
-    res = res_df.apply(lambda x: isNaN(x[1]) if x[0] == 'nan' else x[0] == x[1], axis=1)
+    res_df.columns = ["res"]
+    res_df["y"] = df["_3순위업종"]
+    res = res_df.apply(lambda x: isNaN(x[1]) if x[0] == "nan" else x[0] == x[1], axis=1)
     return res
 
 
@@ -9616,9 +9626,9 @@ def cf_03_0206(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     ).replace(code_map)
 
     res_df = tmp_res.to_frame()
-    res_df.columns = ['res']
-    res_df['y'] = df["_1순위쇼핑업종"]
-    res = res_df.apply(lambda x: isNaN(x[1]) if x[0] == 'nan' else x[0] == x[1], axis=1)
+    res_df.columns = ["res"]
+    res_df["y"] = df["_1순위쇼핑업종"]
+    res = res_df.apply(lambda x: isNaN(x[1]) if x[0] == "nan" else x[0] == x[1], axis=1)
     return res
 
 
@@ -9683,8 +9693,8 @@ def cf_03_0208(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     ).replace(code_map)
 
     res_df = tmp_res.to_frame()
-    res_df.columns = ['res']
-    res_df['y'] = df["_3순위쇼핑업종"]
+    res_df.columns = ["res"]
+    res_df["y"] = df["_3순위쇼핑업종"]
     res = res_df.apply(lambda x: isNaN(x[1]) if x[0] == "nan" else x[0] == x[1], axis=1)
     return res
 
@@ -9740,8 +9750,8 @@ def cf_03_0210(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     ).replace(code_map)
 
     res_df = tmp_res.to_frame()
-    res_df.columns = ['res']
-    res_df['y'] = df["_1순위교통업종"]
+    res_df.columns = ["res"]
+    res_df["y"] = df["_1순위교통업종"]
     res = res_df.apply(lambda x: isNaN(x[1]) if x[0] == "nan" else x[0] == x[1], axis=1)
     return res
 
@@ -9794,8 +9804,8 @@ def cf_03_0212(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     ).replace(code_map)
 
     res_df = tmp_res.to_frame()
-    res_df.columns = ['res']
-    res_df['y'] = df["_3순위교통업종"]
+    res_df.columns = ["res"]
+    res_df["y"] = df["_3순위교통업종"]
     res = res_df.apply(lambda x: isNaN(x[1]) if x[0] == "nan" else x[0] == x[1], axis=1)
     return res
 
@@ -9860,8 +9870,8 @@ def cf_03_0214(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     ).replace(code_map)
 
     res_df = tmp_res.to_frame()
-    res_df.columns = ['res']
-    res_df['y'] = df["_1순위여유업종"]
+    res_df.columns = ["res"]
+    res_df["y"] = df["_1순위여유업종"]
     res = res_df.apply(lambda x: isNaN(x[1]) if x[0] == "nan" else x[0] == x[1], axis=1)
     return res
 
@@ -9927,8 +9937,8 @@ def cf_03_0216(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     ).replace(code_map)
 
     res_df = tmp_res.to_frame()
-    res_df.columns = ['res']
-    res_df['y'] = df["_3순위여유업종"]
+    res_df.columns = ["res"]
+    res_df["y"] = df["_3순위여유업종"]
     res = res_df.apply(lambda x: isNaN(x[1]) if x[0] == "nan" else x[0] == x[1], axis=1)
     return res
 
@@ -9996,8 +10006,8 @@ def cf_03_0218(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     ).replace(code_map)
 
     res_df = tmp_res.to_frame()
-    res_df.columns = ['res']
-    res_df['y'] = df["_1순위납부업종"]
+    res_df.columns = ["res"]
+    res_df["y"] = df["_1순위납부업종"]
     res = res_df.apply(lambda x: isNaN(x[1]) if x[0] == "nan" else x[0] == x[1], axis=1)
     return res
 
@@ -10063,8 +10073,8 @@ def cf_03_0220(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     ).replace(code_map)
 
     res_df = tmp_res.to_frame()
-    res_df.columns = ['res']
-    res_df['y'] = df["_3순위납부업종"]
+    res_df.columns = ["res"]
+    res_df["y"] = df["_3순위납부업종"]
     res = res_df.apply(lambda x: isNaN(x[1]) if x[0] == "nan" else x[0] == x[1], axis=1)
     return res
 
@@ -10310,8 +10320,12 @@ def cf_03_0289(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
         최종카드론_대출일자 == 최종이용일자_카드론
     """
     dd = df[["최종카드론_대출일자", "최종이용일자_카드론"]]
-    res = dd.apply(lambda x: x[0] == x[1] if (not isNaN(x[1])) & (not x[1] == '10101')
-                   else isNaN(x[0]), axis=1)
+    res = dd.apply(
+        lambda x: x[0] == x[1]
+        if (not isNaN(x[1])) & (not x[1] == "10101")
+        else isNaN(x[0]),
+        axis=1,
+    )
     return res
 
 
@@ -10643,8 +10657,8 @@ def cf_03_0425(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     ).replace(code_map)
 
     res_df = tmp_res.to_frame()
-    res_df.columns = ['res']
-    res_df['y'] = df["_2순위업종"]
+    res_df.columns = ["res"]
+    res_df["y"] = df["_2순위업종"]
     res = res_df.apply(lambda x: isNaN(x[1]) if x[0] == "nan" else x[0] == x[1], axis=1)
     return res
 
@@ -10715,8 +10729,8 @@ def cf_03_0427(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     ).replace(code_map)
 
     res_df = tmp_res.to_frame()
-    res_df.columns = ['res']
-    res_df['y'] = df["_2순위쇼핑업종"]
+    res_df.columns = ["res"]
+    res_df["y"] = df["_2순위쇼핑업종"]
     res = res_df.apply(lambda x: isNaN(x[1]) if x[0] == "nan" else x[0] == x[1], axis=1)
     return res
 
@@ -10774,8 +10788,8 @@ def cf_03_0429(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     ).replace(code_map)
 
     res_df = tmp_res.to_frame()
-    res_df.columns = ['res']
-    res_df['y'] = df["_2순위교통업종"]
+    res_df.columns = ["res"]
+    res_df["y"] = df["_2순위교통업종"]
     res = res_df.apply(lambda x: isNaN(x[1]) if x[0] == "nan" else x[0] == x[1], axis=1)
     return res
 
@@ -10842,8 +10856,8 @@ def cf_03_0431(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     ).replace(code_map)
 
     res_df = tmp_res.to_frame()
-    res_df.columns = ['res']
-    res_df['y'] = df["_2순위여유업종"]
+    res_df.columns = ["res"]
+    res_df["y"] = df["_2순위여유업종"]
     res = res_df.apply(lambda x: isNaN(x[1]) if x[0] == "nan" else x[0] == x[1], axis=1)
     return res
 
@@ -10913,8 +10927,8 @@ def cf_03_0433(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     ).replace(code_map)
 
     res_df = tmp_res.to_frame()
-    res_df.columns = ['res']
-    res_df['y'] = df["_2순위납부업종"]
+    res_df.columns = ["res"]
+    res_df["y"] = df["_2순위납부업종"]
     res = res_df.apply(lambda x: isNaN(x[1]) if x[0] == "nan" else x[0] == x[1], axis=1)
     return res
 

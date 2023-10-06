@@ -7,7 +7,7 @@
 
 import pandas as pd
 import numpy as np
-from datetime import datetimewm
+from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from typing import Union, List
 from functools import wraps
@@ -152,7 +152,6 @@ constraints = [
     #     "type": "formula",
     #     "content": "rv최초시작후경과일 = DATEDIFF(LAST_DAY(기준년월), rv최초시작일자)",
     # },
-
     # 4.청구 테이블 컬럼 Formula
     {
         "columns": ["기준년월"],
@@ -496,13 +495,13 @@ constraints = [
         "type": "formula",
         "content": "이용금액_할부_B0M = 이용금액_할부_유이자_B0M + 이용금액_할부_무이자_B0M + 이용금액_부분무이자_B0M",
     },
-    # {
-    #     "columns": ["이용후경과월_신판", "이용후경과월_CA"],
-    #     "output": "이용후경과월_신용",
-    #     "fname": "cf_03_0033",
-    #     "type": "formula",
-    #     "content": "이용후경과월_신용 = MIN(이용후경과월_신판, 이용후경과월_CA)",
-    # },
+    {
+        "columns": ["이용후경과월_신판", "이용후경과월_CA"],
+        "output": "이용후경과월_신용",
+        "fname": "cf_03_0033",
+        "type": "formula",
+        "content": "이용후경과월_신용 = MIN(이용후경과월_신판, 이용후경과월_CA)",
+    },
     {
         "columns": [
             "이용후경과월_일시불",
@@ -1570,14 +1569,24 @@ constraints = [
         "content": "_2순위납부업종_이용금액 = 2nd(납부_통신비이용금액, 관리비, 렌탈료, 가스전기료, 보험료, 유선방송, 건강연금, 기타)",
     },
     {
-        "columns": ["승인거절건수_한도초과_B0M", "승인거절건수_BL_B0M", "승인거절건수_입력오류_B0M", "승인거절건수_기타_B0M"],
+        "columns": [
+            "승인거절건수_한도초과_B0M",
+            "승인거절건수_BL_B0M",
+            "승인거절건수_입력오류_B0M",
+            "승인거절건수_기타_B0M",
+        ],
         "output": "승인거절건수_B0M",
         "fname": "cf_03_0462",
         "type": "formula",
         "content": "승인거절건수_B0M = SUM(승인거절건수_한도초과_B0M, BL_B0M, 입력오류_B0M, 기타_B0M)",
     },
     {
-        "columns": ["승인거절건수_한도초과_R3M", "승인거절건수_BL_R3M", "승인거절건수_입력오류_R3M", "승인거절건수_기타_R3M"],
+        "columns": [
+            "승인거절건수_한도초과_R3M",
+            "승인거절건수_BL_R3M",
+            "승인거절건수_입력오류_R3M",
+            "승인거절건수_기타_R3M",
+        ],
         "output": "승인거절건수_R3M",
         "fname": "cf_03_0467",
         "type": "formula",
@@ -1789,7 +1798,7 @@ def cf_04_0008(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
         대표결제방법코드 = 2
     """
     c1 = df["기준년월"]
-    res = pd.Series(['2'] * len(c1))
+    res = pd.Series(["2"] * len(c1))
     return res
 
 
@@ -2105,7 +2114,9 @@ def cf_08_0005(df: pd.DataFrame) -> Union[pd.Series, List[float]]:
         ELSE PASS
     """
     dd = df[["증감율_이용건수_CA_전월", "증감율_이용건수_신판_전월", "증감율_이용건수_신용_전월"]]
-    res = dd.apply(lambda x: x[1] if x[0] == 0 else (x[0] if x[1] == 0 else x[2]), axis=1)
+    res = dd.apply(
+        lambda x: x[1] if x[0] == 0 else (x[0] if x[1] == 0 else x[2]), axis=1
+    )
     return res
 
 
@@ -2118,7 +2129,9 @@ def cf_08_0006(df: pd.DataFrame) -> Union[pd.Series, List[float]]:
         ELSE PASS
     """
     dd = df[["증감율_이용건수_할부_전월", "증감율_이용건수_일시불_전월", "증감율_이용건수_신판_전월"]]
-    res = dd.apply(lambda x: x[1] if x[0] == 0 else (x[0] if x[1] == 0 else x[2]), axis=1)
+    res = dd.apply(
+        lambda x: x[1] if x[0] == 0 else (x[0] if x[1] == 0 else x[2]), axis=1
+    )
     return res
 
 
@@ -2131,7 +2144,9 @@ def cf_08_0012(df: pd.DataFrame) -> Union[pd.Series, List[float]]:
         ELSE PASS
     """
     dd = df[["증감율_이용금액_CA_전월", "증감율_이용금액_신판_전월", "증감율_이용금액_신용_전월"]]
-    res = dd.apply(lambda x: x[1] if x[0] == 0 else (x[0] if x[1] == 0 else x[2]), axis=1)
+    res = dd.apply(
+        lambda x: x[1] if x[0] == 0 else (x[0] if x[1] == 0 else x[2]), axis=1
+    )
     return res
 
 
@@ -2144,7 +2159,9 @@ def cf_08_0013(df: pd.DataFrame) -> Union[pd.Series, List[float]]:
         ELSE PASS
     """
     dd = df[["증감율_이용금액_할부_전월", "증감율_이용금액_일시불_전월", "증감율_이용금액_신판_전월"]]
-    res = dd.apply(lambda x: x[1] if x[0] == 0 else (x[0] if x[1] == 0 else x[2]), axis=1)
+    res = dd.apply(
+        lambda x: x[1] if x[0] == 0 else (x[0] if x[1] == 0 else x[2]), axis=1
+    )
     return res
 
 
@@ -2157,7 +2174,9 @@ def cf_08_0033(df: pd.DataFrame) -> Union[pd.Series, List[float]]:
         ELSE PASS
     """
     dd = df[["증감율_이용건수_CA_분기", "증감율_이용건수_신판_분기", "증감율_이용건수_신용_분기"]]
-    res = dd.apply(lambda x: x[1] if x[0] == 0 else (x[0] if x[1] == 0 else x[2]), axis=1)
+    res = dd.apply(
+        lambda x: x[1] if x[0] == 0 else (x[0] if x[1] == 0 else x[2]), axis=1
+    )
     return res
 
 
@@ -2170,7 +2189,9 @@ def cf_08_0034(df: pd.DataFrame) -> Union[pd.Series, List[float]]:
         ELSE PASS
     """
     dd = df[["증감율_이용건수_할부_분기", "증감율_이용건수_일시불_분기", "증감율_이용건수_신판_분기"]]
-    res = dd.apply(lambda x: x[1] if x[0] == 0 else (x[0] if x[1] == 0 else x[2]), axis=1)
+    res = dd.apply(
+        lambda x: x[1] if x[0] == 0 else (x[0] if x[1] == 0 else x[2]), axis=1
+    )
     return res
 
 
@@ -2183,7 +2204,9 @@ def cf_08_0040(df: pd.DataFrame) -> Union[pd.Series, List[float]]:
         ELSE PASS
     """
     dd = df[["증감율_이용금액_CA_분기", "증감율_이용금액_신판_분기", "증감율_이용금액_신용_분기"]]
-    res = dd.apply(lambda x: x[1] if x[0] == 0 else (x[0] if x[1] == 0 else x[2]), axis=1)
+    res = dd.apply(
+        lambda x: x[1] if x[0] == 0 else (x[0] if x[1] == 0 else x[2]), axis=1
+    )
     return res
 
 
@@ -2196,7 +2219,9 @@ def cf_08_0041(df: pd.DataFrame) -> Union[pd.Series, List[float]]:
         ELSE PASS
     """
     dd = df[["증감율_이용금액_할부_분기", "증감율_이용금액_일시불_분기", "증감율_이용금액_신판_분기"]]
-    res = dd.apply(lambda x: x[1] if x[0] == 0 else (x[0] if x[1] == 0 else x[2]), axis=1)
+    res = dd.apply(
+        lambda x: x[1] if x[0] == 0 else (x[0] if x[1] == 0 else x[2]), axis=1
+    )
     return res
 
 
@@ -2864,7 +2889,7 @@ def cf_03_0202(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
         9: "해외",
     }
     res = dd.apply(
-        lambda x: np.where(x[:-1] == x[-1])[0][0] if x[-1] > 0 else float('nan'), axis=1
+        lambda x: np.where(x[:-1] == x[-1])[0][0] if x[-1] > 0 else float("nan"), axis=1
     ).replace(code_map)
     return res
 
@@ -2930,7 +2955,7 @@ def cf_03_0204(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
         9: "해외",
     }
     res = dd.apply(
-        lambda x: np.argsort(x[:-1])[-3] if x[-1] else float('nan'), axis=1
+        lambda x: np.argsort(x[:-1])[-3] if x[-1] else float("nan"), axis=1
     ).replace(code_map)
     return res
 
@@ -2994,7 +3019,7 @@ def cf_03_0206(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
         7: "쇼핑기타",
     }
     res = dd.apply(
-        lambda x: np.where(x[:-1] == x[-1])[0][0] if x[-1] > 0 else float('nan'), axis=1
+        lambda x: np.where(x[:-1] == x[-1])[0][0] if x[-1] > 0 else float("nan"), axis=1
     ).replace(code_map)
     return res
 
@@ -3054,7 +3079,7 @@ def cf_03_0208(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
         7: "쇼핑기타",
     }
     res = dd.apply(
-        lambda x: np.argsort(x[:-1])[-3] if x[-1] else float('nan'), axis=1
+        lambda x: np.argsort(x[:-1])[-3] if x[-1] else float("nan"), axis=1
     ).replace(code_map)
     return res
 
@@ -3105,7 +3130,7 @@ def cf_03_0210(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
 
     code_map = {0: "주유", 1: "정비", 2: "통행료", 3: "버스지하철", 4: "택시", 5: "철도버스"}
     res = dd.apply(
-        lambda x: np.where(x[:-1] == x[-1])[0][0] if x[-1] > 0 else float('nan'), axis=1
+        lambda x: np.where(x[:-1] == x[-1])[0][0] if x[-1] > 0 else float("nan"), axis=1
     ).replace(code_map)
     return res
 
@@ -3152,7 +3177,7 @@ def cf_03_0212(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
 
     code_map = {0: "주유", 1: "정비", 2: "통행료", 3: "버스지하철", 4: "택시", 5: "철도버스"}
     res = dd.apply(
-        lambda x: np.argsort(x[:-1])[-3] if x[-1] else float('nan'), axis=1
+        lambda x: np.argsort(x[:-1])[-3] if x[-1] else float("nan"), axis=1
     ).replace(code_map)
     return res
 
@@ -3212,7 +3237,7 @@ def cf_03_0214(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
         7: "여유기타",
     }
     res = dd.apply(
-        lambda x: np.where(x[:-1] == x[-1])[0][0] if x[-1] > 0 else float('nan'), axis=1
+        lambda x: np.where(x[:-1] == x[-1])[0][0] if x[-1] > 0 else float("nan"), axis=1
     ).replace(code_map)
     return res
 
@@ -3272,7 +3297,7 @@ def cf_03_0216(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
         7: "여유기타",
     }
     res = dd.apply(
-        lambda x: np.argsort(x[:-1])[-3] if x[-1] else float('nan'), axis=1
+        lambda x: np.argsort(x[:-1])[-3] if x[-1] else float("nan"), axis=1
     ).replace(code_map)
     return res
 
@@ -3334,7 +3359,7 @@ def cf_03_0218(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
         7: "납부기타",
     }
     res = dd.apply(
-        lambda x: np.where(x[:-1] == x[-1])[0][0] if x[-1] > 0 else float('nan'), axis=1
+        lambda x: np.where(x[:-1] == x[-1])[0][0] if x[-1] > 0 else float("nan"), axis=1
     ).replace(code_map)
     return res
 
@@ -3394,7 +3419,7 @@ def cf_03_0220(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
         7: "납부기타",
     }
     res = dd.apply(
-        lambda x: np.argsort(x[:-1])[-3] if x[-1] else float('nan'), axis=1
+        lambda x: np.argsort(x[:-1])[-3] if x[-1] else float("nan"), axis=1
     ).replace(code_map)
     return res
 
@@ -3613,8 +3638,10 @@ def cf_03_0289(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
         최종카드론_대출일자 == 최종이용일자_카드론
     """
     dd = df[["최종이용일자_카드론"]]
-    res = dd.apply(lambda x: x[0] if (not isNaN(x[0])) & (not x[0] == '10101')
-                   else float('nan'), axis=1)
+    res = dd.apply(
+        lambda x: x[0] if (not isNaN(x[0])) & (not x[0] == "10101") else float("nan"),
+        axis=1,
+    )
     return res
 
 
@@ -3861,7 +3888,7 @@ def cf_03_0425(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
         9: "해외",
     }
     res = dd.apply(
-        lambda x: np.argsort(x[:-1])[-2] if x[-1] else float('nan'), axis=1
+        lambda x: np.argsort(x[:-1])[-2] if x[-1] else float("nan"), axis=1
     ).replace(code_map)
     return res
 
@@ -3926,7 +3953,7 @@ def cf_03_0427(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
         7: "쇼핑기타",
     }
     res = dd.apply(
-        lambda x: np.argsort(x[:-1])[-2] if x[-1] else float('nan'), axis=1
+        lambda x: np.argsort(x[:-1])[-2] if x[-1] else float("nan"), axis=1
     ).replace(code_map)
     return res
 
@@ -3978,7 +4005,7 @@ def cf_03_0429(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
 
     code_map = {0: "주유", 1: "정비", 2: "통행료", 3: "버스지하철", 4: "택시", 5: "철도버스"}
     res = dd.apply(
-        lambda x: np.argsort(x[:-1])[-2] if x[-1] else float('nan'), axis=1
+        lambda x: np.argsort(x[:-1])[-2] if x[-1] else float("nan"), axis=1
     ).replace(code_map)
     return res
 
@@ -4039,7 +4066,7 @@ def cf_03_0431(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
         7: "여유기타",
     }
     res = dd.apply(
-        lambda x: np.argsort(x[:-1])[-2] if x[-1] else float('nan'), axis=1
+        lambda x: np.argsort(x[:-1])[-2] if x[-1] else float("nan"), axis=1
     ).replace(code_map)
     return res
 
@@ -4103,7 +4130,7 @@ def cf_03_0433(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
         7: "납부기타",
     }
     res = dd.apply(
-        lambda x: np.argsort(x[:-1])[-2] if x[-1] else float('nan'), axis=1
+        lambda x: np.argsort(x[:-1])[-2] if x[-1] else float("nan"), axis=1
     ).replace(code_map)
     return res
 
