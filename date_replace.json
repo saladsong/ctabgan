@@ -14,16 +14,6 @@
         "special_val": "10101",
         "replace_val": 99999999
     },
-    "최종이용일자_기본": {
-        "is_past": true,
-        "special_val": "10101",
-        "replace_val": 99999999
-    },
-    "최종이용일자_신판": {
-        "is_past": true,
-        "special_val": "10101",
-        "replace_val": 99999999
-    },
     "최종이용일자_CA": {
         "is_past": true,
         "special_val": "10101",
@@ -45,11 +35,6 @@
         "replace_val": 99999999
     },
     "최종이용일자_할부": {
-        "is_past": true,
-        "special_val": "10101",
-        "replace_val": 99999999
-    },
-    "최종카드론_대출일자": {
         "is_past": true,
         "special_val": "10101",
         "replace_val": 99999999

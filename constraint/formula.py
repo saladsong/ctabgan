@@ -2313,15 +2313,15 @@ def cf_03_0026(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     return res
 
 
-# @constraint_udf
-# def cf_03_0033(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
-#     """
-#     formula:
-#         이용후경과월_신용 = MIN(이용후경과월_신판, 이용후경과월_CA)
-#     """
-#     dd = df[["이용후경과월_신판", "이용후경과월_CA"]]
-#     res = dd.min(axis=1).astype(int)
-#     return res
+@constraint_udf
+def cf_03_0033(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+    """
+    formula:
+        이용후경과월_신용 = MIN(이용후경과월_신판, 이용후경과월_CA)
+    """
+    dd = df[["이용후경과월_신판", "이용후경과월_CA"]]
+    res = dd.min(axis=1).astype(int)
+    return res
 
 
 @constraint_udf

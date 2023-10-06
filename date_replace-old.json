@@ -59,16 +59,6 @@
         "special_val": "10101",
         "replace_val": 99999999
     },
-    "_1순위카드유효년월": {
-        "is_past": false,
-        "special_val": "999912",
-        "replace_val": 99999999
-    },
-    "_2순위카드유효년월": {
-        "is_past": false,
-        "special_val": "999912",
-        "replace_val": 99999999
-    },
     "최종유효년월_신용_이용가능": {
         "is_past": false,
         "special_val": "999912",

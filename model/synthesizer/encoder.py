@@ -629,7 +629,7 @@ class DataEncoder:
         """VGM(MSN) 모델 피팅"""
         data = train_data.values
         self.meta = self.get_metadata(train_data)
-        model = []  # VGM or SN Model 저장 영역
+        self.model = []  # VGM or SN Model 저장 영역
         self.output_info = []  # 데이터 인코딩 후 출력 정보 List[tuple]
         self.output_dim = 0  # 데이터 인코딩 후 차원
         self.valid_mode_flags = []  # 컬럼별 MSN 모드별 유효여부 저장 영역 List[bool]
@@ -655,7 +655,7 @@ class DataEncoder:
 
                     # 유효한 모드 인디케이팅
                     # lsw: 원본코드에서 mode_freq 찾는 부분 불필요... 심지어 freq 는 사용도 안함
-                    model.append(gm)
+                    self.model.append(gm)
                     comp = (
                         gm.weights_ > self.eps
                     )  # weight 가 epsilon 보다 크고 데이터 상 존재하는 mode(comp) 만 True
@@ -668,11 +668,6 @@ class DataEncoder:
                             colname,
                             "msn",
                         ),  # for alpha_i  (len(alpha_i), activaton_fn, col_name, GT_indicator) // 'msn' 이것 'get_tcol_idx_st_ed_tuple' 에 쓰임
-                        # (
-                        #     1,
-                        #     "tanh",
-                        #     colname,  # for skewness alpha
-                        # ),
                         (
                             np.sum(comp),
                             "softmax",
@@ -680,7 +675,6 @@ class DataEncoder:
                         ),  # for beta_i  (len(beta_i), activaton_fn, col_name)
                     ]
                     st_delta = 1 + np.sum(comp)
-                    self.output_dim += st_delta
                     info.update({"st": st, "end": st + st_delta})
                     st += st_delta
 
@@ -713,25 +707,23 @@ class DataEncoder:
                         self.skewed_columns.remove(id_)
                         self.general_columns.append(id_)
 
-                    model.append(sn)
+                    self.model.append(sn)
                     self.valid_mode_flags.append(None)
                     self.output_info += [
                         (1, "tanh", colname, _ctype),  # for alpha_i (N * 1)
                     ]
                     st_delta = 1
-                    self.output_dim += st_delta
                     info.update({"st": st, "end": st + st_delta})
                     st += st_delta
 
                 # single Gaussian 또는 large num cate 인 경우: GT
                 else:
-                    model.append(None)
+                    self.model.append(None)
                     self.valid_mode_flags.append(None)
                     self.output_info += [
                         (1, "tanh", colname, "gt"),
                     ]  # for alpha_i // gt는 beta_i 불필요
                     st_delta = 1
-                    self.output_dim += st_delta
                     info.update({"st": st, "end": st + st_delta})
                     st += st_delta
 
@@ -766,7 +758,7 @@ class DataEncoder:
 
                     gm2.fit(current_arr[filter_arr].reshape([-1, 1]))
                     info["filter_arr"] = filter_arr
-                    model.append((gm1, gm2))
+                    self.model.append((gm1, gm2))
                     comp = (
                         gm2.weights_ > self.eps
                     )  # weight 가 epsilon 보다 크고 데이터 상 존재하는 mode(comp) 만 True
@@ -781,7 +773,6 @@ class DataEncoder:
                         ),  # for beta_i
                     ]
                     st_delta = 1 + np.sum(comp) + len(info["modal"])
-                    self.output_dim += st_delta
                     info.update({"st": st, "end": st + st_delta})
                     st += st_delta
 
@@ -817,7 +808,7 @@ class DataEncoder:
                             "loc": _loc,
                             "scale": _scale,
                         }
-                        comp = [1]  # single-mode
+                        comp = np.array([True])  # single-mode
 
                     except Exception as e:
                         self.logger.info(
@@ -840,7 +831,7 @@ class DataEncoder:
                         self.skewed_columns.remove(id_)
 
                     info["filter_arr"] = filter_arr
-                    model.append((m1, m2))
+                    self.model.append((m1, m2))
                     self.valid_mode_flags.append(comp)
 
                     self.output_info += [
@@ -852,22 +843,20 @@ class DataEncoder:
                         ),  # for beta_i
                     ]
                     st_delta = 1 + np.sum(comp) + len(info["modal"])
-                    self.output_dim += st_delta
                     info.update({"st": st, "end": st + st_delta})
                     st += st_delta
 
             # categorical type 인 경우: one-hot
             else:
-                model.append(None)
+                self.model.append(None)
                 self.valid_mode_flags.append(None)
                 self.output_info += [(info["size"], "softmax", colname)]  # for gamma_i
 
                 st_delta = info["size"]
-                self.output_dim += st_delta
                 info.update({"st": st, "end": st + st_delta})
                 st += st_delta
 
-        self.model = model  # VGM Model 저장 영역
+        self.output_dim = self.meta[-1]["end"]
         self.is_fit_ = True
         self.logger.info("[DataEncoder]: fitting end ...")
 
