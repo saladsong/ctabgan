@@ -462,20 +462,20 @@ constraints = [
     #     "type": "formula",
     #     "content": "IF RV신청일자 IS NOT NULL THEN rv등록일자=RV신청일자 ELSE rv등록일자 IS NULL",
     # },
-    {
-        "columns": ["한도요청거절건수", "한도요청승인건수"],
-        "output": "한도심사요청건수",
-        "fname": "cf_02_0040",
-        "type": "formula",
-        "content": "한도심사요청건수 = 한도요청거절건수 + 한도요청승인건수",
-    },
-    {
-        "columns": ["기준년월", "rv최초시작일자"],
-        "output": "rv최초시작후경과일",
-        "fname": "cf_02_0060",
-        "type": "formula",
-        "content": "rv최초시작후경과일 = DATEDIFF(LAST_DAY(기준년월), rv최초시작일자)",
-    },
+    # {
+    #     "columns": ["한도요청거절건수", "한도요청승인건수"],
+    #     "output": "한도심사요청건수",
+    #     "fname": "cf_02_0040",
+    #     "type": "formula",
+    #     "content": "한도심사요청건수 = 한도요청거절건수 + 한도요청승인건수",
+    # },
+    # {
+    #     "columns": ["기준년월", "rv최초시작일자"],
+    #     "output": "rv최초시작후경과일",
+    #     "fname": "cf_02_0060",
+    #     "type": "formula",
+    #     "content": "rv최초시작후경과일 = DATEDIFF(LAST_DAY(기준년월), rv최초시작일자)",
+    # },
 
     # 4.청구 테이블 컬럼 Constraints
     {
@@ -4723,35 +4723,35 @@ def cf_02_0030(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
 #     return c == res
 
 
-@constraint_udf
-def cf_02_0040(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
-    """
-    formula:
-        한도심사요청건수 = 한도요청거절건수 + 한도요청승인건수
-    """
-    c1, c2 = df["한도요청거절건수"], df["한도요청승인건수"]
-    res = c1 + c2
+# @constraint_udf
+# def cf_02_0040(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+#     """
+#     formula:
+#         한도심사요청건수 = 한도요청거절건수 + 한도요청승인건수
+#     """
+#     c1, c2 = df["한도요청거절건수"], df["한도요청승인건수"]
+#     res = c1 + c2
 
-    c = df["한도심사요청건수"]
-    return c == res
+#     c = df["한도심사요청건수"]
+#     return c == res
 
 
-@constraint_udf
-def cf_02_0060(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
-    """
-    formula:
-        rv최초시작후경과일 = DATEDIFF(LAST_DAY(기준년월), rv최초시작일자)
-    """
-    dd = df[["기준년월", "rv최초시작일자"]]
-    res = dd.apply(
-        lambda x: (datetime(year=int(x[0][:4]), month=int(x[0][4:6]), day=1) + relativedelta(months=1, days=-1) - datetime.strptime(x[1], "%Y%m%d")).days
-        if (not pd.isna(x[1])) & (x[1] != '10101')
-        else 99999999,
-        axis=1,
-    )
+# @constraint_udf
+# def cf_02_0060(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+#     """
+#     formula:
+#         rv최초시작후경과일 = DATEDIFF(LAST_DAY(기준년월), rv최초시작일자)
+#     """
+#     dd = df[["기준년월", "rv최초시작일자"]]
+#     res = dd.apply(
+#         lambda x: (datetime(year=int(x[0][:4]), month=int(x[0][4:6]), day=1) + relativedelta(months=1, days=-1) - datetime.strptime(x[1], "%Y%m%d")).days
+#         if (not pd.isna(x[1])) & (x[1] != '10101')
+#         else 99999999,
+#         axis=1,
+#     )
 
-    c = df["rv최초시작후경과일"]
-    return c == res
+#     c = df["rv최초시작후경과일"]
+#     return c == res
 
 
 @constraint_udf
