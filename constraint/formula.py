@@ -7,7 +7,7 @@
 
 import pandas as pd
 import numpy as np
-from datetime import datetime
+from datetime import datetimewm
 from dateutil.relativedelta import relativedelta
 from typing import Union, List
 from functools import wraps
@@ -138,20 +138,20 @@ constraints = [
     #     "type": "formula",
     #     "content": "IF RV신청일자 IS NOT NULL THEN rv등록일자=RV신청일자 ELSE rv등록일자 IS NULL",
     # },
-    {
-        "columns": ["한도요청거절건수", "한도요청승인건수"],
-        "output": "한도심사요청건수",
-        "fname": "cf_02_0040",
-        "type": "formula",
-        "content": "한도심사요청건수 = 한도요청거절건수 + 한도요청승인건수",
-    },
-    {
-        "columns": ["기준년월", "rv최초시작일자"],
-        "output": "rv최초시작후경과일",
-        "fname": "cf_02_0060",
-        "type": "formula",
-        "content": "rv최초시작후경과일 = DATEDIFF(LAST_DAY(기준년월), rv최초시작일자)",
-    },
+    # {
+    #     "columns": ["한도요청거절건수", "한도요청승인건수"],
+    #     "output": "한도심사요청건수",
+    #     "fname": "cf_02_0040",
+    #     "type": "formula",
+    #     "content": "한도심사요청건수 = 한도요청거절건수 + 한도요청승인건수",
+    # },
+    # {
+    #     "columns": ["기준년월", "rv최초시작일자"],
+    #     "output": "rv최초시작후경과일",
+    #     "fname": "cf_02_0060",
+    #     "type": "formula",
+    #     "content": "rv최초시작후경과일 = DATEDIFF(LAST_DAY(기준년월), rv최초시작일자)",
+    # },
 
     # 4.청구 테이블 컬럼 Formula
     {
@@ -371,7 +371,7 @@ constraints = [
         "columns": ["증감율_이용건수_CA_전월", "증감율_이용건수_신판_전월"],
         "output": "증감율_이용건수_신용_전월",
         "fname": "cf_08_0005",
-        "type": "formula",
+        "type": "cond_formula",
         "content": """IF 증감율_이용건수_CA_전월 == 0 THEN 증감율_이용건수_신용_전월 = 증감율_이용건수_신판_전월
                        ELIF 증감율_이용건수_신판_전월 == 0 THEN 증감율_이용건수_신용_전월 = 증감율_이용건수_CA_전월
                        ELSE PASS""",
@@ -380,7 +380,7 @@ constraints = [
         "columns": ["증감율_이용건수_할부_전월", "증감율_이용건수_일시불_전월"],
         "output": "증감율_이용건수_신판_전월",
         "fname": "cf_08_0006",
-        "type": "formula",
+        "type": "cond_formula",
         "content": """IF 증감율_이용건수_할부_전월 == 0 THEN 증감율_이용건수_신판_전월 = 증감율_이용건수_일시불_전월
                       ELIF 증감율_이용건수_일시불_전월 == 0 THEN 증감율_이용건수_신판_전월 = 증감율_이용건수_할부_전월
                       ELSE PASS""",
@@ -389,7 +389,7 @@ constraints = [
         "columns": ["증감율_이용금액_CA_전월", "증감율_이용금액_신판_전월"],
         "output": "증감율_이용금액_신용_전월",
         "fname": "cf_08_0012",
-        "type": "formula",
+        "type": "cond_formula",
         "content": """IF 증감율_이용금액_CA_전월 == 0 THEN 증감율_이용금액_신용_전월 = 증감율_이용금액_신판_전월
                        ELIF 증감율_이용금액_신판_전월 == 0 THEN 증감율_이용금액_신용_전월 = 증감율_이용금액_CA_전월
                        ELSE PASS""",
@@ -398,7 +398,7 @@ constraints = [
         "columns": ["증감율_이용금액_할부_전월", "증감율_이용금액_일시불_전월"],
         "output": "증감율_이용금액_신판_전월",
         "fname": "cf_08_0013",
-        "type": "formula",
+        "type": "cond_formula",
         "content": """IF 증감율_이용금액_할부_전월 == 0 THEN 증감율_이용금액_신판_전월 = 증감율_이용금액_일시불_전월
                       ELIF 증감율_이용금액_일시불_전월 == 0 THEN 증감율_이용금액_신판_전월 = 증감율_이용금액_할부_전월
                       ELSE PASS""",
@@ -407,7 +407,7 @@ constraints = [
         "columns": ["증감율_이용건수_CA_분기", "증감율_이용건수_신판_분기"],
         "output": "증감율_이용건수_신용_분기",
         "fname": "cf_08_0033",
-        "type": "formula",
+        "type": "cond_formula",
         "content": """IF 증감율_이용건수_CA_분기 == 0 THEN 증감율_이용건수_신용_분기 = 증감율_이용건수_신판_분기
                        ELIF 증감율_이용건수_신판_분기 == 0 THEN 증감율_이용건수_신용_분기 = 증감율_이용건수_CA_분기
                        ELSE PASS""",
@@ -416,7 +416,7 @@ constraints = [
         "columns": ["증감율_이용건수_할부_분기", "증감율_이용건수_일시불_분기"],
         "output": "증감율_이용건수_신판_분기",
         "fname": "cf_08_0034",
-        "type": "formula",
+        "type": "cond_formula",
         "content": """IF 증감율_이용건수_할부_분기 == 0 THEN 증감율_이용건수_신판_분기 = 증감율_이용건수_일시불_분기
                       ELIF 증감율_이용건수_일시불_분기 == 0 THEN 증감율_이용건수_신판_분기 = 증감율_이용건수_할부_분기
                       ELSE PASS""",
@@ -425,7 +425,7 @@ constraints = [
         "columns": ["증감율_이용금액_CA_분기", "증감율_이용금액_신판_분기"],
         "output": "증감율_이용금액_신용_분기",
         "fname": "cf_08_0040",
-        "type": "formula",
+        "type": "cond_formula",
         "content": """IF 증감율_이용금액_CA_분기 == 0 THEN 증감율_이용금액_신용_분기 = 증감율_이용금액_신판_분기
                        ELIF 증감율_이용금액_신판_분기 == 0 THEN 증감율_이용금액_신용_분기 = 증감율_이용금액_CA_분기
                        ELSE PASS""",
@@ -434,7 +434,7 @@ constraints = [
         "columns": ["증감율_이용금액_할부_분기", "증감율_이용금액_일시불_분기"],
         "output": "증감율_이용금액_신판_분기",
         "fname": "cf_08_0041",
-        "type": "formula",
+        "type": "cond_formula",
         "content": """IF 증감율_이용금액_할부_분기 == 0 THEN 증감율_이용금액_신판_분기 = 증감율_이용금액_일시불_분기
                       ELIF 증감율_이용금액_일시불_분기 == 0 THEN 증감율_이용금액_신판_분기 = 증감율_이용금액_할부_분기
                       ELSE PASS""",
@@ -754,34 +754,6 @@ constraints = [
         "content": "이용금액_할부_R3M = SUM(이용금액_할부_유이자_R3M, 이용금액_할부_무이자_R3M, 이용금액_부분무이자_R3M)",
     },
     {
-        "columns": ["이용금액_쇼핑"],
-        "output": "쇼핑_전체_이용금액",
-        "fname": "cf_03_0158",
-        "type": "formula",
-        "content": "쇼핑_전체_이용금액 = 이용금액_쇼핑",
-    },
-    {
-        "columns": ["이용금액_교통"],
-        "output": "교통_전체이용금액",
-        "fname": "cf_03_0160",
-        "type": "formula",
-        "content": "교통_전체이용금액 = 이용금액_교통",
-    },
-    {
-        "columns": ["이용금액_납부"],
-        "output": "납부_전체이용금액",
-        "fname": "cf_03_0162",
-        "type": "formula",
-        "content": "납부_전체이용금액 = 이용금액_납부",
-    },
-    {
-        "columns": ["이용금액_여유생활"],
-        "output": "여유_전체이용금액",
-        "fname": "cf_03_0164",
-        "type": "formula",
-        "content": "여유_전체이용금액 = 이용금액_여유생활",
-    },
-    {
         "columns": [
             "교통_주유이용금액",
             "교통_정비이용금액",
@@ -791,32 +763,9 @@ constraints = [
             "교통_철도버스이용금액",
         ],
         "output": "이용금액_교통",
-        "fname": "cf_03_0183",
+        "fname": "cf_03_0160",
         "type": "formula",
         "content": "이용금액_교통 = SUM(교통_주유이용금액, 정비, 통행료, 버스지하철, 택시, 철도버스)",
-    },
-    {
-        "columns": [
-            "여유_운동이용금액",
-            "여유_Pet이용금액",
-            "여유_공연이용금액",
-            "여유_공원이용금액",
-            "여유_숙박이용금액",
-            "여유_여행이용금액",
-            "여유_항공이용금액",
-            "여유_기타이용금액",
-        ],
-        "output": "이용금액_여유생활",
-        "fname": "cf_03_0192",
-        "type": "formula",
-        "content": "이용금액_여유생활 = SUM(여유_운동이용금액, Pet, 공연, 공원, 숙박, 여행, 항공, 기타)",
-    },
-    {
-        "columns": ["기준년월"],
-        "output": "납부_렌탈료이용금액",
-        "fname": "cf_03_0195",
-        "type": "formula",
-        "content": "납부_렌탈료이용금액 = 0",
     },
     {
         "columns": [
@@ -830,9 +779,60 @@ constraints = [
             "납부_기타이용금액",
         ],
         "output": "이용금액_납부",
-        "fname": "cf_03_0201",
+        "fname": "cf_03_0162",
         "type": "formula",
         "content": "이용금액_납부 = SUM(납부_통신비이용금액, 관리비, 렌탈료, 가스전기료, 보험료, 유선방송, 건강연금, 기타)",
+    },
+    {
+        "columns": [
+            "여유_운동이용금액",
+            "여유_Pet이용금액",
+            "여유_공연이용금액",
+            "여유_공원이용금액",
+            "여유_숙박이용금액",
+            "여유_여행이용금액",
+            "여유_항공이용금액",
+            "여유_기타이용금액",
+        ],
+        "output": "이용금액_여유생활",
+        "fname": "cf_03_0164",
+        "type": "formula",
+        "content": "이용금액_여유생활 = SUM(여유_운동이용금액, Pet, 공연, 공원, 숙박, 여행, 항공, 기타)",
+    },
+    {
+        "columns": ["이용금액_쇼핑"],
+        "output": "쇼핑_전체_이용금액",
+        "fname": "cf_03_0176",
+        "type": "formula",
+        "content": "쇼핑_전체_이용금액 = 이용금액_쇼핑",
+    },
+    {
+        "columns": ["이용금액_교통"],
+        "output": "교통_전체이용금액",
+        "fname": "cf_03_0183",
+        "type": "formula",
+        "content": "교통_전체이용금액 = 이용금액_교통",
+    },
+    {
+        "columns": ["이용금액_여유생활"],
+        "output": "여유_전체이용금액",
+        "fname": "cf_03_0192",
+        "type": "formula",
+        "content": "여유_전체이용금액 = 이용금액_여유생활",
+    },
+    {
+        "columns": ["기준년월"],
+        "output": "납부_렌탈료이용금액",
+        "fname": "cf_03_0195",
+        "type": "formula",
+        "content": "납부_렌탈료이용금액 = 0",
+    },
+    {
+        "columns": ["이용금액_납부"],
+        "output": "납부_전체이용금액",
+        "fname": "cf_03_0201",
+        "type": "formula",
+        "content": "납부_전체이용금액 = 이용금액_납부",
     },
     {
         "columns": [
@@ -1755,31 +1755,31 @@ def cf_02_0030(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
 #     return res
 
 
-@constraint_udf
-def cf_02_0040(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
-    """
-    formula:
-        한도심사요청건수 = 한도요청거절건수 + 한도요청승인건수
-    """
-    c1, c2 = df["한도요청거절건수"], df["한도요청승인건수"]
-    res = c1 + c2
-    return res
+# @constraint_udf
+# def cf_02_0040(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+#     """
+#     formula:
+#         한도심사요청건수 = 한도요청거절건수 + 한도요청승인건수
+#     """
+#     c1, c2 = df["한도요청거절건수"], df["한도요청승인건수"]
+#     res = c1 + c2
+#     return res
 
 
-@constraint_udf
-def cf_02_0060(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
-    """
-    formula:
-        rv최초시작후경과일 = DATEDIFF(LAST_DAY(기준년월), rv최초시작일자)
-    """
-    dd = df[["기준년월", "rv최초시작일자"]]
-    res = dd.apply(
-        lambda x: (datetime(year=int(x[0][:4]), month=int(x[0][4:6]), day=1) + relativedelta(months=1, days=-1) - datetime.strptime(x[1], "%Y%m%d")).days
-        if (not pd.isna(x[1])) & (x[1] != '10101')
-        else 99999999,
-        axis=1,
-    )
-    return res
+# @constraint_udf
+# def cf_02_0060(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+#     """
+#     formula:
+#         rv최초시작후경과일 = DATEDIFF(LAST_DAY(기준년월), rv최초시작일자)
+#     """
+#     dd = df[["기준년월", "rv최초시작일자"]]
+#     res = dd.apply(
+#         lambda x: (datetime(year=int(x[0][:4]), month=int(x[0][4:6]), day=1) + relativedelta(months=1, days=-1) - datetime.strptime(x[1], "%Y%m%d")).days
+#         if (not pd.isna(x[1])) & (x[1] != '10101')
+#         else 99999999,
+#         axis=1,
+#     )
+#     return res
 
 
 @constraint_udf

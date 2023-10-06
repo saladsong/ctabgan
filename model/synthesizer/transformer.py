@@ -113,3 +113,63 @@ def foresee(
         with torch.no_grad():
             ret = _run(input)
     return ret
+
+
+def foresee_dropout(
+    input: torch.Tensor,
+    trsfm: TransformerModel,
+    n_month: int,
+    dropout: float = 0.01,
+) -> torch.Tensor:
+    """트랜스포머 이용해 첫 달 데이터로 이후 n_month 예측
+    IN: (B, M(S)(1), encode) -> (S(1), B, encode) -> (S(6), B, encode) ->
+    OUT: (B, S(6), encode)
+    """
+
+    def _run(input):
+        # input: fakeact  # (B, M(S)(1), encode) -> (S(1), B, encode)
+        # output: (S(6), B, encode)
+        data = input.permute(1, 0, 2)  # (S, B, encode)
+        output = [data]
+        for i in range(n_month - 1):
+            output.append(trsfm(torch.concat(output), None)[-1].unsqueeze(0))
+
+        # (S(6), B, encode) -> (B, S(6), encode)
+        ret = torch.concat(output).permute(1, 0, 2)
+        return ret
+
+    # model train/eval 상태확인
+    is_training_orig = trsfm.training
+    if not is_training_orig:
+        trsfm.train()
+
+    # 원래 dropout p 저장
+    orig_dropout_list = []
+    orig_dropout1_list = []
+    orig_dropout2_list = []
+    for layer in trsfm.transformer_encoder.layers:
+        orig_dropout_list.append(layer.dropout.p)
+        orig_dropout1_list.append(layer.dropout1.p)
+        orig_dropout2_list.append(layer.dropout2.p)
+
+    # 입력 dropout p 변경
+    for layer in trsfm.transformer_encoder.layers:
+        layer.dropout.p = dropout
+        layer.dropout1.p = dropout
+        layer.dropout2.p = dropout
+
+    # trsfm.eval()  # 이건 dropout 완전 작동 안하므로 사용하면 안됨
+    with torch.no_grad():
+        ret = _run(input)
+
+    # 원래 dropout p 복구
+    for i, layer in enumerate(trsfm.transformer_encoder.layers):
+        layer.dropout.p = orig_dropout_list[i]
+        layer.dropout1.p = orig_dropout1_list[i]
+        layer.dropout2.p = orig_dropout2_list[i]
+
+    # model train/eval 상태복구
+    if not is_training_orig:
+        trsfm.eval()
+
+    return ret
