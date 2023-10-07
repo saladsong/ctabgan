@@ -20,7 +20,7 @@ def encode_column(
     info: dict,
     ispositive=False,
     positive_list=None,
-) -> Tuple[Union[np.ndarray, List[np.array]], np.ndarray]:
+) -> Tuple[Union[np.ndarray, List[np.ndarray]], np.ndarray]:
     """encode single column"""
     np.random.seed(RANDOM_SEED)  # 병렬처리시 반드시 여기에 정의되어야 함.... 약간 모호하나 보수적으로
     len_data = len(arr)
@@ -345,8 +345,6 @@ def decode_column(
 ) -> Tuple[np.ndarray, list]:
     """decode single column"""
     np.random.seed(RANDOM_SEED)  # 병렬처리시 반드시 여기에 정의되어야 함.... 약간 모호하나 보수적으로
-    # torch.tensor 기본이 단정밀도라 너무 낮음 99999999 -> 100000000 으로 자동 변환됨. 배정밀도로 수정
-    arr = arr.astype(np.float64)
     len_data = len(arr)
     id_ = info["idx"]
     from_non_categorical_columns = id_ in encoder.non_categorical_columns
@@ -899,10 +897,11 @@ class DataEncoder:
             arr = data[:, id_]
             encoded, order = encode_column(self, arr, info, ispositive, positive_list)
             self.ordering[id_] = order
+            # 저장용량 효율화를 위해 배정밀도 -> 단정밀도 변환, numpy는 기본이 배정밀도이고 torch는 기본이 단정밀도임
             if isinstance(encoded, list):
-                values += encoded
+                values += [x.astype(np.float32) for x in encoded]
             else:
-                values.append(encoded)
+                values.append(encoded.astype(np.float32))
         return np.concatenate(values, axis=1)
 
     def _parallel_transform(
@@ -936,10 +935,11 @@ class DataEncoder:
                     for id_, r in enumerate(results):
                         encoded, order = r.get()
                         self.ordering[id_] = order
+                        # 저장용량 효율화를 위해 배정밀도 -> 단정밀도 변환, numpy는 기본이 배정밀도이고 torch는 기본이 단정밀도임
                         if isinstance(encoded, list):
-                            values += encoded
+                            values += [x.astype(np.float32) for x in encoded]
                         else:
-                            values.append(encoded)
+                            values.append(encoded.astype(np.float32))
         return np.concatenate(values, axis=1)
 
     def inverse_transform(
@@ -979,7 +979,10 @@ class DataEncoder:
             assert i == id_
             st, end = info["st"], info["end"]
             arr = data[:, st:end]
-            decoded, _invalid_ids = decode_column(self, arr, info, minmax_clip)
+            # torch.tensor 기본이 단정밀도라 너무 낮음 99999999 -> 100000000 으로 자동 변환됨. 배정밀도로 수정
+            decoded, _invalid_ids = decode_column(
+                self, arr.astype(np.float64), info, minmax_clip
+            )
             values.append(decoded)  # decoded (N,) 1d-array
             invalid_ids_merged += _invalid_ids
 
@@ -1017,7 +1020,8 @@ class DataEncoder:
                         results.append(
                             pool.apply_async(
                                 decode_column,
-                                args=(self, arr, info, minmax_clip),
+                                # torch.tensor 기본이 단정밀도라 너무 낮음 99999999 -> 100000000 으로 자동 변환됨. 배정밀도로 수정
+                                args=(self, arr.astype(np.float64), info, minmax_clip),
                                 callback=callback,
                             )
                         )
