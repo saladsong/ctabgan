@@ -2,7 +2,7 @@ import logging
 import os
 import pickle
 from multiprocessing import Manager, Pool, Queue, cpu_count
-from typing import List, Tuple, Union
+from typing import List, Tuple, Union, Literal
 
 import numpy as np
 import pandas as pd
@@ -11,7 +11,24 @@ from scipy.stats import skewnorm
 from sklearn.mixture import BayesianGaussianMixture
 from tqdm.auto import tqdm
 
+# import pyarrow.parquet as pq
+import pyarrow as pa
+
 RANDOM_SEED = 777
+
+
+def list2ptable(values: List[np.ndarray]) -> pa.Table:
+    # make {'x0': np.ndarray, 'x1': ...}
+    _ptable = {}
+    st = 0
+    for x in values:
+        end = st + x.shape[-1]
+        _tmp = {f"x{idx}": x[:, i] for i, idx in enumerate(range(st, end))}
+        _ptable.update(_tmp)
+        st = end
+
+    ptable = pa.table(_ptable)
+    return ptable
 
 
 def encode_column(
@@ -865,6 +882,7 @@ class DataEncoder:
         ispositive=False,
         positive_list=None,
         n_jobs: Union[float, int] = None,
+        return_type: Literal["np", "pa"] = "np",
     ) -> np.array:
         """encode data row"""
         self.logger.info("[DataEncoder]: data transformation(encoding) start")
@@ -880,16 +898,22 @@ class DataEncoder:
                 n_jobs = min(cpu_count(), n_jobs)
             else:
                 raise Exception("n_jobs must be 0~1 float or int > 0")
-            ret = self._parallel_transform(data, n_jobs, ispositive, positive_list)
+            ret = self._parallel_transform(
+                data, n_jobs, ispositive, positive_list, return_type
+            )
         else:
             self.logger.info("[DataEncoder]: transform sequencely")
-            ret = self._transform(data, ispositive, positive_list)
+            ret = self._transform(data, ispositive, positive_list, return_type)
         self.logger.info("[DataEncoder]: data transformation(encoding) end")
         return ret
 
     def _transform(
-        self, data: np.ndarray, ispositive=False, positive_list=None
-    ) -> np.ndarray:
+        self,
+        data: np.ndarray,
+        ispositive=False,
+        positive_list=None,
+        return_type: Literal["np", "pa"] = "np",
+    ) -> Union[np.ndarray, pa.Table]:
         values = []
         for i, info in enumerate(tqdm(self.meta)):
             id_ = info["idx"]
@@ -902,11 +926,20 @@ class DataEncoder:
                 values += [x.astype(np.float32) for x in encoded]
             else:
                 values.append(encoded.astype(np.float32))
-        return np.concatenate(values, axis=1)
+        # return np.concatenate(values, axis=1)   # 데이터 커지면 너무 느림, 특히 가상메모리 사용되는 순간 수 시간 단위로 느려짐
+        if return_type == "np":
+            return list2ptable(values).to_pandas().values
+        else:
+            return list2ptable(values)
 
     def _parallel_transform(
-        self, data: np.ndarray, n_jobs: int, ispositive=False, positive_list=None
-    ) -> np.ndarray:
+        self,
+        data: np.ndarray,
+        n_jobs: int,
+        ispositive=False,
+        positive_list=None,
+        return_type: Literal["np", "pa"] = "np",
+    ) -> Union[np.ndarray, pa.Table]:
         # queue = Queue()
 
         def callback(result):
@@ -940,7 +973,11 @@ class DataEncoder:
                             values += [x.astype(np.float32) for x in encoded]
                         else:
                             values.append(encoded.astype(np.float32))
-        return np.concatenate(values, axis=1)
+        # return np.concatenate(values, axis=1)   # 데이터 커지면 너무 느림, 특히 가상메모리 사용되는 순간 수 시간 단위로 느려짐
+        if return_type == "np":
+            return list2ptable(values).to_pandas().values
+        else:
+            return list2ptable(values)
 
     def inverse_transform(
         self,
