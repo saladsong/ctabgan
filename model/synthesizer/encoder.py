@@ -913,7 +913,7 @@ class DataEncoder:
         ispositive=False,
         positive_list=None,
         return_type: Literal["np", "pa"] = "np",
-    ) -> Union[np.ndarray, pa.Table]:
+    ) -> Union[np.ndarray, pa.Table, List[np.ndarray]]:
         values = []
         for i, info in enumerate(tqdm(self.meta)):
             id_ = info["idx"]
@@ -928,9 +928,12 @@ class DataEncoder:
                 values.append(encoded.astype(np.float32))
         # return np.concatenate(values, axis=1)   # 데이터 커지면 너무 느림, 특히 가상메모리 사용되는 순간 수 시간 단위로 느려짐
         if return_type == "np":
-            return list2ptable(values).to_pandas().values
+            ret = list2ptable(values).to_pandas().values
+        elif return_type == "pa":
+            ret = list2ptable(values)
         else:
-            return list2ptable(values)
+            ret = values  # 초대용량 데이테인 경우
+        return ret
 
     def _parallel_transform(
         self,
@@ -939,7 +942,7 @@ class DataEncoder:
         ispositive=False,
         positive_list=None,
         return_type: Literal["np", "pa"] = "np",
-    ) -> Union[np.ndarray, pa.Table]:
+    ) -> Union[np.ndarray, pa.Table, List[np.ndarray]]:
         # queue = Queue()
 
         def callback(result):
@@ -975,9 +978,12 @@ class DataEncoder:
                             values.append(encoded.astype(np.float32))
         # return np.concatenate(values, axis=1)   # 데이터 커지면 너무 느림, 특히 가상메모리 사용되는 순간 수 시간 단위로 느려짐
         if return_type == "np":
-            return list2ptable(values).to_pandas().values
+            ret = list2ptable(values).to_pandas().values
+        elif return_type == "pa":
+            ret = list2ptable(values)
         else:
-            return list2ptable(values)
+            ret = values  # 초대용량 데이테인 경우
+        return ret
 
     def inverse_transform(
         self,
