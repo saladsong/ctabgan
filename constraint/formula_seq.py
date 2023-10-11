@@ -40,6 +40,14 @@ def constraint_udf(func):
 
 seq_constraints = [
     # 1.회원 테이블 컬럼 Formula
+    # M07
+    {
+        "columns": [],
+        "output": "M07_최종카드발급일자",
+        "fname": "cfs_01_0065",
+        "type": "cond_formula",
+        "content": "IF M07_최종카드발급일자 > '20180731' THEN substr(M07_최종카드발급일자, 1, 6) = '201807' ELSE PASS",
+    },
     # M08
     {
         "columns": ["M07_남녀구분코드"],
@@ -105,6 +113,14 @@ seq_constraints = [
         "content": """IF (M08_탈회횟수_누적 > 0) & (M07_탈회횟수_누적 == M08_탈회횟수_누적)
                       THEN M08_최종탈회후경과월 = M07_최종탈회후경과월 + 1
                       ELSE M08_최종탈회후경과월 = 0""",
+    },
+    {
+        "columns": ["M07_최종카드발급일자"],
+        "output": "M08_최종카드발급일자",
+        "fname": "cfs_01_0154",
+        "type": "cond_formula",
+        "content": """IF (M08_최종카드발급일자 != Null) & (substr(M08_최종카드발급일자, 1, 6) != '201808')
+                      THEN M08_최종카드발급일자 = M07_최종카드발급일자 ELSE PASS""",
     },
     # M09
     {
@@ -172,6 +188,14 @@ seq_constraints = [
                       THEN M09_최종탈회후경과월 = M08_최종탈회후경과월 + 1
                       ELSE M09_최종탈회후경과월 = 0""",
     },
+    {
+        "columns": ["M08_최종카드발급일자"],
+        "output": "M09_최종카드발급일자",
+        "fname": "cfs_01_0243",
+        "type": "cond_formula",
+        "content": """IF (M09_최종카드발급일자 != Null) & (substr(M09_최종카드발급일자, 1, 6) != '201809')
+                      THEN M09_최종카드발급일자 = M08_최종카드발급일자 ELSE PASS""",
+    },
     # M10
     {
         "columns": ["M07_남녀구분코드"],
@@ -237,6 +261,14 @@ seq_constraints = [
         "content": """IF (M10_탈회횟수_누적 > 0) & (M09_탈회횟수_누적 == M10_탈회횟수_누적)
                       THEN M10_최종탈회후경과월 = M09_최종탈회후경과월 + 1
                       ELSE M10_최종탈회후경과월 = 0""",
+    },
+    {
+        "columns": ["M09_최종카드발급일자"],
+        "output": "M10_최종카드발급일자",
+        "fname": "cfs_01_0332",
+        "type": "cond_formula",
+        "content": """IF (M10_최종카드발급일자 != Null) & (substr(M10_최종카드발급일자, 1, 6) != '201810')
+                      THEN M10_최종카드발급일자 = M09_최종카드발급일자 ELSE PASS""",
     },
     # M11
     {
@@ -304,6 +336,14 @@ seq_constraints = [
                       THEN M12_최종탈회후경과월 = M11_최종탈회후경과월 + 1
                       ELSE M12_최종탈회후경과월 = 0""",
     },
+    {
+        "columns": ["M10_최종카드발급일자"],
+        "output": "M11_최종카드발급일자",
+        "fname": "cfs_01_0421",
+        "type": "cond_formula",
+        "content": """IF (M11_최종카드발급일자 != Null) & (substr(M11_최종카드발급일자, 1, 6) != '201811')
+                      THEN M11_최종카드발급일자 = M10_최종카드발급일자 ELSE PASS""",
+    },
     # M12
     {
         "columns": ["M07_남녀구분코드"],
@@ -369,6 +409,14 @@ seq_constraints = [
         "content": """IF M11_탈회횟수_누적 == M12_탈회횟수_누적:
                       M12_최종탈회후경과월 = M11_최종탈회후경과월 + 1
                       ELSE M12_최종탈회후경과월 = 0""",
+    },
+    {
+        "columns": ["M11_최종카드발급일자"],
+        "output": "M12_최종카드발급일자",
+        "fname": "cfs_01_0510",
+        "type": "cond_formula",
+        "content": """IF (M12_최종카드발급일자 != Null) & (substr(M12_최종카드발급일자, 1, 6) != '201812')
+                      THEN M12_최종카드발급일자 = M11_최종카드발급일자 ELSE PASS""",
     },
     # 2.신용 테이블 컬럼 Formula
     # M08
@@ -3025,6 +3073,51 @@ seq_constraints = [
     # 3.승인.매출 테이블 컬럼 Formula
     # M07
     {
+        "columns": ["M07_이용건수_CA_B0M"],
+        "output": "M07_최종이용일자_CA",
+        "fname": "cfs_03_0005",
+        "type": "cond_formula",
+        "content": """IF M07_이용건수_CA_B0M > 0 THEN substr(M07_최종이용일자_CA, 1, 6) = '201807'
+                      ELIF substr(M07_최종이용일자_CA) >= '201807' THEN M07_ 최종이용일자_CA -= k-year (1<=k<=3)
+                      ELSE PASS""",
+    },
+    {
+        "columns": ["M07_이용건수_카드론_B0M"],
+        "output": "M07_최종이용일자_카드론",
+        "fname": "cfs_03_0006",
+        "type": "cond_formula",
+        "content": """IF M07_이용건수_카드론_B0M > 0 THEN substr(M07_최종이용일자_카드론, 1, 6) = '201807'
+                      ELIF substr(M07_최종이용일자_카드론) >= '201807' THEN M07_ 최종이용일자_카드론 -= k-year (1<=k<=3)
+                      ELSE PASS""",
+    },
+    {
+        "columns": ["M07_이용건수_체크_B0M"],
+        "output": "M07_최종이용일자_체크",
+        "fname": "cfs_03_0007",
+        "type": "cond_formula",
+        "content": """IF M07_이용건수_체크_B0M > 0 THEN substr(M07_최종이용일자_체크, 1, 6) = '201807'
+                      ELIF substr(M07_최종이용일자_체크) >= '201807' THEN M07_ 최종이용일자_체크 -= k-year (1<=k<=3)
+                      ELSE PASS""",
+    },
+    {
+        "columns": ["M07_이용건수_일시불_B0M"],
+        "output": "M07_최종이용일자_일시불",
+        "fname": "cfs_03_0008",
+        "type": "cond_formula",
+        "content": """IF M07_이용건수_일시불_B0M > 0 THEN substr(M07_최종이용일자_일시불, 1, 6) = '201807'
+                      ELIF substr(M07_최종이용일자_일시불) >= '201807' THEN M07_ 최종이용일자_일시불 -= k-year (1<=k<=3)
+                      ELSE PASS""",
+    },
+    {
+        "columns": ["M07_이용건수_할부_B0M"],
+        "output": "M07_최종이용일자_할부",
+        "fname": "cfs_03_0009",
+        "type": "cond_formula",
+        "content": """IF M07_이용건수_할부_B0M > 0 THEN substr(M07_최종이용일자_할부, 1, 6) = '201807'
+                      ELIF substr(M07_최종이용일자_할부) >= '201807' THEN M07_ 최종이용일자_할부 -= k-year (1<=k<=3)
+                      ELSE PASS""",
+    },
+    {
         "columns": ["M07_RP건수_B0M"],
         "output": "M07_RP후경과월",
         "fname": "cfs_03_0262",
@@ -3121,6 +3214,46 @@ seq_constraints = [
                       ELSE M07_RP후경과월_교통 = M07_RP후경과월_교통.clip(1,6)""",
     },
     # M08
+    {
+        "columns": ["M08_이용건수_CA_B0M", "M07_최종이용일자_CA"],
+        "output": "M08_최종이용일자_CA",
+        "fname": "cfs_03_0466",
+        "type": "cond_formula",
+        "content": """IF M08_이용건수_CA_B0M > 0 THEN substr(M08_최종이용일자_CA, 1, 6) = '201808'
+                      ELSE M08_최종이용일자_CA = M07_최종이용일자_CA""",
+    },
+    {
+        "columns": ["M08_이용건수_카드론_B0M", "M07_최종이용일자_카드론"],
+        "output": "M08_최종이용일자_카드론",
+        "fname": "cfs_03_0467",
+        "type": "cond_formula",
+        "content": """IF M08_이용건수_카드론_B0M > 0 THEN substr(M08_최종이용일자_카드론, 1, 6) = '201808'
+                      ELSE M08_최종이용일자_카드론 = M07_최종이용일자_카드론""",
+    },
+    {
+        "columns": ["M08_이용건수_체크_B0M", "M07_최종이용일자_체크"],
+        "output": "M08_최종이용일자_체크",
+        "fname": "cfs_03_0468",
+        "type": "cond_formula",
+        "content": """IF M08_이용건수_체크_B0M > 0 THEN substr(M08_최종이용일자_체크, 1, 6) = '201808'
+                      ELSE M08_최종이용일자_체크 = M07_최종이용일자_체크""",
+    },
+    {
+        "columns": ["M08_이용건수_일시불_B0M", "M07_최종이용일자_일시불"],
+        "output": "M08_최종이용일자_일시불",
+        "fname": "cfs_03_0469",
+        "type": "cond_formula",
+        "content": """IF M08_이용건수_일시불_B0M > 0 THEN substr(M08_최종이용일자_일시불, 1, 6) = '201808'
+                      ELSE M08_최종이용일자_일시불 = M07_최종이용일자_일시불""",
+    },
+    {
+        "columns": ["M08_이용건수_할부_B0M", "M07_최종이용일자_할부"],
+        "output": "M08_최종이용일자_할부",
+        "fname": "cfs_03_0470",
+        "type": "cond_formula",
+        "content": """IF M08_이용건수_할부_B0M > 0 THEN substr(M08_최종이용일자_할부, 1, 6) = '201808'
+                      ELSE M08_최종이용일자_할부 = M07_최종이용일자_할부""",
+    },
     {
         "columns": ["M08_RP건수_B0M", "M07_RP후경과월"],
         "output": "M08_RP후경과월",
@@ -3229,6 +3362,28 @@ seq_constraints = [
                       ELSE M08_최종카드론이용경과월 = 0""",
     },
     {
+        "columns": ["M07_카드론이용건수_누적", "M08_이용건수_카드론_B0M"],
+        "output": "M08_카드론이용건수_누적",
+        "fname": "cfs_03_0737",
+        "type": "formula",
+        "content": "M08_카드론이용건수_누적 = M07_카드론이용건수_누적 + M08_이용건수_카드론_B0M",
+    },
+    {
+        "columns": ["M07_카드론이용월수_누적", "M08_이용건수_카드론_B0M"],
+        "output": "M08_카드론이용월수_누적",
+        "fname": "cfs_03_0738",
+        "type": "formula",
+        "content": """IF M08_이용건수_카드론_B0M > 0 THEN M08_카드론이용월수_누적 = M07_카드론이용월수_누적 + 1
+                      ELSE M08_카드론이용월수_누적 = M07_카드론이용월수_누적""",
+    },
+    {
+        "columns": ["M07_카드론이용금액_누적", "M08_이용금액_카드론_B0M"],
+        "output": "M08_카드론이용금액_누적",
+        "fname": "cfs_03_0739",
+        "type": "formula",
+        "content": "M08_카드론이용금액_누적 = M07_카드론이용금액_누적 + M08_이용금액_카드론_B0M",
+    },
+    {
         "columns": ["M07_가맹점매출금액_B1M"],
         "output": "M08_가맹점매출금액_B2M",
         "fname": "cfs_03_0843",
@@ -3320,6 +3475,46 @@ seq_constraints = [
         "content": "M08_증감_RP건수_교통_전월 = M07_RP건수_교통_B0M - M08_RP건수_교통_B0M",
     },
     # M09
+    {
+        "columns": ["M09_이용건수_CA_B0M", "M08_최종이용일자_CA"],
+        "output": "M09_최종이용일자_CA",
+        "fname": "cfs_03_0927",
+        "type": "cond_formula",
+        "content": """IF M09_이용건수_CA_B0M > 0 THEN substr(M09_최종이용일자_CA, 1, 6) = '201809'
+                      ELSE M09_최종이용일자_CA = M08_최종이용일자_CA""",
+    },
+    {
+        "columns": ["M09_이용건수_카드론_B0M", "M08_최종이용일자_카드론"],
+        "output": "M09_최종이용일자_카드론",
+        "fname": "cfs_03_0928",
+        "type": "cond_formula",
+        "content": """IF M09_이용건수_카드론_B0M > 0 THEN substr(M09_최종이용일자_카드론, 1, 6) = '201809'
+                      ELSE M09_최종이용일자_카드론 = M08_최종이용일자_카드론""",
+    },
+    {
+        "columns": ["M09_이용건수_체크_B0M", "M08_최종이용일자_체크"],
+        "output": "M09_최종이용일자_체크",
+        "fname": "cfs_03_0929",
+        "type": "cond_formula",
+        "content": """IF M09_이용건수_체크_B0M > 0 THEN substr(M09_최종이용일자_체크, 1, 6) = '201809'
+                      ELSE M09_최종이용일자_체크 = M08_최종이용일자_체크""",
+    },
+    {
+        "columns": ["M09_이용건수_일시불_B0M", "M08_최종이용일자_일시불"],
+        "output": "M09_최종이용일자_일시불",
+        "fname": "cfs_03_0930",
+        "type": "cond_formula",
+        "content": """IF M09_이용건수_일시불_B0M > 0 THEN substr(M09_최종이용일자_일시불, 1, 6) = '201809'
+                      ELSE M09_최종이용일자_일시불 = M08_최종이용일자_일시불""",
+    },
+    {
+        "columns": ["M09_이용건수_할부_B0M", "M08_최종이용일자_할부"],
+        "output": "M09_최종이용일자_할부",
+        "fname": "cfs_03_0931",
+        "type": "cond_formula",
+        "content": """IF M09_이용건수_할부_B0M > 0 THEN substr(M09_최종이용일자_할부, 1, 6) = '201809'
+                      ELSE M09_최종이용일자_할부 = M08_최종이용일자_할부""",
+    },
     {
         "columns": ["M09_RP건수_B0M", "M08_RP후경과월"],
         "output": "M09_RP후경과월",
@@ -3415,6 +3610,28 @@ seq_constraints = [
         "type": "formula",
         "content": """IF M09_RP건수_교통_B0M > 0 THEN M09_RP후경과월_교통 = 0
                       ELSE M09_RP후경과월_교통 = min(M08_RP후경과월_교통 + 1, 6)""",
+    },
+    {
+        "columns": ["M08_카드론이용건수_누적", "M09_이용건수_카드론_B0M"],
+        "output": "M09_카드론이용건수_누적",
+        "fname": "cfs_03_1198",
+        "type": "formula",
+        "content": "M09_카드론이용건수_누적 = M08_카드론이용건수_누적 + M09_이용건수_카드론_B0M",
+    },
+    {
+        "columns": ["M08_카드론이용월수_누적", "M09_이용건수_카드론_B0M"],
+        "output": "M09_카드론이용월수_누적",
+        "fname": "cfs_03_1199",
+        "type": "formula",
+        "content": """IF M09_이용건수_카드론_B0M > 0 THEN M09_카드론이용월수_누적 = M08_카드론이용월수_누적 + 1
+                      ELSE M09_카드론이용월수_누적 = M08_카드론이용월수_누적""",
+    },
+    {
+        "columns": ["M08_카드론이용금액_누적", "M09_이용금액_카드론_B0M"],
+        "output": "M09_카드론이용금액_누적",
+        "fname": "cfs_03_1200",
+        "type": "formula",
+        "content": "M09_카드론이용금액_누적 = M08_카드론이용금액_누적 + M09_이용금액_카드론_B0M",
     },
     {
         "columns": ["M07_승인거절건수_B0M", "M08_승인거절건수_B0M", "M09_승인거절건수_B0M"],
@@ -3952,6 +4169,46 @@ seq_constraints = [
     },
     # M10
     {
+        "columns": ["M10_이용건수_CA_B0M", "M09_최종이용일자_CA"],
+        "output": "M10_최종이용일자_CA",
+        "fname": "cfs_03_1388",
+        "type": "cond_formula",
+        "content": """IF M10_이용건수_CA_B0M > 0 THEN substr(M10_최종이용일자_CA, 1, 6) = '201810'
+                      ELSE M10_최종이용일자_CA = M09_최종이용일자_CA""",
+    },
+    {
+        "columns": ["M10_이용건수_카드론_B0M", "M09_최종이용일자_카드론"],
+        "output": "M10_최종이용일자_카드론",
+        "fname": "cfs_03_1389",
+        "type": "cond_formula",
+        "content": """IF M10_이용건수_카드론_B0M > 0 THEN substr(M10_최종이용일자_카드론, 1, 6) = '201810'
+                      ELSE M10_최종이용일자_카드론 = M09_최종이용일자_카드론""",
+    },
+    {
+        "columns": ["M10_이용건수_체크_B0M", "M09_최종이용일자_체크"],
+        "output": "M10_최종이용일자_체크",
+        "fname": "cfs_03_1390",
+        "type": "cond_formula",
+        "content": """IF M10_이용건수_체크_B0M > 0 THEN substr(M10_최종이용일자_체크, 1, 6) = '201810'
+                      ELSE M10_최종이용일자_체크 = M09_최종이용일자_체크""",
+    },
+    {
+        "columns": ["M10_이용건수_일시불_B0M", "M09_최종이용일자_일시불"],
+        "output": "M10_최종이용일자_일시불",
+        "fname": "cfs_03_1391",
+        "type": "cond_formula",
+        "content": """IF M10_이용건수_일시불_B0M > 0 THEN substr(M10_최종이용일자_일시불, 1, 6) = '201810'
+                      ELSE M10_최종이용일자_일시불 = M09_최종이용일자_일시불""",
+    },
+    {
+        "columns": ["M10_이용건수_할부_B0M", "M09_최종이용일자_할부"],
+        "output": "M10_최종이용일자_할부",
+        "fname": "cfs_03_1392",
+        "type": "cond_formula",
+        "content": """IF M10_이용건수_할부_B0M > 0 THEN substr(M10_최종이용일자_할부, 1, 6) = '201810'
+                      ELSE M10_최종이용일자_할부 = M09_최종이용일자_할부""",
+    },
+    {
         "columns": ["M10_RP건수_B0M", "M09_RP후경과월"],
         "output": "M10_RP후경과월",
         "fname": "cfs_03_1645",
@@ -4046,6 +4303,28 @@ seq_constraints = [
         "type": "formula",
         "content": """IF M10_RP건수_교통_B0M > 0 THEN M10_RP후경과월_교통 = 0
                       ELSE M10_RP후경과월_교통 = min(M09_RP후경과월_교통 + 1, 6)""",
+    },
+    {
+        "columns": ["M09_카드론이용건수_누적", "M10_이용건수_카드론_B0M"],
+        "output": "M10_카드론이용건수_누적",
+        "fname": "cfs_03_1659",
+        "type": "formula",
+        "content": "M10_카드론이용건수_누적 = M09_카드론이용건수_누적 + M10_이용건수_카드론_B0M",
+    },
+    {
+        "columns": ["M09_카드론이용월수_누적", "M10_이용건수_카드론_B0M"],
+        "output": "M10_카드론이용월수_누적",
+        "fname": "cfs_03_1660",
+        "type": "formula",
+        "content": """IF M10_이용건수_카드론_B0M > 0 THEN M10_카드론이용월수_누적 = M09_카드론이용월수_누적 + 1
+                      ELSE M10_카드론이용월수_누적 = M09_카드론이용월수_누적""",
+    },
+    {
+        "columns": ["M09_카드론이용금액_누적", "M10_이용금액_카드론_B0M"],
+        "output": "M10_카드론이용금액_누적",
+        "fname": "cfs_03_1661",
+        "type": "formula",
+        "content": "M10_카드론이용금액_누적 = M09_카드론이용금액_누적 + M10_이용금액_카드론_B0M",
     },
     {
         "columns": ["M08_승인거절건수_B0M", "M09_승인거절건수_B0M", "M10_승인거절건수_B0M"],
@@ -4926,6 +5205,46 @@ seq_constraints = [
     },
     # M11
     {
+        "columns": ["M11_이용건수_CA_B0M", "M10_최종이용일자_CA"],
+        "output": "M11_최종이용일자_CA",
+        "fname": "cfs_03_1849",
+        "type": "cond_formula",
+        "content": """IF M11_이용건수_CA_B0M > 0 THEN substr(M11_최종이용일자_CA, 1, 6) = '201811'
+                      ELSE M11_최종이용일자_CA = M10_최종이용일자_CA""",
+    },
+    {
+        "columns": ["M11_이용건수_카드론_B0M", "M10_최종이용일자_카드론"],
+        "output": "M11_최종이용일자_카드론",
+        "fname": "cfs_03_1850",
+        "type": "cond_formula",
+        "content": """IF M11_이용건수_카드론_B0M > 0 THEN substr(M11_최종이용일자_카드론, 1, 6) = '201811'
+                      ELSE M11_최종이용일자_카드론 = M10_최종이용일자_카드론""",
+    },
+    {
+        "columns": ["M11_이용건수_체크_B0M", "M10_최종이용일자_체크"],
+        "output": "M11_최종이용일자_체크",
+        "fname": "cfs_03_1851",
+        "type": "cond_formula",
+        "content": """IF M11_이용건수_체크_B0M > 0 THEN substr(M11_최종이용일자_체크, 1, 6) = '201811'
+                      ELSE M11_최종이용일자_체크 = M10_최종이용일자_체크""",
+    },
+    {
+        "columns": ["M11_이용건수_일시불_B0M", "M10_최종이용일자_일시불"],
+        "output": "M11_최종이용일자_일시불",
+        "fname": "cfs_03_1852",
+        "type": "cond_formula",
+        "content": """IF M11_이용건수_일시불_B0M > 0 THEN substr(M11_최종이용일자_일시불, 1, 6) = '201811'
+                      ELSE M11_최종이용일자_일시불 = M10_최종이용일자_일시불""",
+    },
+    {
+        "columns": ["M11_이용건수_할부_B0M", "M10_최종이용일자_할부"],
+        "output": "M11_최종이용일자_할부",
+        "fname": "cfs_03_1853",
+        "type": "cond_formula",
+        "content": """IF M11_이용건수_할부_B0M > 0 THEN substr(M11_최종이용일자_할부, 1, 6) = '201811'
+                      ELSE M11_최종이용일자_할부 = M10_최종이용일자_할부""",
+    },
+    {
         "columns": ["M11_RP건수_B0M", "M10_RP후경과월"],
         "output": "M11_RP후경과월",
         "fname": "cfs_03_2106",
@@ -5020,6 +5339,28 @@ seq_constraints = [
         "type": "formula",
         "content": """IF M11_RP건수_교통_B0M > 0 THEN M11_RP후경과월_교통 = 0
                       ELSE M11_RP후경과월_교통 = min(M10_RP후경과월_교통 + 1, 6)""",
+    },
+    {
+        "columns": ["M10_카드론이용건수_누적", "M11_이용건수_카드론_B0M"],
+        "output": "M11_카드론이용건수_누적",
+        "fname": "cfs_03_2120",
+        "type": "formula",
+        "content": "M11_카드론이용건수_누적 = M10_카드론이용건수_누적 + M11_이용건수_카드론_B0M",
+    },
+    {
+        "columns": ["M10_카드론이용월수_누적", "M11_이용건수_카드론_B0M"],
+        "output": "M11_카드론이용월수_누적",
+        "fname": "cfs_03_2121",
+        "type": "formula",
+        "content": """IF M11_이용건수_카드론_B0M > 0 THEN M11_카드론이용월수_누적 = M10_카드론이용월수_누적 + 1
+                      ELSE M11_카드론이용월수_누적 = M10_카드론이용월수_누적""",
+    },
+    {
+        "columns": ["M10_카드론이용금액_누적", "M11_이용금액_카드론_B0M"],
+        "output": "M11_카드론이용금액_누적",
+        "fname": "cfs_03_2122",
+        "type": "formula",
+        "content": "M11_카드론이용금액_누적 = M10_카드론이용금액_누적 + M11_이용금액_카드론_B0M",
     },
     {
         "columns": ["M09_승인거절건수_B0M", "M10_승인거절건수_B0M", "M11_승인거절건수_B0M"],
@@ -5900,6 +6241,46 @@ seq_constraints = [
     },
     # M12
     {
+        "columns": ["M12_이용건수_CA_B0M", "M11_최종이용일자_CA"],
+        "output": "M12_최종이용일자_CA",
+        "fname": "cfs_03_2310",
+        "type": "cond_formula",
+        "content": """IF M12_이용건수_CA_B0M > 0 THEN substr(M12_최종이용일자_CA, 1, 6) = '201812'
+                      ELSE M12_최종이용일자_CA = M11_최종이용일자_CA""",
+    },
+    {
+        "columns": ["M12_이용건수_카드론_B0M", "M11_최종이용일자_카드론"],
+        "output": "M12_최종이용일자_카드론",
+        "fname": "cfs_03_2311",
+        "type": "cond_formula",
+        "content": """IF M12_이용건수_카드론_B0M > 0 THEN substr(M12_최종이용일자_카드론, 1, 6) = '201812'
+                      ELSE M12_최종이용일자_카드론 = M11_최종이용일자_카드론""",
+    },
+    {
+        "columns": ["M12_이용건수_체크_B0M", "M11_최종이용일자_체크"],
+        "output": "M12_최종이용일자_체크",
+        "fname": "cfs_03_2312",
+        "type": "cond_formula",
+        "content": """IF M12_이용건수_체크_B0M > 0 THEN substr(M12_최종이용일자_체크, 1, 6) = '201812'
+                      ELSE M12_최종이용일자_체크 = M11_최종이용일자_체크""",
+    },
+    {
+        "columns": ["M12_이용건수_일시불_B0M", "M11_최종이용일자_일시불"],
+        "output": "M12_최종이용일자_일시불",
+        "fname": "cfs_03_2313",
+        "type": "cond_formula",
+        "content": """IF M12_이용건수_일시불_B0M > 0 THEN substr(M12_최종이용일자_일시불, 1, 6) = '201812'
+                      ELSE M12_최종이용일자_일시불 = M11_최종이용일자_일시불""",
+    },
+    {
+        "columns": ["M12_이용건수_할부_B0M", "M11_최종이용일자_할부"],
+        "output": "M12_최종이용일자_할부",
+        "fname": "cfs_03_2314",
+        "type": "cond_formula",
+        "content": """IF M12_이용건수_할부_B0M > 0 THEN substr(M12_최종이용일자_할부, 1, 6) = '201812'
+                      ELSE M12_최종이용일자_할부 = M11_최종이용일자_할부""",
+    },
+    {
         "columns": ["M12_RP건수_B0M", "M11_RP후경과월"],
         "output": "M12_RP후경과월",
         "fname": "cfs_03_2567",
@@ -5994,6 +6375,28 @@ seq_constraints = [
         "type": "formula",
         "content": """IF M12_RP건수_교통_B0M > 0 THEN M12_RP후경과월_교통 = 0
                       ELSE M12_RP후경과월_교통 = min(M11_RP후경과월_교통 + 1, 6)""",
+    },
+    {
+        "columns": ["M11_카드론이용건수_누적", "M12_이용건수_카드론_B0M"],
+        "output": "M12_카드론이용건수_누적",
+        "fname": "cfs_03_2581",
+        "type": "formula",
+        "content": "M12_카드론이용건수_누적 = M11_카드론이용건수_누적 + M12_이용건수_카드론_B0M",
+    },
+    {
+        "columns": ["M11_카드론이용월수_누적", "M12_이용건수_카드론_B0M"],
+        "output": "M12_카드론이용월수_누적",
+        "fname": "cfs_03_2582",
+        "type": "formula",
+        "content": """IF M12_이용건수_카드론_B0M > 0 THEN M12_카드론이용월수_누적 = M11_카드론이용월수_누적 + 1
+                      ELSE M12_카드론이용월수_누적 = M11_카드론이용월수_누적""",
+    },
+    {
+        "columns": ["M11_카드론이용금액_누적", "M12_이용금액_카드론_B0M"],
+        "output": "M12_카드론이용금액_누적",
+        "fname": "cfs_03_2583",
+        "type": "formula",
+        "content": "M12_카드론이용금액_누적 = M11_카드론이용금액_누적 + M12_이용금액_카드론_B0M",
     },
     {
         "columns": ["M10_승인거절건수_B0M", "M11_승인거절건수_B0M", "M12_승인거절건수_B0M"],
@@ -7180,6 +7583,18 @@ seq_constraints = [
 # cf: check formula
 
 
+# 01_M07
+@constraint_udf
+def cfs_01_0065(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+    """
+    formula:
+        IF M07_최종카드발급일자 > '20180731' THEN substr(M07_최종카드발급일자, 1, 6) = '201807' ELSE PASS
+    """
+    dd = df[["M07_최종카드발급일자"]]
+    res = dd.apply(lambda x: x[0] if pd.isna(x[0]) else ('201807' + x[0][-2:] if x[0] > '20180731' else x[0]), axis=1)
+    return res
+
+
 # 01_M08
 @constraint_udf
 def cfs_01_0092(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
@@ -7272,6 +7687,18 @@ def cfs_01_0116(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
     dd = df[["M07_탈회횟수_누적", "M08_탈회횟수_누적", "M07_최종탈회후경과월"]]
     res = dd.apply(lambda x: x[2] + 1 if (x[0] > 0) & (x[0] == x[1]) else 0, axis=1)
+    return res
+
+
+@constraint_udf
+def cfs_01_0154(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+    """
+    formula:
+        IF (M08_최종카드발급일자 != Null) & (substr(M08_최종카드발급일자, 1, 6) != '201808')
+        THEN M08_최종카드발급일자 = M07_최종카드발급일자 ELSE PASS
+    """
+    dd = df[["M08_최종카드발급일자", "M07_최종카드발급일자"]]
+    res = dd.apply(lambda x: x[0] if pd.isna(x[0]) else (x[1] if x[0][:6] != '201808' else x[0]), axis=1)
     return res
 
 
@@ -7370,6 +7797,19 @@ def cfs_01_0205(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     return res
 
 
+@constraint_udf
+def cfs_01_0243(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+    """
+    formula:
+        IF (M09_최종카드발급일자 != Null) & (substr(M09_최종카드발급일자, 1, 6) != '201809')
+        THEN M09_최종카드발급일자 = M08_최종카드발급일자 ELSE PASS
+    """
+    dd = df[["M09_최종카드발급일자", "M08_최종카드발급일자"]]
+    res = dd.apply(lambda x: x[0] if pd.isna(x[0]) else (x[1] if x[0][:6] != '201809' else x[0]), axis=1)
+    res = res.replace({'20180931': '20180930'})
+    return res
+
+
 # 01_M10
 @constraint_udf
 def cfs_01_0270(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
@@ -7462,6 +7902,18 @@ def cfs_01_0294(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
     dd = df[["M09_탈회횟수_누적", "M10_탈회횟수_누적", "M09_최종탈회후경과월"]]
     res = dd.apply(lambda x: x[2] + 1 if (x[0] > 0) & (x[0] == x[1]) else 0, axis=1)
+    return res
+
+
+@constraint_udf
+def cfs_01_0332(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+    """
+    formula:
+        IF (M10_최종카드발급일자 != Null) & (substr(M10_최종카드발급일자, 1, 6) != '201810')
+        THEN M10_최종카드발급일자 = M09_최종카드발급일자 ELSE PASS
+    """
+    dd = df[["M10_최종카드발급일자", "M09_최종카드발급일자"]]
+    res = dd.apply(lambda x: x[0] if pd.isna(x[0]) else (x[1] if x[0][:6] != '201810' else x[0]), axis=1)
     return res
 
 
@@ -7560,6 +8012,19 @@ def cfs_01_0383(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     return res
 
 
+@constraint_udf
+def cfs_01_0421(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+    """
+    formula:
+        IF (M11_최종카드발급일자 != Null) & (substr(M11_최종카드발급일자, 1, 6) != '201811')
+        THEN M11_최종카드발급일자 = M10_최종카드발급일자 ELSE PASS
+    """
+    dd = df[["M11_최종카드발급일자", "M10_최종카드발급일자"]]
+    res = dd.apply(lambda x: x[0] if pd.isna(x[0]) else (x[1] if x[0][:6] != '201811' else x[0]), axis=1)
+    res = res.replace({'20181131': '20181130'})
+    return res
+
+
 # 01_M12
 @constraint_udf
 def cfs_01_0448(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
@@ -7652,6 +8117,18 @@ def cfs_01_0472(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
     dd = df[["M11_탈회횟수_누적", "M12_탈회횟수_누적", "M11_최종탈회후경과월"]]
     res = dd.apply(lambda x: x[2] + 1 if (x[0] > 0) & (x[0] == x[1]) else 0, axis=1)
+    return res
+
+
+@constraint_udf
+def cfs_01_0510(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+    """
+    formula:
+        IF (M12_최종카드발급일자 != Null) & (substr(M12_최종카드발급일자, 1, 6) != '201812')
+        THEN M12_최종카드발급일자 = M11_최종카드발급일자 ELSE PASS
+    """
+    dd = df[["M12_최종카드발급일자", "M11_최종카드발급일자"]]
+    res = dd.apply(lambda x: x[0] if pd.isna(x[0]) else (x[1] if x[0][:6] != '201812' else x[0]), axis=1)
     return res
 
 
@@ -11652,6 +12129,81 @@ def cfs_08_0448(df: pd.DataFrame) -> Union[pd.Series, List[float]]:
 
 # 03_M07
 @constraint_udf
+def cfs_03_0005(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+    """
+    formula:
+        IF M07_이용건수_CA_B0M > 0 THEN substr(M07_최종이용일자_CA, 1, 6) = M07_기준년월
+        ELIF substr(M07_최종이용일자_CA) >= M07_기준년월 THEN M07_ 최종이용일자_CA -= k-year (1<=k<=3)
+        ELSE PASS
+    """
+    dd = df[["M07_최종이용일자_CA", "M07_이용건수_CA_B0M"]]
+    res = dd.apply(lambda x: '201807' + x[0][-2:] if (~pd.isna(x[0]) and x[0] != '10101' and x[1] > 0)
+                   else (str(int(x[0]) - np.random.choice([10000, 20000, 30000])) if (~pd.isna(x[0]) and x[0] != '10101' and x[0][:6] >= '201807')
+                         else x[0]), axis=1)
+    return res
+
+
+@constraint_udf
+def cfs_03_0006(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+    """
+    formula:
+        IF M07_이용건수_카드론_B0M > 0 THEN substr(M07_최종이용일자_카드론, 1, 6) = M07_기준년월
+        ELIF substr(M07_최종이용일자_카드론) >= M07_기준년월 THEN M07_ 최종이용일자_카드론 -= k-year (1<=k<=3)
+        ELSE PASS
+    """
+    dd = df[["M07_최종이용일자_카드론", "M07_이용건수_카드론_B0M"]]
+    res = dd.apply(lambda x: '201807' + x[0][-2:] if (~pd.isna(x[0]) and x[0] != '10101' and x[1] > 0)
+                   else (str(int(x[0]) - np.random.choice([10000, 20000, 30000])) if (~pd.isna(x[0]) and x[0] != '10101' and x[0][:6] >= '201807')
+                         else x[0]), axis=1)
+    return res
+
+
+@constraint_udf
+def cfs_03_0007(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+    """
+    formula:
+        IF M07_이용건수_체크_B0M > 0 THEN substr(M07_최종이용일자_체크, 1, 6) = M07_기준년월
+        ELIF substr(M07_최종이용일자_체크) >= M07_기준년월 THEN M07_ 최종이용일자_체크 -= k-year (1<=k<=3)
+        ELSE PASS
+    """
+    dd = df[["M07_최종이용일자_체크", "M07_이용건수_체크_B0M"]]
+    res = dd.apply(lambda x: '201807' + x[0][-2:] if (~pd.isna(x[0]) and x[0] != '10101' and x[1] > 0)
+                   else (str(int(x[0]) - np.random.choice([10000, 20000, 30000])) if (~pd.isna(x[0]) and x[0] != '10101' and x[0][:6] >= '201807')
+                         else x[0]), axis=1)
+    return res
+
+
+@constraint_udf
+def cfs_03_0008(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+    """
+    formula:
+        IF M07_이용건수_일시불_B0M > 0 THEN substr(M07_최종이용일자_일시불, 1, 6) = M07_기준년월
+        ELIF substr(M07_최종이용일자_일시불) >= M07_기준년월 THEN M07_ 최종이용일자_일시불 -= k-year (1<=k<=3)
+        ELSE PASS
+    """
+    dd = df[["M07_최종이용일자_일시불", "M07_이용건수_일시불_B0M"]]
+    res = dd.apply(lambda x: '201807' + x[0][-2:] if (~pd.isna(x[0]) and x[0] != '10101' and x[1] > 0)
+                   else (str(int(x[0]) - np.random.choice([10000, 20000, 30000])) if (~pd.isna(x[0]) and x[0] != '10101' and x[0][:6] >= '201807')
+                         else x[0]), axis=1)
+    return res
+
+
+@constraint_udf
+def cfs_03_0009(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+    """
+    formula:
+        IF M07_이용건수_할부_B0M > 0 THEN substr(M07_최종이용일자_할부, 1, 6) = M07_기준년월
+        ELIF substr(M07_최종이용일자_할부) >= M07_기준년월 THEN M07_ 최종이용일자_할부 -= k-year (1<=k<=3)
+        ELSE PASS
+    """
+    dd = df[["M07_최종이용일자_할부", "M07_이용건수_할부_B0M"]]
+    res = dd.apply(lambda x: '201807' + x[0][-2:] if (~pd.isna(x[0]) and x[0] != '10101' and x[1] > 0)
+                   else (str(int(x[0]) - np.random.choice([10000, 20000, 30000])) if (~pd.isna(x[0]) and x[0] != '10101' and x[0][:6] >= '201807')
+                         else x[0]), axis=1)
+    return res
+
+
+@constraint_udf
 def cfs_03_0262(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
     formula:
@@ -11833,6 +12385,71 @@ def cfs_03_0273(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
 
 # 03_M08
 @constraint_udf
+def cfs_03_0466(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+    """
+    formula:
+        IF M08_이용건수_CA_B0M > 0 THEN substr(M08_최종이용일자_CA, 1, 6) = '201808'
+        ELSE M08_최종이용일자_CA = M07_최종이용일자_CA
+    """
+    dd = df[["M08_최종이용일자_CA", "M08_이용건수_CA_B0M", "M07_최종이용일자_CA"]]
+    res = dd.apply(lambda x: '201808' + x[0][-2:] if (~pd.isna(x[0]) and x[0] != '10101' and x[1] > 0)
+                   else x[2], axis=1)
+    return res
+
+
+@constraint_udf
+def cfs_03_0467(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+    """
+    formula:
+        IF M08_이용건수_카드론_B0M > 0 THEN substr(M08_최종이용일자_카드론, 1, 6) = '201808'
+        ELSE M08_최종이용일자_카드론 = M07_최종이용일자_카드론
+    """
+    dd = df[["M08_최종이용일자_카드론", "M08_이용건수_카드론_B0M", "M07_최종이용일자_카드론"]]
+    res = dd.apply(lambda x: '201808' + x[0][-2:] if (~pd.isna(x[0]) and x[0] != '10101' and x[1] > 0)
+                   else x[2], axis=1)
+    return res
+
+
+@constraint_udf
+def cfs_03_0468(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+    """
+    formula:
+        IF M08_이용건수_체크_B0M > 0 THEN substr(M08_최종이용일자_체크, 1, 6) = '201808'
+        ELSE M08_최종이용일자_체크 = M07_최종이용일자_체크
+    """
+    dd = df[["M08_최종이용일자_체크", "M08_이용건수_체크_B0M", "M07_최종이용일자_체크"]]
+    res = dd.apply(lambda x: '201808' + x[0][-2:] if (~pd.isna(x[0]) and x[0] != '10101' and x[1] > 0)
+                   else x[2], axis=1)
+    return res
+
+
+@constraint_udf
+def cfs_03_0469(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+    """
+    formula:
+        IF M08_이용건수_일시불_B0M > 0 THEN substr(M08_최종이용일자_일시불, 1, 6) = '201808'
+        ELSE M08_최종이용일자_일시불 = M07_최종이용일자_일시불
+    """
+    dd = df[["M08_최종이용일자_일시불", "M08_이용건수_일시불_B0M", "M07_최종이용일자_일시불"]]
+    res = dd.apply(lambda x: '201808' + x[0][-2:] if (~pd.isna(x[0]) and x[0] != '10101' and x[1] > 0)
+                   else x[2], axis=1)
+    return res
+
+
+@constraint_udf
+def cfs_03_0470(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+    """
+    formula:
+        IF M08_이용건수_할부_B0M > 0 THEN substr(M08_최종이용일자_할부, 1, 6) = '201808'
+        ELSE M08_최종이용일자_할부 = M07_최종이용일자_할부
+    """
+    dd = df[["M08_최종이용일자_할부", "M08_이용건수_할부_B0M", "M07_최종이용일자_할부"]]
+    res = dd.apply(lambda x: '201808' + x[0][-2:] if (~pd.isna(x[0]) and x[0] != '10101' and x[1] > 0)
+                   else x[2], axis=1)
+    return res
+
+
+@constraint_udf
 def cfs_03_0723(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
     formula:
@@ -11994,6 +12611,40 @@ def cfs_03_0736(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
 
 
 @constraint_udf
+def cfs_03_0737(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+    """
+    formula:
+        M08_카드론이용건수_누적 = M07_카드론이용건수_누적 + M08_이용건수_카드론_B0M
+    """
+    c1, c2 = df["M07_카드론이용건수_누적"], df["M08_이용건수_카드론_B0M"]
+    res = c1 + c2
+    return res
+
+
+@constraint_udf
+def cfs_03_0738(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+    """
+    formula:
+        IF M08_이용건수_카드론_B0M > 0 THEN M08_카드론이용월수_누적 = M07_카드론이용월수_누적 + 1
+        ELSE M08_카드론이용월수_누적 = M07_카드론이용월수_누적
+    """
+    dd = df[["M07_카드론이용월수_누적", "M08_이용건수_카드론_B0M"]]
+    res = dd.apply(lambda x: x[0] + int(x[1] > 0), axis=1)
+    return res
+
+
+@constraint_udf
+def cfs_03_0739(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+    """
+    formula:
+        M08_카드론이용금액_누적 = M07_카드론이용금액_누적 + M08_이용금액_카드론_B0M
+    """
+    c1, c2 = df["M07_카드론이용금액_누적"], df["M08_이용금액_카드론_B0M"]
+    res = c1 + c2
+    return res
+
+
+@constraint_udf
 def cfs_03_0843(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
     formula:
@@ -12136,6 +12787,72 @@ def cfs_03_0888(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
 
 
 # 03_M09
+@constraint_udf
+def cfs_03_0927(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+    """
+    formula:
+        IF M09_이용건수_CA_B0M > 0 THEN substr(M09_최종이용일자_CA, 1, 6) = '201809'
+        ELSE M09_최종이용일자_CA = M08_최종이용일자_CA
+    """
+    dd = df[["M09_최종이용일자_CA", "M09_이용건수_CA_B0M", "M08_최종이용일자_CA"]]
+    res = dd.apply(lambda x: '201809' + x[0][-2:] if (~pd.isna(x[0]) and x[0] != '10101' and x[1] > 0)
+                   else x[2], axis=1)
+    res = res.replace({'20180931': '20180930'})
+    return res
+
+
+@constraint_udf
+def cfs_03_0928(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+    """
+    formula:
+        IF M09_이용건수_카드론_B0M > 0 THEN substr(M09_최종이용일자_카드론, 1, 6) = '201809'
+        ELSE M09_최종이용일자_카드론 = M08_최종이용일자_카드론
+    """
+    dd = df[["M09_최종이용일자_카드론", "M09_이용건수_카드론_B0M", "M08_최종이용일자_카드론"]]
+    res = dd.apply(lambda x: '201809' + x[0][-2:] if (~pd.isna(x[0]) and x[0] != '10101' and x[1] > 0)
+                   else x[2], axis=1)
+    return res
+
+
+@constraint_udf
+def cfs_03_0929(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+    """
+    formula:
+        IF M09_이용건수_체크_B0M > 0 THEN substr(M09_최종이용일자_체크, 1, 6) = '201809'
+        ELSE M09_최종이용일자_체크 = M08_최종이용일자_체크
+    """
+    dd = df[["M09_최종이용일자_체크", "M09_이용건수_체크_B0M", "M08_최종이용일자_체크"]]
+    res = dd.apply(lambda x: '201809' + x[0][-2:] if (~pd.isna(x[0]) and x[0] != '10101' and x[1] > 0)
+                   else x[2], axis=1)
+    return res
+
+
+@constraint_udf
+def cfs_03_0930(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+    """
+    formula:
+        IF M09_이용건수_일시불_B0M > 0 THEN substr(M09_최종이용일자_일시불, 1, 6) = '201809'
+        ELSE M09_최종이용일자_일시불 = M08_최종이용일자_일시불
+    """
+    dd = df[["M09_최종이용일자_일시불", "M09_이용건수_일시불_B0M", "M08_최종이용일자_일시불"]]
+    res = dd.apply(lambda x: '201809' + x[0][-2:] if (~pd.isna(x[0]) and x[0] != '10101' and x[1] > 0)
+                   else x[2], axis=1)
+    return res
+
+
+@constraint_udf
+def cfs_03_0931(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+    """
+    formula:
+        IF M09_이용건수_할부_B0M > 0 THEN substr(M09_최종이용일자_할부, 1, 6) = '201809'
+        ELSE M09_최종이용일자_할부 = M08_최종이용일자_할부
+    """
+    dd = df[["M09_최종이용일자_할부", "M09_이용건수_할부_B0M", "M08_최종이용일자_할부"]]
+    res = dd.apply(lambda x: '201809' + x[0][-2:] if (~pd.isna(x[0]) and x[0] != '10101' and x[1] > 0)
+                   else x[2], axis=1)
+    return res
+
+
 @constraint_udf
 def cfs_03_1032(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
@@ -12497,6 +13214,40 @@ def cfs_03_1195(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
     dd = df[["M09_RP건수_교통_B0M", "M08_RP후경과월_교통"]]
     res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+    return res
+
+
+@constraint_udf
+def cfs_03_1198(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+    """
+    formula:
+        M09_카드론이용건수_누적 = M08_카드론이용건수_누적 + M09_이용건수_카드론_B0M
+    """
+    c1, c2 = df["M08_카드론이용건수_누적"], df["M09_이용건수_카드론_B0M"]
+    res = c1 + c2
+    return res
+
+
+@constraint_udf
+def cfs_03_1199(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+    """
+    formula:
+        IF M09_이용건수_카드론_B0M > 0 THEN M09_카드론이용월수_누적 = M08_카드론이용월수_누적 + 1
+        ELSE M09_카드론이용월수_누적 = M08_카드론이용월수_누적
+    """
+    dd = df[["M08_카드론이용월수_누적", "M09_이용건수_카드론_B0M"]]
+    res = dd.apply(lambda x: x[0] + int(x[1] > 0), axis=1)
+    return res
+
+
+@constraint_udf
+def cfs_03_1200(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+    """
+    formula:
+        M09_카드론이용금액_누적 = M08_카드론이용금액_누적 + M09_이용금액_카드론_B0M
+    """
+    c1, c2 = df["M08_카드론이용금액_누적"], df["M09_이용금액_카드론_B0M"]
+    res = c1 + c2
     return res
 
 
@@ -13052,6 +13803,71 @@ def cfs_03_1349(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
 
 
 # 03_M10
+@constraint_udf
+def cfs_03_1388(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+    """
+    formula:
+        IF M10_이용건수_CA_B0M > 0 THEN substr(M10_최종이용일자_CA, 1, 6) = '201810'
+        ELSE M10_최종이용일자_CA = M09_최종이용일자_CA
+    """
+    dd = df[["M10_최종이용일자_CA", "M10_이용건수_CA_B0M", "M09_최종이용일자_CA"]]
+    res = dd.apply(lambda x: '201810' + x[0][-2:] if (~pd.isna(x[0]) and x[0] != '10101' and x[1] > 0)
+                   else x[2], axis=1)
+    return res
+
+
+@constraint_udf
+def cfs_03_1389(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+    """
+    formula:
+        IF M10_이용건수_카드론_B0M > 0 THEN substr(M10_최종이용일자_카드론, 1, 6) = '201810'
+        ELSE M10_최종이용일자_카드론 = M09_최종이용일자_카드론
+    """
+    dd = df[["M10_최종이용일자_카드론", "M10_이용건수_카드론_B0M", "M09_최종이용일자_카드론"]]
+    res = dd.apply(lambda x: '201810' + x[0][-2:] if (~pd.isna(x[0]) and x[0] != '10101' and x[1] > 0)
+                   else x[2], axis=1)
+    return res
+
+
+@constraint_udf
+def cfs_03_1390(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+    """
+    formula:
+        IF M10_이용건수_체크_B0M > 0 THEN substr(M10_최종이용일자_체크, 1, 6) = '201810'
+        ELSE M10_최종이용일자_체크 = M09_최종이용일자_체크
+    """
+    dd = df[["M10_최종이용일자_체크", "M10_이용건수_체크_B0M", "M09_최종이용일자_체크"]]
+    res = dd.apply(lambda x: '201810' + x[0][-2:] if (~pd.isna(x[0]) and x[0] != '10101' and x[1] > 0)
+                   else x[2], axis=1)
+    return res
+
+
+@constraint_udf
+def cfs_03_1391(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+    """
+    formula:
+        IF M10_이용건수_일시불_B0M > 0 THEN substr(M10_최종이용일자_일시불, 1, 6) = '201810'
+        ELSE M10_최종이용일자_일시불 = M09_최종이용일자_일시불
+    """
+    dd = df[["M10_최종이용일자_일시불", "M10_이용건수_일시불_B0M", "M09_최종이용일자_일시불"]]
+    res = dd.apply(lambda x: '201810' + x[0][-2:] if (~pd.isna(x[0]) and x[0] != '10101' and x[1] > 0)
+                   else x[2], axis=1)
+    return res
+
+
+@constraint_udf
+def cfs_03_1392(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+    """
+    formula:
+        IF M10_이용건수_할부_B0M > 0 THEN substr(M10_최종이용일자_할부, 1, 6) = '201810'
+        ELSE M10_최종이용일자_할부 = M09_최종이용일자_할부
+    """
+    dd = df[["M10_최종이용일자_할부", "M10_이용건수_할부_B0M", "M09_최종이용일자_할부"]]
+    res = dd.apply(lambda x: '201810' + x[0][-2:] if (~pd.isna(x[0]) and x[0] != '10101' and x[1] > 0)
+                   else x[2], axis=1)
+    return res
+
+
 @constraint_udf
 def cfs_03_1463(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
@@ -13655,6 +14471,40 @@ def cfs_03_1656(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
     dd = df[["M10_RP건수_교통_B0M", "M09_RP후경과월_교통"]]
     res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+    return res
+
+
+@constraint_udf
+def cfs_03_1659(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+    """
+    formula:
+        M10_카드론이용건수_누적 = M09_카드론이용건수_누적 + M10_이용건수_카드론_B0M
+    """
+    c1, c2 = df["M09_카드론이용건수_누적"], df["M10_이용건수_카드론_B0M"]
+    res = c1 + c2
+    return res
+
+
+@constraint_udf
+def cfs_03_1660(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+    """
+    formula:
+        IF M10_이용건수_카드론_B0M > 0 THEN M10_카드론이용월수_누적 = M09_카드론이용월수_누적 + 1
+        ELSE M10_카드론이용월수_누적 = M09_카드론이용월수_누적
+    """
+    dd = df[["M09_카드론이용월수_누적", "M10_이용건수_카드론_B0M"]]
+    res = dd.apply(lambda x: x[0] + int(x[1] > 0), axis=1)
+    return res
+
+
+@constraint_udf
+def cfs_03_1661(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+    """
+    formula:
+        M10_카드론이용금액_누적 = M09_카드론이용금액_누적 + M10_이용금액_카드론_B0M
+    """
+    c1, c2 = df["M09_카드론이용금액_누적"], df["M10_이용금액_카드론_B0M"]
+    res = c1 + c2
     return res
 
 
@@ -14508,6 +15358,72 @@ def cfs_03_1810(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
 
 # 03_M11
 @constraint_udf
+def cfs_03_1849(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+    """
+    formula:
+        IF M11_이용건수_CA_B0M > 0 THEN substr(M11_최종이용일자_CA, 1, 6) = '201811'
+        ELSE M11_최종이용일자_CA = M10_최종이용일자_CA
+    """
+    dd = df[["M11_최종이용일자_CA", "M11_이용건수_CA_B0M", "M10_최종이용일자_CA"]]
+    res = dd.apply(lambda x: '201811' + x[0][-2:] if (~pd.isna(x[0]) and x[0] != '10101' and x[1] > 0)
+                   else x[2], axis=1)
+    res = res.replace({'20181131': '20181130'})
+    return res
+
+
+@constraint_udf
+def cfs_03_1850(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+    """
+    formula:
+        IF M11_이용건수_카드론_B0M > 0 THEN substr(M11_최종이용일자_카드론, 1, 6) = '201811'
+        ELSE M11_최종이용일자_카드론 = M10_최종이용일자_카드론
+    """
+    dd = df[["M11_최종이용일자_카드론", "M11_이용건수_카드론_B0M", "M10_최종이용일자_카드론"]]
+    res = dd.apply(lambda x: '201811' + x[0][-2:] if (~pd.isna(x[0]) and x[0] != '10101' and x[1] > 0)
+                   else x[2], axis=1)
+    return res
+
+
+@constraint_udf
+def cfs_03_1851(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+    """
+    formula:
+        IF M11_이용건수_체크_B0M > 0 THEN substr(M11_최종이용일자_체크, 1, 6) = '201811'
+        ELSE M11_최종이용일자_체크 = M10_최종이용일자_체크
+    """
+    dd = df[["M11_최종이용일자_체크", "M11_이용건수_체크_B0M", "M10_최종이용일자_체크"]]
+    res = dd.apply(lambda x: '201811' + x[0][-2:] if (~pd.isna(x[0]) and x[0] != '10101' and x[1] > 0)
+                   else x[2], axis=1)
+    return res
+
+
+@constraint_udf
+def cfs_03_1852(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+    """
+    formula:
+        IF M11_이용건수_일시불_B0M > 0 THEN substr(M11_최종이용일자_일시불, 1, 6) = '201811'
+        ELSE M11_최종이용일자_일시불 = M10_최종이용일자_일시불
+    """
+    dd = df[["M11_최종이용일자_일시불", "M11_이용건수_일시불_B0M", "M10_최종이용일자_일시불"]]
+    res = dd.apply(lambda x: '201811' + x[0][-2:] if (~pd.isna(x[0]) and x[0] != '10101' and x[1] > 0)
+                   else x[2], axis=1)
+    return res
+
+
+@constraint_udf
+def cfs_03_1853(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+    """
+    formula:
+        IF M11_이용건수_할부_B0M > 0 THEN substr(M11_최종이용일자_할부, 1, 6) = '201811'
+        ELSE M11_최종이용일자_할부 = M10_최종이용일자_할부
+    """
+    dd = df[["M11_최종이용일자_할부", "M11_이용건수_할부_B0M", "M10_최종이용일자_할부"]]
+    res = dd.apply(lambda x: '201811' + x[0][-2:] if (~pd.isna(x[0]) and x[0] != '10101' and x[1] > 0)
+                   else x[2], axis=1)
+    return res
+
+
+@constraint_udf
 def cfs_03_1924(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
     formula:
@@ -15110,6 +16026,40 @@ def cfs_03_2117(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
     dd = df[["M11_RP건수_교통_B0M", "M10_RP후경과월_교통"]]
     res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+    return res
+
+
+@constraint_udf
+def cfs_03_2120(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+    """
+    formula:
+        M11_카드론이용건수_누적 = M10_카드론이용건수_누적 + M11_이용건수_카드론_B0M
+    """
+    c1, c2 = df["M10_카드론이용건수_누적"], df["M11_이용건수_카드론_B0M"]
+    res = c1 + c2
+    return res
+
+
+@constraint_udf
+def cfs_03_2121(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+    """
+    formula:
+        IF M11_이용건수_카드론_B0M > 0 THEN M11_카드론이용월수_누적 = M10_카드론이용월수_누적 + 1
+        ELSE M11_카드론이용월수_누적 = M10_카드론이용월수_누적
+    """
+    dd = df[["M10_카드론이용월수_누적", "M11_이용건수_카드론_B0M"]]
+    res = dd.apply(lambda x: x[0] + int(x[1] > 0), axis=1)
+    return res
+
+
+@constraint_udf
+def cfs_03_2122(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+    """
+    formula:
+        M11_카드론이용금액_누적 = M10_카드론이용금액_누적 + M11_이용금액_카드론_B0M
+    """
+    c1, c2 = df["M10_카드론이용금액_누적"], df["M11_이용금액_카드론_B0M"]
+    res = c1 + c2
     return res
 
 
@@ -15963,6 +16913,71 @@ def cfs_03_2271(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
 
 # 03_M12
 @constraint_udf
+def cfs_03_2310(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+    """
+    formula:
+        IF M12_이용건수_CA_B0M > 0 THEN substr(M12_최종이용일자_CA, 1, 6) = '201812'
+        ELSE M12_최종이용일자_CA = M11_최종이용일자_CA
+    """
+    dd = df[["M12_최종이용일자_CA", "M12_이용건수_CA_B0M", "M11_최종이용일자_CA"]]
+    res = dd.apply(lambda x: '201812' + x[0][-2:] if (~pd.isna(x[0]) and x[0] != '10101' and x[1] > 0)
+                   else x[2], axis=1)
+    return res
+
+
+@constraint_udf
+def cfs_03_2311(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+    """
+    formula:
+        IF M12_이용건수_카드론_B0M > 0 THEN substr(M12_최종이용일자_카드론, 1, 6) = '201812'
+        ELSE M12_최종이용일자_카드론 = M11_최종이용일자_카드론
+    """
+    dd = df[["M12_최종이용일자_카드론", "M12_이용건수_카드론_B0M", "M11_최종이용일자_카드론"]]
+    res = dd.apply(lambda x: '201812' + x[0][-2:] if (~pd.isna(x[0]) and x[0] != '10101' and x[1] > 0)
+                   else x[2], axis=1)
+    return res
+
+
+@constraint_udf
+def cfs_03_2312(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+    """
+    formula:
+        IF M12_이용건수_체크_B0M > 0 THEN substr(M12_최종이용일자_체크, 1, 6) = '201812'
+        ELSE M12_최종이용일자_체크 = M11_최종이용일자_체크
+    """
+    dd = df[["M12_최종이용일자_체크", "M12_이용건수_체크_B0M", "M11_최종이용일자_체크"]]
+    res = dd.apply(lambda x: '201812' + x[0][-2:] if (~pd.isna(x[0]) and x[0] != '10101' and x[1] > 0)
+                   else x[2], axis=1)
+    return res
+
+
+@constraint_udf
+def cfs_03_2313(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+    """
+    formula:
+        IF M12_이용건수_일시불_B0M > 0 THEN substr(M12_최종이용일자_일시불, 1, 6) = '201812'
+        ELSE M12_최종이용일자_일시불 = M11_최종이용일자_일시불
+    """
+    dd = df[["M12_최종이용일자_일시불", "M12_이용건수_일시불_B0M", "M11_최종이용일자_일시불"]]
+    res = dd.apply(lambda x: '201812' + x[0][-2:] if (~pd.isna(x[0]) and x[0] != '10101' and x[1] > 0)
+                   else x[2], axis=1)
+    return res
+
+
+@constraint_udf
+def cfs_03_2314(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+    """
+    formula:
+        IF M12_이용건수_할부_B0M > 0 THEN substr(M12_최종이용일자_할부, 1, 6) = '201812'
+        ELSE M12_최종이용일자_할부 = M11_최종이용일자_할부
+    """
+    dd = df[["M12_최종이용일자_할부", "M12_이용건수_할부_B0M", "M11_최종이용일자_할부"]]
+    res = dd.apply(lambda x: '201812' + x[0][-2:] if (~pd.isna(x[0]) and x[0] != '10101' and x[1] > 0)
+                   else x[2], axis=1)
+    return res
+
+
+@constraint_udf
 def cfs_03_2385(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
     formula:
@@ -16675,6 +17690,40 @@ def cfs_03_2578(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
     """
     dd = df[["M12_RP건수_교통_B0M", "M11_RP후경과월_교통"]]
     res = dd.apply(lambda x: 0 if x[0] > 0 else min(x[1] + 1, 6), axis=1)
+    return res
+
+
+@constraint_udf
+def cfs_03_2581(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+    """
+    formula:
+        M12_카드론이용건수_누적 = M11_카드론이용건수_누적 + M12_이용건수_카드론_B0M
+    """
+    c1, c2 = df["M11_카드론이용건수_누적"], df["M12_이용건수_카드론_B0M"]
+    res = c1 + c2
+    return res
+
+
+@constraint_udf
+def cfs_03_2582(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+    """
+    formula:
+        IF M12_이용건수_카드론_B0M > 0 THEN M12_카드론이용월수_누적 = M11_카드론이용월수_누적 + 1
+        ELSE M12_카드론이용월수_누적 = M11_카드론이용월수_누적
+    """
+    dd = df[["M11_카드론이용월수_누적", "M12_이용건수_카드론_B0M"]]
+    res = dd.apply(lambda x: x[0] + int(x[1] > 0), axis=1)
+    return res
+
+
+@constraint_udf
+def cfs_03_2583(df: pd.DataFrame) -> Union[pd.Series, List[int]]:
+    """
+    formula:
+        M12_카드론이용금액_누적 = M11_카드론이용금액_누적 + M12_이용금액_카드론_B0M
+    """
+    c1, c2 = df["M11_카드론이용금액_누적"], df["M12_이용금액_카드론_B0M"]
+    res = c1 + c2
     return res
 
 

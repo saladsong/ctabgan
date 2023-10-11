@@ -41,11 +41,18 @@ def constraint_udf(func):
 
 def isNaN(val):
     # NaN 검증용
-    return val != val
+    return (val is None) or (val != val)
 
 
 constraints = [
     # 1.회원 테이블 컬럼 Formula
+    {
+        "columns": [],
+        "output": "입회일자_신용",
+        "fname": "cf_01_0017",
+        "type": "formula",
+        "content": "입회일자_신용 = CONCAT(SUBSTR(입회일자_신용, 1, 6), '01')",
+    },
     {
         "columns": ["기준년월", "입회일자_신용"],
         "output": "입회경과개월수_신용",
@@ -1597,6 +1604,17 @@ constraints = [
 # --------- constraint/formula 함수 정의 ---------
 # cc: check constraint
 # cf: check formula
+
+
+@constraint_udf
+def cf_01_0017(df: pd.DataFrame) -> Union[pd.Series, List[str]]:
+    """
+    formula:
+        입회일자_신용 = CONCAT(SUBSTR(입회일자_신용, 1, 6), '01')
+    """
+    dd = df["입회일자_신용"]
+    res = dd.apply(lambda x: f'{x[:6]}01')
+    return res
 
 
 @constraint_udf
