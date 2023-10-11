@@ -41,7 +41,7 @@ def constraint_udf(func):
 
 def isNaN(val):
     # NaN 검증용
-    return val != val
+    return (val is None) or (val != val)
 
 
 constraints = [
@@ -233,6 +233,13 @@ constraints = [
         "content": "소지카드수_이용가능_신용 <= 소지카드수_유효_신용",
     },
     # 1.회원 테이블 컬럼 Formula
+    {
+        "columns": [],
+        "output": "입회일자_신용",
+        "fname": "cf_01_0017",
+        "type": "formula",
+        "content": "입회일자_신용 = CONCAT(SUBSTR(입회일자_신용, 1, 6), '01')",
+    },
     {
         "columns": ["기준년월", "입회일자_신용"],
         "output": "입회경과개월수_신용",
@@ -1279,6 +1286,7 @@ constraints = [
         "type": "formula",
         "content": "당사PAY_방문월수_R6M = 0",
     },
+
     # 7.마케팅 테이블 컬럼 Constraint
     {
         "columns": ["컨택건수_카드론_TM_B0M", "컨택건수_카드론_TM_R6M"],
@@ -1565,6 +1573,7 @@ constraints = [
         "type": "formula",
         "content": "컨택건수_리볼빙_당사앱_R6M = 0",
     },
+
     # 8.성과 테이블 컬럼 Constraints
     {
         "columns": ["증감율_이용건수_신판_전월", "증감율_이용건수_CA_전월", "증감율_이용건수_신용_전월"],
@@ -1648,77 +1657,78 @@ constraints = [
     },
     # 8.성과 테이블 컬럼 Formula
     {
-        "columns": ["증감율_이용건수_CA_전월", "증감율_이용건수_신판_전월", "증감율_이용건수_신용_전월"],
+        "columns": ["증감율_이용건수_CA_전월", "증감율_이용건수_신판_전월"],
         "output": "증감율_이용건수_신용_전월",
         "fname": "cf_08_0005",
-        "type": "formula",
+        "type": "cond_formula",
         "content": """IF 증감율_이용건수_CA_전월 == 0 THEN 증감율_이용건수_신용_전월 = 증감율_이용건수_신판_전월
                        ELIF 증감율_이용건수_신판_전월 == 0 THEN 증감율_이용건수_신용_전월 = 증감율_이용건수_CA_전월
                        ELSE PASS""",
     },
     {
-        "columns": ["증감율_이용건수_할부_전월", "증감율_이용건수_일시불_전월", "증감율_이용건수_신판_전월"],
+        "columns": ["증감율_이용건수_할부_전월", "증감율_이용건수_일시불_전월"],
         "output": "증감율_이용건수_신판_전월",
         "fname": "cf_08_0006",
-        "type": "formula",
+        "type": "cond_formula",
         "content": """IF 증감율_이용건수_할부_전월 == 0 THEN 증감율_이용건수_신판_전월 = 증감율_이용건수_일시불_전월
                       ELIF 증감율_이용건수_일시불_전월 == 0 THEN 증감율_이용건수_신판_전월 = 증감율_이용건수_할부_전월
                       ELSE PASS""",
     },
     {
-        "columns": ["증감율_이용금액_CA_전월", "증감율_이용금액_신판_전월", "증감율_이용금액_신용_전월"],
+        "columns": ["증감율_이용금액_CA_전월", "증감율_이용금액_신판_전월"],
         "output": "증감율_이용금액_신용_전월",
         "fname": "cf_08_0012",
-        "type": "formula",
+        "type": "cond_formula",
         "content": """IF 증감율_이용금액_CA_전월 == 0 THEN 증감율_이용금액_신용_전월 = 증감율_이용금액_신판_전월
                        ELIF 증감율_이용금액_신판_전월 == 0 THEN 증감율_이용금액_신용_전월 = 증감율_이용금액_CA_전월
                        ELSE PASS""",
     },
     {
-        "columns": ["증감율_이용금액_할부_전월", "증감율_이용금액_일시불_전월", "증감율_이용금액_신판_전월"],
+        "columns": ["증감율_이용금액_할부_전월", "증감율_이용금액_일시불_전월"],
         "output": "증감율_이용금액_신판_전월",
         "fname": "cf_08_0013",
-        "type": "formula",
+        "type": "cond_formula",
         "content": """IF 증감율_이용금액_할부_전월 == 0 THEN 증감율_이용금액_신판_전월 = 증감율_이용금액_일시불_전월
                       ELIF 증감율_이용금액_일시불_전월 == 0 THEN 증감율_이용금액_신판_전월 = 증감율_이용금액_할부_전월
                       ELSE PASS""",
     },
     {
-        "columns": ["증감율_이용건수_CA_분기", "증감율_이용건수_신판_분기", "증감율_이용건수_신용_분기"],
+        "columns": ["증감율_이용건수_CA_분기", "증감율_이용건수_신판_분기"],
         "output": "증감율_이용건수_신용_분기",
         "fname": "cf_08_0033",
-        "type": "formula",
+        "type": "cond_formula",
         "content": """IF 증감율_이용건수_CA_분기 == 0 THEN 증감율_이용건수_신용_분기 = 증감율_이용건수_신판_분기
                        ELIF 증감율_이용건수_신판_분기 == 0 THEN 증감율_이용건수_신용_분기 = 증감율_이용건수_CA_분기
                        ELSE PASS""",
     },
     {
-        "columns": ["증감율_이용건수_할부_분기", "증감율_이용건수_일시불_분기", "증감율_이용건수_신판_분기"],
+        "columns": ["증감율_이용건수_할부_분기", "증감율_이용건수_일시불_분기"],
         "output": "증감율_이용건수_신판_분기",
         "fname": "cf_08_0034",
-        "type": "formula",
+        "type": "cond_formula",
         "content": """IF 증감율_이용건수_할부_분기 == 0 THEN 증감율_이용건수_신판_분기 = 증감율_이용건수_일시불_분기
                       ELIF 증감율_이용건수_일시불_분기 == 0 THEN 증감율_이용건수_신판_분기 = 증감율_이용건수_할부_분기
                       ELSE PASS""",
     },
     {
-        "columns": ["증감율_이용금액_CA_분기", "증감율_이용금액_신판_분기", "증감율_이용금액_신용_분기"],
+        "columns": ["증감율_이용금액_CA_분기", "증감율_이용금액_신판_분기"],
         "output": "증감율_이용금액_신용_분기",
         "fname": "cf_08_0040",
-        "type": "formula",
+        "type": "cond_formula",
         "content": """IF 증감율_이용금액_CA_분기 == 0 THEN 증감율_이용금액_신용_분기 = 증감율_이용금액_신판_분기
                        ELIF 증감율_이용금액_신판_분기 == 0 THEN 증감율_이용금액_신용_분기 = 증감율_이용금액_CA_분기
                        ELSE PASS""",
     },
     {
-        "columns": ["증감율_이용금액_할부_분기", "증감율_이용금액_일시불_분기", "증감율_이용금액_신판_분기"],
+        "columns": ["증감율_이용금액_할부_분기", "증감율_이용금액_일시불_분기"],
         "output": "증감율_이용금액_신판_분기",
         "fname": "cf_08_0041",
-        "type": "formula",
+        "type": "cond_formula",
         "content": """IF 증감율_이용금액_할부_분기 == 0 THEN 증감율_이용금액_신판_분기 = 증감율_이용금액_일시불_분기
                       ELIF 증감율_이용금액_일시불_분기 == 0 THEN 증감율_이용금액_신판_분기 = 증감율_이용금액_할부_분기
                       ELSE PASS""",
     },
+
     # 3.승인.매출 테이블 컬럼 Constraint
     {
         "columns": ["기준년월", "최종이용일자_할부", "이용후경과월_할부"],
@@ -2033,10 +2043,10 @@ constraints = [
         "content": "이용개월수_일시불_R3M <= 이용개월수_일시불_R6M <= 이용개월수_일시불_R12M <= 12",
     },
     {
-        "columns": ["이용개월수_할부_R3M", "이용개월수_할부_유이자_R6M", "이용개월수_할부_유이자_R12M"],
+        "columns": ["이용개월수_할부_R3M", "이용개월수_할부_R6M", "이용개월수_할부_R12M"],
         "fname": "cc_03_0044",
         "type": "constraint",
-        "content": "이용개월수_할부_R3M <= 이용개월수_할부_유이자_R6M <= 이용개월수_할부_유이자_R12M <= 12",
+        "content": "이용개월수_할부_R3M <= 이용개월수_할부_R6M <= 이용개월수_할부_R12M <= 12",
     },
     {
         "columns": [
@@ -4295,6 +4305,19 @@ def cc_01_0031(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     """
     c1, c2 = df["소지카드수_이용가능_신용"], df["소지카드수_유효_신용"]
     return c1 <= c2
+
+
+@constraint_udf
+def cf_01_0017(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
+    """
+    formula:
+        입회일자_신용 = CONCAT(SUBSTR(입회일자_신용, 1, 6), '01')
+    """
+    dd = df["입회일자_신용"]
+    res = dd.apply(lambda x: f'{x[:6]}01')
+
+    c = df["입회일자_신용"]
+    return c == res
 
 
 @constraint_udf
@@ -7390,9 +7413,9 @@ def cc_03_0043(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
 def cc_03_0044(df: pd.DataFrame) -> Union[pd.Series, List[bool]]:
     """
     Constraint:
-       이용개월수_할부_R3M <= 이용개월수_할부_유이자_R6M <= 이용개월수_할부_유이자_R12M <= 12
+       이용개월수_할부_R3M <= 이용개월수_할부_R6M <= 이용개월수_할부_R12M <= 12
     """
-    c1, c2, c3 = df["이용개월수_할부_R3M"], df["이용개월수_할부_유이자_R6M"], df["이용개월수_할부_유이자_R12M"]
+    c1, c2, c3 = df["이용개월수_할부_R3M"], df["이용개월수_할부_R6M"], df["이용개월수_할부_R12M"]
     return (c1 <= c2) & (c2 <= c3) & (c3 <= 12)
 
 

@@ -40,7 +40,7 @@ def constraint_udf(func):
 
 def isNaN(val):
     # NaN 검증용
-    return val != val
+    return (val is None) or (val != val)
 
 
 seq_constraints = [
